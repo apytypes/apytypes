@@ -739,6 +739,46 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc"
         )
+        .def_static(
+            "_meshgrid",
+            &APyFloatArray::meshgrid,
+            nb::arg("arrays"),
+            nb::arg("indexing") = "xy",
+            R"pbdoc(
+            Create a list of coordinate arrays based on several coordinate vectors (1-D arrays).
+            The input vectors must all have the same bit specifiers.
+
+            .. versionadded:: 0.4
+
+            Parameters
+            ----------
+            arrays : :class:`APyFloatArray`
+                The coordinate vectors (1-D arrays).
+            indexing : {"xy", "ij"}, default: "xy"
+                The indexing mode to use for the meshgrid. "xy" is the standard Cartesian indexing,
+                while "ij" is the matrix indexing.
+
+            Returns
+            -------
+            result : list of :class:`APyFloatArray`
+                List of 2-D arrays representing the meshgrid.
+
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> x = apy.fp(range(3), exp_bits=5, man_bits=10)
+            >>> y = apy.fp(range(4, 7), exp_bits=5, man_bits=10)
+            >>> xx, yy = apy.meshgrid(x, y)
+            >>> xx
+            APyFloatArray([[0, 1, 2],
+                           [0, 1, 2],
+                           [0, 1, 2]], exp_bits=5, man_bits=10)
+            >>> yy
+            APyFloatArray([[4, 4, 4],
+                           [5, 5, 5],
+                           [6, 6, 6]], exp_bits=5, man_bits=10)
+            )pbdoc"
+        )
 
         /*
          * Dunder methods

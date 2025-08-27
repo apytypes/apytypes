@@ -776,6 +776,71 @@ void bind_cfloat_array(nb::module_& m)
                 An array filled with the specified value.
             )pbdoc"
         )
+        .def_static(
+            "_meshgrid",
+            &APyCFloatArray::meshgrid,
+            nb::arg("arrays"),
+            nb::arg("indexing") = "xy",
+            R"pbdoc(
+            Create a list of coordinate arrays based on several coordinate vectors (1-D arrays).
+            The input vectors must all have the same bit specifiers.
+
+            .. versionadded:: 0.4
+
+            Parameters
+            ----------
+            arrays : :class:`APyCFloatArray`
+                The coordinate vectors (1-D arrays).
+            indexing : {"xy", "ij"}, default: "xy"
+                The indexing mode to use for the meshgrid. "xy" is the standard Cartesian indexing,
+                while "ij" is the matrix indexing.
+
+            Returns
+            -------
+            result : list of :class:`APyCFloatArray`
+                List of 2-D arrays representing the meshgrid.
+
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> x = apy.fp(range(3), exp_bits=5, man_bits=10, force_complex=True)
+            >>> y = apy.fp(range(4, 7), exp_bits=5, man_bits=10, force_complex=True)
+            >>> xx, yy = apy.meshgrid(x, y)
+            >>> xx
+            APyCFloatArray(
+                [[ (0, 0),  (0, 0),  (0, 0)],
+                [ (0, 0),  (0, 0),  (0, 0)],
+                [ (0, 0),  (0, 0),  (0, 0)]],
+
+                [[ (0, 0), (15, 0), (16, 0)],
+                [ (0, 0), (15, 0), (16, 0)],
+                [ (0, 0), (15, 0), (16, 0)]],
+
+                [[ (0, 0),  (0, 0),  (0, 0)],
+                [ (0, 0),  (0, 0),  (0, 0)],
+                [ (0, 0),  (0, 0),  (0, 0)]],
+                exp_bits=5,
+                man_bits=10
+            )
+
+            >>> yy
+            APyCFloatArray(
+                [[  (0, 0),   (0, 0),   (0, 0)],
+                [  (0, 0),   (0, 0),   (0, 0)],
+                [  (0, 0),   (0, 0),   (0, 0)]],
+
+                [[ (17, 0),  (17, 0),  (17, 0)],
+                [ (17, 0),  (17, 0),  (17, 0)],
+                [ (17, 0),  (17, 0),  (17, 0)]],
+
+                [[  (0, 0),   (0, 0),   (0, 0)],
+                [(256, 0), (256, 0), (256, 0)],
+                [(512, 0), (512, 0), (512, 0)]],
+                exp_bits=5,
+                man_bits=10
+            )
+            )pbdoc"
+        )
 
         .def("to_numpy", &APyCFloatArray::to_numpy, R"pbdoc(
             Return array as a :class:`numpy.ndarray` of :class:`numpy.complex128`.

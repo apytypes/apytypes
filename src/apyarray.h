@@ -15,7 +15,9 @@
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+#include <nanobind/stl/vector.h>  // nanobind::list
 #include <utility>
 namespace nb = nanobind;
 
@@ -25,6 +27,7 @@ namespace nb = nanobind;
 #include <iterator>    // std::begin
 #include <optional>    // std::optional
 #include <set>         // std::set
+#include <string>      // std::string
 #include <string_view> // std::string_view
 #include <variant>     // std::variant
 
@@ -663,7 +666,8 @@ public:
 
     //! Attempt to reshape `*this` into `new_shape`, resolving any -1 dimension. Returns
     //! the resolved new shape on success.
-    std::vector<std::size_t> try_reshape(const nb::tuple& new_shape) const
+    //! Allows both nb::tuple and std::vector<std::size_t>.
+    template <typename V> std::vector<std::size_t> try_reshape(const V& new_shape) const
     {
         std::vector<std::size_t> new_shape_vec;
         std::size_t index = 0;
@@ -671,7 +675,13 @@ public:
         std::size_t neg_one_count = 0;
         std::ptrdiff_t neg_one_pos = -1;
         for (auto it = new_shape.begin(); it != new_shape.end(); ++it, ++index) {
-            std::ptrdiff_t current_value = nb::cast<std::ptrdiff_t>(*it);
+            std::ptrdiff_t current_value;
+            if constexpr (std::is_same<V, nb::tuple>::value) {
+                current_value = nb::cast<std::ptrdiff_t>(*it);
+            } else {
+                current_value = static_cast<std::ptrdiff_t>(*it);
+            }
+
             if (current_value == -1) {
                 neg_one_count++;
                 neg_one_pos = index;        // store the position of -1
@@ -683,7 +693,12 @@ public:
                 );
                 throw nb::value_error(error_msg.c_str());
             } else {
-                std::size_t c_size_t = nb::cast<std::size_t>(*it);
+                std::size_t c_size_t;
+                if constexpr (std::is_same<V, nb::tuple>::value) {
+                    c_size_t = nb::cast<std::size_t>(*it);
+                } else {
+                    c_size_t = static_cast<std::size_t>(*it);
+                }
                 new_shape_vec.push_back(c_size_t);
                 reshape_size *= c_size_t;
             }
@@ -936,6 +951,78 @@ public:
             diag_value.copy_n_to(dst_it, result._itemsize);
         }
         return result;
+    }
+
+    //! Create a meshgrid from 1-D arrays
+    static std::vector<ARRAY_TYPE>
+    meshgrid(const nb::typed<nb::sequence, nb::any> arrays, const std::string& indexing)
+    {
+        if (indexing != "xy" && indexing != "ij") {
+            std::string msg = fmt::format(
+                "{}.meshgrid: unknown indexing {}", ARRAY_TYPE::ARRAY_NAME, indexing
+            );
+            throw nb::value_error(msg.c_str());
+        }
+        std::vector<ARRAY_TYPE> array_vec;
+        for (const auto& arr : arrays) {
+            array_vec.push_back(nb::cast<ARRAY_TYPE>(arr));
+        }
+
+        // Check that arrays have the same bit specifiers and a 1-D shape
+        for (auto i = 0; i < array_vec.size(); ++i) {
+            if (!array_vec[i].is_same_spec(array_vec[0])) {
+                throw nb::value_error(
+                    "meshgrid: all arrays must have the same bit specifiers"
+                );
+            } else if (array_vec[i].ndim() != 1) {
+                throw nb::value_error("meshgrid: all arrays must be one dimensional");
+            }
+        }
+
+        if (array_vec.size() == 1) {
+            return array_vec;
+        }
+
+        // Reshape the arrays before broadcasting
+        std::vector<std::size_t> s0(array_vec.size(), 1);
+
+        for (std::size_t i = 0; i < array_vec.size(); ++i) {
+            std::vector<std::size_t> shape = s0;
+            shape[i] = array_vec[i]._nitems;
+            const auto new_shape = array_vec[i].try_reshape(shape);
+            array_vec[i]._shape = new_shape;
+        }
+
+        // Adjust for indexing
+        if (array_vec.size() >= 2 && indexing == "xy") {
+            // Prepare the new shapes for output[0] and output[1]
+            std::vector<int> shape0 { 1, -1 }, shape1 { -1, 1 };
+
+            // Append s0[2:] to both shapes
+            for (std::size_t i = 2; i < s0.size(); ++i) {
+                // Safe cast since s0 only contains small positive values
+                shape0.push_back(static_cast<int>(s0[i]));
+                shape1.push_back(static_cast<int>(s0[i]));
+            }
+
+            // Actually reshape using try_reshape to resolve -1
+            array_vec[0]._shape = array_vec[0].try_reshape(shape0);
+            array_vec[1]._shape = array_vec[1].try_reshape(shape1);
+        }
+
+        // Calculate broadcast shape
+        std::vector<std::size_t> broadcast_shape = array_vec[0]._shape;
+        for (std::size_t i = 1; i < array_vec.size(); ++i) {
+            broadcast_shape
+                = smallest_broadcastable_shape(broadcast_shape, array_vec[i]._shape);
+        }
+
+        // Broadcast
+        for (std::size_t i = 0; i < array_vec.size(); ++i) {
+            array_vec[i] = array_vec[i].broadcast_to(broadcast_shape);
+        }
+
+        return array_vec;
     }
 
     /* ****************************************************************************** *

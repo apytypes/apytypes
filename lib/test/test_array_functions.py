@@ -19,6 +19,7 @@ from apytypes import (
     full_like,
     fullrange,
     identity,
+    meshgrid,
     moveaxis,
     ones,
     ones_like,
@@ -371,6 +372,182 @@ def test_identity(n: int, nums: list[int]):
         match="identity: could not determine array type",
     ):
         _ = identity(2, int_bits=4, frac_bits=0, exp_bits=15)
+
+
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
+def test_meshgrid(array_type):
+    # Test raises
+    with pytest.raises(ValueError, match="meshgrid: at least one array is required"):
+        _ = meshgrid()
+
+    with pytest.raises(
+        ValueError, match="meshgrid: input arrays must have a meshgrid method"
+    ):
+        _ = meshgrid([1, 2, 3])
+
+    x = range(4)
+    if array_type in (APyFixedArray, APyCFixedArray):
+        apy_x = array_type.from_float(x, int_bits=5, frac_bits=5)
+    else:
+        apy_x = array_type.from_float(x, exp_bits=5, man_bits=5)
+
+    with pytest.raises(ValueError, match="meshgrid: input arrays must be of same type"):
+        _ = meshgrid(apy_x, [0, 1, 2, 3])
+
+    with pytest.raises(ValueError, match="meshgrid: unknown indexing yx"):
+        _ = meshgrid(apy_x, indexing="yx")
+
+    with pytest.raises(
+        ValueError, match="meshgrid: all arrays must have the same bit specifiers"
+    ):
+        _ = meshgrid(apy_x, apy_x.cast(8, 8))
+
+    with pytest.raises(
+        ValueError, match="meshgrid: all arrays must be one dimensional"
+    ):
+        _ = meshgrid(apy_x.reshape((2, 2)))
+
+    # 1-D case
+    (xx,) = meshgrid(apy_x)
+    assert xx.is_identical(apy_x)
+
+    # Check if arrays are copied
+    xx[0] = xx[1]
+    assert not xx.is_identical(apy_x)
+
+    # 2-D case
+    x = range(4)
+    y = range(3, 7)
+
+    if array_type in (APyFixedArray, APyCFixedArray):
+        apy_x = array_type.from_float(x, int_bits=5, frac_bits=5)
+        apy_y = array_type.from_float(y, int_bits=5, frac_bits=5)
+        xx_ref = array_type.from_float([x] * len(y), int_bits=5, frac_bits=5)
+        yy_ref = array_type.from_float(
+            [[yi] * len(x) for yi in y], int_bits=5, frac_bits=5
+        )
+    else:
+        apy_x = array_type.from_float(x, exp_bits=5, man_bits=5)
+        apy_y = array_type.from_float(y, exp_bits=5, man_bits=5)
+        xx_ref = array_type.from_float([x] * len(y), exp_bits=5, man_bits=5)
+        yy_ref = array_type.from_float(
+            [[yi] * len(x) for yi in y], exp_bits=5, man_bits=5
+        )
+
+    xx, yy = meshgrid(apy_x, apy_y)
+    assert xx.is_identical(xx_ref)
+    assert yy.is_identical(yy_ref)
+
+    # Test N-D
+    if array_type in (APyFixedArray, APyCFixedArray):
+        apy_x = array_type.from_float(range(2), int_bits=5, frac_bits=5)
+        apy_y = array_type.from_float(range(2, 3), int_bits=5, frac_bits=5)
+        apy_z = array_type.from_float(range(3, 6), int_bits=5, frac_bits=5)
+        apy_w = array_type.from_float(range(6, 8), int_bits=5, frac_bits=5)
+    else:
+        apy_x = array_type.from_float(range(2), exp_bits=5, man_bits=5)
+        apy_y = array_type.from_float(range(2, 3), exp_bits=5, man_bits=5)
+        apy_z = array_type.from_float(range(3, 6), exp_bits=5, man_bits=5)
+        apy_w = array_type.from_float(range(6, 8), exp_bits=5, man_bits=5)
+
+    xx, yy, zz, ww = meshgrid(apy_x, apy_y, apy_z, apy_w)
+    # First make sure the shapes are correct
+    assert xx.shape == (1, 2, 3, 2)
+    assert yy.shape == (1, 2, 3, 2)
+    assert zz.shape == (1, 2, 3, 2)
+    assert ww.shape == (1, 2, 3, 2)
+
+    xx_ref = [[[[0, 0], [0, 0], [0, 0]], [[1, 1], [1, 1], [1, 1]]]]
+    yy_ref = [[[[2, 2], [2, 2], [2, 2]], [[2, 2], [2, 2], [2, 2]]]]
+    zz_ref = [[[[3, 3], [4, 4], [5, 5]], [[3, 3], [4, 4], [5, 5]]]]
+    ww_ref = [[[[6, 7], [6, 7], [6, 7]], [[6, 7], [6, 7], [6, 7]]]]
+    if array_type in (APyFixedArray, APyCFixedArray):
+        xx_ref = array_type.from_float(xx_ref, int_bits=5, frac_bits=5)
+        yy_ref = array_type.from_float(yy_ref, int_bits=5, frac_bits=5)
+        zz_ref = array_type.from_float(zz_ref, int_bits=5, frac_bits=5)
+        ww_ref = array_type.from_float(ww_ref, int_bits=5, frac_bits=5)
+    else:
+        xx_ref = array_type.from_float(xx_ref, exp_bits=5, man_bits=5)
+        yy_ref = array_type.from_float(yy_ref, exp_bits=5, man_bits=5)
+        zz_ref = array_type.from_float(zz_ref, exp_bits=5, man_bits=5)
+        ww_ref = array_type.from_float(ww_ref, exp_bits=5, man_bits=5)
+    assert xx.is_identical(xx_ref)
+    assert yy.is_identical(yy_ref)
+    assert zz.is_identical(zz_ref)
+    assert ww.is_identical(ww_ref)
+
+    # 1-D case, ij indexing
+    x = range(3)
+    if array_type in (APyFixedArray, APyCFixedArray):
+        apy_x = array_type.from_float(x, int_bits=5, frac_bits=5)
+    else:
+        apy_x = array_type.from_float(x, exp_bits=5, man_bits=5)
+
+    (xx,) = meshgrid(apy_x, indexing="ij")
+    assert xx.is_identical(apy_x)
+
+    # 2-D case, ij indexing
+    x = range(4)
+    y = range(3, 7)
+
+    if array_type in (APyFixedArray, APyCFixedArray):
+        apy_x = array_type.from_float(x, int_bits=5, frac_bits=5)
+        apy_y = array_type.from_float(y, int_bits=5, frac_bits=5)
+        xx_ref = array_type.from_float(
+            [[xi] * len(y) for xi in x], int_bits=5, frac_bits=5
+        )
+        yy_ref = array_type.from_float([y] * len(x), int_bits=5, frac_bits=5)
+    else:
+        apy_x = array_type.from_float(x, exp_bits=5, man_bits=5)
+        apy_y = array_type.from_float(y, exp_bits=5, man_bits=5)
+        xx_ref = array_type.from_float(
+            [[xi] * len(y) for xi in x], exp_bits=5, man_bits=5
+        )
+        yy_ref = array_type.from_float([y] * len(x), exp_bits=5, man_bits=5)
+
+    xx, yy = meshgrid(apy_x, apy_y, indexing="ij")
+    assert xx.is_identical(xx_ref)
+    assert yy.is_identical(yy_ref)
+
+    # 3-D case, ij indexing
+    if array_type in (APyFixedArray, APyCFixedArray):
+        apy_x = array_type.from_float(range(2), int_bits=5, frac_bits=5)
+        apy_y = array_type.from_float(range(2, 3), int_bits=5, frac_bits=5)
+        apy_z = array_type.from_float(range(3, 6), int_bits=5, frac_bits=5)
+        apy_w = array_type.from_float(range(6, 8), int_bits=5, frac_bits=5)
+    else:
+        apy_x = array_type.from_float(range(2), exp_bits=5, man_bits=5)
+        apy_y = array_type.from_float(range(2, 3), exp_bits=5, man_bits=5)
+        apy_z = array_type.from_float(range(3, 6), exp_bits=5, man_bits=5)
+        apy_w = array_type.from_float(range(6, 8), exp_bits=5, man_bits=5)
+
+    xx, yy, zz, ww = meshgrid(apy_x, apy_y, apy_z, apy_w, indexing="ij")
+    # First make sure the shapes are correct
+    assert xx.shape == (2, 1, 3, 2)
+    assert yy.shape == (2, 1, 3, 2)
+    assert zz.shape == (2, 1, 3, 2)
+    assert ww.shape == (2, 1, 3, 2)
+
+    xx_ref = [[[[0, 0], [0, 0], [0, 0]]], [[[1, 1], [1, 1], [1, 1]]]]
+    yy_ref = [[[[2, 2], [2, 2], [2, 2]]], [[[2, 2], [2, 2], [2, 2]]]]
+    zz_ref = [[[[3, 3], [4, 4], [5, 5]]], [[[3, 3], [4, 4], [5, 5]]]]
+    ww_ref = [[[[6, 7], [6, 7], [6, 7]]], [[[6, 7], [6, 7], [6, 7]]]]
+    if array_type in (APyFixedArray, APyCFixedArray):
+        xx_ref = array_type.from_float(xx_ref, int_bits=5, frac_bits=5)
+        yy_ref = array_type.from_float(yy_ref, int_bits=5, frac_bits=5)
+        zz_ref = array_type.from_float(zz_ref, int_bits=5, frac_bits=5)
+        ww_ref = array_type.from_float(ww_ref, int_bits=5, frac_bits=5)
+    else:
+        xx_ref = array_type.from_float(xx_ref, exp_bits=5, man_bits=5)
+        yy_ref = array_type.from_float(yy_ref, exp_bits=5, man_bits=5)
+        zz_ref = array_type.from_float(zz_ref, exp_bits=5, man_bits=5)
+        ww_ref = array_type.from_float(ww_ref, exp_bits=5, man_bits=5)
+    assert xx.is_identical(xx_ref)
+    assert yy.is_identical(yy_ref)
+    assert zz.is_identical(zz_ref)
+    assert ww.is_identical(ww_ref)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
