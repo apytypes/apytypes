@@ -318,8 +318,7 @@
 <dl class="cpp enum-class">
 <dt class="sig sig-object cpp" id="_CPPv416QuantizationMode">
 <span id="_CPPv316QuantizationMode"></span><span id="_CPPv216QuantizationMode"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">QuantizationMode</span></span></span><a class="headerlink" href="#_CPPv416QuantizationMode" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Quantization modes in APyTypes. </p>
-<p><em>Values:</em></p>
+<dd><p><em>Values:</em></p>
 <dl class="cpp enumerator">
 <dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode3TRNE">
 <span id="_CPPv3N16QuantizationMode3TRNE"></span><span id="_CPPv2N16QuantizationMode3TRNE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64a974e77e3e6fea4fe2d5f199e8f6f521b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TRN</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode3TRNE" title="Link to this definition">¶</a><br /></dt>
@@ -400,8 +399,7 @@
 <dl class="cpp enum-class">
 <dt class="sig sig-object cpp" id="_CPPv412OverflowMode">
 <span id="_CPPv312OverflowMode"></span><span id="_CPPv212OverflowMode"></span><span class="target" id="apytypes__common_8h_1aaed74633f50b02f984f4d6accf312402"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OverflowMode</span></span></span><a class="headerlink" href="#_CPPv412OverflowMode" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Overflowing modes in APyTypes. </p>
-<p><em>Values:</em></p>
+<dd><p><em>Values:</em></p>
 <dl class="cpp enumerator">
 <dt class="sig sig-object cpp" id="_CPPv4N12OverflowMode4WRAPE">
 <span id="_CPPv3N12OverflowMode4WRAPE"></span><span id="_CPPv2N12OverflowMode4WRAPE"></span><span class="target" id="apytypes__common_8h_1aaed74633f50b02f984f4d6accf312402ae1c8555fcf0ea2bb648a6fd527d658c0"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WRAP</span></span></span><a class="headerlink" href="#_CPPv4N12OverflowMode4WRAPE" title="Link to this definition">¶</a><br /></dt>
@@ -423,6 +421,38 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48rnd64_fxv">
+<span id="_CPPv38rnd64_fxv"></span><span id="_CPPv28rnd64_fxv"></span><span id="rnd64_fx"></span><span class="target" id="apytypes__common_8h_1a248972c6fdb99258bd3264a13774ce93"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rnd64_fx</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48rnd64_fxv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>64-bit uniform random number generator for fixed-point stachastic quantization </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48rnd64_fpv">
+<span id="_CPPv38rnd64_fpv"></span><span id="_CPPv28rnd64_fpv"></span><span id="rnd64_fp"></span><span class="target" id="apytypes__common_8h_1ae503b3f51054667c2f6faa9c9f988f22"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rnd64_fp</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48rnd64_fpv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420rst_default_rnd64_fxNSt8uint64_tE">
+<span id="_CPPv320rst_default_rnd64_fxNSt8uint64_tE"></span><span id="_CPPv220rst_default_rnd64_fxNSt8uint64_tE"></span><span id="rst_default_rnd64_fx__std::uint64_t"></span><span class="target" id="apytypes__common_8h_1a5f6576e66528a961544b3d8e6df44713"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rst_default_rnd64_fx</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420rst_default_rnd64_fxNSt8uint64_tE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Reset the default stochastic quantization random number generators. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420rst_default_rnd64_fpNSt8uint64_tE">
+<span id="_CPPv320rst_default_rnd64_fpNSt8uint64_tE"></span><span id="_CPPv220rst_default_rnd64_fpNSt8uint64_tE"></span><span id="rst_default_rnd64_fp__std::uint64_t"></span><span class="target" id="apytypes__common_8h_1af85973d7ec35b477d38c20a04aaf9d0b"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rst_default_rnd64_fp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420rst_default_rnd64_fpNSt8uint64_tE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417get_rnd64_fx_seedv">
+<span id="_CPPv317get_rnd64_fx_seedv"></span><span id="_CPPv217get_rnd64_fx_seedv"></span><span id="get_rnd64_fx_seed"></span><span class="target" id="apytypes__common_8h_1a32f136b755d4ab23000bab8930f8f46a"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_rnd64_fx_seed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417get_rnd64_fx_seedv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417get_rnd64_fp_seedv">
+<span id="_CPPv317get_rnd64_fp_seedv"></span><span id="_CPPv217get_rnd64_fp_seedv"></span><span id="get_rnd64_fp_seed"></span><span class="target" id="apytypes__common_8h_1a7516aa63458fd0567aa9513442943cfd"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_rnd64_fp_seed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417get_rnd64_fp_seedv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv427set_float_quantization_mode16QuantizationMode">
 <span id="_CPPv327set_float_quantization_mode16QuantizationMode"></span><span id="_CPPv227set_float_quantization_mode16QuantizationMode"></span><span id="set_float_quantization_mode__QuantizationMode"></span><span class="target" id="apytypes__common_8h_1afa8e49911cc1a0535c113ceb2f71323c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_float_quantization_mode</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427set_float_quantization_mode16QuantizationMode" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Set the global quantization mode for <a class="reference internal" href="apyfloat.html#classAPyFloat"><span class="std std-ref">APyFloat</span></a>. </p>
@@ -432,24 +462,6 @@
 <dt class="sig sig-object cpp" id="_CPPv427get_float_quantization_modev">
 <span id="_CPPv327get_float_quantization_modev"></span><span id="_CPPv227get_float_quantization_modev"></span><span id="get_float_quantization_mode"></span><span class="target" id="apytypes__common_8h_1acc95e129afc9c8e1dc7c8693b69629cc"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_float_quantization_mode</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427get_float_quantization_modev" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Return the global quantization mode for <a class="reference internal" href="apyfloat.html#classAPyFloat"><span class="std std-ref">APyFloat</span></a>. </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv427set_float_quantization_seedNSt8uint64_tE">
-<span id="_CPPv327set_float_quantization_seedNSt8uint64_tE"></span><span id="_CPPv227set_float_quantization_seedNSt8uint64_tE"></span><span id="set_float_quantization_seed__std::uint64_t"></span><span class="target" id="apytypes__common_8h_1a3f1d373d6c1104845e831de91bc492da"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_float_quantization_seed</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427set_float_quantization_seedNSt8uint64_tE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Set the global seed for stochastic quantization for <a class="reference internal" href="apyfloat.html#classAPyFloat"><span class="std std-ref">APyFloat</span></a>. </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv427get_float_quantization_seedv">
-<span id="_CPPv327get_float_quantization_seedv"></span><span id="_CPPv227get_float_quantization_seedv"></span><span id="get_float_quantization_seed"></span><span class="target" id="apytypes__common_8h_1a0b125f10c1d5d5411c40811e03f5e847"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_float_quantization_seed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427get_float_quantization_seedv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Get the global seed for stochastic quantization for <a class="reference internal" href="apyfloat.html#classAPyFloat"><span class="std std-ref">APyFloat</span></a>. </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv419random_number_floatv">
-<span id="_CPPv319random_number_floatv"></span><span id="_CPPv219random_number_floatv"></span><span id="random_number_float"></span><span class="target" id="apytypes__common_8h_1af915d72d5fb8092fb1347c25fd3c773b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">random_number_float</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419random_number_floatv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Return a random 64-bit number from the random number engine used for <a class="reference internal" href="apyfloat.html#classAPyFloat"><span class="std std-ref">APyFloat</span></a>. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -474,7 +486,10 @@
 <dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv414ContextManager">
 <span id="_CPPv314ContextManager"></span><span id="_CPPv214ContextManager"></span><span id="ContextManager"></span><span class="target" id="classContextManager"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ContextManager</span></span></span><a class="headerlink" href="#_CPPv414ContextManager" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Subclassed by <a class="reference internal" href="#classAPyFixedAccumulatorContext"><span class="std std-ref">APyFixedAccumulatorContext</span></a>, <a class="reference internal" href="#classAPyFixedCastContext"><span class="std std-ref">APyFixedCastContext</span></a>, <a class="reference internal" href="#classAPyFloatAccumulatorContext"><span class="std std-ref">APyFloatAccumulatorContext</span></a>, <a class="reference internal" href="#classAPyFloatQuantizationContext"><span class="std std-ref">APyFloatQuantizationContext</span></a></p>
+<dd><div class="docutils container">
+<em>#include &lt;apytypes_common.h&gt;</em></div>
+<p>Base class defining the interface for context managers. </p>
+<p>Subclassed by <a class="reference internal" href="#classAPyFixedAccumulatorContext"><span class="std std-ref">APyFixedAccumulatorContext</span></a>, <a class="reference internal" href="#classAPyFixedCastContext"><span class="std std-ref">APyFixedCastContext</span></a>, <a class="reference internal" href="#classAPyFloatAccumulatorContext"><span class="std std-ref">APyFloatAccumulatorContext</span></a>, <a class="reference internal" href="#classAPyFloatQuantizationContext"><span class="std std-ref">APyFloatQuantizationContext</span></a></p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
@@ -502,7 +517,7 @@
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext27APyFloatQuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE">
-<span id="_CPPv3N27APyFloatQuantizationContext27APyFloatQuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE"></span><span id="_CPPv2N27APyFloatQuantizationContext27APyFloatQuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE"></span><span id="APyFloatQuantizationContext::APyFloatQuantizationContext__QuantizationModeCR.std::optional:std::uint64_t:"></span><span class="target" id="classAPyFloatQuantizationContext_1ac249b723a82c326b3c8830a6830874b7"></span><span class="sig-name descname"><span class="n"><span class="pre">APyFloatQuantizationContext</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">new_mode</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">new_seed</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext27APyFloatQuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE" title="Link to this definition">¶</a><br /></dt>
+<span id="_CPPv3N27APyFloatQuantizationContext27APyFloatQuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE"></span><span id="_CPPv2N27APyFloatQuantizationContext27APyFloatQuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE"></span><span id="APyFloatQuantizationContext::APyFloatQuantizationContext__QuantizationModeCR.std::optional:std::uint64_t:"></span><span class="target" id="classAPyFloatQuantizationContext_1a2f9fe30641cb2a355e5f8f714a595f47"></span><span class="sig-name descname"><span class="n"><span class="pre">APyFloatQuantizationContext</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">new_mode</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext27APyFloatQuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
@@ -519,13 +534,18 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
 <dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext9prev_modeE">
+<span id="_CPPv3N27APyFloatQuantizationContext9prev_modeE"></span><span id="_CPPv2N27APyFloatQuantizationContext9prev_modeE"></span><span id="APyFloatQuantizationContext::prev_mode__QuantizationMode"></span><span class="target" id="classAPyFloatQuantizationContext_1a54bbcf2f333556a412af1d2ed54a1966"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">prev_mode</span></span></span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext9prev_modeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext8new_modeE">
 <span id="_CPPv3N27APyFloatQuantizationContext8new_modeE"></span><span id="_CPPv2N27APyFloatQuantizationContext8new_modeE"></span><span id="APyFloatQuantizationContext::new_mode__QuantizationMode"></span><span class="target" id="classAPyFloatQuantizationContext_1a690cbd10d429573f15603fa9e8e21e5f"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">new_mode</span></span></span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext8new_modeE" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext9prev_modeE">
-<span id="_CPPv3N27APyFloatQuantizationContext9prev_modeE"></span><span id="_CPPv2N27APyFloatQuantizationContext9prev_modeE"></span><span id="APyFloatQuantizationContext::prev_mode__QuantizationMode"></span><span class="target" id="classAPyFloatQuantizationContext_1a54bbcf2f333556a412af1d2ed54a1966"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">prev_mode</span></span></span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext9prev_modeE" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext9prev_seedE">
+<span id="_CPPv3N27APyFloatQuantizationContext9prev_seedE"></span><span id="_CPPv2N27APyFloatQuantizationContext9prev_seedE"></span><span id="APyFloatQuantizationContext::prev_seed__std::uint64_t"></span><span class="target" id="classAPyFloatQuantizationContext_1af2f0bd182b8d87c728cf9d9f8c38a818"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">prev_seed</span></span></span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext9prev_seedE" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp var">
@@ -534,8 +554,18 @@
 <dd></dd></dl>
 
 <dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext9prev_seedE">
-<span id="_CPPv3N27APyFloatQuantizationContext9prev_seedE"></span><span id="_CPPv2N27APyFloatQuantizationContext9prev_seedE"></span><span id="APyFloatQuantizationContext::prev_seed__std::uint64_t"></span><span class="target" id="classAPyFloatQuantizationContext_1af2f0bd182b8d87c728cf9d9f8c38a818"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">prev_seed</span></span></span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext9prev_seedE" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext11prev_engineE">
+<span id="_CPPv3N27APyFloatQuantizationContext11prev_engineE"></span><span id="_CPPv2N27APyFloatQuantizationContext11prev_engineE"></span><span class="target" id="classAPyFloatQuantizationContext_1aaba14d7e30a8f9541b9e3cf0e3fb2f7f"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">prev_engine</span></span></span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext11prev_engineE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext14default_engineE">
+<span id="_CPPv3N27APyFloatQuantizationContext14default_engineE"></span><span id="_CPPv2N27APyFloatQuantizationContext14default_engineE"></span><span id="APyFloatQuantizationContext::default_engine__std::mt19937_64"></span><span class="target" id="classAPyFloatQuantizationContext_1ad79a8a72d4a1b74a4eeb836d6622ed5b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">mt19937_64</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">default_engine</span></span></span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext14default_engineE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27APyFloatQuantizationContext10new_engineE">
+<span id="_CPPv3N27APyFloatQuantizationContext10new_engineE"></span><span id="_CPPv2N27APyFloatQuantizationContext10new_engineE"></span><span class="target" id="classAPyFloatQuantizationContext_1adae8556760427dbaff9d59ab6cbf2be1"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">new_engine</span></span></span><a class="headerlink" href="#_CPPv4N27APyFloatQuantizationContext10new_engineE" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 </div>
@@ -828,11 +858,14 @@
 <li><a class="reference internal" href="#_CPPv4N12OverflowMode11NUMERIC_STDE"><code class="docutils literal notranslate"><span class="pre">NUMERIC_STD</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#_CPPv48rnd64_fxv"><code class="docutils literal notranslate"><span class="pre">rnd64_fx()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv48rnd64_fpv"><code class="docutils literal notranslate"><span class="pre">rnd64_fp()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv420rst_default_rnd64_fxNSt8uint64_tE"><code class="docutils literal notranslate"><span class="pre">rst_default_rnd64_fx()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv420rst_default_rnd64_fpNSt8uint64_tE"><code class="docutils literal notranslate"><span class="pre">rst_default_rnd64_fp()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv417get_rnd64_fx_seedv"><code class="docutils literal notranslate"><span class="pre">get_rnd64_fx_seed()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv417get_rnd64_fp_seedv"><code class="docutils literal notranslate"><span class="pre">get_rnd64_fp_seed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv427set_float_quantization_mode16QuantizationMode"><code class="docutils literal notranslate"><span class="pre">set_float_quantization_mode()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv427get_float_quantization_modev"><code class="docutils literal notranslate"><span class="pre">get_float_quantization_mode()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv427set_float_quantization_seedNSt8uint64_tE"><code class="docutils literal notranslate"><span class="pre">set_float_quantization_seed()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv427get_float_quantization_seedv"><code class="docutils literal notranslate"><span class="pre">get_float_quantization_seed()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv419random_number_floatv"><code class="docutils literal notranslate"><span class="pre">random_number_float()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv419get_fixed_cast_modev"><code class="docutils literal notranslate"><span class="pre">get_fixed_cast_mode()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv426get_accumulator_mode_fixedv"><code class="docutils literal notranslate"><span class="pre">get_accumulator_mode_fixed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv426get_accumulator_mode_floatv"><code class="docutils literal notranslate"><span class="pre">get_accumulator_mode_float()</span></code></a></li>
@@ -846,10 +879,13 @@
 <li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext27APyFloatQuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE"><code class="docutils literal notranslate"><span class="pre">APyFloatQuantizationContext()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext13enter_contextEv"><code class="docutils literal notranslate"><span class="pre">enter_context()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext12exit_contextEv"><code class="docutils literal notranslate"><span class="pre">exit_context()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext8new_modeE"><code class="docutils literal notranslate"><span class="pre">new_mode</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext9prev_modeE"><code class="docutils literal notranslate"><span class="pre">prev_mode</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext8new_seedE"><code class="docutils literal notranslate"><span class="pre">new_seed</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext8new_modeE"><code class="docutils literal notranslate"><span class="pre">new_mode</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext9prev_seedE"><code class="docutils literal notranslate"><span class="pre">prev_seed</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext8new_seedE"><code class="docutils literal notranslate"><span class="pre">new_seed</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext11prev_engineE"><code class="docutils literal notranslate"><span class="pre">prev_engine</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext14default_engineE"><code class="docutils literal notranslate"><span class="pre">default_engine</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27APyFloatQuantizationContext10new_engineE"><code class="docutils literal notranslate"><span class="pre">new_engine</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#_CPPv418APyFixedCastOption"><code class="docutils literal notranslate"><span class="pre">APyFixedCastOption</span></code></a><ul>

@@ -457,9 +457,10 @@ format is calculated as the “average” of the inputs’ biases:</p>
 <div class="math notranslate nohighlight">
 \[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,\]</div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(\texttt{exp_bits}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_2\)</span> are the bit widths of the operands, <span class="math notranslate nohighlight">\(\texttt{bias}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{bias}_2\)</span> are the
-input biases, and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_3\)</span> is the target bit width.
-Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.</p>
+<p>where <span class="math notranslate nohighlight">\(\texttt{exp_bits}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_2\)</span> are the bit widths of
+the operands, <span class="math notranslate nohighlight">\(\texttt{bias}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{bias}_2\)</span> are the input biases,
+and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_3\)</span> is the target bit width. Note that this formula still
+results in an IEEE-like bias when the inputs use IEEE-like biases.</p>
 <section id="constructor">
 <h2>Constructor<a class="headerlink" href="#constructor" title="Link to this heading">¶</a></h2>
 <dl class="py method">
