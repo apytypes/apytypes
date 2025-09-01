@@ -1,4 +1,6 @@
+import csv
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Literal, overload
 
 from apytypes._apytypes import (
@@ -2165,6 +2167,126 @@ def fullrange(
         )
     else:
         raise ValueError("Could not determine array type")
+
+
+def import_csv(
+    fname: str,
+    delimiter: str = ",",
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool = False,
+) -> APyArray:
+    """
+    Create an array from a CSV file containing bit values.
+
+    1-D and 2-D arrays are directly supported. For higher dimensional arrays, the data must be reshaped manually after importing.
+
+    Note that the index ordering may differ between APyTypes and other programs.
+    In those cases, transposing or reshaping the array can be desired after importing.
+
+    Parameters
+    ----------
+    fname : :class:`str`
+        Path to the CSV file containing bit values.
+    delimiter : :class:`str`, optional
+        Character used in the CSV file to separate bit values. Default is `,`.
+    int_bits : :class:`int`, optional
+        Number of fixed-point integer bits.
+    frac_bits : :class:`int`, optional
+        Number of fixed-point fractional bits.
+    bits : :class:`int`, optional
+        Number of fixed-point bits.
+    exp_bits : :class:`int`, optional
+        Number of floating-point exponential bits.
+    man_bits : :class:`int`, optional
+        Number of floating-point mantissa bits.
+    bias : :class:`int`, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+    force_complex : :class:`bool`, optional
+        If True, forces the array to be treated as complex.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array created from the bit values in the CSV file.
+    """
+
+    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
+
+    if not a_type:
+        raise ValueError("Could not determine array type from bit-specifiers")
+
+    if force_complex:
+        raise ValueError("Complex data types are not supported yet")
+
+    with Path.open(fname, "r", newline="") as f:
+        reader = csv.reader(f, delimiter=delimiter)
+        bit_values = []
+        for row in reader:
+            bit_values_row = [int(bit_value) for bit_value in row]
+            bit_values.append(bit_values_row)
+
+    # Check if 1D or 2D array
+    if len(bit_values) == 1:
+        bit_values = bit_values[0]
+
+    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
+        return APyFixedArray(
+            bit_values, bits=bits, int_bits=int_bits, frac_bits=frac_bits
+        )
+
+    return APyFloatArray.from_bits(
+        bit_values, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+    )
+
+
+def export_csv(
+    a: APyArray, fname: str, delimiter: str = ",", vunit: bool = False
+) -> APyArray:
+    """
+    Store the bit values of an array to a CSV file.
+
+    The function supports multi-dimensional arrays:
+    - For 1-D arrays, all elements are written on a single line.
+    - For 2-D arrays, each row of the array is written on a separate line.
+    - For higher-dimensional arrays, the first dimension is iterated over,
+    and all subsequent dimensions are flattened into a single row before writing.
+
+    Note that the index ordering may differ between APyTypes and other programs.
+    In those cases, transposing or reshaping the array can be desired before exporting.
+
+    Parameters
+    ----------
+    a : :class:`APyFixedArray` or :class:`APyFloatArray`
+        The array to store the bit values of.
+    fname : :class:`str`
+        Path to the CSV file to store bit values.
+    delimiter : :class:`str`, optional
+        Character used in the CSV file to separate bit values. Default is `,`.
+    vunit : :class:`bool`, optional
+        If True, negative fixed-point values are represented using the minus sign.
+
+    """
+
+    if type(a) in (APyCFixedArray, APyCFloatArray):
+        raise ValueError("Complex data types are not supported yet")
+
+    to_bits_fn = "_to_signed_bits" if type(a) is APyFixedArray and vunit else "to_bits"
+
+    with Path.open(fname, "w", newline="") as f:
+        writer = csv.writer(f, delimiter=delimiter)
+        if a.ndim == 1:
+            writer.writerow(getattr(a, to_bits_fn)())
+        elif a.ndim == 2:
+            for row in a:
+                writer.writerow(getattr(row, to_bits_fn)())
+        elif a.ndim == 3:
+            for depth in a:
+                writer.writerow(getattr(depth.flatten(), to_bits_fn)())
 
 
 # =============================================================================

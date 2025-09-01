@@ -234,6 +234,17 @@ void bind_fixed_array(nb::module_& m)
             :class:`list` or :class:`numpy.ndarray`
             )pbdoc"
         )
+        .def(
+            "_to_signed_bits",
+            &APyFixedArray::to_signed_bits,
+            R"pbdoc(
+            Return the underlying bit representations as signed integers.
+
+            Returns
+            -------
+            :class:`list`
+            )pbdoc"
+        )
 
         .def("reshape", &APyFixedArray::python_reshape, nb::arg("new_shape"), R"pbdoc(
             Reshape the APyFixedArray to the specified shape without changing its data.

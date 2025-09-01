@@ -24,6 +24,10 @@ Array creation functions
 
 .. autofunction:: apytypes.fullrange
 
+.. autofunction:: apytypes.import_csv
+
+.. autofunction:: apytypes.export_csv
+
 
 Array modification functions
 ----------------------------

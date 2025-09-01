@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Specialized overload typing signatures for array functions and utility
   functions.
 - Array creation method: `fullrange`.
+- CSV import/export of arrays: `import_csv` and `export_csv`.
 
 ### Fixed
 

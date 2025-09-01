@@ -243,7 +243,6 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
  * Convert a limb vector (`std::vector<apy_limb_t>`) to a Python long integer object
  * wrapped in a `nanobind::int_`.
  */
-// TODO: drop vec_is_signed as always false?
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE nanobind::int_ python_limb_vec_to_long(
     RANDOM_ACCESS_ITERATOR begin,
