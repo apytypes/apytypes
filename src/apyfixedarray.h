@@ -233,8 +233,13 @@ public:
 
     //! Create a nested Python list containing bit-patterns as Python integers.
     nb::list to_bits_python_recursive_descent(
-        std::size_t dim, APyBuffer<apy_limb_t>::vector_type::const_iterator& it
+        std::size_t dim,
+        APyBuffer<apy_limb_t>::vector_type::const_iterator& it,
+        bool vec_is_signed = false
     ) const;
+
+    //! Extract bit-pattern as signed Python integers
+    nb::list to_signed_bits() const;
 
     //! Convert to a NumPy array
     nb::ndarray<nb::numpy, double> to_numpy() const;

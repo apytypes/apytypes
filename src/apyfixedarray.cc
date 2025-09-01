@@ -1184,7 +1184,9 @@ APyFixedArray::to_bits(bool numpy) const
 }
 
 nb::list APyFixedArray::to_bits_python_recursive_descent(
-    std::size_t dim, APyBuffer<apy_limb_t>::vector_type::const_iterator& it
+    std::size_t dim,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator& it,
+    bool vec_is_signed
 ) const
 {
     nb::list result;
@@ -1194,7 +1196,7 @@ nb::list APyFixedArray::to_bits_python_recursive_descent(
             result.append(python_limb_vec_to_long(
                 it,                         // start
                 it + _itemsize,             // stop
-                false,                      // vec_is_signed
+                vec_is_signed,              // vec_is_signed
                 bits() % APY_LIMB_SIZE_BITS // bits_last_limb
             ));
             it += _itemsize;
@@ -1234,6 +1236,12 @@ nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyFixedArray::to_bits_ndarray() const
     nb::capsule owner(result_data, [](void* p) noexcept { delete[] (INT_TYPE*)p; });
 
     return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(result_data, _ndim, &_shape[0], owner);
+}
+
+nb::list APyFixedArray::to_signed_bits() const
+{
+    auto it = std::cbegin(_data);
+    return to_bits_python_recursive_descent(0, it, true);
 }
 
 nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const

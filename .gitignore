@@ -27,3 +27,5 @@ comparison/*.png
 subprojects/*/
 benchmark/benchmark.png
 **/berkeley_tests/
+
+**/vunit_out/*
