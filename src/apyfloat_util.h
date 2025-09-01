@@ -766,15 +766,17 @@ to_bits_uint64(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_bi
 [[maybe_unused]] static APY_INLINE nb::int_
 apyfloat_to_bits(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_bits)
 {
+    std::uint64_t higher = 0;
     std::uint64_t lower = d.man;
     const int exp_man_bits = exp_bits + man_bits;
-    lower |= (std::uint64_t)d.exp << man_bits;
-    lower |= (std::uint64_t)d.sign << exp_man_bits;
 
-    std::uint64_t higher = (std::uint64_t)d.exp >> (64 - man_bits);
-    const int high_sign_delta = 64 - exp_man_bits;
-    if (high_sign_delta < 0) {
-        higher |= d.sign << -high_sign_delta;
+    lower |= (std::uint64_t)d.exp << man_bits;
+
+    if (exp_man_bits < 64) {
+        lower |= (std::uint64_t)d.sign << exp_man_bits;
+    } else {
+        higher |= d.exp >> (64 - man_bits);
+        higher |= (std::uint64_t)d.sign << (exp_man_bits - 64);
     }
 
     auto limb_list = { UINT64_TO_LIMB(lower), UINT64_TO_LIMB(higher) };

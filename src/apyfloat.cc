@@ -381,23 +381,33 @@ APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
 {
     auto data_vec = python_long_to_limb_vec(python_long_int_bit_pattern);
     std::uint64_t low = limb_vector_to_uint64(data_vec, 0);
-
+    const int exp_man_bits = man_bits + exp_bits;
     man = low & man_mask();
 
     low >>= man_bits;
-    exp = low & exp_mask();
-    low >>= exp_bits;
-    sign = low & 1;
-
-    const int exp_man_bits = man_bits + exp_bits;
-    if (data_vec.size() > 1) {
-        auto high = data_vec[1];
+    if (exp_man_bits < 64) {
+        exp = low & exp_mask();
+        sign = (low >> exp_bits) & 1;
+    } else {       // Two 64-bit numbers needed (potentially)
+        exp = low; // Sign will not be present here
+        const int exp_bits_done = 64 - man_bits;
         const int bits_left = exp_man_bits - 64;
-        exp |= (high & (exp_mask() >> (exp_bits - bits_left)))
-            << (exp_bits - bits_left);
-        high >>= bits_left;
-        sign |= high & 1;
+
+        std::uint64_t high = 0;
+        if constexpr (APY_LIMB_SIZE_BITS == 64) {
+            if (data_vec.size() > 1) {
+                high = limb_vector_to_uint64(data_vec, 1);
+            }
+        } else { // APY_LIMB_SIZE_BITS == 32
+            if (data_vec.size() > 2) {
+                high = limb_vector_to_uint64(data_vec, 2);
+            }
+        }
+
+        exp |= (high << exp_bits_done) & exp_mask();
+        sign = (high >> bits_left) & 1;
     }
+
     return *this;
 }
 

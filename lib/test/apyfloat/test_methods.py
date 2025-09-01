@@ -219,6 +219,21 @@ def test_long_python_integer():
     assert a.is_identical(APyFloat(1, 117440512, 1099511627775, 27, 40))
     assert a.to_bits() == val
 
+    val = 1  # +0, read small Python integer with large format
+    a = APyFloat.from_bits(val, 21, 50)
+    assert a.is_identical(APyFloat(0, 0, 1, 21, 50))
+    assert a.to_bits() == val
+
+    val = 1 << 71  # -0
+    a = APyFloat.from_bits(val, 21, 50)
+    assert a.is_identical(APyFloat(1, 0, 0, 21, 50))
+    assert a.to_bits() == val
+
+    val = 0xFFFFFC000000000081  # -nan
+    a = APyFloat.from_bits(val, 21, 50)
+    assert a.is_identical(APyFloat(1, 2097151, 129, 21, 50))
+    assert a.to_bits() == val
+
 
 @pytest.mark.parametrize(
     ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
