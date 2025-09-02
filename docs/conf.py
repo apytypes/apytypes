@@ -72,6 +72,7 @@ intersphinx_mapping = {
     "nanobind": ("https://nanobind.readthedocs.io/en/latest/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "cocotb": ("https://docs.cocotb.org/en/stable/", None),
+    "vunit": ("https://vunit.github.io/", None),
 }
 
 suppress_warnings = ["autosectionlabel.*"]

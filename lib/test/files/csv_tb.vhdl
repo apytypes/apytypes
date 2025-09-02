@@ -10,78 +10,77 @@ context vunit_lib.vunit_context;
 entity tb_csv is
 	generic (
 		runner_cfg : string := "";
-        tb_path : string := ""
+        tb_path : string := "";
+		csv_file : string := ""
 		);
 end entity;
 
 architecture tb of tb_csv is
 
-	constant csv_path_2d : string := "apyfixed_bits_2d.csv";
-	constant csv_path_3d : string := "apyfixed_bits_3d.csv";
+	constant arr_length_1d : natural := 8;
 
-	constant arr_width_2d : natural := 4;
-	constant arr_height_2d : natural := 6;
+	-- Transposed to make the indexing the same
+	constant arr_T_width_2d : natural := 6;
+	constant arr_T_height_2d : natural := 4;
 
-	constant arr_width_3d : natural := 4;
-	constant arr_height_3d : natural := 3;
-	constant arr_depth_3d : natural := 2;
+	-- Transposed to make the indexing the same
+	constant arr_T_width_3d : natural := 2;
+	constant arr_T_height_3d : natural := 3;
+	constant arr_T_depth_3d : natural := 4;
 
-	signal val : signed(3 downto 0) := (others => '0');
 begin
 	main : process
-		variable arr: integer_array_t := new_1d(
-			length    => 25,
-			bit_width => 4,
-			is_signed => true
-		);
 		variable csv_arr: integer_array_t;
 	begin
 		test_runner_setup(runner, runner_cfg);
 
-		-- Initialize expected array
-		for idx in 0 to length(arr) - 1 loop
-			set(arr, idx, to_integer(val));
-			val <= val + 1;
-			wait for 1 ns;
-		end loop;
+		csv_arr := load_csv(csv_file);
 
-		-- Test 2D case
-		reshape(arr, width => arr_width_2d, height => arr_height_2d);
-		csv_arr := load_csv(tb_path & csv_path_2d);
+		if run("Case 1D") then
+			-- Dimension check.
+			check_equal(length(csv_arr),  integer(arr_length_1d),  "Unexpected array length");
 
-		-- Dimension checks
-		check_equal(width(csv_arr),  integer(arr_width_2d),  "Unexpected array width");
-		check_equal(height(csv_arr), integer(arr_height_2d),  "Unexpected array height");
+			-- Check index order. Also test negative values.
+			check_equal(get(csv_arr, 0), 0, "Unexpected value at (0)");
+			check_equal(get(csv_arr, 1), 1, "Unexpected value at (1)");
+			check_equal(get(csv_arr, 4), -4, "Unexpected value at (4)");
+			check_equal(get(csv_arr, 7), -1, "Unexpected value at (7)");
 
-		-- Check elements
-		for y in 0 to height(csv_arr)-1 loop
-			for x in 0 to width(csv_arr)-1 loop
-				check_equal(
-					get(csv_arr, x, y), get(arr, x, y),
-					"Mismatch at x=" & to_string(x) & ", y=" & to_string(y)
-				);
-			end loop;
-		end loop;
+		end if;
 
-		-- Test 3D case
-		reshape(arr, width => arr_width_3d, height => arr_height_3d, depth => arr_depth_3d);
+		if run("Case 2D") then
+			-- Dimension checks. This is now transposed.
+			check_equal(width(csv_arr),  integer(arr_T_width_2d),  "Unexpected array width");
+			check_equal(height(csv_arr), integer(arr_T_height_2d),  "Unexpected array height");
 
-		csv_arr := load_csv(tb_path & csv_path_3d);
-		check_equal(width(csv_arr),  integer(arr_width_3d*arr_height_3d),  "Unexpected array width upon loading CSV");
-		check_equal(height(csv_arr), integer(arr_depth_3d),  "Unexpected array height upon loading CSV");
-		reshape(csv_arr, width => arr_width_3d, height => arr_height_3d, depth => arr_depth_3d);
+			-- Check index order. Should match the APyTypes test case.
+			check_equal(get(csv_arr, 0, 1), 1, "Unexpected value at (0,1)");
+			check_equal(get(csv_arr, 1, 0), 4, "Unexpected value at (1,0)");
+			check_equal(get(csv_arr, 1, 1), 5, "Unexpected value at (1,1)");
+			check_equal(get(csv_arr, 5, 3), 23, "Unexpected value at (5,3)");
 
-		-- Check elements
-		for y in 0 to height(csv_arr)-1 loop
-			for x in 0 to width(csv_arr)-1 loop
-				for z in 0 to depth(csv_arr)-1 loop
-					check_equal(
-						get(csv_arr, x, y, z), get(arr, x, y, z),
-						"Mismatch at x=" & to_string(x) & ", y=" & to_string(y) & ", z=" & to_string(z)
-					);
-				end loop;
-			end loop;
-		end loop;
+		end if;
+
+		if run("Case 3D") then
+			-- Dimension checks. The matrix has been transposed and reshaped into a 2D array for storage.
+			check_equal(width(csv_arr),  integer(arr_T_depth_3d * arr_T_width_3d),  "Unexpected array width");
+			check_equal(height(csv_arr), integer(arr_T_height_3d),  "Unexpected array height");
+
+			reshape(csv_arr, width => arr_T_width_3d, height => arr_T_height_3d, depth => arr_T_depth_3d);
+
+			-- Check index order. Should match the APyTypes test case.
+			check_equal(get(csv_arr, 0, 0, 1), 1, "Unexpected value at (0,0,1)");
+			check_equal(get(csv_arr, 0, 1, 0), 4, "Unexpected value at (0,1,0)");
+			check_equal(get(csv_arr, 0, 1, 1), 5, "Unexpected value at (0,1,1)");
+			check_equal(get(csv_arr, 1, 0, 0), 12, "Unexpected value at (1,0,0)");
+			check_equal(get(csv_arr, 1, 0, 1), 13, "Unexpected value at (1,0,1)");
+			check_equal(get(csv_arr, 1, 1, 0), 16, "Unexpected value at (1,1,0)");
+			check_equal(get(csv_arr, 1, 1, 1), 17, "Unexpected value at (1,1,1)");
+			check_equal(get(csv_arr, 1, 2, 3), 23, "Unexpected value at (1,2,3)");
+
+			save_csv(csv_arr, tb_path  & "new_apyfixed_bits_3d.csv");
+
+		end if;
 
 		-- Cleanup
 		test_runner_cleanup(runner);

@@ -117,7 +117,7 @@ def fx(
     Returns
     -------
     :class:`APyFixed`, :class:`APyFixedArray`, :class:`APyCFixed`, or
-    :class:`APyCFixedArray
+    :class:`APyCFixedArray`
 
     """
     if isinstance(value, Iterable):
