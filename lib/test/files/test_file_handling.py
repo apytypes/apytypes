@@ -7,8 +7,8 @@ import pytest
 
 from apytypes import (
     APyCFixedArray,
+    APyFixed,
     APyFixedArray,
-    APyFloat,
     APyFloatArray,
     export_csv,
     import_csv,
@@ -26,6 +26,7 @@ def test_import_csv():
         import_csv(
             curr_dir / "apyfixed_bits_1d.csv", int_bits=4, frac_bits=0, exp_bits=5
         )
+
     with pytest.raises(
         ValueError,
         match="Complex data types are not supported yet",
@@ -35,6 +36,28 @@ def test_import_csv():
             int_bits=4,
             frac_bits=0,
             force_complex=True,
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="Unknown layout",
+    ):
+        import_csv(
+            curr_dir / "apyfixed_bits_1d.csv",
+            int_bits=4,
+            frac_bits=0,
+            layout="abc123",
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="vunit_3d_shape provided",
+    ):
+        import_csv(
+            curr_dir / "apyfixed_bits_2d.csv",
+            int_bits=4,
+            frac_bits=0,
+            vunit_3d_shape=(1, 2, 3),
         )
 
     # Handling of CSV files are not tested since Python's csv module is used,
@@ -111,13 +134,6 @@ def test_import_csv():
         )
     )
 
-    arr = import_csv(curr_dir / "apyfixed_bits_3d.csv", bits=4, frac_bits=1)
-    assert arr.shape == (2, 4 * 3)
-    arr = arr.reshape((2, 3, 4))
-    assert arr.is_identical(
-        APyFixedArray(range(2 * 3 * 4), bits=4, frac_bits=1).reshape((2, 3, 4))
-    )
-
 
 def test_export_csv(tmp_path):
     """Test exporting to CSV files, should match the existing files."""
@@ -128,18 +144,10 @@ def test_export_csv(tmp_path):
         with Path.open(file1, newline="") as f, Path.open(file2, newline="") as g:
             flines = [line.replace(" ", "").rstrip() for line in f]
             glines = [line.replace(" ", "").rstrip() for line in g]
-            # Potential empty last lines are fine and should not be checked
-            # if flines[-1] == "":
-            #     flines.pop()
-            # if glines[-1] == "":
-            #     glines.pop()
-            print(f"after pop ({file2})")
-            print(flines)
-            print(glines)
             assert "".join(difflib.context_diff(flines, glines, n=0)) == ""
 
-    def test_export(arr, ref_file, vunit=True):
-        export_csv(arr, tmp_path / ref_file, vunit=vunit)
+    def test_export(arr, ref_file, layout="default"):
+        export_csv(arr, tmp_path / ref_file, layout=layout)
         compare_files(tmp_path / ref_file, curr_dir / ref_file)
 
     # Test raises
@@ -149,20 +157,37 @@ def test_export_csv(tmp_path):
     ):
         export_csv(APyCFixedArray([0, 1, 2, 3], 4, 3), tmp_path / "test.csv")
 
-    arr = APyFixedArray(
-        [
-            # Large bit patterns, VUnit-like
-            0,
-            1,
-            2,
-            3,
-            551819442767522013199730846,
-            2162412574424356538749,
-        ],
-        bits=71,
-        frac_bits=20,
-    )
-    test_export(arr, "apyfixed_bits_1d.csv")
+    with pytest.raises(
+        ValueError,
+        match="Unknown layout",
+    ):
+        export_csv(
+            APyFixedArray([0, 1, 2, 3], 4, 3),
+            curr_dir / "test.csv",
+            layout="abc123",
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="Unsupported array dimension",
+    ):
+        export_csv(
+            APyFixedArray(range(3**3), 4, 3).reshape((3, 3, 3)),
+            curr_dir / "test.csv",
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="Unsupported array dimension",
+    ):
+        export_csv(
+            APyFixedArray(range(2**4), 4, 3).reshape((2, 2, 2, 2)),
+            curr_dir / "test.csv",
+            layout="vunit",
+        )
+
+    # Handling of CSV files are not tested since Python's csv module is used,
+    # this includes missing file raises, testing different delimiters, etc.
 
     arr = APyFixedArray(
         [
@@ -177,7 +202,7 @@ def test_export_csv(tmp_path):
         bits=71,
         frac_bits=20,
     )
-    test_export(arr, "apyfixed_bits_1d_apy.csv", vunit=False)
+    test_export(arr, "apyfixed_bits_1d.csv")
 
     arr = APyFloatArray.from_bits(
         [
@@ -191,17 +216,9 @@ def test_export_csv(tmp_path):
         exp_bits=21,
         man_bits=50,
     )
-    print(f"arr: {arr}")
-    print(f"arr: {arr!r}")
-    print(f"arr: {arr.to_bits()}")
-    a = APyFloat.from_bits(0, 21, 50)
-    print(f"a: {a!r}")
-    print(f"arr[0]: {arr[0]!r}")
     test_export(arr, "apyfloat_bits_1d.csv")
 
-    arr = APyFixedArray(range(2 * 3 * 4), bits=4, frac_bits=1).reshape(
-        (6, 4)
-    )  # Height, width
+    arr = APyFixedArray(range(2 * 3 * 4), bits=4, frac_bits=1).reshape((6, 4))
     test_export(arr, "apyfixed_bits_2d.csv")
 
     arr = APyFloatArray(
@@ -231,17 +248,101 @@ def test_export_csv(tmp_path):
     )
     test_export(arr, "apyfloat_bits_2d.csv")
 
-    arr = APyFixedArray(range(2 * 3 * 4), bits=4, frac_bits=1).reshape(
-        (2, 3, 4)
-    )  # Depth, height, width
-    test_export(arr, "apyfixed_bits_3d.csv")
+
+@pytest.mark.skipif(
+    not shutil.which("nvc") and not shutil.which("vsim"),
+    reason="neither nvc or vunit not found",
+)
+def test_vunit_csv_1d_layout(tmp_path):
+    """Test that the index order is the same in VUnit as in APyTypes. Also check that negative values are handled correctly."""
+    pytest.importorskip("vunit")
+
+    arr = APyFixedArray(range(8), 2, 1)
+
+    # Check index order
+    assert arr[0].is_identical(APyFixed(0, 2, 1))
+    assert arr[1].is_identical(APyFixed(1, 2, 1))
+    assert arr[4].is_identical(APyFixed(4, 2, 1))
+    assert arr[7].is_identical(APyFixed(7, 2, 1))
+
+    fname = tmp_path / "apyfixed_bits_1d_vunit.csv"
+    export_csv(arr, fname, layout="vunit")
+
+    # Try reading back the CSV
+    arr_csv = import_csv(fname, int_bits=2, frac_bits=1)
+    assert arr_csv.is_identical(arr)
+
+    # Check that the index order is the same in VUnit
+    subprocess.run(
+        ["python", "run.py", "lib.tb_same_indexing_csv.Case 1D", "--csv-file", fname],
+        cwd=Path(__file__).parent,
+        check=True,
+    )
 
 
 @pytest.mark.skipif(
     not shutil.which("nvc") and not shutil.which("vsim"),
     reason="neither nvc or vunit not found",
 )
-def test_vunit_csv_import():
-    """Test importing CSV files in VUnit. We don't test exporting files from VUnit as we expect it match the read behaviour."""
+def test_vunit_csv_2d_layout(tmp_path):
+    """Test that one gets the same 2D index order in VUnit as in APyTypes."""
     pytest.importorskip("vunit")
-    subprocess.run(["python", "run.py"], cwd=Path(__file__).parent, check=True)
+
+    arr = APyFixedArray(range(2 * 3 * 4), 6, 0).reshape((6, 4))
+
+    # Check index order
+    assert arr[0, 1].is_identical(APyFixed(1, 6, 0))
+    assert arr[1, 0].is_identical(APyFixed(4, 6, 0))
+    assert arr[1, 1].is_identical(APyFixed(5, 6, 0))
+    assert arr[5, 3].is_identical(APyFixed(23, 6, 0))
+
+    fname = tmp_path / "apyfixed_bits_2d_vunit.csv"
+    export_csv(arr, fname, layout="vunit")
+
+    # Try reading back the CSV
+    arr_csv = import_csv(fname, bits=6, frac_bits=0, layout="vunit")
+    assert arr_csv.is_identical(arr)
+
+    # Check that the index order is the same in VUnit
+    subprocess.run(
+        ["python", "run.py", "lib.tb_same_indexing_csv.Case 2D", "--csv-file", fname],
+        cwd=Path(__file__).parent,
+        check=True,
+    )
+
+
+@pytest.mark.skipif(
+    not shutil.which("nvc") and not shutil.which("vsim"),
+    reason="neither nvc or vunit not found",
+)
+def test_vunit_csv_3d_layout(tmp_path):
+    """Test that one gets the same 3D index order in VUnit as in APyTypes."""
+    pytest.importorskip("vunit")
+
+    arr = APyFixedArray(range(2 * 3 * 4), 6, 0).reshape((2, 3, 4))
+
+    # Check index order
+    assert arr[0, 0, 1].is_identical(APyFixed(1, 6, 0))
+    assert arr[0, 1, 0].is_identical(APyFixed(4, 6, 0))
+    assert arr[0, 1, 1].is_identical(APyFixed(5, 6, 0))
+    assert arr[1, 0, 0].is_identical(APyFixed(12, 6, 0))
+    assert arr[1, 0, 1].is_identical(APyFixed(13, 6, 0))
+    assert arr[1, 1, 0].is_identical(APyFixed(16, 6, 0))
+    assert arr[1, 1, 1].is_identical(APyFixed(17, 6, 0))
+    assert arr[1, 2, 3].is_identical(APyFixed(23, 6, 0))
+
+    fname = tmp_path / "apyfixed_bits_3d_vunit.csv"
+    export_csv(arr, fname, layout="vunit")
+
+    # Try reading back the CSV
+    arr_csv = import_csv(
+        fname, bits=6, frac_bits=0, layout="vunit", vunit_3d_shape=arr.shape
+    )
+    assert arr_csv.is_identical(arr)
+
+    # Check that the index order is the same in VUnit
+    subprocess.run(
+        ["python", "run.py", "lib.tb_same_indexing_csv.Case 3D", "--csv-file", fname],
+        cwd=Path(__file__).parent,
+        check=True,
+    )

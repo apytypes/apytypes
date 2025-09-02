@@ -2169,8 +2169,121 @@ def fullrange(
         raise ValueError("Could not determine array type")
 
 
+@overload
+def export_csv(
+    a: APyFixedArray,
+    fname: str,
+    delimiter: str = ",",
+    layout: Literal["default", "vunit"] = "default",
+) -> None: ...
+
+
+@overload
+def export_csv(
+    a: APyFloatArray,
+    fname: str,
+    delimiter: str = ",",
+    layout: Literal["default", "vunit"] = "default",
+) -> None: ...
+
+
+def export_csv(
+    a: APyArray,
+    fname: str,
+    delimiter: str = ",",
+    layout: Literal["default", "vunit"] = "default",
+) -> None:
+    """
+    Store the bit values of an array to a CSV file.
+
+    The function supports multi-dimensional arrays:
+        * For 1-D arrays, all elements are written on a single line.
+        * For 2-D arrays, each row of the array is written on a separate line.
+        * Higher-dimensional arrays must be handled manually unless supported by the chosen layout.
+
+    By default, a 1-D array will be exported as a single row CSV, and a 2-D array will be exported as multiple rows.
+
+    .. attention::
+        The index order of arrays may differ between APyTypes and other programs.
+
+    .. note::
+
+        The VUnit layout transposes the array so that the index order of VUnit's ``get`` function will behave the same as in APyTypes.
+        For a 2-D array, VUnit's :std:doc:`vunit:data_types/integer_array` will have the shape ``height, width = a.shape``.
+        For a 3-D array, VUnit's :std:doc:`vunit:data_types/integer_array` must be reshaped to ``height, width, depth = a.shape`` after importing it as a 2-D array.
+        The array is stored in the CSV with the shape ``height, width = a.shape[1], a.shape[0]*a.shape[2]``.
+        Lastly, negative fixed-point values are represented using the minus sign to match the expectations of VUnit.
+
+    .. hint::
+        To export a complex-valued array, use separate CSV files for real and imaginary parts.
+
+    .. versionadded:: 0.4
+
+    Parameters
+    ----------
+    a : :class:`APyFixedArray` or :class:`APyFloatArray`
+        The array to store the bit values of.
+    fname : :class:`str`
+        Path to the CSV file to store bit values.
+    delimiter : :class:`str`, optional
+        Character used in the CSV file to separate bit values. Default is `,`.
+    layout : {"default", "vunit"}, default: "default"
+        Layout to use when storing the array.
+
+    See Also
+    --------
+    import_csv
+
+    Examples
+    --------
+    >>> import apytypes as apy
+    >>> a = apy.fx(range(4), int_bits=4, frac_bits=0).reshape((2, 2))
+    >>> apy.export_csv(a, "input.csv")
+
+    A 3-D VUnit array can be exported as
+
+    >>> b = apy.fx(range(8), int_bits=4, frac_bits=0).reshape((2, 2, 2))
+    >>> apy.export_csv(b, "input_vunit.csv", layout="vunit")
+
+    """
+
+    if type(a) in (APyCFixedArray, APyCFloatArray):
+        raise ValueError("Complex data types are not supported yet")
+
+    if layout not in ("default", "vunit"):
+        raise ValueError(f"Unknown layout: {layout}")
+
+    if a.ndim > 3 or (a.ndim > 2 and layout != "vunit"):
+        raise ValueError(f"Unsupported array dimension {a.ndim} for layout {layout}")
+
+    to_bits_fn = (
+        "_to_signed_bits"
+        if type(a) is APyFixedArray and layout == "vunit"
+        else "to_bits"
+    )
+
+    if layout == "vunit":
+        if a.ndim == 2:
+            a = a.T
+        elif a.ndim == 3:
+            a = a.transpose((1, 0, 2))
+
+    with Path(fname).open(mode="w", newline="") as f:
+        writer = csv.writer(f, delimiter=delimiter)
+        if a.ndim == 1:
+            writer.writerow(getattr(a, to_bits_fn)())
+        elif a.ndim == 2:
+            for row in a:
+                writer.writerow(getattr(row, to_bits_fn)())
+        elif a.ndim == 3:
+            for depth in a:
+                writer.writerow(getattr(depth.flatten(), to_bits_fn)())
+
+
+@overload
 def import_csv(
     fname: str,
+    *,
     delimiter: str = ",",
     int_bits: int | None = None,
     frac_bits: int | None = None,
@@ -2179,14 +2292,58 @@ def import_csv(
     man_bits: int | None = None,
     bias: int | None = None,
     force_complex: bool = False,
+    layout: Literal["default", "vunit"] = "default",
+    vunit_3d_shape: tuple[int, ...] | None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def import_csv(
+    fname: str,
+    *,
+    delimiter: str = ",",
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool = False,
+    layout: Literal["default", "vunit"] = "default",
+    vunit_3d_shape: tuple[int, ...] | None = None,
+) -> APyFloatArray: ...
+
+
+def import_csv(
+    fname: str,
+    *,
+    delimiter: str = ",",
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool = False,
+    layout: Literal["default", "vunit"] = "default",
+    vunit_3d_shape: tuple[int, ...] | None = None,
 ) -> APyArray:
     """
     Create an array from a CSV file containing bit values.
 
-    1-D and 2-D arrays are directly supported. For higher dimensional arrays, the data must be reshaped manually after importing.
+    1-D and 2-D arrays are directly supported, while higher dimensional arrays must be reshaped manually after importing as either a 1-D or 2-D array.
 
-    Note that the index ordering may differ between APyTypes and other programs.
-    In those cases, transposing or reshaping the array can be desired after importing.
+    By default, a one row CSV file is imported as a 1-D array, while a multi-row CSV file is imported as a 2-D array.
+
+    .. attention::
+
+       The index order may differ between APyTypes and other programs.
+
+    .. note::
+
+       1-D VUnit arrays can be imported using the default layout.
+
+    .. versionadded:: 0.4
 
     Parameters
     ----------
@@ -2208,11 +2365,44 @@ def import_csv(
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
     force_complex : :class:`bool`, optional
         If True, forces the array to be treated as complex.
+    layout : {"default", "vunit"}, default: "default"
+        Layout of the stored array.
+    vunit_3d_shape : :class:`tuple`, optional
+        Shape of the resulting 3-D array when using the "vunit" layout. Do not provide this for 1-D or 2-D arrays.
 
     Returns
     -------
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         Array created from the bit values in the CSV file.
+
+    See Also
+    --------
+    export_csv
+
+    Examples
+    --------
+    >>> import apytypes as apy
+    >>> a = apy.import_csv("input.csv", int_bits=4, frac_bits=0)
+    >>> a
+    APyFixedArray([[0, 1],
+                   [2, 3]], int_bits=4, frac_bits=0)
+
+    A 3-D VUnit array can be imported as
+
+    >>> b = apy.import_csv(
+    ...     "input_vunit.csv",
+    ...     int_bits=4,
+    ...     frac_bits=0,
+    ...     layout="vunit",
+    ...     vunit_3d_shape=(2, 2, 2),
+    ... )
+    >>> b
+    APyFixedArray([[[0, 1],
+                    [2, 3]],
+    <BLANKLINE>
+                   [[4, 5],
+                    [6, 7]]], int_bits=4, frac_bits=0)
+
     """
 
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
@@ -2223,7 +2413,13 @@ def import_csv(
     if force_complex:
         raise ValueError("Complex data types are not supported yet")
 
-    with Path.open(fname, "r", newline="") as f:
+    if layout not in ("default", "vunit"):
+        raise ValueError(f"Unknown layout: {layout}")
+
+    if layout != "vunit" and vunit_3d_shape is not None:
+        raise ValueError("vunit_3d_shape provided while not using 'vunit' layout")
+
+    with Path(fname).open(mode="r", newline="") as f:
         reader = csv.reader(f, delimiter=delimiter)
         bit_values = []
         for row in reader:
@@ -2235,58 +2431,23 @@ def import_csv(
         bit_values = bit_values[0]
 
     if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
-        return APyFixedArray(
+        arr = APyFixedArray(
             bit_values, bits=bits, int_bits=int_bits, frac_bits=frac_bits
         )
+    else:
+        arr = APyFloatArray.from_bits(
+            bit_values, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+        )
 
-    return APyFloatArray.from_bits(
-        bit_values, exp_bits=exp_bits, man_bits=man_bits, bias=bias
-    )
+    if layout == "vunit":
+        if vunit_3d_shape is None:
+            return arr.T
+        else:
+            arr = arr.reshape(
+                (vunit_3d_shape[1], vunit_3d_shape[0], vunit_3d_shape[2])
+            ).transpose((1, 0, 2))
 
-
-def export_csv(
-    a: APyArray, fname: str, delimiter: str = ",", vunit: bool = False
-) -> APyArray:
-    """
-    Store the bit values of an array to a CSV file.
-
-    The function supports multi-dimensional arrays:
-    - For 1-D arrays, all elements are written on a single line.
-    - For 2-D arrays, each row of the array is written on a separate line.
-    - For higher-dimensional arrays, the first dimension is iterated over,
-    and all subsequent dimensions are flattened into a single row before writing.
-
-    Note that the index ordering may differ between APyTypes and other programs.
-    In those cases, transposing or reshaping the array can be desired before exporting.
-
-    Parameters
-    ----------
-    a : :class:`APyFixedArray` or :class:`APyFloatArray`
-        The array to store the bit values of.
-    fname : :class:`str`
-        Path to the CSV file to store bit values.
-    delimiter : :class:`str`, optional
-        Character used in the CSV file to separate bit values. Default is `,`.
-    vunit : :class:`bool`, optional
-        If True, negative fixed-point values are represented using the minus sign.
-
-    """
-
-    if type(a) in (APyCFixedArray, APyCFloatArray):
-        raise ValueError("Complex data types are not supported yet")
-
-    to_bits_fn = "_to_signed_bits" if type(a) is APyFixedArray and vunit else "to_bits"
-
-    with Path.open(fname, "w", newline="") as f:
-        writer = csv.writer(f, delimiter=delimiter)
-        if a.ndim == 1:
-            writer.writerow(getattr(a, to_bits_fn)())
-        elif a.ndim == 2:
-            for row in a:
-                writer.writerow(getattr(row, to_bits_fn)())
-        elif a.ndim == 3:
-            for depth in a:
-                writer.writerow(getattr(depth.flatten(), to_bits_fn)())
+    return arr
 
 
 # =============================================================================
