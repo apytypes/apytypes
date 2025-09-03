@@ -332,6 +332,7 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p>Specialized overload typing signatures for array functions and utility
 functions.</p></li>
 <li><p>Array creation method: <code class="docutils literal notranslate"><span class="pre">fullrange</span></code>.</p></li>
+<li><p>CSV import/export of arrays: <code class="docutils literal notranslate"><span class="pre">import_csv</span></code> and <code class="docutils literal notranslate"><span class="pre">export_csv</span></code>.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -356,6 +357,8 @@ formats.</p></li>
 scalars and <code class="docutils literal notranslate"><span class="pre">[1.0+2.5j]</span></code> for arrays)</p></li>
 <li><p>Bug in floating-point matrix multiplications when inside accumulator contexts
 using quantization modes <code class="docutils literal notranslate"><span class="pre">TRN_INF</span></code> and <code class="docutils literal notranslate"><span class="pre">TRN_AWAY</span></code>.</p></li>
+<li><p>Bug in floating-point <code class="docutils literal notranslate"><span class="pre">.to_bits()</span></code> and <code class="docutils literal notranslate"><span class="pre">from_bits</span></code> for large formats
+on 32-bit systems.</p></li>
 </ul>
 </section>
 <section id="changed">
