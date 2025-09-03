@@ -30,6 +30,7 @@ jobs:
     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       with:
         fetch-depth: 0
+        fetch-tags: true
         persist-credentials: false
     # - uses: nickg/setup-nvc@40dcbd31cf07b60479a31f94a5df70c0bfbb9ce5  # v1v1
     - uses: nickg/setup-nvc@master  # v1v1
