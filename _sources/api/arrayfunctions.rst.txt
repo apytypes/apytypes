@@ -24,6 +24,8 @@ Array creation functions
 
 .. autofunction:: apytypes.fullrange
 
+.. autofunction:: apytypes.meshgrid
+
 
 Array modification functions
 ----------------------------

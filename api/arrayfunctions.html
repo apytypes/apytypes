@@ -831,6 +831,48 @@ format.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="apytypes.meshgrid">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">meshgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arrays</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.13)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'xy'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ij'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xy'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#apytypes.meshgrid" title="Link to this definition">¶</a></dt>
+<dd><p>Create a list of coordinate arrays based on several coordinate vectors (1-D arrays).
+The input vectors must all have the same bit specifiers.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.4.</span></p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>arrays</strong><span class="classifier"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a>, <a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></span></dt><dd><p>The coordinate vectors (1-D arrays).</p>
+</dd>
+<dt><strong>indexing</strong><span class="classifier">{“xy”, “ij”}, default: “xy”</span></dt><dd><p>The indexing mode to use for the meshgrid. “xy” is the standard Cartesian indexing,
+while “ij” is the matrix indexing.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>result</strong><span class="classifier">list of <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a>, <a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></span></dt><dd><p>List of 2-D arrays representing the meshgrid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xx</span>
+<span class="go">APyFixedArray([[0, 1, 2],</span>
+<span class="go">               [0, 1, 2],</span>
+<span class="go">               [0, 1, 2]], int_bits=5, frac_bits=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yy</span>
+<span class="go">APyFixedArray([[4, 4, 4],</span>
+<span class="go">               [5, 5, 5],</span>
+<span class="go">               [6, 6, 6]], int_bits=5, frac_bits=0)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 <section id="array-modification-functions">
 <h2>Array modification functions<a class="headerlink" href="#array-modification-functions" title="Link to this heading">¶</a></h2>
@@ -1378,6 +1420,7 @@ Lastly, negative fixed-point values are represented using the minus sign to matc
 <li><a class="reference internal" href="#apytypes.full_like"><code class="docutils literal notranslate"><span class="pre">full_like()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.arange"><code class="docutils literal notranslate"><span class="pre">arange()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.fullrange"><code class="docutils literal notranslate"><span class="pre">fullrange()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.meshgrid"><code class="docutils literal notranslate"><span class="pre">meshgrid()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#array-modification-functions">Array modification functions</a><ul>
