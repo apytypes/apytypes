@@ -51,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   modes, although it is only used for the stochastic ones.
 - Initialize tensors with [Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)
   instead of [Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence).
+- BREAKING: arguments related to word length/data type are now keyword only
+  in array utility functions.
 
 ### Removed
 
