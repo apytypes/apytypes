@@ -34,7 +34,7 @@ The ODE in question is
 
 and the solution is the unit circle in the (u, v) plane.
 
-(Example was inspired from M. Croci, M. Fasi, N. J Higham, T. Mary, M. Mikaitis. "Stochastic Rounding: Implementation, Error Analysis, and Applications", in *Royal Society Open Science*, 2022.)
+(Example inspired from M. Croci, M. Fasi, N. J Higham, T. Mary, M. Mikaitis. "Stochastic Rounding: Implementation, Error Analysis, and Applications", in *Royal Society Open Science*, 2022.)
 
 .. GENERATED FROM PYTHON SOURCE LINES 20-64
 
@@ -99,7 +99,7 @@ and the solution is the unit circle in the (u, v) plane.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.234 seconds)
+   **Total running time of the script:** (0 minutes 0.236 seconds)
 
 
 .. _sphx_glr_download_examples_ode_solver.py:

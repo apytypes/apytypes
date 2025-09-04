@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Fixed-point vector rotation" href="vectorrotation.html" /><link rel="prev" title="NumPy integration" href="numpy_integration.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Fixed-point vector rotation" href="vectorrotation.html" /><link rel="prev" title="Approximate floating-point multiplication" href="approximate_multiplication.html" />
         <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image" />
 
     <link rel="shortcut icon" href="../_static/apytypes.ico"/><!-- Generated with Sphinx 8.2.3 and Furo 2025.07.19 -->
@@ -259,6 +259,7 @@
 <li class="toctree-l2"><a class="reference internal" href="apyfloat.html">APyFloat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixed.html">APyFixed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="numpy_integration.html">NumPy integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="approximate_multiplication.html">Approximate floating-point multiplication</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Floating-point ODE solver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="vectorrotation.html">Fixed-point vector rotation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reciprocal_lookup.html">Reciprocal lookup table</a></li>
@@ -326,7 +327,7 @@ using different floating-point formats and different quantization schemes.</p>
 \[ \begin{align}\begin{aligned}u'(t) = v(t), \quad u(0) = 1,\\v'(t) = -u(t), \quad v(0) = 0,\end{aligned}\end{align} \]</div>
 </div>
 <p>and the solution is the unit circle in the (u, v) plane.</p>
-<p>(Example was inspired from M. Croci, M. Fasi, N. J Higham, T. Mary, M. Mikaitis. “Stochastic Rounding: Implementation, Error Analysis, and Applications”, in <em>Royal Society Open Science</em>, 2022.)</p>
+<p>(Example inspired from M. Croci, M. Fasi, N. J Higham, T. Mary, M. Mikaitis. “Stochastic Rounding: Implementation, Error Analysis, and Applications”, in <em>Royal Society Open Science</em>, 2022.)</p>
 <img src="../_images/sphx_glr_ode_solver_001.png" srcset="../_images/sphx_glr_ode_solver_001.png" alt="ode solver" class = "sphx-glr-single-img"/><div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -372,7 +373,7 @@ using different floating-point formats and different quantization schemes.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.234 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.236 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-ode-solver-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/e4dfd9716732211876c7f347d3e08d3d/ode_solver.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">ode_solver.ipynb</span></code></a></p>
@@ -401,14 +402,14 @@ using different floating-point formats and different quantization schemes.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="numpy_integration.html">
+          <a class="prev-page" href="approximate_multiplication.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">NumPy integration</div>
+                <div class="title">Approximate floating-point multiplication</div>
                 
               </div>
             </a>
