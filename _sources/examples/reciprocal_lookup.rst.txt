@@ -41,7 +41,7 @@ single-precision floating-point representation.
     step = apy.APyFixed(1, 3, N)
     r = apy.arange(1, 2 + 2**-6, step=step)
 
-    table = apy.zeros((2**6,), 1, WL)
+    table = apy.zeros((2**6,), int_bits=1, frac_bits=WL)
     float_table = []
     for i in range(2**6):
         start = float(r[i])
@@ -247,7 +247,7 @@ Plot resulting errors
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.267 seconds)
+   **Total running time of the script:** (0 minutes 0.257 seconds)
 
 
 .. _sphx_glr_download_examples_reciprocal_lookup.py:

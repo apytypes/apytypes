@@ -18,7 +18,7 @@ WL = 9
 step = apy.APyFixed(1, 3, N)
 r = apy.arange(1, 2 + 2**-6, step=step)
 
-table = apy.zeros((2**6,), 1, WL)
+table = apy.zeros((2**6,), int_bits=1, frac_bits=WL)
 float_table = []
 for i in range(2**6):
     start = float(r[i])
