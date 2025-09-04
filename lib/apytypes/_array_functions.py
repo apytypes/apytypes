@@ -439,25 +439,73 @@ def swapaxes(a: APyArray, axis1: int, axis2: int) -> APyArray:
     --------
     >>> import apytypes as apy
     >>> x = apy.fp([[1, 2, 3]], exp_bits=5, man_bits=2)
-    >>> x.swapaxes(0, 1).to_numpy()
-    array([[1.],
-           [2.],
-           [3.]])
+    >>> apy.swapaxes(x, 0, 1)
+    APyFloatArray(
+        [[ 0],
+         [ 0],
+         [ 0]],
+    <BLANKLINE>
+        [[15],
+         [16],
+         [16]],
+    <BLANKLINE>
+        [[ 0],
+         [ 0],
+         [ 2]],
+        exp_bits=5,
+        man_bits=2
+    )
 
     >>> x = apy.fp([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=3)
-    >>> x.to_numpy()
-    array([[[0., 1.],
-            [2., 3.]],
+    >>> x
+    APyFloatArray(
+        [[[ 0,  0],
+          [ 0,  0]],
     <BLANKLINE>
-           [[4., 5.],
-            [6., 7.]]])
+         [[ 0,  0],
+          [ 0,  0]]],
+    <BLANKLINE>
+    <BLANKLINE>
+        [[[ 0, 15],
+          [16, 16]],
+    <BLANKLINE>
+         [[17, 17],
+          [17, 17]]],
+    <BLANKLINE>
+    <BLANKLINE>
+        [[[ 0,  0],
+          [ 0,  4]],
+    <BLANKLINE>
+         [[ 0,  2],
+          [ 4,  6]]],
+        exp_bits=5,
+        man_bits=3
+    )
 
-    >>> apy.swapaxes(x, 0, 2).to_numpy()
-    array([[[0., 4.],
-            [2., 6.]],
+    >>> apy.swapaxes(x, 0, 2)
+    APyFloatArray(
+        [[[ 0,  0],
+          [ 0,  0]],
     <BLANKLINE>
-           [[1., 5.],
-            [3., 7.]]])
+         [[ 0,  0],
+          [ 0,  0]]],
+    <BLANKLINE>
+    <BLANKLINE>
+        [[[ 0, 17],
+          [16, 17]],
+    <BLANKLINE>
+         [[15, 17],
+          [16, 17]]],
+    <BLANKLINE>
+    <BLANKLINE>
+        [[[ 0,  0],
+          [ 0,  4]],
+    <BLANKLINE>
+         [[ 0,  2],
+          [ 4,  6]]],
+        exp_bits=5,
+        man_bits=3
+    )
 
     Returns
     -------
@@ -505,28 +553,33 @@ def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
     (2,)
 
     >>> y = apy.expand_dims(x, axis=0)
-    >>> y.to_numpy()
-    array([[1., 2.]])
+    >>> y
+    APyFixedArray([[1, 2]], int_bits=5, frac_bits=0)
     >>> y.shape
     (1, 2)
 
     >>> y = apy.expand_dims(x, axis=1)
-    >>> y.to_numpy()
-    array([[1.],
-           [2.]])
+    >>> y
+    APyFixedArray([[1],
+                   [2]], int_bits=5, frac_bits=0)
+
     >>> y.shape
     (2, 1)
 
     ``axis`` may also be a tuple:
 
     >>> y = apy.expand_dims(x, axis=(0, 1))
-    >>> y.to_numpy()
-    array([[[1., 2.]]])
+    >>> y
+    APyFixedArray([[[1, 2]]], int_bits=5, frac_bits=0)
+    >>> y.shape
+    (1, 1, 2)
 
     >>> y = apy.expand_dims(x, axis=(2, 0))
-    >>> y.to_numpy()
-    array([[[1.],
-            [2.]]])
+    >>> y
+    APyFixedArray([[[1],
+                    [2]]], int_bits=5, frac_bits=0)
+    >>> y.shape
+    (1, 2, 1)
 
     Returns
     -------
@@ -554,6 +607,7 @@ def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
 @overload
 def zeros(
     shape: tuple[int, ...],
+    *,
     int_bits: int,
     frac_bits: int,
     bits: None = None,
@@ -609,6 +663,7 @@ def zeros(
 @overload
 def zeros(
     shape: tuple[int, ...],
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -621,6 +676,7 @@ def zeros(
 
 def zeros(
     shape: tuple[int, ...],
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -682,6 +738,7 @@ def zeros(
 @overload
 def ones(
     shape: tuple[int, ...],
+    *,
     int_bits: int,
     frac_bits: int,
     bits: None = None,
@@ -737,6 +794,7 @@ def ones(
 @overload
 def ones(
     shape: tuple[int, ...],
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -749,6 +807,7 @@ def ones(
 
 def ones(
     shape: tuple[int, ...],
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -871,6 +930,7 @@ def eye(
 def eye(
     n: int,
     m: int | None = None,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -884,6 +944,7 @@ def eye(
 def eye(
     n: int,
     m: int | None = None,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -950,6 +1011,7 @@ def eye(
 @overload
 def identity(
     n: int,
+    *,
     int_bits: int,
     frac_bits: int,
     bits: None = None,
@@ -1005,6 +1067,7 @@ def identity(
 @overload
 def identity(
     n: int,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1017,6 +1080,7 @@ def identity(
 
 def identity(
     n: int,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1080,6 +1144,7 @@ def identity(
 def full(
     shape: tuple[int, ...],
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int,
     frac_bits: int,
     bits: None = None,
@@ -1135,6 +1200,7 @@ def full(
 def full(
     shape: tuple[int, ...],
     fill_value: APyFixed,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -1148,6 +1214,7 @@ def full(
 def full(
     shape: tuple[int, ...],
     fill_value: APyFloat,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -1161,6 +1228,7 @@ def full(
 def full(
     shape: tuple[int, ...],
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1173,6 +1241,7 @@ def full(
 def full(
     shape: tuple[int, ...],
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1233,6 +1302,7 @@ def full(
 @overload
 def zeros_like(
     a: APyFixedArray,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1245,6 +1315,7 @@ def zeros_like(
 @overload
 def zeros_like(
     a: APyCFixedArray,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1283,6 +1354,7 @@ def zeros_like(
 @overload
 def zeros_like(
     a: APyArray,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1294,6 +1366,7 @@ def zeros_like(
 
 def zeros_like(
     a: APyArray,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1351,6 +1424,7 @@ def zeros_like(
 @overload
 def ones_like(
     a: APyFixedArray,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1363,6 +1437,7 @@ def ones_like(
 @overload
 def ones_like(
     a: APyCFixedArray,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1401,6 +1476,7 @@ def ones_like(
 @overload
 def ones_like(
     a: APyArray,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1412,6 +1488,7 @@ def ones_like(
 
 def ones_like(
     a: APyArray,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1469,6 +1546,7 @@ def ones_like(
 def full_like(
     a: APyFixedArray,
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1482,6 +1560,7 @@ def full_like(
 def full_like(
     a: APyFloatArray,
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1495,6 +1574,7 @@ def full_like(
 def full_like(
     a: APyCFixedArray,
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1508,6 +1588,7 @@ def full_like(
 def full_like(
     a: APyCFloatArray,
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1521,6 +1602,7 @@ def full_like(
 def full_like(
     a: APyArray,
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1533,6 +1615,7 @@ def full_like(
 def full_like(
     a: APyArray,
     fill_value: APyScalar | int | float,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1683,6 +1766,7 @@ def arange(
     start: APyFixed,
     stop: APyFixed | int | float | None = None,
     step: APyFixed | int | float = 1,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -1697,6 +1781,7 @@ def arange(
     start: APyFixed | int | float,
     stop: APyFixed,
     step: APyFixed | int | float = 1,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -1711,6 +1796,7 @@ def arange(
     start: APyFixed | int | float,
     stop: APyFixed | int | float,
     step: APyFixed,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -1725,6 +1811,7 @@ def arange(
     start: APyFloat,
     stop: APyFloat | int | float | None = None,
     step: APyFloat | int | float = 1,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -1739,6 +1826,7 @@ def arange(
     start: APyFloat | int | float,
     stop: APyFloat,
     step: APyFloat | int | float = 1,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -1753,6 +1841,7 @@ def arange(
     start: APyFloat | int | float,
     stop: APyFloat | int | float,
     step: APyFloat,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -1767,6 +1856,7 @@ def arange(
     start: APyScalar | int | float,
     stop: APyScalar | int | float | None = None,
     step: APyScalar | int | float = 1,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1780,6 +1870,7 @@ def arange(
     start: APyScalar | int | float,
     stop: APyScalar | int | float | None = None,
     step: APyScalar | int | float = 1,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -1989,6 +2080,7 @@ def fullrange(
 def fullrange(
     start: APyFixed,
     stop: APyFixed | int | float | None = None,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -2002,6 +2094,7 @@ def fullrange(
 def fullrange(
     start: APyFixed | int | float,
     stop: APyFixed,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -2015,6 +2108,7 @@ def fullrange(
 def fullrange(
     start: APyFloat,
     stop: APyFloat | int | float | None = None,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -2028,6 +2122,7 @@ def fullrange(
 def fullrange(
     start: APyFloat | int | float,
     stop: APyFloat,
+    *,
     int_bits: None = None,
     frac_bits: None = None,
     bits: None = None,
@@ -2041,6 +2136,7 @@ def fullrange(
 def fullrange(
     start: APyScalar | int | float,
     stop: APyScalar | int | float | None = None,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -2053,6 +2149,7 @@ def fullrange(
 def fullrange(
     start: APyScalar | int | float,
     stop: APyScalar | int | float | None = None,
+    *,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
