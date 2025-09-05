@@ -70,7 +70,7 @@ The approximation is based on Mitchell's logarithm approximation and the referen
 
 Plot the results
 
-.. GENERATED FROM PYTHON SOURCE LINES 41-57
+.. GENERATED FROM PYTHON SOURCE LINES 41-55
 
 .. code-block:: Python
 
@@ -83,9 +83,7 @@ Plot the results
     ax.xaxis.set_major_locator(ticker.MultipleLocator(2 * 2**-MAN_BITS))
     ax.yaxis.set_major_locator(ticker.MultipleLocator(2 * 2**-MAN_BITS))
 
-    pcol = ax.pcolormesh(
-        xx.to_numpy(), yy.to_numpy(), error.to_numpy(), ec="k", lw=0.1, cmap="Blues_r"
-    )
+    pcol = ax.pcolormesh(xx, yy, error, ec="k", lw=0.1, cmap="Blues_r")
     cbar = fig.colorbar(pcol)
     cbar.ax.set_title("Error")
 
@@ -105,7 +103,7 @@ Plot the results
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.111 seconds)
+   **Total running time of the script:** (0 minutes 0.112 seconds)
 
 
 .. _sphx_glr_download_examples_approximate_multiplication.py:
