@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   functions.
 - Array creation methods: `fullrange`, `meshgrid`.
 - CSV import/export of arrays: `import_csv` and `export_csv`.
+- `to_numpy` and `__array__` now accepts `dtype` and `copy` arguments.
 
 ### Fixed
 

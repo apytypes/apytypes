@@ -394,6 +394,80 @@ def test_to_numpy(float_array: type[APyCFloatArray]):
     assert np.array_equal(fp_arr.to_numpy(), np.array(float_seq))
 
 
+@pytest.mark.parametrize(
+    "dt",
+    [
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "uint8",
+        "uint16",
+        "uint32",
+        "uint64",
+        "float32",
+        "float64",
+    ],
+)
+@pytest.mark.parametrize(
+    "copy",
+    [
+        False,
+        True,
+    ],
+)
+def test_to_numpy_args_real(dt: str, copy: bool):
+    # Skip this test if `NumPy` is not present on the machine
+    np = pytest.importorskip("numpy")
+
+    # Test with different dtypes
+    fp_arr = APyFloatArray.from_float(range(5), 10, 10)
+
+    if copy:
+        assert np.array_equal(
+            fp_arr.to_numpy(dtype=dt, copy=copy), np.array(range(5), dtype=dt)
+        )
+    else:
+        with pytest.raises(
+            ValueError,
+            match=r"APyFloatArray\.to_numpy: copy must be True",
+        ):
+            _ = fp_arr.to_numpy(dtype=dt, copy=copy)
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [
+        "complex64",
+        "complex128",
+    ],
+)
+@pytest.mark.parametrize(
+    "copy",
+    [
+        False,
+        True,
+    ],
+)
+def test_to_numpy_args_complex(dt: str, copy: bool):
+    # Skip this test if `NumPy` is not present on the machine
+    np = pytest.importorskip("numpy")
+
+    # Test with different dtypes
+    fp_arr = APyCFloatArray.from_float(range(5), 10, 10)
+
+    if copy:
+        assert np.array_equal(
+            fp_arr.to_numpy(dtype=dt, copy=copy), np.array(range(5), dtype=dt)
+        )
+    else:
+        with pytest.raises(
+            ValueError,
+            match=r"APyCFloatArray\.to_numpy: copy must be True",
+        ):
+            _ = fp_arr.to_numpy(dtype=dt, copy=copy)
+
+
 @pytest.mark.float_array
 def test_iterator():
     fx_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)

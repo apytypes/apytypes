@@ -1244,8 +1244,15 @@ nb::list APyFixedArray::to_signed_bits() const
     return to_bits_python_recursive_descent(0, it, true);
 }
 
-nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const
+nb::ndarray<nb::numpy, double>
+APyFixedArray::to_numpy(std::optional<nb::object> dtype, std::optional<bool> copy) const
 {
+    (void)dtype;
+
+    if (!copy.value_or(true)) {
+        throw nb::value_error("APyFixedArray.to_numpy: copy must be True");
+    }
+
     // Dynamically allocate data to be passed to python
     double* result_data = new double[_nitems];
 

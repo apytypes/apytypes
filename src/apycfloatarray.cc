@@ -392,8 +392,16 @@ std::string APyCFloatArray::to_string(int base) const
     }
 }
 
-nb::ndarray<nb::numpy, std::complex<double>> APyCFloatArray::to_numpy() const
+nb::ndarray<nb::numpy, std::complex<double>> APyCFloatArray::to_numpy(
+    std::optional<nb::object> dtype, std::optional<bool> copy
+) const
 {
+    (void)dtype;
+
+    if (!copy.value_or(true)) {
+        throw nb::value_error("APyCFloatArray.to_numpy: copy must be True");
+    }
+
     // Dynamically allocate data to be passed to Python
     std::complex<double>* result_data = new std::complex<double>[_nitems];
     auto fp_re = APyFloat(exp_bits, man_bits, bias);

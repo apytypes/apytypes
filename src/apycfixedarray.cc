@@ -961,8 +961,16 @@ std::string APyCFixedArray::repr() const
     return array_repr({ formatter }, kw_args);
 }
 
-nb::ndarray<nb::numpy, std::complex<double>> APyCFixedArray::to_numpy() const
+nb::ndarray<nb::numpy, std::complex<double>> APyCFixedArray::to_numpy(
+    std::optional<nb::object> dtype, std::optional<bool> copy
+) const
 {
+    (void)dtype;
+
+    if (!copy.value_or(true)) {
+        throw nb::value_error("APyCFixedArray.to_numpy: copy must be True");
+    }
+
     // Dynamically allocate data to be passed to python
     std::complex<double>* result = new std::complex<double>[_nitems];
     auto _frac_bits = frac_bits();

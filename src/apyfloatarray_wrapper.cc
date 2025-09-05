@@ -233,16 +233,29 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc"
         )
-        .def("to_numpy", &APyFloatArray::to_numpy, R"pbdoc(
+        .def(
+            "to_numpy",
+            &APyFloatArray::to_numpy,
+            nb::arg("dtype") = nb::none(),
+            nb::arg("copy") = nb::none(),
+            R"pbdoc(
             Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
             The returned array has the same `shape` and values as `self`. This
             method rounds away from infinity on ties.
 
+            Parameters
+            ----------
+            dtype : :std:doc:`numpy:dtype`
+                The desired data type of the output array. This parameter is currently ignored.
+            copy : :class:`bool`
+                Whether to copy the data or not. Must be :code:`True` or :code:`None`.
+
             Returns
             -------
             :class:`numpy.ndarray`
-            )pbdoc")
+            )pbdoc"
+        )
         .def(
             "to_bits",
             &APyFloatArray::to_bits,
@@ -1454,7 +1467,12 @@ void bind_float_array(nb::module_& m)
                 );
             }
         )
-        .def("__array__", &APyFloatArray::to_numpy)
+        .def(
+            "__array__",
+            &APyFloatArray::to_numpy,
+            nb::arg("dtype") = nb::none(),
+            nb::arg("copy") = nb::none()
+        )
 
         .def(
             "cast",

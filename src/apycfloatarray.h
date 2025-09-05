@@ -185,7 +185,10 @@ public:
     std::string to_string_dec() const;
 
     //! Convert to a NumPy array
-    nanobind::ndarray<nanobind::numpy, std::complex<double>> to_numpy() const;
+    nanobind::ndarray<nanobind::numpy, std::complex<double>> to_numpy(
+        std::optional<nb::object> dtype = std::nullopt,
+        std::optional<bool> copy = std::nullopt
+    ) const;
 
     //! Return the bias.
     APY_INLINE exp_t get_bias() const noexcept { return bias; }
