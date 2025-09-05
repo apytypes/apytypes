@@ -379,7 +379,10 @@ public:
     ) const;
 
     //! Convert to a NumPy array
-    nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
+    nanobind::ndarray<nanobind::numpy, double> to_numpy(
+        std::optional<nb::object> dtype = std::nullopt,
+        std::optional<bool> copy = std::nullopt
+    ) const;
 
     //! Test if two floating-point arrays are identical, i.e., has the same values, and
     //! the same format

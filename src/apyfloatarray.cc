@@ -1037,8 +1037,23 @@ nb::list APyFloatArray::to_bits_python_recursive_descent(
     return result;
 }
 
-nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
+nb::ndarray<nb::numpy, double>
+APyFloatArray::to_numpy(std::optional<nb::object> dtype, std::optional<bool> copy) const
 {
+
+    // If someone in the future wants to check the dtype, this is how it can be done:
+    // const auto np = nb::module_::import_("numpy");
+    // const auto t = dtype.value_or(np.attr("float64"));
+    // if (!t.equal(np.attr("float64"))) {
+    //     throw nb::value_error("APyFloatArray::to_numpy: only supports float64
+    //     dtype");
+    // }
+    (void)dtype;
+
+    if (!copy.value_or(true)) {
+        throw nb::value_error("APyFloatArray.to_numpy: copy must be True");
+    }
+
     // Dynamically allocate data to be passed to Python
     double* result_data = new double[_nitems];
     auto fp = APyFloat(exp_bits, man_bits, bias);

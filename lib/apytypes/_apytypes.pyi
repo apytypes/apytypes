@@ -770,12 +770,21 @@ class APyCFixedArray:
                    :class:`APyCFixedArray`
         """
 
-    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype="complex128")]:
+    def to_numpy(
+        self, dtype: object | None = None, copy: bool | None = None
+    ) -> Annotated[ArrayLike, dict(dtype="complex128")]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.complex128`.
 
         The returned array has the same `shape` and values as `self`. This
         method rounds away from infinity on ties.
+
+        Parameters
+        ----------
+        dtype : :std:doc:`numpy:dtype`
+            The desired data type of the output array. This parameter is currently ignored.
+        copy : :class:`bool`
+            Whether to copy the data or not. Must be :code:`True` or :code:`None`.
 
         Returns
         -------
@@ -1623,7 +1632,9 @@ class APyCFixedArray:
         val: APyCFixedArray | APyCFixed,
     ) -> None: ...
     def __len__(self) -> int: ...
-    def __array__(self) -> Annotated[ArrayLike, dict(dtype="complex128")]: ...
+    def __array__(
+        self, dtype: object | None = None, copy: bool | None = None
+    ) -> Annotated[ArrayLike, dict(dtype="complex128")]: ...
 
 class APyCFloat:
     """
@@ -2680,12 +2691,21 @@ class APyCFloatArray:
             An array filled with the specified value.
         """
 
-    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype="complex128")]:
+    def to_numpy(
+        self, dtype: object | None = None, copy: bool | None = None
+    ) -> Annotated[ArrayLike, dict(dtype="complex128")]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.complex128`.
 
         The returned array has the same `shape` and values as `self`. This
         method rounds away from infinity on ties.
+
+        Parameters
+        ----------
+        dtype : :std:doc:`numpy:dtype`
+            The desired data type of the output array. This parameter is currently ignored.
+        copy : :class:`bool`
+            Whether to copy the data or not. Must be :code:`True` or :code:`None`.
 
         Returns
         -------
@@ -3076,6 +3096,9 @@ class APyCFloatArray:
         val: APyCFloatArray | APyCFloat,
     ) -> None: ...
     def __len__(self) -> int: ...
+    def __array__(
+        self, dtype: object | None = None, copy: bool | None = None
+    ) -> Annotated[ArrayLike, dict(dtype="complex128")]: ...
 
 class APyFixed:
     r"""
@@ -3687,12 +3710,21 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
-    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype="float64")]:
+    def to_numpy(
+        self, dtype: object | None = None, copy: bool | None = None
+    ) -> Annotated[ArrayLike, dict(dtype="float64")]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
         The returned array has the same `shape` and values as `self`. This
         method rounds away from infinity on ties.
+
+        Parameters
+        ----------
+        dtype : :std:doc:`numpy:dtype`
+            The desired data type of the output array. This parameter is currently ignored.
+        copy : :class:`bool`
+            Whether to copy the data or not. Must be :code:`True` or :code:`None`.
 
         Returns
         -------
@@ -4641,7 +4673,9 @@ class APyFixedArray:
     ) -> None: ...
     def __len__(self) -> int: ...
     def __iter__(self) -> APyFixedArrayIterator: ...
-    def __array__(self) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
+    def __array__(
+        self, dtype: object | None = None, copy: bool | None = None
+    ) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
 
 class APyFixedArrayIterator:
     def __iter__(self) -> APyFixedArrayIterator: ...
@@ -5593,12 +5627,21 @@ class APyFloatArray:
         :class:`APyFloatArray`
         """
 
-    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype="float64")]:
+    def to_numpy(
+        self, dtype: object | None = None, copy: bool | None = None
+    ) -> Annotated[ArrayLike, dict(dtype="float64")]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
         The returned array has the same `shape` and values as `self`. This
         method rounds away from infinity on ties.
+
+        Parameters
+        ----------
+        dtype : :std:doc:`numpy:dtype`
+            The desired data type of the output array. This parameter is currently ignored.
+        copy : :class:`bool`
+            Whether to copy the data or not. Must be :code:`True` or :code:`None`.
 
         Returns
         -------
@@ -6652,7 +6695,9 @@ class APyFloatArray:
         val: APyFloatArray | APyFloat,
     ) -> None: ...
     def __iter__(self) -> APyFloatArrayIterator: ...
-    def __array__(self) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
+    def __array__(
+        self, dtype: object | None = None, copy: bool | None = None
+    ) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
     def cast(
         self,
         exp_bits: int | None = None,

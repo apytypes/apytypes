@@ -47,9 +47,7 @@ ax.set_aspect("equal")
 ax.xaxis.set_major_locator(ticker.MultipleLocator(2 * 2**-MAN_BITS))
 ax.yaxis.set_major_locator(ticker.MultipleLocator(2 * 2**-MAN_BITS))
 
-pcol = ax.pcolormesh(
-    xx.to_numpy(), yy.to_numpy(), error.to_numpy(), ec="k", lw=0.1, cmap="Blues_r"
-)
+pcol = ax.pcolormesh(xx, yy, error, ec="k", lw=0.1, cmap="Blues_r")
 cbar = fig.colorbar(pcol)
 cbar.ax.set_title("Error")
 

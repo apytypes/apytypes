@@ -969,7 +969,7 @@ public:
         }
 
         // Check that arrays have the same bit specifiers and a 1-D shape
-        for (auto i = 0; i < array_vec.size(); ++i) {
+        for (std::size_t i = 0; i < array_vec.size(); ++i) {
             if (!array_vec[i].is_same_spec(array_vec[0])) {
                 throw nb::value_error(
                     "meshgrid: all arrays must have the same bit specifiers"

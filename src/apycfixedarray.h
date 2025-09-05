@@ -206,7 +206,10 @@ public:
     std::string repr() const;
 
     //! Convert to a NumPy array
-    nb::ndarray<nb::numpy, std::complex<double>> to_numpy() const;
+    nb::ndarray<nb::numpy, std::complex<double>> to_numpy(
+        std::optional<nb::object> dtype = std::nullopt,
+        std::optional<bool> copy = std::nullopt
+    ) const;
 
     //! Sum over one or more axes.
     std::variant<APyCFixedArray, APyCFixed>

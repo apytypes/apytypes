@@ -842,16 +842,29 @@ void bind_cfloat_array(nb::module_& m)
             )pbdoc"
         )
 
-        .def("to_numpy", &APyCFloatArray::to_numpy, R"pbdoc(
+        .def(
+            "to_numpy",
+            &APyCFloatArray::to_numpy,
+            nb::arg("dtype") = nb::none(),
+            nb::arg("copy") = nb::none(),
+            R"pbdoc(
             Return array as a :class:`numpy.ndarray` of :class:`numpy.complex128`.
 
             The returned array has the same `shape` and values as `self`. This
             method rounds away from infinity on ties.
 
+            Parameters
+            ----------
+            dtype : :std:doc:`numpy:dtype`
+                The desired data type of the output array. This parameter is currently ignored.
+            copy : :class:`bool`
+                Whether to copy the data or not. Must be :code:`True` or :code:`None`.
+
             Returns
             -------
             :class:`numpy.ndarray`
-            )pbdoc")
+            )pbdoc"
+        )
 
         .def(
             "broadcast_to",
@@ -1240,6 +1253,10 @@ void bind_cfloat_array(nb::module_& m)
         .def("__getitem__", &APyCFloatArray::get_item, nb::arg("key"))
         .def("__setitem__", &APyCFloatArray::set_item, nb::arg("key"), nb::arg("val"))
         .def("__len__", &APyCFloatArray::size)
-
-        ;
+        .def(
+            "__array__",
+            &APyCFloatArray::to_numpy,
+            nb::arg("dtype") = nb::none(),
+            nb::arg("copy") = nb::none()
+        );
 }

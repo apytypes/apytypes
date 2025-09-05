@@ -242,7 +242,10 @@ public:
     nb::list to_signed_bits() const;
 
     //! Convert to a NumPy array
-    nb::ndarray<nb::numpy, double> to_numpy() const;
+    nanobind::ndarray<nanobind::numpy, double> to_numpy(
+        std::optional<nb::object> dtype = std::nullopt,
+        std::optional<bool> copy = std::nullopt
+    ) const;
 
     //! Elementwise absolute value
     APyFixedArray abs() const;
