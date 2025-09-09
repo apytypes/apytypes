@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+### Removed
+
+## [0.4.0] - 2025-09-09
+
+### Added
+
 - Complex-valued floating-point types:
   - `APyCFloat`, a complex scalar floating-point type.
   - `APyCFloatArray`, a complex array floating-point type.
@@ -232,7 +242,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
-[unreleased]: https://github.com/apytypes/apytypes/compare/v0.3.1...HEAD
+[unreleased]: https://github.com/apytypes/apytypes/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/apytypes/apytypes/releases/tag/v0.4.0
 [0.3.1]: https://github.com/apytypes/apytypes/releases/tag/v0.3.1
 [0.3.0]: https://github.com/apytypes/apytypes/releases/tag/v0.3.0
 [0.2.2]: https://github.com/apytypes/apytypes/releases/tag/v0.2.2
