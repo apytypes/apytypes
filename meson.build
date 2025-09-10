@@ -33,6 +33,7 @@ if get_option('limb_size') == '64'
         language: ['cpp', 'c'],
     )
 endif
+add_project_arguments('-DCMAKE_VERBOSE_MAKEFILE=ON', language: ['cpp', 'c'])
 
 # Disable nanobind leak warnings on release builds
 if get_option('buildtype') == 'release'

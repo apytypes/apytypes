@@ -192,8 +192,8 @@ struct DoubleDabbleList {
 
     //! Mask with a bit in every position where a nibble starts
     static constexpr apy_limb_t _NIBBLE_MASK = APY_LIMB_SIZE_BITS == 64
-        ? 0x1111111111111111 // 64-bit architecture
-        : 0x11111111;        // 32-bit architecture
+        ? apy_limb_t(0x1111111111111111) // 64-bit architecture
+        : apy_limb_t(0x11111111);        // 32-bit architecture
 
     std::vector<apy_limb_t> data { 0 };
 
@@ -664,7 +664,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
-    auto limbs = std::distance(it_begin, it_end);
+    std::size_t limbs = std::distance(it_begin, it_end);
     if (limb_idx < limbs) {
         apy_limb_t term_limb = apy_limb_t(1) << (n % APY_LIMB_SIZE_BITS);
         return apy_inplace_addition_single_limb(
@@ -683,7 +683,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
-    auto limbs = std::distance(it_begin, it_end);
+    std::size_t limbs = std::distance(it_begin, it_end);
     if (limb_idx < limbs) {
         apy_limb_t term_limb = apy_limb_t(1) << (n % APY_LIMB_SIZE_BITS);
         return apy_inplace_subtraction_single_limb(
