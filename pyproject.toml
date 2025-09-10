@@ -90,7 +90,7 @@ testpaths = ["lib/test"]
 
 [tool.cibuildwheel]
 skip = [
-    "*t-win*", # no free-threading versions on Windows
+    "*t-win*",  # no free-threading versions on Windows
     "*-win32*", # win32 does not work
 ]
 enable = ["cpython-freethreading", "cpython-prerelease"]
