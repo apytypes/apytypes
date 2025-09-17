@@ -300,6 +300,9 @@ public:
         return real().exp == 0 && real().man == 0 && imag().exp == 0 && imag().man == 0;
     }
 
+    //! Convert to a tuple of bits
+    nb::tuple to_bits() const;
+
     //! Create an `APyCFloat` with the stored value one
     static APyCFloat
     one(std::uint8_t exp_bits,

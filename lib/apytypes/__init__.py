@@ -330,7 +330,7 @@ that it can be used within ordinary arithmetic expressions that allows complex n
 Every fixed-point instance has an associated word length, determined by its
 :attr:`bits`, :attr:`int_bits`, and :attr:`frac_bits` bit specifiers. These specifiers
 determine the location of the binary fix-point and the total word length. Both the real
-and imaginary part share bit specifiers, and the overall number of bits in an
+and imaginary part share bit specifiers, and the total number of bits in an
 :class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifiers need to be set
 to uniquely determine the complete fixed-point format.
 

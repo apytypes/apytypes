@@ -180,7 +180,7 @@ class APyCFixed:
     Every fixed-point instance has an associated word length, determined by its
     :attr:`bits`, :attr:`int_bits`, and :attr:`frac_bits` bit specifiers. These specifiers
     determine the location of the binary fix-point and the total word length. Both the real
-    and imaginary part share bit specifiers, and the overall number of bits in an
+    and imaginary part share bit specifiers, and the total number of bits in an
     :class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifiers need to be set
     to uniquely determine the complete fixed-point format.
 
@@ -1898,6 +1898,30 @@ class APyCFloat:
         """
 
     def __complex__(self) -> complex: ...
+    def to_bits(self) -> tuple[int, int]:
+        """
+        Get the bit-representation of an :class:`APyCFloat`.
+
+        Examples
+        --------
+        Create complex-valued floating-point number `fp_a` of value -5.75 + 2j and
+        show its bit pattern (real, imag)
+
+        >>> import apytypes as apy
+        >>>
+        >>> fp_a = apy.fp(-5.75 + 2j, exp_bits=5, man_bits=3)
+        >>> fp_a.to_bits()
+        (396, 128)
+
+        Returns
+        -------
+        :class:`tuple` of :class:`int`
+
+        See Also
+        --------
+        from_bits
+        """
+
     def __str__(self, base: int = 10) -> str: ...
     def __repr__(self) -> str: ...
     def cast(
