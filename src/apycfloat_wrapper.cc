@@ -352,68 +352,85 @@ void bind_cfloat(nb::module_& m)
             )pbdoc"
         )
         .def("__complex__", &APyCFloat::to_complex)
-        // .def_static(
-        //     "from_bits",
-        //     &APyCFloat::from_bits,
-        //     nb::arg("bits"),
-        //     nb::arg("exp_bits"),
-        //     nb::arg("man_bits"),
-        //     nb::arg("bias") = nb::none(),
-        //     R"pbdoc(
-        //     Create an :class:`APyCFloat` object from a bit-representation.
+        .def_static(
+            "from_bits",
+            &APyCFloat::from_bits,
+            nb::arg("bits"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyCFloat` object from a bit-representation.
+            For convenience, leaving out the second item in the tuple
+            initializes the imaginary part to 0.
 
-        //     Parameters
-        //     ----------
-        //     bits : :class:`int`
-        //         The bit-representation for the float.
-        //     exp_bits : :class:`int`
-        //         Number of exponent bits.
-        //     man_bits : :class:`int`
-        //         Number of mantissa bits.
-        //     bias : :class:`int`, optional
-        //         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Parameters
+            ----------
+            bits : :class:`tuple` of :class:`int`
+                The bit-representation for the float.
+            exp_bits : :class:`int`
+                Number of exponent bits.
+            man_bits : :class:`int`
+                Number of mantissa bits.
+            bias : :class:`int`, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-        //     Examples
-        //     --------
+            Examples
+            --------
+            Create a complex-valued floating-point number `a` of value -5.75 + 2j
+            from its bit pattern (real, imag).
 
-        //     >>> from apytypes import APyCFloat
-        //     `a`, initialized to -1.5 from a bit pattern.
+            >>> import apytypes as apy
+            >>>
+            >>> a = apy.APyCFloat.from_bits((791, 256), exp_bits=5, man_bits=4)
+            >>> a
+            APyCFloat(sign=(1, 0), exp=(17, 16), man=(7, 0), exp_bits=5, man_bits=4)
 
-        //     >>> a = APyCFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+            Create a floating-point number `b` of value 1.0 + 0j from its bit pattern.
+            Initializing from (240,) is equivalent to initializing from (240, 0).
 
-        //     Returns
-        //     -------
-        //     :class:`APyCFloat`
+            >>> b = apy.APyCFloat.from_bits((240, ), exp_bits=5, man_bits=4)
+            >>> b
+            APyCFloat(sign=(0, 0), exp=(15, 0), man=(0, 0), exp_bits=5, man_bits=4)
 
-        //     See Also
-        //     --------
-        //     to_bits
-        //     from_float
-        //     )pbdoc"
-        // )
-        // .def("to_bits", &APyCFloat::to_bits, R"pbdoc(
-        //     Get the bit-representation of an :class:`APyCFloat`.
+            Returns
+            -------
+            :class:`APyCFloat`
 
-        //     Examples
-        //     --------
+            See Also
+            --------
+            to_bits
+            from_float
+            )pbdoc"
+        )
+        .def(
+            "to_bits",
+            [](const APyCFloat& self) -> nb::typed<nb::tuple, nb::int_, nb::int_> {
+                return nb::typed<nb::tuple, nb::int_, nb::int_>(self.to_bits());
+            },
+            R"pbdoc(
+            Get the bit-representation of an :class:`APyCFloat`.
 
-        //     >>> from apytypes import APyCFloat
-        //     `a`, initialized to -1.5 from a bit pattern.
+            Examples
+            --------
+            Create complex-valued floating-point number `a` of value -5.75 + 2j and
+            show its bit pattern (real, imag).
 
-        //     >>> a = APyCFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
-        //     >>> a
-        //     APyCFloat(sign=1, exp=15, man=2, exp_bits=5, man_bits=2)
-        //     >>> a.to_bits() == 0b1_01111_10
-        //     True
+            >>> import apytypes as apy
+            >>>
+            >>> a = apy.fp(-5.75 + 2j, exp_bits=5, man_bits=4)
+            >>> a.to_bits()
+            (791, 256)
 
-        //     Returns
-        //     -------
-        //     :class:`int`
+            Returns
+            -------
+            :class:`tuple` of :class:`int`
 
-        //     See Also
-        //     --------
-        //     from_bits
-        //     )pbdoc")
+            See Also
+            --------
+            from_bits
+            )pbdoc"
+        )
         .def("__str__", &APyCFloat::to_string, nb::arg("base") = 10)
         .def("__repr__", &APyCFloat::repr)
         // .def("_repr_latex_", &APyCFloat::latex)

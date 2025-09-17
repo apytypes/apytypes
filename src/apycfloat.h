@@ -6,6 +6,7 @@
 
 #include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
+#include <nanobind/stl/tuple.h>
 #include <nanobind/stl/variant.h>
 
 class APyCFloat {
@@ -187,6 +188,14 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Create `APyCFloat` from bit-representation
+    static APyCFloat from_bits(
+        const nb::tuple& python_long_int_bit_pattern,
+        int exp_bits,
+        int man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
     /* ****************************************************************************** *
      * *                         Binary comparison operators                        * *
      * ****************************************************************************** */
@@ -299,6 +308,9 @@ public:
     {
         return real().exp == 0 && real().man == 0 && imag().exp == 0 && imag().man == 0;
     }
+
+    //! Convert to a tuple of bits
+    nb::tuple to_bits() const;
 
     //! Create an `APyCFloat` with the stored value one
     static APyCFloat
