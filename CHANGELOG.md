@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Implemented `.to_bits()` and `.from_bits()` for `APyCFloat`.
+
 ### Fixed
 
 ### Changed
@@ -48,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scalars and `[1.0+2.5j]` for arrays)
 - Bug in floating-point matrix multiplications when inside accumulator contexts
   using quantization modes `TRN_INF` and `TRN_AWAY`.
-- Bug in floating-point `.to_bits()` and `from_bits` for large formats
+- Bug in floating-point `.to_bits()` and `.from_bits()` for large formats
   on 32-bit systems.
 
 ### Changed

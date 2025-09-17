@@ -352,6 +352,60 @@ APyCFloat APyCFloat::from_fixed(
     return APyCFloat(re, exp_bits, man_bits, bias);
 }
 
+APyCFloat APyCFloat::from_bits(
+    const nb::tuple& python_long_int_bit_pattern,
+    int exp_bits,
+    int man_bits,
+    std::optional<exp_t> opt_bias
+)
+{
+    check_exponent_format(exp_bits, "APyCFloat.from_bits");
+    check_mantissa_format(man_bits, "APyCFloat.from_bits");
+    const exp_t bias = opt_bias.value_or(ieee_bias(exp_bits));
+
+    APyFloatData real, imag {};
+
+    if (python_long_int_bit_pattern.size() == 0) {
+        throw nb::value_error(
+            "APyCFloat.from_bits: tuple initializer with zero elements"
+        );
+    }
+    if (python_long_int_bit_pattern.size() == 1) {
+        // Single element, real part
+        nb::int_ real_bits;
+        if (nb::try_cast<nb::int_>(python_long_int_bit_pattern[0], real_bits)) {
+            real = APyFloat::from_bits(real_bits, exp_bits, man_bits, bias).get_data();
+        } else {
+            throw nb::value_error(
+                "APyCFloat.from_bits: tuple initializer with non-integer element"
+            );
+        }
+    } else if (python_long_int_bit_pattern.size() == 2) {
+        // Two elements, real followed by imaginary part
+        nb::int_ real_bits, imag_bits;
+        if (nb::try_cast<nb::int_>(python_long_int_bit_pattern[0], real_bits)) {
+            real = APyFloat::from_bits(real_bits, exp_bits, man_bits, bias).get_data();
+        } else {
+            throw nb::value_error(
+                "APyCFloat.from_bits: tuple initializer with non-integer element"
+            );
+        }
+        if (nb::try_cast<nb::int_>(python_long_int_bit_pattern[1], imag_bits)) {
+            imag = APyFloat::from_bits(imag_bits, exp_bits, man_bits, bias).get_data();
+        } else {
+            throw nb::value_error(
+                "APyCFloat.from_bits: tuple initializer with non-integer element"
+            );
+        }
+    } else {
+        throw nb::value_error(
+            "APyCFloat.from_bits: tuple initializer with more than two elements"
+        );
+    }
+
+    return APyCFloat(real, imag, exp_bits, man_bits, bias);
+}
+
 /* ********************************************************************************** *
  * *                        Binary comparison operators                             * *
  * ********************************************************************************** */
@@ -537,6 +591,14 @@ std::complex<double> APyCFloat::to_complex() const
     return std::complex<double>(
         APyFloat(real(), exp_bits, man_bits, bias).to_double(),
         APyFloat(imag(), exp_bits, man_bits, bias).to_double()
+    );
+}
+
+nb::tuple APyCFloat::to_bits() const
+{
+    return nb::make_tuple(
+        APyFloat(real(), exp_bits, man_bits, bias).to_bits(),
+        APyFloat(imag(), exp_bits, man_bits, bias).to_bits()
     );
 }
 
