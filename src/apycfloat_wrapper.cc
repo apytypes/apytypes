@@ -391,29 +391,34 @@ void bind_cfloat(nb::module_& m)
         //     from_float
         //     )pbdoc"
         // )
-        // .def("to_bits", &APyCFloat::to_bits, R"pbdoc(
-        //     Get the bit-representation of an :class:`APyCFloat`.
+        .def(
+            "to_bits",
+            [](const APyCFloat& self) -> nb::typed<nb::tuple, nb::int_, nb::int_> {
+                return nb::typed<nb::tuple, nb::int_, nb::int_>(self.to_bits());
+            },
+            R"pbdoc(
+            Get the bit-representation of an :class:`APyCFloat`.
 
-        //     Examples
-        //     --------
+            Examples
+            --------
+            Create complex-valued floating-point number `fp_a` of value -5.75 + 2j and
+            show its bit pattern (real, imag)
 
-        //     >>> from apytypes import APyCFloat
-        //     `a`, initialized to -1.5 from a bit pattern.
+            >>> import apytypes as apy
+            >>>
+            >>> fp_a = apy.fp(-5.75 + 2j, exp_bits=5, man_bits=3)
+            >>> fp_a.to_bits()
+            (396, 128)
 
-        //     >>> a = APyCFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
-        //     >>> a
-        //     APyCFloat(sign=1, exp=15, man=2, exp_bits=5, man_bits=2)
-        //     >>> a.to_bits() == 0b1_01111_10
-        //     True
+            Returns
+            -------
+            :class:`tuple` of :class:`int`
 
-        //     Returns
-        //     -------
-        //     :class:`int`
-
-        //     See Also
-        //     --------
-        //     from_bits
-        //     )pbdoc")
+            See Also
+            --------
+            from_bits
+            )pbdoc"
+        )
         .def("__str__", &APyCFloat::to_string, nb::arg("base") = 10)
         .def("__repr__", &APyCFloat::repr)
         // .def("_repr_latex_", &APyCFloat::latex)

@@ -540,6 +540,14 @@ std::complex<double> APyCFloat::to_complex() const
     );
 }
 
+nb::tuple APyCFloat::to_bits() const
+{
+    return nb::make_tuple(
+        APyFloat(real(), exp_bits, man_bits, bias).to_bits(),
+        APyFloat(imag(), exp_bits, man_bits, bias).to_bits()
+    );
+}
+
 std::string APyCFloat::to_string(int base) const
 {
     switch (base) {
