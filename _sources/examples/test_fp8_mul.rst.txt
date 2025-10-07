@@ -91,13 +91,6 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    /home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:22: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
-      from cocotb.runner import get_runner
-
 
 
 
@@ -143,14 +136,6 @@ The rest of the testbench is set up as one would normally do using cocotb.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    INFO: Running command nvc --work=top -a /home/runner/work/apytypes/apytypes/examples/fp8_multiplier.vhdl in directory /home/runner/work/apytypes/apytypes/examples/sim_build
-    INFO: Running command nvc --work=top -e fp8_multiplier --no-save --jit -r --load=/opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/site-packages/cocotb/libs/libcocotbvhpi_nvc.so in directory /home/runner/work/apytypes/apytypes/examples/sim_build
-    INFO: Results file: /home/runner/work/apytypes/apytypes/examples/sim_build/results.xml
-
 
 
 
@@ -164,7 +149,7 @@ The contents of ``fp8_multiplier.vhdl`` is shown below.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.177 seconds)
+   **Total running time of the script:** (0 minutes 3.954 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:

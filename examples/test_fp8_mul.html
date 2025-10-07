@@ -1,15 +1,15 @@
 <!doctype html>
 <html class="no-js" lang="en" data-content_root="../">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Computational performance" href="../performance.html" /><link rel="prev" title="Reciprocal lookup table" href="reciprocal_lookup.html" />
-        <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Computational performance" href="../performance.html"><link rel="prev" title="Reciprocal lookup table" href="reciprocal_lookup.html">
+        <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image">
 
-    <link rel="shortcut icon" href="../_static/apytypes.ico"/><!-- Generated with Sphinx 8.2.3 and Furo 2025.07.19 -->
+    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
         <title>cocotb integration - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=25af2a20" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -31,8 +31,8 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #2b2b2b;
-  --color-code-foreground: #f8f8f2;
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
   --color-brand-visited: #7ebd01;
@@ -40,8 +40,8 @@
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #2b2b2b;
-  --color-code-foreground: #f8f8f2;
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
   --color-brand-visited: #7ebd01;
@@ -159,14 +159,10 @@
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
@@ -176,8 +172,7 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
@@ -185,8 +180,7 @@
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
           <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
           <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -194,8 +188,7 @@
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
@@ -217,7 +210,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input aria-label="Toggle navigation of apytypes Python package" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfloat.html"><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></li>
@@ -233,7 +226,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../cpp_api/index.html">APyTypes C++ API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../cpp_api/index.html">APyTypes C++ API</a><input aria-label="Toggle navigation of APyTypes C++ API" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apybuffer.html"><code class="docutils literal notranslate"><span class="pre">apybuffer.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
@@ -255,7 +248,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/array_utils.html"><code class="docutils literal notranslate"><span class="pre">array_utils.h</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Examples</a><input aria-label="Toggle navigation of Examples" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="apyfloat.html">APyFloat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixed.html">APyFixed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="numpy_integration.html">NumPy integration</a></li>
@@ -298,8 +291,7 @@
   </a>
 </div>
 <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -307,8 +299,7 @@
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
@@ -331,11 +322,11 @@ Below is an exhaustive test of an eight-bit floating-point multiplier with round
 
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># cocotb &lt; 2</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">cocotb.runner</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_runner</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cocotb.runner</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.cocotb.org/en/stable/library_reference.html#cocotb_tools.runner.get_runner" title="cocotb_tools.runner.get_runner" class="sphx-glr-backref-module-cocotb_tools-runner sphx-glr-backref-type-py-function"><span class="n">get_runner</span></a>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="c1"># cocotb &gt;= 2</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">cocotb_tools.runner</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_runner</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cocotb.triggers</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.cocotb.org/en/stable/triggers.html#cocotb.triggers.FallingEdge" title="cocotb.triggers.FallingEdge" class="sphx-glr-backref-module-cocotb-triggers sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cocotb_tools.runner</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.cocotb.org/en/stable/library_reference.html#cocotb_tools.runner.get_runner" title="cocotb_tools.runner.get_runner" class="sphx-glr-backref-module-cocotb_tools-runner sphx-glr-backref-type-py-function"><span class="n">get_runner</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cocotb.triggers</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.cocotb.org/en/stable/library_reference.html#cocotb.triggers.FallingEdge" title="cocotb.triggers.FallingEdge" class="sphx-glr-backref-module-cocotb-triggers sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 
@@ -358,8 +349,8 @@ Below is an exhaustive test of an eight-bit floating-point multiplier with round
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">fp8_values</span><span class="p">:</span>
             <span class="n">dut</span><span class="o">.</span><span class="n">y_in</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
 
-            <span class="k">await</span> <a href="https://docs.cocotb.org/en/stable/triggers.html#cocotb.triggers.FallingEdge" title="cocotb.triggers.FallingEdge" class="sphx-glr-backref-module-cocotb-triggers sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">clk</span><span class="p">)</span>  <span class="c1"># Input is set on falling clock edge</span>
-            <span class="k">await</span> <a href="https://docs.cocotb.org/en/stable/triggers.html#cocotb.triggers.FallingEdge" title="cocotb.triggers.FallingEdge" class="sphx-glr-backref-module-cocotb-triggers sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">clk</span><span class="p">)</span>  <span class="c1"># Wait another clock cycle for the result</span>
+            <span class="k">await</span> <a href="https://docs.cocotb.org/en/stable/library_reference.html#cocotb.triggers.FallingEdge" title="cocotb.triggers.FallingEdge" class="sphx-glr-backref-module-cocotb-triggers sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">clk</span><span class="p">)</span>  <span class="c1"># Input is set on falling clock edge</span>
+            <span class="k">await</span> <a href="https://docs.cocotb.org/en/stable/library_reference.html#cocotb.triggers.FallingEdge" title="cocotb.triggers.FallingEdge" class="sphx-glr-backref-module-cocotb-triggers sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">clk</span><span class="p">)</span>  <span class="c1"># Wait another clock cycle for the result</span>
 
             <span class="n">z_dut</span> <span class="o">=</span> <a href="../api/apyfloat.html#apytypes.APyFloat.from_bits" title="apytypes.APyFloat.from_bits" class="sphx-glr-backref-module-apytypes-APyFloat sphx-glr-backref-type-py-method"><span class="n">apy</span><span class="o">.</span><span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span></a><span class="p">(</span>
                 <span class="nb">int</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">z_out</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="n">exp_bits</span><span class="o">=</span><span class="n">EXP_BITS</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="n">MAN_BITS</span>
@@ -376,10 +367,6 @@ Below is an exhaustive test of an eight-bit floating-point multiplier with round
                 <span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:22: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
-  from cocotb.runner import get_runner
-</pre></div>
-</div>
 <p>The rest of the testbench is set up as one would normally do using cocotb.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_fp8_mul</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -394,7 +381,7 @@ Below is an exhaustive test of an eight-bit floating-point multiplier with round
     <span class="p">)</span>
     <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dir_path</span><span class="si">}</span><span class="s2">/fp8_multiplier.vhdl&quot;</span><span class="p">]</span>
 
-    <span class="n">runner</span> <span class="o">=</span> <span class="n">get_runner</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+    <span class="n">runner</span> <span class="o">=</span> <a href="https://docs.cocotb.org/en/stable/library_reference.html#cocotb_tools.runner.get_runner" title="cocotb_tools.runner.get_runner" class="sphx-glr-backref-module-cocotb_tools-runner sphx-glr-backref-type-py-function"><span class="n">get_runner</span></a><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
     <span class="n">runner</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
         <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
         <span class="n">hdl_toplevel</span><span class="o">=</span><span class="s2">&quot;fp8_multiplier&quot;</span><span class="p">,</span>
@@ -408,11 +395,6 @@ Below is an exhaustive test of an eight-bit floating-point multiplier with round
         <span class="n">test_fp8_mul</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NVC not found&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>INFO: Running command nvc --work=top -a /home/runner/work/apytypes/apytypes/examples/fp8_multiplier.vhdl in directory /home/runner/work/apytypes/apytypes/examples/sim_build
-INFO: Running command nvc --work=top -e fp8_multiplier --no-save --jit -r --load=/opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/site-packages/cocotb/libs/libcocotbvhpi_nvc.so in directory /home/runner/work/apytypes/apytypes/examples/sim_build
-INFO: Results file: /home/runner/work/apytypes/apytypes/examples/sim_build/results.xml
 </pre></div>
 </div>
 <p>The contents of <code class="docutils literal notranslate"><span class="pre">fp8_multiplier.vhdl</span></code> is shown below.</p>
@@ -441,7 +423,7 @@ INFO: Results file: /home/runner/work/apytypes/apytypes/examples/sim_build/resul
 <span class="k">end</span><span class="w"> </span><span class="nc">arch</span><span class="p">;</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 12.177 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.954 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-test-fp8-mul-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/95cd391970f13461ba86e0fd415cb9b3/test_fp8_mul.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">test_fp8_mul.ipynb</span></code></a></p>
