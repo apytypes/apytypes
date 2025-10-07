@@ -1,3 +1,4 @@
+import re
 from math import ceil, log2
 from typing import overload
 
@@ -1423,12 +1424,12 @@ def test_fullrange():
         _ = fullrange(10, int_bits=5, frac_bits=10, bias=15)
 
     with pytest.raises(
-        ValueError, match="APyFloatArray.fullrange: start or stop is NaN"
+        ValueError, match=re.escape("APyFloatArray.fullrange: start or stop is NaN")
     ):
         _ = fullrange(0, float("nan"), exp_bits=5, man_bits=10)
 
     with pytest.raises(
-        ValueError, match="APyFloatArray.fullrange: start or stop is NaN"
+        ValueError, match=re.escape("APyFloatArray.fullrange: start or stop is NaN")
     ):
         _ = fullrange(float("nan"), 1, exp_bits=5, man_bits=10)
 

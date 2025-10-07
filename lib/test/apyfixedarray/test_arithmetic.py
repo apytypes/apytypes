@@ -16,13 +16,15 @@ from apytypes import (
 def test_array_raises(fixed_array: type[APyCFixedArray]):
     a = fixed_array([5, 6, 7], bits=10, int_bits=5)
     b = fixed_array([1, 2, 3, 11], bits=7, int_bits=2)
-    with pytest.raises(ValueError, match="APyC?FixedArray.__add__: shape mismatch"):
+    with pytest.raises(ValueError, match=r"APyC?FixedArray\.__add__: shape mismatch"):
         _ = a + b
-    with pytest.raises(ValueError, match="APyC?FixedArray.__sub__: shape mismatch"):
+    with pytest.raises(ValueError, match=r"APyC?FixedArray\.__sub__: shape mismatch"):
         _ = a - b
-    with pytest.raises(ValueError, match="APyC?FixedArray.__mul__: shape mismatch"):
+    with pytest.raises(ValueError, match=r"APyC?FixedArray\.__mul__: shape mismatch"):
         _ = a * b
-    with pytest.raises(ValueError, match="APyC?FixedArray.__truediv__: shape mismatch"):
+    with pytest.raises(
+        ValueError, match=r"APyC?FixedArray\.__truediv__: shape mismatch"
+    ):
         _ = a / b
 
 

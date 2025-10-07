@@ -22,13 +22,13 @@ def test_dimension_mismatch_raises(float_array: type[APyCFloatArray]):
 
     with pytest.raises(
         ValueError,
-        match="APyC?FloatArray.__matmul__: input shape mismatch",
+        match=r"APyC?FloatArray\.__matmul__: input shape mismatch",
     ):
         _ = a @ b
 
     with pytest.raises(
         ValueError,
-        match="APyC?FloatArray.__matmul__: input shape mismatch",
+        match=r"APyC?FloatArray\.__matmul__: input shape mismatch",
     ):
         _ = b @ a
 
@@ -43,14 +43,14 @@ def test_dimension_mismatch_raises(float_array: type[APyCFloatArray]):
 
     with pytest.raises(
         ValueError,
-        match=r"APyC?FloatArray.__matmul__: input shape mismatch, "
+        match=r"APyC?FloatArray\.__matmul__: input shape mismatch, "
         + r"lhs: \(2, 3\), rhs: \(2, 3\)",
     ):
         _ = a @ a
 
     with pytest.raises(
         ValueError,
-        match=r"APyC?FloatArray.__matmul__: input shape mismatch, "
+        match=r"APyC?FloatArray\.__matmul__: input shape mismatch, "
         + r"lhs: \(3, 2\), rhs: \(3, 2\)",
     ):
         _ = b @ b

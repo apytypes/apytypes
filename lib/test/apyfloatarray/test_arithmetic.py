@@ -15,13 +15,15 @@ from apytypes import (
 def test_array_raises(float_array: type[APyCFloatArray]):
     a = float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10)
     b = float_array.from_float([1, 2], exp_bits=10, man_bits=10)
-    with pytest.raises(ValueError, match="APyC?FloatArray.__add__: shape mismatch"):
+    with pytest.raises(ValueError, match=r"APyC?FloatArray\.__add__: shape mismatch"):
         _ = a + b
-    with pytest.raises(ValueError, match="APyC?FloatArray.__sub__: shape mismatch"):
+    with pytest.raises(ValueError, match=r"APyC?FloatArray\.__sub__: shape mismatch"):
         _ = a - b
-    with pytest.raises(ValueError, match="APyC?FloatArray.__mul__: shape mismatch"):
+    with pytest.raises(ValueError, match=r"APyC?FloatArray\.__mul__: shape mismatch"):
         _ = a * b
-    with pytest.raises(ValueError, match="APyC?FloatArray.__truediv__: shape mismatch"):
+    with pytest.raises(
+        ValueError, match=r"APyC?FloatArray\.__truediv__: shape mismatch"
+    ):
         _ = a / b
 
 

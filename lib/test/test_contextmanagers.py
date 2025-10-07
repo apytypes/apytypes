@@ -25,7 +25,7 @@ class TestCastContext:
     """
 
     def test_raises(self):
-        with pytest.raises(ValueError, match=".*must be specified"):
+        with pytest.raises(ValueError, match=r".*must be specified"):
             with APyFixedCastContext():
                 pass
 
@@ -226,11 +226,11 @@ class TestAccumulatorContext:
     """
 
     def test_raises(self):
-        with pytest.raises(ValueError, match="Both.*must be specified"):
+        with pytest.raises(ValueError, match=r"Both.*must be specified"):
             with APyFloatAccumulatorContext():
                 pass
 
-        with pytest.raises(ValueError, match=".*specification needs"):
+        with pytest.raises(ValueError, match=r".*specification needs"):
             with APyFixedAccumulatorContext():
                 pass
 
@@ -242,23 +242,23 @@ class TestAccumulatorContext:
 
         with pytest.raises(
             ValueError,
-            match="APyFloatAccumulatorContext: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+            match=r"APyFloatAccumulatorContext: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
         ):
             _ = APyFloatAccumulatorContext(exp_bits=300, man_bits=5)
         with pytest.raises(
             ValueError,
-            match="APyFloatAccumulatorContext: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+            match=r"APyFloatAccumulatorContext: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
         ):
             _ = APyFloatAccumulatorContext(exp_bits=-300, man_bits=5)
         # Too many mantissa bits
         with pytest.raises(
             ValueError,
-            match="APyFloatAccumulatorContext: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+            match=r"APyFloatAccumulatorContext: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
         ):
             _ = APyFloatAccumulatorContext(exp_bits=5, man_bits=300)
         with pytest.raises(
             ValueError,
-            match="APyFloatAccumulatorContext: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+            match=r"APyFloatAccumulatorContext: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
         ):
             _ = APyFloatAccumulatorContext(exp_bits=5, man_bits=-300)
 

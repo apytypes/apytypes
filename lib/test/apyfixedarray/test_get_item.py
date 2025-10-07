@@ -24,21 +24,27 @@ def test_get_item_integer(
     assert fx_array[0].is_identical(fixed_scalar(1, bits=10, int_bits=10))
     assert fx_array[1].is_identical(fixed_scalar(2, bits=10, int_bits=10))
     assert fx_array[5].is_identical(fixed_scalar(6, bits=10, int_bits=10))
-    with pytest.raises(IndexError, match="APyC?FixedArray.__getitem__: index 6 is out"):
+    with pytest.raises(
+        IndexError, match=r"APyC?FixedArray\.__getitem__: index 6 is out"
+    ):
         fx_array[6]
 
     # ndim == 2
     fx_array = fixed_array([[1, 2, 3], [4, 5, 6]], bits=10, int_bits=10)
     assert fx_array[0].is_identical(fixed_array([1, 2, 3], bits=10, int_bits=10))
     assert fx_array[1].is_identical(fixed_array([4, 5, 6], bits=10, int_bits=10))
-    with pytest.raises(IndexError, match="APyC?FixedArray.__getitem__: index 2 is out"):
+    with pytest.raises(
+        IndexError, match=r"APyC?FixedArray\.__getitem__: index 2 is out"
+    ):
         fx_array[2]
 
     # ndim == 3
     fx_array = fixed_array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], bits=10, int_bits=10)
     assert fx_array[0].is_identical(fixed_array([[1, 2], [3, 4]], bits=10, int_bits=10))
     assert fx_array[1].is_identical(fixed_array([[5, 6], [7, 8]], bits=10, int_bits=10))
-    with pytest.raises(IndexError, match="APyC?FixedArray.__getitem__: index 2 is out"):
+    with pytest.raises(
+        IndexError, match=r"APyC?FixedArray\.__getitem__: index 2 is out"
+    ):
         fx_array[2]
 
 
