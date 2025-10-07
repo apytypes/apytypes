@@ -28,7 +28,9 @@ def test_get_item_integer(
     print(float_scalar.from_float(2, exp_bits=8, man_bits=23))
     assert fp_array[1].is_identical(float_scalar.from_float(2, exp_bits=8, man_bits=23))
     assert fp_array[5].is_identical(float_scalar.from_float(6, exp_bits=8, man_bits=23))
-    with pytest.raises(IndexError, match="APyC?FloatArray.__getitem__: index 6 is out"):
+    with pytest.raises(
+        IndexError, match=r"APyC?FloatArray\.__getitem__: index 6 is out"
+    ):
         fp_array[6]
 
     # ndim == 2
@@ -39,7 +41,9 @@ def test_get_item_integer(
     assert fp_array[1].is_identical(
         float_array.from_float([3, 4], exp_bits=8, man_bits=23)
     )
-    with pytest.raises(IndexError, match="APyC?FloatArray.__getitem__: index 2 is out"):
+    with pytest.raises(
+        IndexError, match=r"APyC?FloatArray\.__getitem__: index 2 is out"
+    ):
         fp_array[2]
 
     # ndim == 3
@@ -52,7 +56,9 @@ def test_get_item_integer(
     assert fp_array[1].is_identical(
         float_array.from_float([[5, 6], [7, 8]], exp_bits=8, man_bits=23)
     )
-    with pytest.raises(IndexError, match="APyC?FloatArray.__getitem__: index 2 is out"):
+    with pytest.raises(
+        IndexError, match=r"APyC?FloatArray\.__getitem__: index 2 is out"
+    ):
         fp_array[2]
 
 
