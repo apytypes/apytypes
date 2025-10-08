@@ -91,7 +91,7 @@ def test_matrix_multiplication():
             int_bits=20,
         )
     )
-    with pytest.raises(ValueError, match="APyCFixedArray.__matmul__: input shape"):
+    with pytest.raises(ValueError, match=r"APyCFixedArray\.__matmul__: input shape"):
         _ = b @ a
 
 

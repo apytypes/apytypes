@@ -93,7 +93,7 @@ def test_array_from_float_raises(float_array: type[APyCFloatArray]):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match=r"APyC?FloatArray.from_(float)|(complex): "
+        match=r"APyC?FloatArray\.from_(float)|(complex): "
         + r"exponent bits must be a non-negative integer less or equal to .. but 300 "
         + r"was given",
     ):
@@ -101,7 +101,7 @@ def test_array_from_float_raises(float_array: type[APyCFloatArray]):
 
     with pytest.raises(
         ValueError,
-        match=r"APyC?FloatArray.from_(float)|(complex): "
+        match=r"APyC?FloatArray\.from_(float)|(complex): "
         + r"exponent bits must be a non-negative integer less or equal to .. but -300 "
         + r"was given",
     ):
@@ -110,7 +110,7 @@ def test_array_from_float_raises(float_array: type[APyCFloatArray]):
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match=r"APyC?FloatArray.from_(float)|(complex): "
+        match=r"APyC?FloatArray\.from_(float)|(complex): "
         + r"mantissa bits must be a non-negative integer less or equal to .. but 300 "
         + "was given",
     ):
@@ -118,7 +118,7 @@ def test_array_from_float_raises(float_array: type[APyCFloatArray]):
 
     with pytest.raises(
         ValueError,
-        match=r"APyC?FloatArray.from_(float)|(complex): "
+        match=r"APyC?FloatArray\.from_(float)|(complex): "
         + r"mantissa bits must be a non-negative integer less or equal to .. but -300 "
         + "was given",
     ):
@@ -126,7 +126,7 @@ def test_array_from_float_raises(float_array: type[APyCFloatArray]):
 
     with pytest.raises(
         ValueError,
-        match=r"APyC?FloatArray.from_(float)|(complex): "
+        match=r"APyC?FloatArray\.from_(float)|(complex): "
         + r"unexpected type when traversing iterable sequence: <class 'str'>",
     ):
         _ = float_array.from_float(["0"], 5, 10)
@@ -356,7 +356,7 @@ def test_from_bits_numpy():
     # Test raise
     with pytest.raises(
         TypeError,
-        match="APyFloatArray::_set_bits_from_ndarray()",
+        match=r"APyFloatArray::_set_bits_from_ndarray\(\)",
     ):
         APyFloatArray.from_bits(np.asarray([1.0]), 8, 15)
 
@@ -631,7 +631,7 @@ def test_squeeze(float_array: type[APyCFloatArray]):
     assert k.is_identical(i)
     assert z.is_identical(i)
     m = float_array.from_float([[1], [2], [3]], exp_bits=10, man_bits=10)
-    with pytest.raises(ValueError, match=r"APyC?FloatArray.squeeze: cannot squeeze"):
+    with pytest.raises(ValueError, match=r"APyC?FloatArray\.squeeze: cannot squeeze"):
         _ = m.squeeze(axis=0)
     m1 = m.squeeze(axis=1)
     assert m1.is_identical(float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10))
@@ -644,7 +644,7 @@ def test_squeeze(float_array: type[APyCFloatArray]):
     p = n.squeeze((0, 1, 3))
     assert p.is_identical(float_array.from_float([[[[[2]]]]], exp_bits=10, man_bits=10))
     q = float_array.from_float([[[1]], [[2]], [[3]], [[4]]], exp_bits=10, man_bits=10)
-    with pytest.raises(ValueError, match="APyC?FloatArray.squeeze: cannot squeeze"):
+    with pytest.raises(ValueError, match=r"APyC?FloatArray\.squeeze: cannot squeeze"):
         _ = q.squeeze((0, 1, 2))
     with pytest.raises(IndexError):
         _ = m.squeeze((1, 4))

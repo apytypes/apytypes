@@ -180,7 +180,7 @@ class APyCFixed:
     Every fixed-point instance has an associated word length, determined by its
     :attr:`bits`, :attr:`int_bits`, and :attr:`frac_bits` bit specifiers. These specifiers
     determine the location of the binary fix-point and the total word length. Both the real
-    and imaginary part share bit specifiers, and the overall number of bits in an
+    and imaginary part share bit specifiers, and the total number of bits in an
     :class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifiers need to be set
     to uniquely determine the complete fixed-point format.
 
@@ -1898,6 +1898,78 @@ class APyCFloat:
         """
 
     def __complex__(self) -> complex: ...
+    @staticmethod
+    def from_bits(
+        bits: tuple, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloat:
+        """
+        Create an :class:`APyCFloat` object from a bit-representation.
+        For convenience, leaving out the second item in the tuple
+        initializes the imaginary part to 0.
+
+        Parameters
+        ----------
+        bits : :class:`tuple` of :class:`int`
+            The bit-representation for the float.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Examples
+        --------
+        Create a complex-valued floating-point number `a` of value -5.75 + 2j
+        from its bit pattern (real, imag).
+
+        >>> import apytypes as apy
+        >>>
+        >>> a = apy.APyCFloat.from_bits((791, 256), exp_bits=5, man_bits=4)
+        >>> a
+        APyCFloat(sign=(1, 0), exp=(17, 16), man=(7, 0), exp_bits=5, man_bits=4)
+
+        Create a floating-point number `b` of value 1.0 + 0j from its bit pattern.
+        Initializing from (240,) is equivalent to initializing from (240, 0).
+
+        >>> b = apy.APyCFloat.from_bits((240,), exp_bits=5, man_bits=4)
+        >>> b
+        APyCFloat(sign=(0, 0), exp=(15, 0), man=(0, 0), exp_bits=5, man_bits=4)
+
+        Returns
+        -------
+        :class:`APyCFloat`
+
+        See Also
+        --------
+        to_bits
+        from_float
+        """
+
+    def to_bits(self) -> tuple[int, int]:
+        """
+        Get the bit-representation of an :class:`APyCFloat`.
+
+        Examples
+        --------
+        Create complex-valued floating-point number `a` of value -5.75 + 2j and
+        show its bit pattern (real, imag).
+
+        >>> import apytypes as apy
+        >>>
+        >>> a = apy.fp(-5.75 + 2j, exp_bits=5, man_bits=4)
+        >>> a.to_bits()
+        (791, 256)
+
+        Returns
+        -------
+        :class:`tuple` of :class:`int`
+
+        See Also
+        --------
+        from_bits
+        """
+
     def __str__(self, base: int = 10) -> str: ...
     def __repr__(self) -> str: ...
     def cast(

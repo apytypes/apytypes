@@ -184,3 +184,61 @@ def test_from_apyfloat(
             value, exp_bits=exp_bits[1], man_bits=man_bits[1], bias=bias[1]
         )
     )
+
+
+def test_from_bits():
+    # Test raises
+    with pytest.raises(
+        ValueError, match=r"APyCFloat.from_bits: tuple initializer with zero elements"
+    ):
+        _ = APyCFloat.from_bits((), exp_bits=5, man_bits=4)
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyCFloat.from_bits: tuple initializer with non-integer element",
+    ):
+        _ = APyCFloat.from_bits((1.5,), exp_bits=5, man_bits=4)
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyCFloat.from_bits: tuple initializer with non-integer element",
+    ):
+        _ = APyCFloat.from_bits((1.5, 2), exp_bits=5, man_bits=4)
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyCFloat.from_bits: tuple initializer with non-integer element",
+    ):
+        _ = APyCFloat.from_bits((1, 2.5), exp_bits=5, man_bits=4)
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyCFloat.from_bits: tuple initializer with more than two elements",
+    ):
+        _ = APyCFloat.from_bits((1, 2, 0), exp_bits=5, man_bits=4)
+
+    # Initialize to -5.75 + 2j from a bit pattern
+    a = APyCFloat.from_bits((791, 256), exp_bits=5, man_bits=4)
+    assert a.is_identical(
+        APyCFloat(sign=(1, 0), exp=(17, 16), man=(7, 0), exp_bits=5, man_bits=4)
+    )
+
+    # Initialize to 1.0 + 0j
+    b = APyCFloat.from_bits((240,), exp_bits=5, man_bits=4)
+    assert b.is_identical(
+        APyCFloat(sign=(0, 0), exp=(15, 0), man=(0, 0), exp_bits=5, man_bits=4)
+    )
+
+    # Test large bit pattern: -0.0 - NaNj
+    c = APyCFloat.from_bits((1 << 71, 0xFFFFFC000000000081), exp_bits=21, man_bits=50)
+    assert c.is_identical(
+        APyCFloat(sign=(1, 1), exp=(0, 2097151), man=(0, 129), exp_bits=21, man_bits=50)
+    )
+
+
+def test_to_bits():
+    a = APyCFloat(sign=(1, 0), exp=(17, 16), man=(7, 0), exp_bits=5, man_bits=4)
+    assert a.to_bits() == (791, 256)
+
+    b = APyCFloat(sign=(1, 1), exp=(0, 2097151), man=(0, 129), exp_bits=21, man_bits=50)
+    assert b.to_bits() == (1 << 71, 0xFFFFFC000000000081)

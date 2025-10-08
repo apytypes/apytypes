@@ -170,7 +170,7 @@ def test_special_value_numpy_from_double():
 def test_from_numpy_raises():
     np = pytest.importorskip("numpy")
     a = np.asarray([[1e-323, float("inf")], [float("nan"), 0.0]], dtype="half")
-    with pytest.raises(TypeError, match="APyCFloatArray.from_array"):
+    with pytest.raises(TypeError, match=r"APyCFloatArray\.from_array"):
         APyCFloatArray.from_float(a, 14, 60)
 
 

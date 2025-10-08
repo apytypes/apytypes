@@ -15,10 +15,17 @@
 
    .. automethod:: from_float
 
+   .. automethod:: from_bits
+
    Change word length
    ------------------
 
    .. automethod:: cast
+
+   Get bit representation
+   ----------------------
+
+   .. automethod:: to_bits
 
    Comparison
    ----------
