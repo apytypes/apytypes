@@ -9,7 +9,6 @@
 #include "apyfixed_util.h"
 #include "apytypes_common.h"
 #include "apytypes_fwd.h"
-#include "apytypes_mp.h"
 #include "apytypes_scratch_vector.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
@@ -1154,6 +1153,7 @@ floating_point_less_than_abs_same_wl(const APyFloatData& src1, const APyFloatDat
 //! * `qntz != QuantizationMode::STOCH_WEIGHTED`
 template <
     const bool SUB = false,
+    const bool SUPPORT_INF_NAN = true,
     typename RANDOM_ACCESS_ITERATOR_IN1,
     typename RANDOM_ACCESS_ITERATOR_IN2,
     typename RANDOM_ACCESS_ITERATOR_INOUT,
@@ -1176,24 +1176,27 @@ template <
     // Constexpr sign-flipping logic for conditionally performing subtraction
     constexpr auto GET_SIGN = [](bool sign, bool swap) { return sign ^ (SUB && swap); };
 
-    // Handle the NaN and inf cases
     APyFloatData& z = *dst;
-    if (src1->exp == MAX_EXP || src2->exp == MAX_EXP) {
-        const bool swap = floating_point_less_than_abs(*src1, spec, *src2, spec);
-        const APyFloatData& x = swap ? *src2 : *src1;
-        const APyFloatData& y = swap ? *src1 : *src2;
-        const bool x_sign = GET_SIGN(x.sign, swap);
-        const bool y_sign = GET_SIGN(y.sign, !swap);
-        bool x_is_nan = x.exp == MAX_EXP && x.man != 0;
-        bool y_is_nan = y.exp == MAX_EXP && y.man != 0;
-        bool both_inf = x.exp == MAX_EXP && y.exp == MAX_EXP;
-        if (x_is_nan || y_is_nan || (both_inf && x_sign != y_sign)) {
-            z = { x_sign, exp_t(MAX_EXP), man_t(1) }; // Set to NaN
-        } else {
-            bool sign = x.man == 0 ? x_sign : y_sign;
-            z = { sign, exp_t(MAX_EXP), man_t(0) }; // Set to inf
+
+    // Handle the NaN and inf cases
+    if constexpr (SUPPORT_INF_NAN) {
+        if (src1->exp == MAX_EXP || src2->exp == MAX_EXP) {
+            const bool swap = floating_point_less_than_abs(*src1, spec, *src2, spec);
+            const APyFloatData& x = swap ? *src2 : *src1;
+            const APyFloatData& y = swap ? *src1 : *src2;
+            const bool x_sign = GET_SIGN(x.sign, swap);
+            const bool y_sign = GET_SIGN(y.sign, !swap);
+            bool x_is_nan = x.exp == MAX_EXP && x.man != 0;
+            bool y_is_nan = y.exp == MAX_EXP && y.man != 0;
+            bool both_inf = x.exp == MAX_EXP && y.exp == MAX_EXP;
+            if (x_is_nan || y_is_nan || (both_inf && x_sign != y_sign)) {
+                z = { x_sign, exp_t(MAX_EXP), man_t(1) }; // Set to NaN
+            } else {
+                bool sign = x.man == 0 ? x_sign : y_sign;
+                z = { sign, exp_t(MAX_EXP), man_t(0) }; // Set to inf
+            }
+            return;
         }
-        return;
     }
 
     // Make sure `x` has a bigger absolute value than `y`

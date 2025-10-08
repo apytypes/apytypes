@@ -186,10 +186,15 @@ struct APyFloatData {
 struct APyFloatSpec {
     //! Number of exponent bits
     std::uint8_t exp_bits;
+
     //! Number of mantissa bits
     std::uint8_t man_bits;
+
     //! Exponent bias
     exp_t bias;
+
+    //! Has infinity and NaNs, default is True
+    bool has_inf_nan { true };
 
     bool operator==(const APyFloatSpec& other) const noexcept
     {
