@@ -24,6 +24,7 @@ def cocotb_test(func):
     return wrapper
 
 
+@pytest.mark.skipif("pyodide" in sys.modules, reason="No cocotb in Pyodide")
 class TestCocotbExamples:
     """
     Run the cocotb examples.

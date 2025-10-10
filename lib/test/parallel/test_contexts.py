@@ -2,7 +2,10 @@
 # Testing of concurrency support for the different APyTypes contexts
 #
 
+import sys
 import threading
+
+import pytest
 
 from apytypes import (
     APyFixed,
@@ -37,6 +40,7 @@ def _test_apyfloat_quantization_context(success: list[bool] | None = None):
         success[0] = True
 
 
+@pytest.mark.skipif("pyodide" in sys.modules, reason="Can not use threading in Pyodide")
 def test_apyfloat_quantization_context():
     # Run test on main Python thread first
     _test_apyfloat_quantization_context()
@@ -80,6 +84,7 @@ def _test_apyfixed_cast_context(success: list[bool] | None = None):
         success[0] = True
 
 
+@pytest.mark.skipif("pyodide" in sys.modules, reason="Can not use threading in Pyodide")
 def test_apyfixed_cast_context():
     # Run test on main Python thread first
     _test_apyfixed_cast_context()
@@ -117,6 +122,7 @@ def _test_apyfixedarray_accumulator_context(success: list[bool] | None = None):
         success[0] = True
 
 
+@pytest.mark.skipif("pyodide" in sys.modules, reason="Can not use threading in Pyodide")
 def test_apyfixedarray_accumulator_context():
     # Run test on main Python thread first
     _test_apyfixedarray_accumulator_context()
@@ -151,6 +157,7 @@ def _test_apyfloatarray_accumulator_context(success: list[bool] | None = None):
         success[0] = True
 
 
+@pytest.mark.skipif("pyodide" in sys.modules, reason="Can not use threading in Pyodide")
 def test_apyfloatarray_accumulator_context():
     # Run test on main Python thread first
     _test_apyfloatarray_accumulator_context()

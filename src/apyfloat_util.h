@@ -9,12 +9,12 @@
 #include "apyfixed_util.h"
 #include "apytypes_common.h"
 #include "apytypes_fwd.h"
+#include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
 #include "apytypes_scratch_vector.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
-#include "src/apytypes_intrinsics.h"
 
 // Standard header includes
 #include <algorithm>
@@ -924,7 +924,7 @@ APyFloatData floating_point_from_fixed_point(
     fx_lz -= (APY_LIMB_SIZE_BITS - bits_last_limb);
 
     // Make the fixed-point number become [1, 2)
-    const std::int64_t target_exp = int_bits - fx_lz - 1;
+    const std::int64_t target_exp = std::int64_t(int_bits) - fx_lz - 1;
     int_bits -= target_exp;
 
     std::int64_t tmp_exp = target_exp + bias;
