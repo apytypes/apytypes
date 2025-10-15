@@ -27,8 +27,6 @@ namespace nb = nanobind;
 #include <string_view>
 #include <variant>
 
-#include <iostream>
-
 void APyFloatArray::create_in_place(
     APyFloatArray* apyfloatarray,
     const nb::typed<nb::iterable, nb::any>& sign_seq,

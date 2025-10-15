@@ -25,9 +25,11 @@ def test_unary_arith():
     assert +a == 1 + 1j
 
 
-def test_arith_apyfixed():
-    a = APyCFixed.from_complex(1 + 1j, int_bits=5, frac_bits=0)
-    b = APyFixed.from_float(2, int_bits=5, frac_bits=0)
+@pytest.mark.parametrize("int_bits", [*range(2, 10), 100, 10000])
+@pytest.mark.parametrize("frac_bits", [*range(0, 10), 100, 10000])
+def test_arith_apyfixed(int_bits: int, frac_bits: int):
+    a = APyCFixed.from_complex(1 + 1j, int_bits=int_bits, frac_bits=frac_bits)
+    b = APyFixed.from_float(2, int_bits=5, frac_bits=2)
     assert a + b == 3 + 1j
     assert a - b == -1 + 1j
     assert a * b == 2 + 2j
@@ -39,9 +41,11 @@ def test_arith_apyfixed():
     assert b / a == 1 - 1j
 
 
-def test_arith_float():
-    a = APyCFixed.from_complex(1 + 1j, int_bits=5, frac_bits=0)
-    b = 2.0
+@pytest.mark.parametrize("int_bits", [*range(3, 10), 100, 10000])
+@pytest.mark.parametrize("frac_bits", [*range(0, 10), 100, 10000])
+def test_arith_float(int_bits: int, frac_bits: int):
+    a = APyCFixed.from_complex(1 + 1j, int_bits=int_bits, frac_bits=frac_bits)
+    b: float = 2.0
     assert a + b == 3 + 1j
     assert a - b == -1 + 1j
     assert a * b == 2 + 2j
@@ -53,9 +57,11 @@ def test_arith_float():
     assert b / a == 1 - 1j
 
 
-def test_arith_int():
-    a = APyCFixed.from_complex(1 + 1j, int_bits=5, frac_bits=0)
-    b = 2
+@pytest.mark.parametrize("int_bits", [*range(3, 10), 100, 10000])
+@pytest.mark.parametrize("frac_bits", [*range(0, 10), 100, 10000])
+def test_arith_int(int_bits: int, frac_bits: int):
+    a = APyCFixed.from_complex(1 + 1j, int_bits=int_bits, frac_bits=frac_bits)
+    b: int = 2
     assert a + b == 3 + 1j
     assert a - b == -1 + 1j
     assert a * b == 2 + 2j
@@ -67,8 +73,10 @@ def test_arith_int():
     assert b / a == 1 - 1j
 
 
-def test_arith_complex():
-    a = APyCFixed.from_complex(1 + 1j, int_bits=5, frac_bits=0)
+@pytest.mark.parametrize("int_bits", [*range(3, 10), 100, 10000])
+@pytest.mark.parametrize("frac_bits", [*range(0, 10), 100, 10000])
+def test_arith_complex(int_bits: int, frac_bits: int):
+    a = APyCFixed.from_complex(1 + 1j, int_bits=int_bits, frac_bits=frac_bits)
     b = 2 + 2j
     assert a + b == 3 + 3j
     assert a - b == -1 - 1j
@@ -81,14 +89,22 @@ def test_arith_complex():
     assert b / a == 2.0
 
 
-def test_shift():
-    a = APyCFixed.from_complex(1 + 1j, int_bits=5, frac_bits=0)
-    assert (a << 2).is_identical(APyCFixed.from_complex(4 + 4j, 7, -2))
-    assert (a >> 2).is_identical(APyCFixed.from_complex(0.25 + 0.25j, 3, 2))
+@pytest.mark.parametrize("int_bits", [*range(3, 10), 100, 10000])
+@pytest.mark.parametrize("frac_bits", [*range(0, 10), 100, 10000])
+def test_shift(int_bits: int, frac_bits: int):
+    a = APyCFixed.from_complex(1 + 1j, int_bits=int_bits, frac_bits=frac_bits)
+    assert (a << 2).is_identical(
+        APyCFixed.from_complex(4 + 4j, int_bits + 2, frac_bits - 2)
+    )
+    assert (a >> 2).is_identical(
+        APyCFixed.from_complex(0.25 + 0.25j, int_bits - 2, frac_bits + 2)
+    )
     a <<= 2
-    assert a.is_identical(APyCFixed.from_complex(4 + 4j, 7, -2))
+    assert a.is_identical(APyCFixed.from_complex(4 + 4j, int_bits + 2, frac_bits - 2))
     a >>= 4
-    assert a.is_identical(APyCFixed.from_complex(0.25 + 0.25j, 3, 2))
+    assert a.is_identical(
+        APyCFixed.from_complex(0.25 + 0.25j, int_bits - 2, frac_bits + 2)
+    )
 
 
 @pytest.mark.parametrize("bits", range(13, 90))
