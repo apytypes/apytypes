@@ -14,7 +14,6 @@
 #include "python_util.h"
 
 // Python object access through Nanobind
-#include <iterator>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
@@ -24,6 +23,7 @@ namespace nb = nanobind;
 #include <algorithm> // std::copy, std::max, std::transform, etc...
 #include <cstddef>   // std::size_t
 #include <cstdint>   // std::int16, std::int32, std::int64, etc...
+#include <iterator>  // std::iterator
 #include <optional>  // std::optional
 #include <set>       // std::set
 #include <stdexcept> // std::length_error

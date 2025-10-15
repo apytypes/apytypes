@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Bug in fixed-point mixed real/complex arithmetic when operands have different
+  word lengths.
+
 ### Changed
 
 ### Removed
