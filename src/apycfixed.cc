@@ -12,7 +12,6 @@
 #include "apyfixed.h"
 #include "apyfixed_util.h"
 #include "apyfloat.h"
-#include "apytypes_mp.h"
 #include "apytypes_util.h"
 #include "python_util.h"
 

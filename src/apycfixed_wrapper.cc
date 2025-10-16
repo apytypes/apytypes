@@ -22,10 +22,12 @@ static auto R_OP(const APyCFixed& rhs, const L_TYPE& lhs) -> decltype(OP()(rhs, 
         return OP()(APyCFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits()), rhs);
     } else if constexpr (std::is_same_v<APyFixed, L_TYPE>) {
         return OP()(
-            APyCFixed::from_apyfixed(lhs, rhs.int_bits(), rhs.frac_bits()), rhs
+            APyCFixed::from_apyfixed(lhs, lhs.int_bits(), lhs.frac_bits()), rhs
         );
-    } else {
+    } else if constexpr (std::is_same_v<L_TYPE, nb::int_>) {
         return OP()(APyCFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits()), rhs);
+    } else {
+        return OP()(lhs, rhs);
     }
 }
 
@@ -43,7 +45,7 @@ static auto L_OP(const APyCFixed& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, 
         return OP()(lhs, APyCFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits()));
     } else if constexpr (std::is_same_v<APyFixed, R_TYPE>) {
         return OP()(
-            lhs, APyCFixed::from_apyfixed(rhs, lhs.int_bits(), lhs.frac_bits())
+            lhs, APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits())
         );
     } else {
         return OP()(lhs, rhs);
