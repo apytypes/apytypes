@@ -586,6 +586,8 @@ std::string APyCFloat::repr() const
     );
 }
 
+std::string APyCFloat::latex() const { return ""; }
+
 std::complex<double> APyCFloat::to_complex() const
 {
     return std::complex<double>(

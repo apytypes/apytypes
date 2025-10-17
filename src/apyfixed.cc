@@ -690,17 +690,14 @@ std::string APyFixed::repr() const
 
 std::string APyFixed::latex() const
 {
-    std::string value_str = fixed_point_to_string_dec(
-        std::begin(_data), std::end(_data), _bits, _int_bits
-    );
     std::string str;
     if (this->is_negative()) {
         APyFixed absval = abs();
         str = "$-\\frac{" + absval.bit_pattern_to_string_dec() + "}{2^{"
-            + std::to_string(frac_bits()) + "}} = " + value_str + "$";
+            + std::to_string(frac_bits()) + "}} = " + to_string_dec() + "$";
     } else {
         str = "$\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
-            + std::to_string(frac_bits()) + "}} = " + value_str + "$";
+            + std::to_string(frac_bits()) + "}} = " + to_string_dec() + "$";
     }
 
     return str;

@@ -464,7 +464,20 @@ std::string APyFloat::latex() const
         return "$0$";
     }
 
-    std::string str = (sign ? "$-" : "$");
+    return "$" + _latex_power_of_two() + " = " + to_fixed().to_string_dec() + "$";
+}
+
+std::string APyFloat::_latex_power_of_two() const
+{
+    if (is_nan()) {
+        return "\\textrm{NaN}";
+    } else if (is_inf()) {
+        return "\\infty";
+    } else if (is_zero()) {
+        return "0";
+    }
+
+    std::string str = (sign ? "-" : "");
     if (is_normal()) {
         str += "\\left(1 + ";
     }
@@ -483,8 +496,7 @@ std::string APyFloat::latex() const
         str += "-";
     }
     str += std::to_string(true_man()) + "\\times 2^{"
-        + std::to_string(true_exp() - man_bits) + "} = " + to_fixed().to_string_dec()
-        + "$";
+        + std::to_string(true_exp() - man_bits) + "}";
 
     return str;
 }
