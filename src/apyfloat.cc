@@ -477,6 +477,19 @@ std::string APyFloat::_latex_power_of_two() const
         return "0";
     }
 
+    return fmt::format("{} = {}", _latex_power_of_two_normalized(), _latex_power_of_two_integer());
+}
+
+std::string APyFloat::_latex_power_of_two_normalized() const
+{
+    if (is_nan()) {
+        return "\\textrm{NaN}";
+    } else if (is_inf()) {
+        return "\\infty";
+    } else if (is_zero()) {
+        return "0";
+    }
+
     std::string str = (sign ? "-" : "");
     if (is_normal()) {
         str += "\\left(1 + ";
@@ -491,10 +504,21 @@ std::string APyFloat::_latex_power_of_two() const
     } else {
         str += "1";
     }
-    str += "-" + std::to_string(bias) + "} = ";
-    if (sign) {
-        str += "-";
+    str += "-" + std::to_string(bias) + "}";
+    return str;
+}
+
+std::string APyFloat::_latex_power_of_two_integer() const
+{
+    if (is_nan()) {
+        return "\\textrm{NaN}";
+    } else if (is_inf()) {
+        return "\\infty";
+    } else if (is_zero()) {
+        return "0";
     }
+
+    std::string str = (sign ? "-" : "");
     str += std::to_string(true_man()) + "\\times 2^{"
         + std::to_string(true_exp() - man_bits) + "}";
 

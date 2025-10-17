@@ -433,7 +433,7 @@ void bind_cfloat(nb::module_& m)
         )
         .def("__str__", &APyCFloat::to_string, nb::arg("base") = 10)
         .def("__repr__", &APyCFloat::repr)
-        // .def("_repr_latex_", &APyCFloat::latex)
+        .def("_repr_latex_", &APyCFloat::latex)
         .def(
             "cast",
             &APyCFloat::cast,

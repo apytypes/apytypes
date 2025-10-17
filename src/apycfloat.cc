@@ -586,7 +586,46 @@ std::string APyCFloat::repr() const
     );
 }
 
-std::string APyCFloat::latex() const { return ""; }
+std::string APyCFloat::latex() const
+{
+    const APyFloat real_val(real(), exp_bits, man_bits, bias);
+    const APyFloat imag_val(imag(), exp_bits, man_bits, bias);
+
+    const std::string real_normalized_str = real_val._latex_power_of_two_normalized();
+    const std::string imag_normalized_str = imag_val._latex_power_of_two_normalized();
+    bool real_special = (real_val.is_inf() || real_val.is_nan() || real_val.is_zero());
+    bool imag_special = (imag_val.is_inf() || imag_val.is_nan() || imag_val.is_zero());
+    if (real_special && imag_special) {
+        return fmt::format("${} + {}j$", real_normalized_str, imag_normalized_str);
+    }
+    const std::string real_integer_str = real_val._latex_power_of_two_integer();
+    const std::string imag_integer_str = imag_val._latex_power_of_two_integer();
+    const std::string real_dec_str
+        = (real_special ? real_normalized_str : real_val.to_fixed().to_string_dec());
+    const std::string imag_dec_str
+        = (imag_special ? imag_normalized_str : imag_val.to_fixed().to_string_dec());
+
+    if (imag_normalized_str.substr(0, 1) == "-") {
+        return fmt::format(
+            "${} - {}j = {} - {}j = {} - {}j$",
+            real_normalized_str,
+            imag_normalized_str.substr(1),
+            real_integer_str,
+            imag_integer_str.substr(1),
+            real_dec_str,
+            imag_dec_str.substr(1)
+        );
+    }
+    return fmt::format(
+        "${} + {}j = {} + {}j = {} + {}j$",
+        real_normalized_str,
+        imag_normalized_str,
+        real_integer_str,
+        imag_integer_str,
+        real_dec_str,
+        imag_dec_str
+    );
+}
 
 std::complex<double> APyCFloat::to_complex() const
 {
