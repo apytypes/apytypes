@@ -281,6 +281,9 @@ public:
     //! Retrieve the Python string representation
     std::string repr() const;
 
+    //! Retrieve the LaTeX string representation
+    std::string latex() const;
+
     //! Conversion to string
     std::string to_string(int base = 10) const;
     std::string to_string_hex() const;
