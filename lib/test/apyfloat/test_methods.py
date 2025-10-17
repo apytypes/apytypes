@@ -260,9 +260,15 @@ def test_from_float(apyfloat: type[APyCFloat]):
     b = apyfloat.from_float(5e-324, 11, 52)
     assert b.is_identical(a)
 
-    # Big float should become infinity
+    # Big integer should become infinity
     a = apyfloat.from_float(-(2**10), 4, 15)
     assert a.is_identical(apyfloat(1, 15, 0, 4, 15))
+    a = apyfloat.from_float(2000, 4, 5)
+    assert a.is_identical(apyfloat(0, 15, 0, 4, 5))
+
+    # Big float should become infinity
+    a = apyfloat.from_float(2000.0, 4, 5)
+    assert a.is_identical(apyfloat(0, 15, 0, 4, 5))
 
 
 @pytest.mark.parametrize("apyfloat", [APyFloat])
