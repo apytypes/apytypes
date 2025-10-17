@@ -44,10 +44,10 @@ docs = [
     "docutils",
     "numpy>=1.25",
     "scipy",
-    "cocotb>=1.9.1",
+    "cocotb>=2",
 ]
 test = ["numpy>=1.25", "pytest>=8.2"]
-test_hdl = ["numpy>=1.25", "pytest>=8.2", "cocotb>=1.9.1", "vunit-hdl"]
+test_hdl = ["numpy>=1.25", "pytest>=8.2", "cocotb>=2", "vunit-hdl", "packaging"]
 dev = ["nanobind>=2.8.0"]
 benchmark = ["numpy>=1.25", "pytest>=8.2", "pytest-benchmark"]
 comparison = [

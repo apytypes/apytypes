@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bug in fixed-point mixed real/complex arithmetic when operands have different
   word lengths.
-- Bug in `APyFloat.from_float` when result should be infinity.
+- Bug in `APyFloat.from_float` when result is larger than max value and
+  therefore should be infinity.
+- Tests can run with VUnit version 5 installed.
 
 ### Changed
 

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import vunit
+from packaging import version
 
 cli = vunit.VUnitCLI()
 
@@ -13,7 +14,10 @@ cli.parser.add_argument(
 
 args = cli.parse_args()
 
-VU = vunit.VUnit.from_args(args=args, compile_builtins=False)
+if version.parse(vunit.__version__) <= version.parse("4.7"):
+    VU = vunit.VUnit.from_args(args=args, compile_builtins=False)
+else:
+    VU = vunit.VUnit.from_args(args=args)
 
 VU.add_vhdl_builtins()
 
