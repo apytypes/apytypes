@@ -323,8 +323,9 @@ APyFloat APyFloat::cast_from_double(
     }
 
     if (new_exp >= res.max_exponent()) {
-        new_exp = res.max_exponent() - 1;
-        new_man = res.man_mask();
+        // Always set to infinity on overflow for RNe
+        res.set_to_inf();
+        return res;
     }
 
     res.man = new_man;

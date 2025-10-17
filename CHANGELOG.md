@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bug in fixed-point mixed real/complex arithmetic when operands have different
   word lengths.
+- Bug in `APyFloat.from_float` when result should be infinity.
 
 ### Changed
 
