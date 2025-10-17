@@ -225,6 +225,8 @@ public:
     //! LaTeX representation
     std::string latex() const;
     std::string _latex_power_of_two() const;
+    std::string _latex_power_of_two_normalized() const;
+    std::string _latex_power_of_two_integer() const;
 
     /* ************************************************************************* *
      * *                                        Copy                           * *
