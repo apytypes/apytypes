@@ -464,20 +464,12 @@ std::string APyFloat::latex() const
         return "$0$";
     }
 
-    return "$" + _latex_power_of_two() + " = " + to_fixed().to_string_dec() + "$";
-}
-
-std::string APyFloat::_latex_power_of_two() const
-{
-    if (is_nan()) {
-        return "\\textrm{NaN}";
-    } else if (is_inf()) {
-        return "\\infty";
-    } else if (is_zero()) {
-        return "0";
-    }
-
-    return fmt::format("{} = {}", _latex_power_of_two_normalized(), _latex_power_of_two_integer());
+    return fmt::format(
+        "${} = {} = {}$",
+        _latex_power_of_two_normalized(),
+        _latex_power_of_two_integer(),
+        to_fixed().to_string_dec()
+    );
 }
 
 std::string APyFloat::_latex_power_of_two_normalized() const
