@@ -1,13 +1,13 @@
 [wrap-file]
-directory = nanobind-2.8.0
-source_url = https://github.com/wjakob/nanobind/archive/refs/tags/v2.8.0.tar.gz
-source_filename = nanobind-2.8.0.tar.gz
-source_hash = 17506f1ef5c92491183ab28242fa4f658d9625fe4f91ccd1d1358cb6e5f5acb6
-patch_filename = nanobind_2.8.0-1_patch.zip
-patch_url = https://wrapdb.mesonbuild.com/v2/nanobind_2.8.0-1/get_patch
-patch_hash = 2d9f97641ae67a214c21d57c3001a143027e0ea56b6db23c5830ad6f030af4a4
-source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/nanobind_2.8.0-1/nanobind-2.8.0.tar.gz
-wrapdb_version = 2.8.0-1
+directory = nanobind-2.9.2
+source_url = https://github.com/wjakob/nanobind/archive/refs/tags/v2.9.2.tar.gz
+source_filename = nanobind-2.9.2.tar.gz
+source_hash = 8ce3667dce3e64fc06bfb9b778b6f48731482362fb89a43da156632266cd5a90
+patch_filename = nanobind_2.9.2-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/nanobind_2.9.2-1/get_patch
+patch_hash = ebaab8f4ebca7345e03d0d29a7d29e742c9bfd0601018f633364b869b4fde078
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/nanobind_2.9.2-1/nanobind-2.9.2.tar.gz
+wrapdb_version = 2.9.2-1
 
 [provide]
 nanobind = nanobind_dep
