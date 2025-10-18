@@ -84,22 +84,18 @@ apy_limb_t apy_left_shift(
     assert(shift_amount > 0);
     assert(shift_amount < APY_LIMB_SIZE_BITS);
 
-    src += limbs;
-    dest += limbs;
-
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
-    apy_limb_t high_limb = *--src;
+    std::size_t n = limbs - 1;
+    apy_limb_t high_limb = src[n];
     const apy_limb_t retval = high_limb >> overlap;
     apy_limb_t low_limb = (high_limb << shift_amount);
-    std::size_t n = limbs;
 
-    // TODO: Rewrite as for-loop?
-    while (--n != 0) {
-        high_limb = *--src;
-        *--dest = low_limb | (high_limb >> overlap);
+    for (; n > 0; n--) {
+        high_limb = src[n - 1];
+        dest[n] = low_limb | (high_limb >> overlap);
         low_limb = (high_limb << shift_amount);
     }
-    *--dest = low_limb;
+    dest[0] = low_limb;
 
     return retval;
 }
