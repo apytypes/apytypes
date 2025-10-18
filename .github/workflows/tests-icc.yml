@@ -1,0 +1,19 @@
+name: Unit tests with ICC
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+            fetch-tags: true
+            fetch-depth: 0
+            persist-credentials: false
+
+      - name: Set up ICC Docker image
+        run: |
+          docker pull docker.io/intel/oneapi-basekit
+      - name: Install APyTypes and run tests
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace docker.io/intel/oneapi-basekit bash -c "apt update && apt-get -y install python3-pip python3-venv && python3 -m venv venv && source venv/bin/activate && CC=icx CXX=icpx CC_LD=lld CXX_LD=lld python3 -m pip install -v .[test] && pytest --color=yes lib/test"
