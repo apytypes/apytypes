@@ -516,6 +516,58 @@ std::string APyCFixed::repr() const
     return ss.str();
 }
 
+std::string APyCFixed::latex() const
+{
+    APyFixed real_part(_bits, _int_bits);
+    std::copy(real_begin(), real_end(), std::begin(real_part._data));
+    APyFixed imag_part(_bits, _int_bits);
+    std::copy(imag_begin(), imag_end(), std::begin(imag_part._data));
+
+    bool real_is_neg = real_part.is_negative();
+    bool imag_is_neg = imag_part.is_negative();
+    if (real_is_neg) {
+        APyFixed abs_real = real_part.abs();
+        if (imag_is_neg) {
+            APyFixed abs_imag = imag_part.abs();
+            return fmt::format(
+                "$\\frac{{-{} - {}j}}{{2^{{{}}}}} = {} - {}j$",
+                abs_real.bit_pattern_to_string_dec(),
+                abs_imag.bit_pattern_to_string_dec(),
+                frac_bits(),
+                real_part.to_string_dec(),
+                abs_imag.to_string_dec()
+            );
+        }
+        return fmt::format(
+            "$\\frac{{-{} + {}j}}{{2^{{{}}}}} = {} + {}j$",
+            abs_real.bit_pattern_to_string_dec(),
+            imag_part.bit_pattern_to_string_dec(),
+            frac_bits(),
+            real_part.to_string_dec(),
+            imag_part.to_string_dec()
+        );
+    }
+    if (imag_is_neg) {
+        APyFixed abs_imag = imag_part.abs();
+        return fmt::format(
+            "$\\frac{{{} - {}j}}{{2^{{{}}}}} = {} - {}j$",
+            real_part.bit_pattern_to_string_dec(),
+            abs_imag.bit_pattern_to_string_dec(),
+            frac_bits(),
+            real_part.to_string_dec(),
+            abs_imag.to_string_dec()
+        );
+    }
+    return fmt::format(
+        "$\\frac{{{} + {}j}}{{2^{{{}}}}} = {} + {}j$",
+        real_part.bit_pattern_to_string_dec(),
+        imag_part.bit_pattern_to_string_dec(),
+        frac_bits(),
+        real_part.to_string_dec(),
+        imag_part.to_string_dec()
+    );
+}
+
 std::string APyCFixed::bit_pattern_to_string_dec() const
 {
     std::stringstream ss {};

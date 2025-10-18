@@ -45,10 +45,29 @@ def test_str():
     assert str(APyCFixed.from_complex(1.25j, int_bits=2, frac_bits=4)) == "(0+1.25j)"
     assert str(APyCFixed.from_complex(-1.25j, int_bits=2, frac_bits=4)) == "(0-1.25j)"
     assert (
-        str(APyCFixed.from_complex(1.25 + 1.25j, int_bits=2, frac_bits=4))
-        == "(1.25+1.25j)"
+        str(APyCFixed.from_complex(1.25 + 1.125j, int_bits=2, frac_bits=4))
+        == "(1.25+1.125j)"
     )
     assert (
-        str(APyCFixed.from_complex(-1.25 - 1.25j, int_bits=2, frac_bits=4))
-        == "(-1.25-1.25j)"
+        str(APyCFixed.from_complex(-1.25 - 1.125j, int_bits=2, frac_bits=4))
+        == "(-1.25-1.125j)"
+    )
+
+
+def test_latex_repr():
+    assert (
+        APyCFixed.from_complex(1.25 + 1.125j, int_bits=2, frac_bits=4)._repr_latex_()
+        == "$\\frac{20 + 18j}{2^{4}} = 1.25 + 1.125j$"
+    )
+    assert (
+        APyCFixed.from_complex(1.25 - 1.125j, int_bits=2, frac_bits=4)._repr_latex_()
+        == "$\\frac{20 - 18j}{2^{4}} = 1.25 - 1.125j$"
+    )
+    assert (
+        APyCFixed.from_complex(-1.25 + 1.125j, int_bits=2, frac_bits=5)._repr_latex_()
+        == "$\\frac{-40 + 36j}{2^{5}} = -1.25 + 1.125j$"
+    )
+    assert (
+        APyCFixed.from_complex(-1.25 - 1.125j, int_bits=2, frac_bits=6)._repr_latex_()
+        == "$\\frac{-80 - 72j}{2^{6}} = -1.25 - 1.125j$"
     )
