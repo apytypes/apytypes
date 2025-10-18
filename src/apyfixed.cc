@@ -680,27 +680,31 @@ std::string APyFixed::bit_pattern_to_string_dec() const
 
 std::string APyFixed::repr() const
 {
-    std::stringstream ss {};
-    ss << "APyFixed(";
-    ss << bit_pattern_to_string_dec() << ", ";
-    ss << "bits=" << bits() << ", ";
-    ss << "int_bits=" << int_bits() << ")";
-    return ss.str();
+    return fmt::format(
+        "APyFixed({}, bits={}, int_bits={})",
+        bit_pattern_to_string_dec(),
+        bits(),
+        int_bits()
+    );
 }
 
 std::string APyFixed::latex() const
 {
-    std::string str;
     if (this->is_negative()) {
         APyFixed absval = abs();
-        str = "$-\\frac{" + absval.bit_pattern_to_string_dec() + "}{2^{"
-            + std::to_string(frac_bits()) + "}} = " + to_string_dec() + "$";
-    } else {
-        str = "$\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
-            + std::to_string(frac_bits()) + "}} = " + to_string_dec() + "$";
+        return fmt::format(
+            "$-\\frac{{{}}}{{2^{{{}}}}} = {}$",
+            absval.bit_pattern_to_string_dec(),
+            frac_bits(),
+            to_string_dec()
+        );
     }
-
-    return str;
+    return fmt::format(
+        "$\\frac{{{}}}{{2^{{{}}}}} = {}$",
+        bit_pattern_to_string_dec(),
+        frac_bits(),
+        to_string_dec()
+    );
 }
 
 bool APyFixed::is_identical(
@@ -866,7 +870,7 @@ APyFixed APyFixed::from_number(
         const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
         const nb::str type_string = nb::str(type);
         throw std::domain_error(
-            std::string("Non supported type: ") + type_string.c_str()
+            fmt::format("Non supported type: {}", type_string.c_str())
         );
     }
 }

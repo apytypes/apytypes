@@ -213,6 +213,9 @@ public:
     //! Python verbose string representation
     std::string repr() const;
 
+    //! LaTeX string representation
+    std::string latex() const;
+
     //! Convert the underlying bit pattern to decimal and return in a string
     std::string bit_pattern_to_string_dec() const;
 

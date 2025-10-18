@@ -339,6 +339,11 @@ void bind_cfixed(nb::module_& m)
         .def("__rshift__", &APyCFixed::operator>>, nb::arg("shift_amnt"), NB_OP())
 
         /*
+         * LaTeX representation
+         */
+        .def("_repr_latex_", &APyCFixed::latex)
+
+        /*
          * Static methods
          */
         .def_static(
