@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated [fmt](https://github.com/fmtlib/fmt) from v11.2.0 to v12.0.0
+- Updated [nanobind](https://github.com/wjakob/nanobind) from v2.8.0 to v2.9.2.
+
 ### Removed
 
 ## [0.4.0] - 2025-09-09
