@@ -967,29 +967,8 @@ nb::ndarray<nb::numpy, std::complex<double>> APyCFixedArray::to_numpy(
 {
     (void)dtype;
 
-    if (!copy.value_or(true)) {
-        throw nb::value_error("APyCFixedArray.to_numpy: copy must be True");
-    }
-
-    // Dynamically allocate data to be passed to python
-    std::complex<double>* result = new std::complex<double>[_nitems];
-    auto _frac_bits = frac_bits();
-    for (std::size_t i = 0; i < _nitems; i++) {
-        auto rit = real_begin() + i * _itemsize;
-        auto it = imag_begin() + i * _itemsize;
-        double real = fixed_point_to_double(rit, rit + _itemsize / 2, _frac_bits);
-        double imag = fixed_point_to_double(it, it + _itemsize / 2, _frac_bits);
-        result[i] = std::complex<double>(real, imag);
-    }
-
-    // Delete 'data' when the 'owner' capsule expires
-    nb::capsule owner(result, [](void* p) noexcept {
-        delete[] (std::complex<double>*)p;
-    });
-
-    return nb::ndarray<nb::numpy, std::complex<double>>(
-        result, _ndim, &_shape[0], owner
-    );
+    ComplexFixedPointToDouble<vector_const_iterator> converter(spec());
+    return to_ndarray<nb::numpy, std::complex<double>>(converter, copy, "to_numpy");
 }
 
 APyCFixedArray APyCFixedArray::cast(

@@ -607,3 +607,20 @@ private:
     mutable ScratchVector<apy_limb_t, 16> product;
     mutable ScratchVector<apy_limb_t, 16> prod_imm;
 };
+
+template <typename RANDOM_ACCESS_IT> struct ComplexFixedPointToDouble {
+    FixedPointToDouble<RANDOM_ACCESS_IT> converter;
+    std::size_t n_limbs;
+    ComplexFixedPointToDouble(const APyFixedSpec& spec)
+        : converter(spec)
+        , n_limbs { bits_to_limbs(spec.bits) }
+    {
+    }
+    std::complex<double> operator()(RANDOM_ACCESS_IT begin, RANDOM_ACCESS_IT) const
+    {
+        return std::complex<double>(
+            converter(begin + 0 * n_limbs, begin + 1 * n_limbs),
+            converter(begin + 1 * n_limbs, begin + 2 * n_limbs)
+        );
+    }
+};

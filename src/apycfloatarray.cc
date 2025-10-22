@@ -398,28 +398,8 @@ nb::ndarray<nb::numpy, std::complex<double>> APyCFloatArray::to_numpy(
 {
     (void)dtype;
 
-    if (!copy.value_or(true)) {
-        throw nb::value_error("APyCFloatArray.to_numpy: copy must be True");
-    }
-
-    // Dynamically allocate data to be passed to Python
-    std::complex<double>* result_data = new std::complex<double>[_nitems];
-    auto fp_re = APyFloat(exp_bits, man_bits, bias);
-    auto fp_im = APyFloat(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < _nitems; i++) {
-        fp_re.set_data(_data[2 * i + 0]);
-        fp_im.set_data(_data[2 * i + 1]);
-        result_data[i] = std::complex<double> { fp_re.to_double(), fp_im.to_double() };
-    }
-
-    // Delete 'data' when the 'owner' capsule expires
-    nb::capsule owner(result_data, [](void* p) noexcept {
-        delete[] (std::complex<double>*)p;
-    });
-
-    return nb::ndarray<nb::numpy, std::complex<double>>(
-        result_data, ndim(), &_shape[0], owner
-    );
+    ComplexFloatingPointToDouble<vector_const_iterator> converter(spec());
+    return to_ndarray<nb::numpy, std::complex<double>>(converter, copy, "to_numpy");
 }
 
 bool APyCFloatArray::is_identical(const nb::object& other, bool ignore_zero_sign) const

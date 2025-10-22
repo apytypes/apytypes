@@ -710,7 +710,7 @@ def test_to_numpy_args_real(dt: str, copy: bool):
     else:
         with pytest.raises(
             ValueError,
-            match=r"APyFixedArray\.to_numpy: copy must be True",
+            match=r"APyFixedArray\.to_numpy: APyTypes arrays can only be copied",
         ):
             _ = fp_arr.to_numpy(dtype=dt, copy=copy)
 
@@ -743,7 +743,7 @@ def test_to_numpy_args_complex(dt: str, copy: bool):
     else:
         with pytest.raises(
             ValueError,
-            match=r"APyCFixedArray\.to_numpy: copy must be True",
+            match=r"APyCFixedArray\.to_numpy: APyTypes arrays can only be copied",
         ):
             _ = fp_arr.to_numpy(dtype=dt, copy=copy)
 

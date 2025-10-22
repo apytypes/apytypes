@@ -582,3 +582,15 @@ private:
     _FloatingPointMultiplierShort mul_short;
     _FloatingPointMultiplierGeneral mul_general;
 };
+
+template <typename RANDOM_ACCESS_IT> struct ComplexFloatingPointToDouble {
+    FloatingPointToDouble<RANDOM_ACCESS_IT> converter;
+    ComplexFloatingPointToDouble(const APyFloatSpec& spec)
+        : converter(spec)
+    {
+    }
+    std::complex<double> operator()(RANDOM_ACCESS_IT begin, RANDOM_ACCESS_IT _) const
+    {
+        return std::complex<double>(converter(begin + 0, _), converter(begin + 1, _));
+    }
+};

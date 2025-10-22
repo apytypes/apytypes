@@ -1248,24 +1248,8 @@ nb::ndarray<nb::numpy, double>
 APyFixedArray::to_numpy(std::optional<nb::object> dtype, std::optional<bool> copy) const
 {
     (void)dtype;
-
-    if (!copy.value_or(true)) {
-        throw nb::value_error("APyFixedArray.to_numpy: copy must be True");
-    }
-
-    // Dynamically allocate data to be passed to python
-    double* result_data = new double[_nitems];
-
-    auto _frac_bits = frac_bits();
-    for (std::size_t i = 0; i < _nitems; i++) {
-        auto it = std::begin(_data) + i * _itemsize;
-        result_data[i] = fixed_point_to_double(it, it + _itemsize, _frac_bits);
-    }
-
-    // Delete 'data' when the 'owner' capsule expires
-    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
-
-    return nb::ndarray<nb::numpy, double>(result_data, _ndim, &_shape[0], owner);
+    FixedPointToDouble<vector_const_iterator> converter(spec());
+    return to_ndarray<nb::numpy, double>(converter, copy, "to_numpy");
 }
 
 APyFixedArray APyFixedArray::cast(
