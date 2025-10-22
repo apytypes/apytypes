@@ -1423,6 +1423,18 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
     return result;
 }
 
+template <typename RANDOM_ACCESS_IT> struct FixedPointToDouble {
+    FixedPointToDouble(const APyFixedSpec& spec)
+        : frac_bits { spec.bits - spec.int_bits }
+    {
+    }
+    int frac_bits;
+    double operator()(RANDOM_ACCESS_IT begin, RANDOM_ACCESS_IT end) const
+    {
+        return fixed_point_to_double(begin, end, frac_bits);
+    }
+};
+
 template <typename RANDOM_ACCESS_IT>
 void fixed_point_from_py_integer(
     const nb::int_& value,

@@ -1039,31 +1039,10 @@ nb::ndarray<nb::numpy, double>
 APyFloatArray::to_numpy(std::optional<nb::object> dtype, std::optional<bool> copy) const
 {
 
-    // If someone in the future wants to check the dtype, this is how it can be done:
-    // const auto np = nb::module_::import_("numpy");
-    // const auto t = dtype.value_or(np.attr("float64"));
-    // if (!t.equal(np.attr("float64"))) {
-    //     throw nb::value_error("APyFloatArray::to_numpy: only supports float64
-    //     dtype");
-    // }
     (void)dtype;
 
-    if (!copy.value_or(true)) {
-        throw nb::value_error("APyFloatArray.to_numpy: copy must be True");
-    }
-
-    // Dynamically allocate data to be passed to Python
-    double* result_data = new double[_nitems];
-    auto fp = APyFloat(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < _nitems; i++) {
-        fp.set_data(_data[i]);
-        result_data[i] = fp.to_double();
-    }
-
-    // Delete 'data' when the 'owner' capsule expires
-    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
-
-    return nb::ndarray<nb::numpy, double>(result_data, ndim(), &_shape[0], owner);
+    FloatingPointToDouble<vector_const_iterator> converter(spec());
+    return to_ndarray<nb::numpy, double>(converter, copy, "to_numpy");
 }
 
 bool APyFloatArray::is_identical(const nb::object& other, bool ignore_zero_sign) const

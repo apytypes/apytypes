@@ -985,6 +985,18 @@ floating_point_to_double(const APyFloatData& data_in, const APyFloatSpec& spec)
     return res;
 }
 
+template <typename RANDOM_ACCESS_IT> struct FloatingPointToDouble {
+    FloatingPointToDouble(const APyFloatSpec& spec)
+        : spec { spec }
+    {
+    }
+    APyFloatSpec spec;
+    double operator()(RANDOM_ACCESS_IT begin, RANDOM_ACCESS_IT) const
+    {
+        return floating_point_to_double(*begin, spec);
+    }
+};
+
 /* ********************************************************************************** *
  * *              Floating-point iterator-based arithmetic functions                * *
  * ********************************************************************************** */

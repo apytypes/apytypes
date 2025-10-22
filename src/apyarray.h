@@ -15,6 +15,7 @@
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h> // nanobind::ndarray
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 #include <nanobind/stl/vector.h>  // nanobind::list
@@ -1663,6 +1664,40 @@ public:
                 && static_cast<const ARRAY_TYPE*>(this)->is_same_spec(other_array)
                 && _data == other_array._data;
         }
+    }
+
+    /*!
+     * Convert array into a nanobind `ndarray`
+     */
+    template <typename ND_ARRAY_TYPE, typename CXX_TYPE, typename CONVERTER_FUNCTOR>
+    nb::ndarray<ND_ARRAY_TYPE, CXX_TYPE> to_ndarray(
+        CONVERTER_FUNCTOR converter,
+        std::optional<bool> copy,
+        std::string_view func_name = "to_ndarray"
+    ) const
+    {
+        if (!copy.value_or(true)) {
+            std::string err_msg = fmt::format(
+                "{}.{}: APyTypes arrays can only be copied",
+                ARRAY_TYPE::ARRAY_NAME,
+                func_name
+            );
+            throw nb::value_error(err_msg.c_str());
+        }
+
+        // Dynamically allocate data to be passed to Python
+        CXX_TYPE* data = new CXX_TYPE[_nitems];
+
+        // Convert all internal data and copy to ndarray
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto it = std::begin(_data) + i * _itemsize;
+            data[i] = converter(it, it + _itemsize);
+        }
+
+        // Delete `data` when the owner Python capsule expires
+        nb::capsule owner(data, [](void* p) noexcept { delete[] (CXX_TYPE*)p; });
+
+        return nb::ndarray<ND_ARRAY_TYPE, CXX_TYPE>(data, _ndim, &_shape[0], owner);
     }
 
     //! Copy array
