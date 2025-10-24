@@ -160,6 +160,13 @@ public:
     APyFixedArray rsub(const APyFixed& rhs) const;
     APyFixedArray rdiv(const APyFixed& rhs) const;
 
+    template <typename T> ThirdPartyArray<bool> operator==(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator!=(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator<(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator<=(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator>(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator>=(const T& rhs) const;
+
     //! Elementwise unary negation
     APyFixedArray operator-() const;
 

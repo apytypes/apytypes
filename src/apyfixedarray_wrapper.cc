@@ -1,6 +1,7 @@
 #include "apyfixed.h"
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
+#include "src/apytypes_util.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -16,7 +17,7 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static APyFixedArray R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
 {
     if constexpr (std::is_floating_point_v<L_TYPE>) {
         return (rhs.*FUNC)(APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits()));
@@ -33,7 +34,7 @@ static APyFixedArray R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
  * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFixedArray type
  */
 template <typename OP, typename R_TYPE>
-static APyFixedArray L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
+static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
 {
     if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
@@ -49,6 +50,18 @@ static APyFixedArray L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
         return OP()(lhs, APyFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits()));
     }
 }
+
+// Create a "cheat" comparison-function signature that is used *only* in the created
+// stub files. The cheat signature tells nanobind that a comparison function returns a
+// numpy array of booleans, even though the comparison function may return another
+// third-party array-library array of booleans. This hack is needed until the stub
+// generation is more developed upstream, or until the static type-checkers can do a
+// better job of the currently generated signatures.
+#define CMP(FUNC_NAME, RHS_TYPE)                                                       \
+    nb::is_operator(), nb::arg().noconvert(),                                          \
+        nb::sig(                                                                       \
+            "def " FUNC_NAME "(self, arg: " RHS_TYPE ", /) -> NDArray[numpy.bool]"     \
+        )
 
 void bind_fixed_array(nb::module_& m)
 {
@@ -98,6 +111,32 @@ void bind_fixed_array(nb::module_& m)
         .def(nb::self << int())
         .def(nb::self >> int())
 
+        .def(nb::self == nb::self, CMP("__eq__", "APyFixedArray"))
+        .def(nb::self != nb::self, CMP("__ne__", "APyFixedArray"))
+        .def(nb::self < nb::self, CMP("__lt__", "APyFixedArray"))
+        .def(nb::self > nb::self, CMP("__gt__", "APyFixedArray"))
+        .def(nb::self <= nb::self, CMP("__le__", "APyFixedArray"))
+        .def(nb::self >= nb::self, CMP("__ge__", "APyFixedArray"))
+
+        /*
+         * Arithmetic operations with APyFixed
+         */
+        .def("__add__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyFixedArray::rsub, APyFixed>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, APyFixed>, NB_OP(), NB_NARG())
+
+        .def("__eq__", L_OP<std::equal_to<>, APyFixed>, CMP("__eq__", "APyFixed"))
+        .def("__ne__", L_OP<std::not_equal_to<>, APyFixed>, CMP("__ne__", "APyFixed"))
+        .def("__lt__", L_OP<std::less<>, APyFixed>, CMP("__lt__", "APyFixed"))
+        .def("__le__", L_OP<std::less_equal<>, APyFixed>, CMP("__le__", "APyFixed"))
+        .def("__gt__", L_OP<std::greater<>, APyFixed>, CMP("__gt__", "APyFixed"))
+        .def("__ge__", L_OP<std::greater_equal<>, APyFixed>, CMP("__ge__", "APyFixed"))
+
         /*
          * Arithmetic operations with integers
          */
@@ -109,6 +148,13 @@ void bind_fixed_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
+
+        .def("__eq__", L_OP<std::equal_to<>, nb::int_>, CMP("__eq__", "int"))
+        .def("__ne__", L_OP<std::not_equal_to<>, nb::int_>, CMP("__ne__", "int"))
+        .def("__lt__", L_OP<std::less<>, nb::int_>, CMP("__lt__", "int"))
+        .def("__le__", L_OP<std::less_equal<>, nb::int_>, CMP("__le__", "int"))
+        .def("__gt__", L_OP<std::greater<>, nb::int_>, CMP("__gt__", "int"))
+        .def("__ge__", L_OP<std::greater_equal<>, nb::int_>, CMP("__ge__", "int"))
 
         /*
          * Arithmetic operation with floats
@@ -122,17 +168,12 @@ void bind_fixed_array(nb::module_& m)
         .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, double>, NB_OP(), NB_NARG())
 
-        /*
-         * Arithmetic operations with APyFixed
-         */
-        .def("__add__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__radd__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<&APyFixedArray::rsub, APyFixed>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rmul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, APyFixed>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<std::equal_to<>, double>, CMP("__eq__", "float"))
+        .def("__ne__", L_OP<std::not_equal_to<>, double>, CMP("__ne__", "float"))
+        .def("__lt__", L_OP<std::less<>, double>, CMP("__lt__", "float"))
+        .def("__le__", L_OP<std::less_equal<>, double>, CMP("__le__", "float"))
+        .def("__gt__", L_OP<std::greater<>, double>, CMP("__gt__", "float"))
+        .def("__ge__", L_OP<std::greater_equal<>, double>, CMP("__ge__", "float"))
 
         /*
          * Arithmetic operations with NumPy arrays

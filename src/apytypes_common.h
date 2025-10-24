@@ -1,14 +1,17 @@
 #ifndef _APYTYPES_COMMON_H
 #define _APYTYPES_COMMON_H
 
+#include "apytypes_fwd.h"
+#include "src/apytypes_intrinsics.h"
+
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 #include <nanobind/stl/function.h>
 
 #include <cstdint>  // std::uint32_t, uint64_t
 #include <optional> // std::optional
 #include <random>   // std::mt19937_64, std::random_device
-
-#include "apytypes_fwd.h"
+#include <variant>
 
 /* ********************************************************************************** *
  * *                    Quantization modes and overflow modes                       * *
@@ -207,5 +210,72 @@ private:
 
 //! Return the global accumulator mode for APyFloat
 std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float();
+
+/* ********************************************************************************** *
+ * *                     Preferred third-party array library                        * *
+ * ********************************************************************************** */
+
+//! Tags for the supported third-party array libraries
+enum class ThirdPartyArrayTag {
+    NUMPY,
+    PYTORCH,
+    TENSORFLOW,
+    JAX,
+    CUPY,
+};
+
+//! Type of a third-party array library. Returning this to Python will
+template <typename... NB_ARGS>
+using ThirdPartyArray = std::variant<
+    nanobind::ndarray<nanobind::numpy, NB_ARGS...>,
+    nanobind::ndarray<nanobind::pytorch, NB_ARGS...>,
+    nanobind::ndarray<nanobind::tensorflow, NB_ARGS...>,
+    nanobind::ndarray<nanobind::jax, NB_ARGS...>,
+    nanobind::ndarray<nanobind::cupy, NB_ARGS...>>;
+
+//! Python-exported set preferred array library function
+void set_preferred_array_lib_from_str(const std::string& array_lib);
+
+//! Set the preferred third-party array library.
+void set_preferred_array_lib(ThirdPartyArrayTag array_lib);
+
+//! Retrieve the currently set preferred third-party array library.
+ThirdPartyArrayTag get_preferred_array_lib();
+
+//! Retrieve the currently set preferred third-party array library as a string.
+std::string get_preferred_array_lib_as_str();
+
+//! Convert an un-tagged `nb::ndarray` (Python capsule around `void *`) to a third-party
+//! array-library specific array.
+template <typename... NB_ARGS>
+ThirdPartyArray<NB_ARGS...> make_third_party_ndarray(
+    const nanobind::ndarray<NB_ARGS...>& array_ref, ThirdPartyArrayTag array_lib
+)
+{
+    namespace nb = nanobind;
+    switch (array_lib) {
+    case ThirdPartyArrayTag::NUMPY:
+        return ThirdPartyArray<NB_ARGS...>(
+            nb::ndarray<nb::numpy, NB_ARGS...>(array_ref)
+        );
+    case ThirdPartyArrayTag::PYTORCH:
+        return ThirdPartyArray<NB_ARGS...>(
+            nb::ndarray<nb::pytorch, NB_ARGS...>(array_ref)
+        );
+    case ThirdPartyArrayTag::TENSORFLOW:
+        return ThirdPartyArray<NB_ARGS...>(
+            nb::ndarray<nb::tensorflow, NB_ARGS...>(array_ref)
+        );
+    case ThirdPartyArrayTag::JAX:
+        return ThirdPartyArray<NB_ARGS...>(nb::ndarray<nb::jax, NB_ARGS...>(array_ref));
+    case ThirdPartyArrayTag::CUPY:
+        return ThirdPartyArray<NB_ARGS...>(
+            nb::ndarray<nb::cupy, NB_ARGS...>(array_ref)
+        );
+
+    default:
+        APYTYPES_UNREACHABLE();
+    }
+}
 
 #endif // _APYTYPES_COMMON_H

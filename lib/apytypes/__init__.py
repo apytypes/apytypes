@@ -19,9 +19,11 @@ from apytypes._apytypes import (
     get_fixed_quantization_seed,
     get_float_quantization_mode,
     get_float_quantization_seed,
+    get_preferred_array_lib,
     set_fixed_quantization_seed,
     set_float_quantization_mode,
     set_float_quantization_seed,
+    set_preferred_array_lib,
 )
 from apytypes._array_functions import (
     arange,
@@ -81,6 +83,7 @@ __all__ = [
     "get_fixed_quantization_seed",
     "get_float_quantization_mode",
     "get_float_quantization_seed",
+    "get_preferred_array_lib",
     "identity",
     "import_csv",
     "meshgrid",
@@ -92,6 +95,7 @@ __all__ = [
     "set_fixed_quantization_seed",
     "set_float_quantization_mode",
     "set_float_quantization_seed",
+    "set_preferred_array_lib",
     "shape",
     "squeeze",
     "swapaxes",

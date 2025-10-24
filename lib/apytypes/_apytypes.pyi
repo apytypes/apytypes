@@ -3,7 +3,8 @@ import types
 from collections.abc import Iterable
 from typing import Annotated, Any, overload
 
-from numpy.typing import ArrayLike
+import numpy
+from numpy.typing import NDArray
 
 class QuantizationMode(enum.Enum):
     TO_NEG = 0
@@ -166,6 +167,40 @@ def get_fixed_quantization_seed() -> int:
     Returns
     -------
     :class:`int`
+    """
+
+def set_preferred_array_lib(arg: str, /) -> None:
+    """
+    Set the preferred third-party array library returned when nothing else is
+    specified.
+
+    The preferred third-party array library is used only when APyTypes needs to
+    return a non-APyTypes array, and when no third-party array library is
+    specified explicitly. For example, when two APyTypes' arrays are compared
+    against one another, the resulting array of `bool` will have the type
+    specified by this function.
+
+    The preferred third-party array library is a global state. When loading in
+    the APyTypes module, it is set to `"numpy"`.
+
+    Parameters
+    ----------
+    array_lib : { "numpy", "pytorch", "tensorflow", "jax", "cupy" }
+        Preferred third-party array library to use.
+    """
+
+def get_preferred_array_lib() -> str:
+    """
+    Retrieve the preferred third-party array library in use with APyTypes.
+
+    See Also
+    --------
+    set_preferred_array_lib
+
+    Returns
+    -------
+    :class:`str`
+        The preferred third-party array library in use.
     """
 
 class APyCFixed:
@@ -772,7 +807,7 @@ class APyCFixedArray:
 
     def to_numpy(
         self, dtype: object | None = None, copy: bool | None = None
-    ) -> Annotated[ArrayLike, dict(dtype="complex128")]:
+    ) -> NDArray[numpy.complex128]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.complex128`.
 
@@ -1433,7 +1468,7 @@ class APyCFixedArray:
 
     @staticmethod
     def from_array(
-        ndarray: Annotated[ArrayLike, dict(order="C")],
+        ndarray: Annotated[NDArray, dict(order="C")],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -1634,7 +1669,7 @@ class APyCFixedArray:
     def __len__(self) -> int: ...
     def __array__(
         self, dtype: object | None = None, copy: bool | None = None
-    ) -> Annotated[ArrayLike, dict(dtype="complex128")]: ...
+    ) -> NDArray[numpy.complex128]: ...
 
 class APyCFloat:
     """
@@ -2104,7 +2139,7 @@ class APyCFloatArray:
     @overload
     def __add__(self, arg: complex) -> APyCFloatArray: ...
     @overload
-    def __add__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyCFloatArray: ...
+    def __add__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyCFloatArray: ...
     @overload
     def __sub__(self, arg: APyCFloatArray) -> APyCFloatArray: ...
     @overload
@@ -2116,7 +2151,7 @@ class APyCFloatArray:
     @overload
     def __sub__(self, arg: complex) -> APyCFloatArray: ...
     @overload
-    def __sub__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyCFloatArray: ...
+    def __sub__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyCFloatArray: ...
     @overload
     def __mul__(self, arg: APyCFloatArray) -> APyCFloatArray: ...
     @overload
@@ -2128,7 +2163,7 @@ class APyCFloatArray:
     @overload
     def __mul__(self, arg: complex) -> APyCFloatArray: ...
     @overload
-    def __mul__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyCFloatArray: ...
+    def __mul__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyCFloatArray: ...
     @overload
     def __truediv__(self, arg: APyCFloatArray) -> APyCFloatArray: ...
     @overload
@@ -2141,7 +2176,7 @@ class APyCFloatArray:
     def __truediv__(self, arg: complex) -> APyCFloatArray: ...
     @overload
     def __truediv__(
-        self, arg: Annotated[ArrayLike, dict(order="C")]
+        self, arg: Annotated[NDArray, dict(order="C")]
     ) -> APyCFloatArray: ...
     def __neg__(self) -> APyCFloatArray: ...
     def __pos__(self) -> APyCFloatArray: ...
@@ -2363,7 +2398,7 @@ class APyCFloatArray:
 
     @staticmethod
     def from_array(
-        ndarray: Annotated[ArrayLike, dict(order="C")],
+        ndarray: Annotated[NDArray, dict(order="C")],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
@@ -2765,7 +2800,7 @@ class APyCFloatArray:
 
     def to_numpy(
         self, dtype: object | None = None, copy: bool | None = None
-    ) -> Annotated[ArrayLike, dict(dtype="complex128")]:
+    ) -> NDArray[numpy.complex128]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.complex128`.
 
@@ -3170,7 +3205,7 @@ class APyCFloatArray:
     def __len__(self) -> int: ...
     def __array__(
         self, dtype: object | None = None, copy: bool | None = None
-    ) -> Annotated[ArrayLike, dict(dtype="complex128")]: ...
+    ) -> NDArray[numpy.complex128]: ...
 
 class APyFixed:
     r"""
@@ -3650,44 +3685,44 @@ class APyFixedArray:
     @overload
     def __add__(self, arg: APyFixedArray) -> APyFixedArray: ...
     @overload
+    def __add__(self, arg: APyFixed) -> APyFixedArray: ...
+    @overload
     def __add__(self, arg: int) -> APyFixedArray: ...
     @overload
     def __add__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __add__(self, arg: APyFixed) -> APyFixedArray: ...
-    @overload
-    def __add__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFixedArray: ...
+    def __add__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyFixedArray: ...
     @overload
     def __sub__(self, arg: APyFixedArray) -> APyFixedArray: ...
+    @overload
+    def __sub__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
     def __sub__(self, arg: int) -> APyFixedArray: ...
     @overload
     def __sub__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __sub__(self, arg: APyFixed) -> APyFixedArray: ...
-    @overload
-    def __sub__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFixedArray: ...
+    def __sub__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyFixedArray: ...
     @overload
     def __mul__(self, arg: APyFixedArray) -> APyFixedArray: ...
+    @overload
+    def __mul__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
     def __mul__(self, arg: int) -> APyFixedArray: ...
     @overload
     def __mul__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __mul__(self, arg: APyFixed) -> APyFixedArray: ...
-    @overload
-    def __mul__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFixedArray: ...
+    def __mul__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyFixedArray: ...
     @overload
     def __truediv__(self, arg: APyFixedArray) -> APyFixedArray: ...
+    @overload
+    def __truediv__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
     def __truediv__(self, arg: int) -> APyFixedArray: ...
     @overload
     def __truediv__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __truediv__(self, arg: APyFixed) -> APyFixedArray: ...
-    @overload
     def __truediv__(
-        self, arg: Annotated[ArrayLike, dict(order="C")]
+        self, arg: Annotated[NDArray, dict(order="C")]
     ) -> APyFixedArray: ...
     def __neg__(self) -> APyFixedArray: ...
     def __pos__(self) -> APyFixedArray: ...
@@ -3696,29 +3731,77 @@ class APyFixedArray:
     def __lshift__(self, arg: int, /) -> APyFixedArray: ...
     def __rshift__(self, arg: int, /) -> APyFixedArray: ...
     @overload
+    def __eq__(self, arg: APyFixedArray, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __eq__(self, arg: APyFixed, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __eq__(self, arg: int, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __eq__(self, arg: float, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __ne__(self, arg: APyFixedArray, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __ne__(self, arg: APyFixed, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __ne__(self, arg: int, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __ne__(self, arg: float, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __lt__(self, arg: APyFixedArray, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __lt__(self, arg: APyFixed, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __lt__(self, arg: int, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __lt__(self, arg: float, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __gt__(self, arg: APyFixedArray, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __gt__(self, arg: APyFixed, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __gt__(self, arg: int, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __gt__(self, arg: float, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __le__(self, arg: APyFixedArray, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __le__(self, arg: APyFixed, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __le__(self, arg: int, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __le__(self, arg: float, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __ge__(self, arg: APyFixedArray, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __ge__(self, arg: APyFixed, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __ge__(self, arg: int, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __ge__(self, arg: float, /) -> NDArray[numpy.bool]: ...
+    @overload
+    def __radd__(self, arg: APyFixed) -> APyFixedArray: ...
+    @overload
     def __radd__(self, arg: int) -> APyFixedArray: ...
     @overload
     def __radd__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __radd__(self, arg: APyFixed) -> APyFixedArray: ...
+    def __rsub__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
     def __rsub__(self, arg: int) -> APyFixedArray: ...
     @overload
     def __rsub__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __rsub__(self, arg: APyFixed) -> APyFixedArray: ...
+    def __rmul__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
     def __rmul__(self, arg: int) -> APyFixedArray: ...
     @overload
     def __rmul__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __rmul__(self, arg: APyFixed) -> APyFixedArray: ...
+    def __rtruediv__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
     def __rtruediv__(self, arg: int) -> APyFixedArray: ...
     @overload
     def __rtruediv__(self, arg: float) -> APyFixedArray: ...
-    @overload
-    def __rtruediv__(self, arg: APyFixed) -> APyFixedArray: ...
     def __invert__(self) -> APyFixedArray: ...
     @property
     def bits(self) -> int:
@@ -3784,7 +3867,7 @@ class APyFixedArray:
 
     def to_numpy(
         self, dtype: object | None = None, copy: bool | None = None
-    ) -> Annotated[ArrayLike, dict(dtype="float64")]:
+    ) -> NDArray[numpy.float64]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
@@ -3807,10 +3890,10 @@ class APyFixedArray:
         self, numpy: bool = False
     ) -> (
         list
-        | Annotated[ArrayLike, dict(dtype="uint64")]
-        | Annotated[ArrayLike, dict(dtype="uint32")]
-        | Annotated[ArrayLike, dict(dtype="uint16")]
-        | Annotated[ArrayLike, dict(dtype="uint8")]
+        | NDArray[numpy.uint64]
+        | NDArray[numpy.uint32]
+        | NDArray[numpy.uint16]
+        | NDArray[numpy.uint8]
     ):
         """
         Return the underlying bit representations.
@@ -4542,7 +4625,7 @@ class APyFixedArray:
 
     @staticmethod
     def from_array(
-        ndarray: Annotated[ArrayLike, dict(order="C")],
+        ndarray: Annotated[NDArray, dict(order="C")],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -4747,7 +4830,7 @@ class APyFixedArray:
     def __iter__(self) -> APyFixedArrayIterator: ...
     def __array__(
         self, dtype: object | None = None, copy: bool | None = None
-    ) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
+    ) -> NDArray[numpy.float64]: ...
 
 class APyFixedArrayIterator:
     def __iter__(self) -> APyFixedArrayIterator: ...
@@ -5566,7 +5649,7 @@ class APyFloatArray:
     @overload
     def __add__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __add__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFloatArray: ...
+    def __add__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyFloatArray: ...
     @overload
     def __sub__(self, arg: APyFloatArray) -> APyFloatArray: ...
     @overload
@@ -5576,7 +5659,7 @@ class APyFloatArray:
     @overload
     def __sub__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __sub__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFloatArray: ...
+    def __sub__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyFloatArray: ...
     @overload
     def __mul__(self, arg: APyFloatArray) -> APyFloatArray: ...
     @overload
@@ -5586,7 +5669,7 @@ class APyFloatArray:
     @overload
     def __mul__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __mul__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFloatArray: ...
+    def __mul__(self, arg: Annotated[NDArray, dict(order="C")]) -> APyFloatArray: ...
     @overload
     def __truediv__(self, arg: APyFloatArray) -> APyFloatArray: ...
     @overload
@@ -5597,7 +5680,7 @@ class APyFloatArray:
     def __truediv__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
     def __truediv__(
-        self, arg: Annotated[ArrayLike, dict(order="C")]
+        self, arg: Annotated[NDArray, dict(order="C")]
     ) -> APyFloatArray: ...
     def __neg__(self) -> APyFloatArray: ...
     def __pos__(self) -> APyFloatArray: ...
@@ -5701,7 +5784,7 @@ class APyFloatArray:
 
     def to_numpy(
         self, dtype: object | None = None, copy: bool | None = None
-    ) -> Annotated[ArrayLike, dict(dtype="float64")]:
+    ) -> NDArray[numpy.float64]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
@@ -5724,10 +5807,10 @@ class APyFloatArray:
         self, numpy: bool = False
     ) -> (
         list
-        | Annotated[ArrayLike, dict(dtype="uint64")]
-        | Annotated[ArrayLike, dict(dtype="uint32")]
-        | Annotated[ArrayLike, dict(dtype="uint16")]
-        | Annotated[ArrayLike, dict(dtype="uint8")]
+        | NDArray[numpy.uint64]
+        | NDArray[numpy.uint32]
+        | NDArray[numpy.uint16]
+        | NDArray[numpy.uint8]
     ):
         """
         Return the underlying bit representations.
@@ -5895,7 +5978,7 @@ class APyFloatArray:
 
     @staticmethod
     def from_array(
-        ndarray: Annotated[ArrayLike, dict(order="C")],
+        ndarray: Annotated[NDArray, dict(order="C")],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
@@ -6769,7 +6852,7 @@ class APyFloatArray:
     def __iter__(self) -> APyFloatArrayIterator: ...
     def __array__(
         self, dtype: object | None = None, copy: bool | None = None
-    ) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
+    ) -> NDArray[numpy.float64]: ...
     def cast(
         self,
         exp_bits: int | None = None,

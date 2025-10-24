@@ -1042,7 +1042,9 @@ APyFloatArray::to_numpy(std::optional<nb::object> dtype, std::optional<bool> cop
     (void)dtype;
 
     FloatingPointToDouble<vector_const_iterator> converter(spec());
-    return to_ndarray<nb::numpy, double>(converter, copy, "to_numpy");
+    return nb::ndarray<nb::numpy, double>(
+        to_ndarray<double>(converter, "to_numpy", copy)
+    );
 }
 
 bool APyFloatArray::is_identical(const nb::object& other, bool ignore_zero_sign) const

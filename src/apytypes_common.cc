@@ -1,6 +1,7 @@
 #include "apytypes_common.h"
 #include "apyfloat_util.h"
 #include "apytypes_util.h"
+#include "src/apytypes_intrinsics.h"
 
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
@@ -10,7 +11,7 @@ namespace nb = nanobind;
 #include <random>
 
 /* ********************************************************************************** *
- * *                        Thread local states for APyTypes                        * *
+ * *                        Thread-local states for APyTypes                        * *
  * ********************************************************************************** */
 
 // Quantization mode for floating-point arithmetic
@@ -227,4 +228,61 @@ void APyFloatAccumulatorContext::enter_context()
 void APyFloatAccumulatorContext::exit_context()
 {
     global_accumulator_option_float = previous_mode;
+}
+
+/* ********************************************************************************** *
+ * *                     Preferred third-party array library                        * *
+ * ********************************************************************************** */
+
+static ThirdPartyArrayTag preferred_array_lib { ThirdPartyArrayTag::NUMPY };
+
+void set_preferred_array_lib(ThirdPartyArrayTag array_lib)
+{
+    preferred_array_lib = array_lib;
+}
+
+void set_preferred_array_lib_from_str(const std::string& array_lib)
+{
+    if (array_lib == "numpy") {
+        set_preferred_array_lib(ThirdPartyArrayTag::NUMPY);
+        return;
+    } else if (array_lib == "pytorch") {
+        set_preferred_array_lib(ThirdPartyArrayTag::PYTORCH);
+        return;
+    } else if (array_lib == "tensorflow") {
+        set_preferred_array_lib(ThirdPartyArrayTag::TENSORFLOW);
+        return;
+    } else if (array_lib == "jax") {
+        set_preferred_array_lib(ThirdPartyArrayTag::JAX);
+    } else if (array_lib == "cupy") {
+        set_preferred_array_lib(ThirdPartyArrayTag::CUPY);
+    } else {
+        auto err_msg = fmt::format(
+            "set_preferred_array_lib: library '{}' not exactly in ('numpy', 'pytorch', "
+            "'tensorflow', 'jax', 'cupy')",
+            array_lib
+        );
+        throw nb::value_error(err_msg.c_str());
+    }
+}
+
+ThirdPartyArrayTag get_preferred_array_lib() { return preferred_array_lib; }
+
+std::string get_preferred_array_lib_as_str()
+{
+    switch (preferred_array_lib) {
+    case ThirdPartyArrayTag::NUMPY:
+        return "numpy";
+    case ThirdPartyArrayTag::PYTORCH:
+        return "pytorch";
+    case ThirdPartyArrayTag::TENSORFLOW:
+        return "tensorflow";
+    case ThirdPartyArrayTag::JAX:
+        return "jax";
+    case ThirdPartyArrayTag::CUPY:
+        return "cupy";
+
+    default:
+        APYTYPES_UNREACHABLE();
+    }
 }

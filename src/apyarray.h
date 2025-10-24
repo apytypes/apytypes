@@ -1669,18 +1669,18 @@ public:
     /*!
      * Convert array into a nanobind `ndarray`
      */
-    template <typename ND_ARRAY_TYPE, typename CXX_TYPE, typename CONVERTER_FUNCTOR>
-    nb::ndarray<ND_ARRAY_TYPE, CXX_TYPE> to_ndarray(
+    template <typename CXX_TYPE, typename CONVERTER_FUNCTOR>
+    nb::ndarray<CXX_TYPE> to_ndarray(
         CONVERTER_FUNCTOR converter,
-        std::optional<bool> copy,
-        std::string_view func_name = "to_ndarray"
+        std::string_view raises_func_name = "to_ndarray",
+        std::optional<bool> copy = std::nullopt
     ) const
     {
         if (!copy.value_or(true)) {
             std::string err_msg = fmt::format(
                 "{}.{}: APyTypes arrays can only be copied",
                 ARRAY_TYPE::ARRAY_NAME,
-                func_name
+                raises_func_name
             );
             throw nb::value_error(err_msg.c_str());
         }
@@ -1697,7 +1697,7 @@ public:
         // Delete `data` when the owner Python capsule expires
         nb::capsule owner(data, [](void* p) noexcept { delete[] (CXX_TYPE*)p; });
 
-        return nb::ndarray<ND_ARRAY_TYPE, CXX_TYPE>(data, _ndim, &_shape[0], owner);
+        return nb::ndarray<CXX_TYPE>(data, _ndim, &_shape[0], owner);
     }
 
     //! Copy array
