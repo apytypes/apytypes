@@ -399,7 +399,9 @@ nb::ndarray<nb::numpy, std::complex<double>> APyCFloatArray::to_numpy(
     (void)dtype;
 
     ComplexFloatingPointToDouble<vector_const_iterator> converter(spec());
-    return to_ndarray<nb::numpy, std::complex<double>>(converter, copy, "to_numpy");
+    return nb::ndarray<nb::numpy, std::complex<double>>(
+        to_ndarray<std::complex<double>>(converter, "to_numpy", copy)
+    );
 }
 
 bool APyCFloatArray::is_identical(const nb::object& other, bool ignore_zero_sign) const

@@ -968,7 +968,9 @@ nb::ndarray<nb::numpy, std::complex<double>> APyCFixedArray::to_numpy(
     (void)dtype;
 
     ComplexFixedPointToDouble<vector_const_iterator> converter(spec());
-    return to_ndarray<nb::numpy, std::complex<double>>(converter, copy, "to_numpy");
+    return nb::ndarray<nb::numpy, std::complex<double>>(
+        to_ndarray<std::complex<double>>(converter, "to_numpy", copy)
+    );
 }
 
 APyCFixedArray APyCFixedArray::cast(

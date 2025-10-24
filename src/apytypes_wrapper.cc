@@ -296,6 +296,46 @@ void bind_common(nb::module_& m)
 
             )pbdoc"
         )
+        .def(
+            "set_preferred_array_lib",
+            &set_preferred_array_lib_from_str,
+            R"pbdoc(
+            Set the preferred third-party array library returned when nothing else is
+            specified.
+
+            The preferred third-party array library is used only when APyTypes needs to
+            return a non-APyTypes array, and when no third-party array library is
+            specified explicitly. For example, when two APyTypes' arrays are compared
+            against one another, the resulting array of `bool` will have the type
+            specified by this function.
+
+            The preferred third-party array library is a global state. When loading in
+            the APyTypes module, it is set to `"numpy"`.
+
+            Parameters
+            ----------
+            array_lib : { "numpy", "pytorch", "tensorflow", "jax", "cupy" }
+                Preferred third-party array library to use.
+
+            )pbdoc"
+        )
+        .def(
+            "get_preferred_array_lib",
+            &get_preferred_array_lib_as_str,
+            R"pbdoc(
+            Retrieve the preferred third-party array library in use with APyTypes.
+
+            See Also
+            --------
+            set_preferred_array_lib
+
+            Returns
+            -------
+            :class:`str`
+                The preferred third-party array library in use.
+
+            )pbdoc"
+        )
 
         /* Get the APyTypes SIMD version string */
         .def("_get_simd_version_str", &simd::get_simd_version_str);

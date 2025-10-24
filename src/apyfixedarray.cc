@@ -761,6 +761,87 @@ APyFixedArray& APyFixedArray::operator>>=(const int shift_val)
     return *this;
 }
 
+template <typename T>
+ThirdPartyArray<bool> APyFixedArray::operator==(const T& rhs) const
+{
+    auto is_zero = [](auto begin, auto end) { return limb_vector_is_zero(begin, end); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T>
+ThirdPartyArray<bool> APyFixedArray::operator!=(const T& rhs) const
+{
+    auto is_non_zero
+        = [](auto begin, auto end) { return !limb_vector_is_zero(begin, end); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_non_zero, "__ne__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T> ThirdPartyArray<bool> APyFixedArray::operator<(const T& rhs) const
+{
+    auto is_negative
+        = [](auto begin, auto end) { return limb_vector_is_negative(begin, end); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_negative, "__lt__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T>
+ThirdPartyArray<bool> APyFixedArray::operator<=(const T& rhs) const
+{
+    auto is_negative_or_zero = [](auto begin, auto end) {
+        return limb_vector_is_negative(begin, end) || limb_vector_is_zero(begin, end);
+    };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_negative_or_zero, "__le__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T> ThirdPartyArray<bool> APyFixedArray::operator>(const T& rhs) const
+{
+    auto is_strict_positive = [](auto begin, auto end) {
+        return !limb_vector_is_negative(begin, end) && !limb_vector_is_zero(begin, end);
+    };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_strict_positive, "__gt__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T>
+ThirdPartyArray<bool> APyFixedArray::operator>=(const T& rhs) const
+{
+    auto is_non_negative
+        = [](auto begin, auto end) { return !limb_vector_is_negative(begin, end); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_non_negative, "__ge__"),
+        get_preferred_array_lib()
+    );
+}
+
+using ComparissonArray = ThirdPartyArray<bool>;
+
+// Explicit instantiation of needed comparison functions
+template ComparissonArray APyFixedArray::operator==(const APyFixedArray& rhs) const;
+template ComparissonArray APyFixedArray::operator==(const APyFixed& rhs) const;
+template ComparissonArray APyFixedArray::operator!=(const APyFixedArray& rhs) const;
+template ComparissonArray APyFixedArray::operator!=(const APyFixed& rhs) const;
+template ComparissonArray APyFixedArray::operator<(const APyFixedArray& rhs) const;
+template ComparissonArray APyFixedArray::operator<(const APyFixed& rhs) const;
+template ComparissonArray APyFixedArray::operator<=(const APyFixedArray& rhs) const;
+template ComparissonArray APyFixedArray::operator<=(const APyFixed& rhs) const;
+template ComparissonArray APyFixedArray::operator>(const APyFixedArray& rhs) const;
+template ComparissonArray APyFixedArray::operator>(const APyFixed& rhs) const;
+template ComparissonArray APyFixedArray::operator>=(const APyFixedArray& rhs) const;
+template ComparissonArray APyFixedArray::operator>=(const APyFixed& rhs) const;
+
 std::variant<APyFixedArray, APyFixed>
 APyFixedArray::matmul(const APyFixedArray& rhs) const
 {
@@ -1248,8 +1329,11 @@ nb::ndarray<nb::numpy, double>
 APyFixedArray::to_numpy(std::optional<nb::object> dtype, std::optional<bool> copy) const
 {
     (void)dtype;
+
     FixedPointToDouble<vector_const_iterator> converter(spec());
-    return to_ndarray<nb::numpy, double>(converter, copy, "to_numpy");
+    return nb::ndarray<nb::numpy, double>(
+        to_ndarray<double>(converter, "to_numpy", copy)
+    );
 }
 
 APyFixedArray APyFixedArray::cast(
@@ -1656,6 +1740,8 @@ void APyFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndar
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint32_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint16_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint8_t);
+
+#undef CHECK_AND_SET_BITS_FROM_NPTYPE
 
     // None of the `CHECK_AND_SET_BITS_FROM_NPTYPE` succeeded. Unsupported type,
     // throw an error. If possible, it would be nice to show a string representation
