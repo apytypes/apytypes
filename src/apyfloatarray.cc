@@ -302,6 +302,93 @@ APyFloatArray APyFloatArray::rsub(const APyFloat& lhs) const
     return res;
 }
 
+template <typename T>
+ThirdPartyArray<bool> APyFloatArray::operator==(const T& rhs) const
+{
+    auto is_zero = [](auto begin, auto) { return ::is_zero(*begin); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T>
+ThirdPartyArray<bool> APyFloatArray::operator!=(const T& rhs) const
+{
+    auto is_non_zero = [](auto begin, auto) { return !::is_zero(*begin); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_non_zero, "__ne__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T> ThirdPartyArray<bool> APyFloatArray::operator<(const T& rhs) const
+{
+    const APyFloatArray diff = *this - rhs;
+    auto is_negative = [spec = diff.spec()](auto begin, auto) -> bool {
+        return floating_point_less_than(*begin, spec, { 0, 0, 0 }, spec);
+    };
+    return make_third_party_ndarray(
+        diff.template to_ndarray<bool>(is_negative, "__lt__"), get_preferred_array_lib()
+    );
+}
+
+template <typename T>
+ThirdPartyArray<bool> APyFloatArray::operator<=(const T& rhs) const
+{
+    const APyFloatArray diff = *this - rhs;
+    auto is_negative_or_zero = [spec = diff.spec()](auto begin, auto) {
+        return floating_point_less_than(*begin, spec, { 0, 0, 0 }, spec)
+            || is_zero(*begin);
+    };
+    return make_third_party_ndarray(
+        diff.template to_ndarray<bool>(is_negative_or_zero, "__le__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T> ThirdPartyArray<bool> APyFloatArray::operator>(const T& rhs) const
+{
+    const APyFloatArray diff = *this - rhs;
+    auto is_strict_positive = [spec = diff.spec()](auto begin, auto) {
+        return !floating_point_less_than(*begin, spec, { 0, 0, 0 }, spec)
+            && !::is_zero(*begin);
+    };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_strict_positive, "__gt__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T>
+ThirdPartyArray<bool> APyFloatArray::operator>=(const T& rhs) const
+{
+    const APyFloatArray diff = *this - rhs;
+    auto is_non_negative = [spec = diff.spec()](auto begin, auto) {
+        return !floating_point_less_than(*begin, spec, { 0, 0, 0 }, spec);
+    };
+    return make_third_party_ndarray(
+        diff.template to_ndarray<bool>(is_non_negative, "__ge__"),
+        get_preferred_array_lib()
+    );
+}
+
+using ComparissonArray = ThirdPartyArray<bool>;
+
+// Explicit instantiation of needed comparison functions
+template ComparissonArray APyFloatArray::operator==(const APyFloatArray& rhs) const;
+template ComparissonArray APyFloatArray::operator==(const APyFloat& rhs) const;
+template ComparissonArray APyFloatArray::operator!=(const APyFloatArray& rhs) const;
+template ComparissonArray APyFloatArray::operator!=(const APyFloat& rhs) const;
+template ComparissonArray APyFloatArray::operator<(const APyFloatArray& rhs) const;
+template ComparissonArray APyFloatArray::operator<(const APyFloat& rhs) const;
+template ComparissonArray APyFloatArray::operator<=(const APyFloatArray& rhs) const;
+template ComparissonArray APyFloatArray::operator<=(const APyFloat& rhs) const;
+template ComparissonArray APyFloatArray::operator>(const APyFloatArray& rhs) const;
+template ComparissonArray APyFloatArray::operator>(const APyFloat& rhs) const;
+template ComparissonArray APyFloatArray::operator>=(const APyFloatArray& rhs) const;
+template ComparissonArray APyFloatArray::operator>=(const APyFloat& rhs) const;
+
 std::variant<APyFloatArray, APyFloat>
 APyFloatArray::matmul(const APyFloatArray& rhs) const
 {

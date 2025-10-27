@@ -145,6 +145,13 @@ public:
     //! Elementwise logic not
     APyFloatArray operator~() const;
 
+    template <typename T> ThirdPartyArray<bool> operator==(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator!=(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator<(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator<=(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator>(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator>=(const T& rhs) const;
+
     /*!
      * Matrix multiplication. If both arguments are 2-D tensors, this method performs
      * the ordinary matrix multiplication. If input dimensions are greater than 2, this
