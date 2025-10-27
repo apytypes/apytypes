@@ -12,7 +12,7 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static APyCFloatArray R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs)
 {
     [[maybe_unused]] int exp_bits = rhs.get_exp_bits();
     [[maybe_unused]] int man_bits = rhs.get_man_bits();
@@ -33,7 +33,7 @@ static APyCFloatArray R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs)
  * type
  */
 template <typename OP, typename R_TYPE>
-static APyCFloatArray L_OP(const APyCFloatArray& lhs, const R_TYPE& rhs)
+static auto L_OP(const APyCFloatArray& lhs, const R_TYPE& rhs)
 {
     [[maybe_unused]] int exp_bits = lhs.get_exp_bits();
     [[maybe_unused]] int man_bits = lhs.get_man_bits();
@@ -52,6 +52,18 @@ static APyCFloatArray L_OP(const APyCFloatArray& lhs, const R_TYPE& rhs)
         return OP()(lhs, rhs);
     }
 }
+
+// Create a "cheat" comparison-function signature that is used *only* in the created
+// stub files. The cheat signature tells nanobind that a comparison function returns a
+// numpy array of booleans, even though the comparison function may return another
+// third-party array-library array of booleans. This hack is needed until the stub
+// generation is more developed upstream, or until the static type-checkers can do a
+// better job of the currently generated signatures.
+#define CMP(FUNC_NAME, RHS_TYPE)                                                       \
+    nb::is_operator(), nb::arg().noconvert(),                                          \
+        nb::sig(                                                                       \
+            "def " FUNC_NAME "(self, arg: " RHS_TYPE ", /) -> NDArray[numpy.bool]"     \
+        )
 
 using complex_t = std::complex<double>;
 
@@ -87,6 +99,9 @@ void bind_cfloat_array(nb::module_& m)
         .def(nb::self / nb::self, NB_NARG())
         .def(-nb::self)
         .def(+nb::self)
+
+        .def(nb::self == nb::self, CMP("__eq__", "APyCFloatArray"))
+        .def(nb::self != nb::self, CMP("__ne__", "APyCFloatArray"))
 
         /*
          * Arithmetic operations with `APyCFloat`

@@ -152,10 +152,6 @@ public:
 
     template <typename T> ThirdPartyArray<bool> operator==(const T& rhs) const;
     template <typename T> ThirdPartyArray<bool> operator!=(const T& rhs) const;
-    template <typename T> ThirdPartyArray<bool> operator<(const T& rhs) const;
-    template <typename T> ThirdPartyArray<bool> operator<=(const T& rhs) const;
-    template <typename T> ThirdPartyArray<bool> operator>(const T& rhs) const;
-    template <typename T> ThirdPartyArray<bool> operator>=(const T& rhs) const;
 
     //! Elementwise unary negation
     APyCFixedArray operator-() const;
