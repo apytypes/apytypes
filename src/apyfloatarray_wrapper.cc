@@ -13,7 +13,7 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static APyFloatArray R_OP(const APyFloatArray& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyFloatArray& rhs, const L_TYPE& lhs)
 {
     [[maybe_unused]] int exp_bits = rhs.get_exp_bits();
     [[maybe_unused]] int man_bits = rhs.get_man_bits();
@@ -31,7 +31,7 @@ static APyFloatArray R_OP(const APyFloatArray& rhs, const L_TYPE& lhs)
  * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFloatArray type
  */
 template <typename OP, typename R_TYPE>
-static APyFloatArray L_OP(const APyFloatArray& lhs, const R_TYPE& rhs)
+static auto L_OP(const APyFloatArray& lhs, const R_TYPE& rhs)
 {
     [[maybe_unused]] int exp_bits = lhs.get_exp_bits();
     [[maybe_unused]] int man_bits = lhs.get_man_bits();
@@ -48,6 +48,18 @@ static APyFloatArray L_OP(const APyFloatArray& lhs, const R_TYPE& rhs)
         return OP()(lhs, APyFloat::from_integer(rhs, exp_bits, man_bits, bias));
     }
 }
+
+// Create a "cheat" comparison-function signature that is used *only* in the created
+// stub files. The cheat signature tells nanobind that a comparison function returns a
+// numpy array of booleans, even though the comparison function may return another
+// third-party array-library array of booleans. This hack is needed until the stub
+// generation is more developed upstream, or until the static type-checkers can do a
+// better job of the currently generated signatures.
+#define CMP(FUNC_NAME, RHS_TYPE)                                                       \
+    nb::is_operator(), nb::arg().noconvert(),                                          \
+        nb::sig(                                                                       \
+            "def " FUNC_NAME "(self, arg: " RHS_TYPE ", /) -> NDArray[numpy.bool]"     \
+        )
 
 void bind_float_array(nb::module_& m)
 {
@@ -115,6 +127,13 @@ void bind_float_array(nb::module_& m)
         .def(-nb::self)
         .def(+nb::self)
 
+        .def(nb::self == nb::self, CMP("__eq__", "APyFloatArray"))
+        .def(nb::self != nb::self, CMP("__ne__", "APyFloatArray"))
+        .def(nb::self < nb::self, CMP("__lt__", "APyFloatArray"))
+        .def(nb::self > nb::self, CMP("__gt__", "APyFloatArray"))
+        .def(nb::self <= nb::self, CMP("__le__", "APyFloatArray"))
+        .def(nb::self >= nb::self, CMP("__ge__", "APyFloatArray"))
+
         /*
          * Arithmetic operators with integers
          */
@@ -126,6 +145,13 @@ void bind_float_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
+
+        .def("__eq__", L_OP<std::equal_to<>, nb::int_>, CMP("__eq__", "int"))
+        .def("__ne__", L_OP<std::not_equal_to<>, nb::int_>, CMP("__ne__", "int"))
+        .def("__lt__", L_OP<std::less<>, nb::int_>, CMP("__lt__", "int"))
+        .def("__le__", L_OP<std::less_equal<>, nb::int_>, CMP("__le__", "int"))
+        .def("__gt__", L_OP<std::greater<>, nb::int_>, CMP("__gt__", "int"))
+        .def("__ge__", L_OP<std::greater_equal<>, nb::int_>, CMP("__ge__", "int"))
 
         /*
          * Arithmetic operators with floats
@@ -139,6 +165,13 @@ void bind_float_array(nb::module_& m)
         .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, double>, NB_OP(), NB_NARG())
 
+        .def("__eq__", L_OP<std::equal_to<>, double>, CMP("__eq__", "float"))
+        .def("__ne__", L_OP<std::not_equal_to<>, double>, CMP("__ne__", "float"))
+        .def("__lt__", L_OP<std::less<>, double>, CMP("__lt__", "float"))
+        .def("__le__", L_OP<std::less_equal<>, double>, CMP("__le__", "float"))
+        .def("__gt__", L_OP<std::greater<>, double>, CMP("__gt__", "float"))
+        .def("__ge__", L_OP<std::greater_equal<>, double>, CMP("__ge__", "float"))
+
         /*
          * Arithmetic operators with APyFloat
          */
@@ -150,6 +183,13 @@ void bind_float_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, APyFloat>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, APyFloat>, NB_OP(), NB_NARG())
+
+        .def("__eq__", L_OP<std::equal_to<>, APyFloat>, CMP("__eq__", "APyFloat"))
+        .def("__ne__", L_OP<std::not_equal_to<>, APyFloat>, CMP("__ne__", "APyFloat"))
+        .def("__lt__", L_OP<std::less<>, APyFloat>, CMP("__lt__", "APyFloat"))
+        .def("__le__", L_OP<std::less_equal<>, APyFloat>, CMP("__le__", "APyFloat"))
+        .def("__gt__", L_OP<std::greater<>, APyFloat>, CMP("__gt__", "APyFloat"))
+        .def("__ge__", L_OP<std::greater_equal<>, APyFloat>, CMP("__ge__", "APyFloat"))
 
         /*
          * Arithmetic operations with NumPy arrays
