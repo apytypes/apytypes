@@ -8,16 +8,22 @@ from apytypes import fp
 @pytest.mark.parametrize("b_exp_bits", [10, 15])
 @pytest.mark.parametrize("b_man_bits", [10, 11, 13])
 @pytest.mark.parametrize("b_add_val", [-4.25, 0.0, 0.25, 250.0])
+@pytest.mark.parametrize("force_complex", [False, True])
 def test_compare_eq(
     a_exp_bits: int,
     a_man_bits: int,
     b_exp_bits: int,
     b_man_bits: int,
     b_add_val: float,
+    force_complex: bool,
 ):
     np = pytest.importorskip("numpy")
-    a = fp(range(0, 100, +1), a_exp_bits, a_man_bits).reshape((10, 10))
-    b = fp(range(100, 0, -1), b_exp_bits, b_man_bits).reshape((10, 10))
+    a = fp(
+        range(0, 100, +1), a_exp_bits, a_man_bits, force_complex=force_complex
+    ).reshape((10, 10))
+    b = fp(
+        range(100, 0, -1), b_exp_bits, b_man_bits, force_complex=force_complex
+    ).reshape((10, 10))
     b += b_add_val
 
     # Equality operation is commutative

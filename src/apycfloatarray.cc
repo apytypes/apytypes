@@ -608,6 +608,37 @@ APyCFloatArray APyCFloatArray::rdiv(const APyCFloat& lhs) const
     return res;
 }
 
+template <typename T>
+ThirdPartyArray<bool> APyCFloatArray::operator==(const T& rhs) const
+{
+    auto is_zero
+        = [](auto begin, auto) { return ::is_zero(*begin) && ::is_zero(*(begin + 1)); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T>
+ThirdPartyArray<bool> APyCFloatArray::operator!=(const T& rhs) const
+{
+    auto is_non_zero = [](auto begin, auto) {
+        return !(::is_zero(*begin) && ::is_zero(*(begin + 1)));
+    };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_non_zero, "__ne__"),
+        get_preferred_array_lib()
+    );
+}
+
+using ComparissonArray = ThirdPartyArray<bool>;
+
+// Explicit instantiation of needed comparison functions
+template ComparissonArray APyCFloatArray::operator==(const APyCFloatArray& rhs) const;
+template ComparissonArray APyCFloatArray::operator==(const APyCFloat& rhs) const;
+template ComparissonArray APyCFloatArray::operator!=(const APyCFloatArray& rhs) const;
+template ComparissonArray APyCFloatArray::operator!=(const APyCFloat& rhs) const;
+
 /* ********************************************************************************** *
  * *                             Other member functions                             * *
  * ********************************************************************************** */

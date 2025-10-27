@@ -119,6 +119,9 @@ public:
     APyCFloatArray rsub(const APyCFloat& rhs) const;
     APyCFloatArray rdiv(const APyCFloat& rhs) const;
 
+    template <typename T> ThirdPartyArray<bool> operator==(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator!=(const T& rhs) const;
+
     //! Sum over one or more axes.
     std::variant<APyCFloatArray, APyCFloat>
     sum(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
