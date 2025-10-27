@@ -17,7 +17,7 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static APyCFixedArray R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs)
 {
     if constexpr (std::is_same_v<std::complex<double>, L_TYPE>) {
         return (rhs.*FUNC)(
@@ -45,7 +45,7 @@ static APyCFixedArray R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs)
  * type
  */
 template <typename OP, typename R_TYPE>
-static APyCFixedArray L_OP(const APyCFixedArray& lhs, const R_TYPE& rhs)
+static auto L_OP(const APyCFixedArray& lhs, const R_TYPE& rhs)
 {
     if constexpr (std::is_same_v<std::complex<double>, R_TYPE>) {
         return OP()(lhs, APyCFixed::from_complex(rhs, lhs.int_bits(), lhs.frac_bits()));
@@ -61,6 +61,18 @@ static APyCFixedArray L_OP(const APyCFixedArray& lhs, const R_TYPE& rhs)
         return OP()(lhs, rhs);
     }
 }
+
+// Create a "cheat" comparison-function signature that is used *only* in the created
+// stub files. The cheat signature tells nanobind that a comparison function returns a
+// numpy array of booleans, even though the comparison function may return another
+// third-party array-library array of booleans. This hack is needed until the stub
+// generation is more developed upstream, or until the static type-checkers can do a
+// better job of the currently generated signatures.
+#define CMP(FUNC_NAME, RHS_TYPE)                                                       \
+    nb::is_operator(), nb::arg().noconvert(),                                          \
+        nb::sig(                                                                       \
+            "def " FUNC_NAME "(self, arg: " RHS_TYPE ", /) -> NDArray[numpy.bool]"     \
+        )
 
 using complex_t = std::complex<double>;
 
@@ -112,6 +124,9 @@ void bind_cfixed_array(nb::module_& m)
         .def(nb::self << int())
         .def(nb::self >> int())
 
+        .def(nb::self == nb::self, CMP("__eq__", "APyCFixedArray"))
+        .def(nb::self != nb::self, CMP("__ne__", "APyCFixedArray"))
+
         /*
          * Arithmetic operations with `APyCFixed`
          */
@@ -123,6 +138,9 @@ void bind_cfixed_array(nb::module_& m)
         .def("__mul__", L_OP<STD_MUL<>, APyCFixed>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, APyCFixed>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, APyCFixed>, NB_OP(), NB_NARG())
+
+        .def("__eq__", L_OP<std::equal_to<>, APyCFixed>, CMP("__eq__", "APyCFixed"))
+        .def("__ne__", L_OP<std::not_equal_to<>, APyCFixed>, CMP("__ne__", "APyCFixed"))
 
         /*
          * Arithmetic operation with complex
@@ -136,6 +154,9 @@ void bind_cfixed_array(nb::module_& m)
         .def("__truediv__", L_OP<STD_DIV<>, complex_t>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, complex_t>, NB_OP(), NB_NARG())
 
+        .def("__eq__", L_OP<std::equal_to<>, complex_t>, CMP("__eq__", "complex"))
+        .def("__ne__", L_OP<std::not_equal_to<>, complex_t>, CMP("__ne__", "complex"))
+
         /*
          * Arithmetic operation with floats
          */
@@ -148,6 +169,9 @@ void bind_cfixed_array(nb::module_& m)
         .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, double>, NB_OP(), NB_NARG())
 
+        .def("__eq__", L_OP<std::equal_to<>, double>, CMP("__eq__", "float"))
+        .def("__ne__", L_OP<std::not_equal_to<>, double>, CMP("__ne__", "float"))
+
         /*
          * Arithmetic operations with integers
          */
@@ -159,6 +183,9 @@ void bind_cfixed_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
+
+        .def("__eq__", L_OP<std::equal_to<>, nb::int_>, CMP("__eq__", "int"))
+        .def("__ne__", L_OP<std::not_equal_to<>, nb::int_>, CMP("__ne__", "int"))
 
         /*
          * Logic operations

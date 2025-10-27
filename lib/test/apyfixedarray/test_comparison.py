@@ -1,6 +1,6 @@
 import pytest
 
-from apytypes import APyFixedArray
+from apytypes import APyCFixedArray, APyFixedArray
 
 
 @pytest.mark.parametrize("a_int_bits", [10, 15])
@@ -8,14 +8,14 @@ from apytypes import APyFixedArray
 @pytest.mark.parametrize("b_int_bits", [10, 15])
 @pytest.mark.parametrize("b_frac_bits", [10, 11, 13])
 @pytest.mark.parametrize("b_add_val", [-4.25, 0.0, 0.25, 250.0])
-@pytest.mark.parametrize("fixed_array", [APyFixedArray])
+@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 def test_compare_eq(
     a_int_bits: int,
     a_frac_bits: int,
     b_int_bits: int,
     b_frac_bits: int,
     b_add_val: float,
-    fixed_array: type[APyFixedArray],
+    fixed_array: type[APyCFixedArray],
 ):
     np = pytest.importorskip("numpy")
     a = fixed_array(range(0, 100, +1), a_int_bits, a_frac_bits).reshape((10, 10))

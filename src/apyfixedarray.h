@@ -19,7 +19,6 @@ namespace nb = nanobind;
 #include <cstddef>     // std::size_t
 #include <limits>      // std::numeric_limits<>::is_iec559
 #include <optional>    // std::optional, std::nullopt
-#include <set>         // std::set
 #include <string>      // std::string
 #include <string_view> // std::string_view
 #include <vector>      // std::vector

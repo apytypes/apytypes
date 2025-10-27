@@ -926,6 +926,35 @@ APyCFixedArray APyCFixedArray::operator~() const
     return result;
 }
 
+template <typename T>
+ThirdPartyArray<bool> APyCFixedArray::operator==(const T& rhs) const
+{
+    auto is_zero = [](auto begin, auto end) { return limb_vector_is_zero(begin, end); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"),
+        get_preferred_array_lib()
+    );
+}
+
+template <typename T>
+ThirdPartyArray<bool> APyCFixedArray::operator!=(const T& rhs) const
+{
+    auto is_non_zero
+        = [](auto begin, auto end) { return !limb_vector_is_zero(begin, end); };
+    return make_third_party_ndarray(
+        (*this - rhs).template to_ndarray<bool>(is_non_zero, "__ne__"),
+        get_preferred_array_lib()
+    );
+}
+
+using ComparissonArray = ThirdPartyArray<bool>;
+
+// Explicit instantiation of needed comparison functions
+template ComparissonArray APyCFixedArray::operator==(const APyCFixedArray& rhs) const;
+template ComparissonArray APyCFixedArray::operator==(const APyCFixed& rhs) const;
+template ComparissonArray APyCFixedArray::operator!=(const APyCFixedArray& rhs) const;
+template ComparissonArray APyCFixedArray::operator!=(const APyCFixed& rhs) const;
+
 /* ********************************************************************************** *
  * *                            Public member functions                             * *
  * ********************************************************************************** */

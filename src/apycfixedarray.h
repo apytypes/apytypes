@@ -150,6 +150,13 @@ public:
     APyCFixedArray rsub(const APyCFixed& rhs) const;
     APyCFixedArray rdiv(const APyCFixed& rhs) const;
 
+    template <typename T> ThirdPartyArray<bool> operator==(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator!=(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator<(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator<=(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator>(const T& rhs) const;
+    template <typename T> ThirdPartyArray<bool> operator>=(const T& rhs) const;
+
     //! Elementwise unary negation
     APyCFixedArray operator-() const;
 
