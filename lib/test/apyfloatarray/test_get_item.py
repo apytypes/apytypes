@@ -1,3 +1,6 @@
+from itertools import product
+from math import prod
+
 import pytest
 
 from apytypes import APyCFloat, APyCFloatArray, APyFloat, APyFloatArray
@@ -263,3 +266,34 @@ def test_get_item_ellipsis(float_array: type[APyCFloatArray]):
         ValueError, match=r"APyC?FloatArray\.__getitem__: only one single ellipsis"
     ):
         fp_array[..., ...]
+
+
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+@pytest.mark.parametrize("shape_ndim", [1, 2, 3, 4])
+@pytest.mark.parametrize("slice_ndim", [1, 2, 3, 4])
+def test_get_item_bool_slice(
+    float_array: type[APyCFloatArray],
+    shape_ndim: int,
+    slice_ndim: int,
+):
+    seed = 1337
+    np = pytest.importorskip("numpy")
+    rng = np.random.default_rng(seed=seed)
+    MAX_DIM = 3
+
+    for shape in product(range(1, MAX_DIM + 1), repeat=shape_ndim):
+        apy_src = float_array.from_float(range(prod(shape)), 11, 52).reshape(shape)
+        np_src = np.array(range(prod(shape))).reshape(shape)
+        for slice_shape in product(range(1, MAX_DIM + 1), repeat=slice_ndim):
+            slice = np.array(rng.binomial(1, 0.6, slice_shape), dtype=bool)
+            try:
+                array = apy_src[slice]
+            except IndexError:
+                with pytest.raises(IndexError):
+                    np_src[slice]
+                continue
+
+            ref = np_src[slice]
+            assert array.ndim == ref.ndim
+            assert array.shape == ref.shape
+            assert np.all(array.to_numpy() == ref)

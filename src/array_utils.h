@@ -6,6 +6,7 @@
 #include "apytypes_util.h"
 
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h>
 namespace nb = nanobind;
 
@@ -23,7 +24,12 @@ using PyArrayKeyTuple_t = nb::
 //! and `__setitem__` array methods.
 //! Python signature:
 //! `int | slice | types.EllipsisType | tuple[int | slice | types.EllipsisType, ...]`
-using PyArrayKey_t = std::variant<nb::int_, nb::slice, nb::ellipsis, PyArrayKeyTuple_t>;
+using PyArrayKey_t = std::variant<
+    nb::int_,
+    nb::slice,
+    nb::ellipsis,
+    nb::ndarray<bool, nb::c_contig>,
+    PyArrayKeyTuple_t>;
 
 //! Typed Python tuple, used to denote the shape of array objects.
 //! Python signature: `tuple[int, ...]`

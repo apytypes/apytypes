@@ -1676,6 +1676,7 @@ class APyCFixedArray:
         key: int
         | slice
         | types.EllipsisType
+        | Annotated[NDArray[numpy.bool], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyCFixedArray | APyCFixed: ...
     def __setitem__(
@@ -1683,6 +1684,7 @@ class APyCFixedArray:
         key: int
         | slice
         | types.EllipsisType
+        | Annotated[NDArray[numpy.bool], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
         val: APyCFixedArray | APyCFixed,
     ) -> None: ...
@@ -3214,6 +3216,7 @@ class APyCFloatArray:
         key: int
         | slice
         | types.EllipsisType
+        | Annotated[NDArray[numpy.bool], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyCFloatArray | APyCFloat: ...
     def __setitem__(
@@ -3221,6 +3224,7 @@ class APyCFloatArray:
         key: int
         | slice
         | types.EllipsisType
+        | Annotated[NDArray[numpy.bool], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
         val: APyCFloatArray | APyCFloat,
     ) -> None: ...
@@ -4938,6 +4942,7 @@ class APyFixedArray:
         key: int
         | slice
         | types.EllipsisType
+        | Annotated[NDArray[numpy.bool], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyFixedArray | APyFixed: ...
     def __setitem__(
@@ -4945,6 +4950,7 @@ class APyFixedArray:
         key: int
         | slice
         | types.EllipsisType
+        | Annotated[NDArray[numpy.bool], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
         val: APyFixedArray | APyFixed,
     ) -> None: ...
@@ -7097,6 +7103,7 @@ class APyFloatArray:
         key: int
         | slice
         | types.EllipsisType
+        | Annotated[NDArray[numpy.bool], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyFloatArray | APyFloat: ...
     def __setitem__(
@@ -7104,6 +7111,7 @@ class APyFloatArray:
         key: int
         | slice
         | types.EllipsisType
+        | Annotated[NDArray[numpy.bool], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
         val: APyFloatArray | APyFloat,
     ) -> None: ...
