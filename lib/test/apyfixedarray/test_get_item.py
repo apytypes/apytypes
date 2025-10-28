@@ -1,3 +1,6 @@
+from itertools import product
+from math import prod
+
 import pytest
 
 from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFixedArray
@@ -207,3 +210,36 @@ def test_get_item_ellipsis(fixed_array: type[APyCFixedArray]):
         ValueError, match=r"APyC?FixedArray\.__getitem__: only one single ellipsis"
     ):
         fx_array[..., ...]
+
+
+@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
+@pytest.mark.parametrize("int_bits", [20, 200])
+@pytest.mark.parametrize("shape_ndim", [1, 2, 3, 4])
+@pytest.mark.parametrize("slice_ndim", [1, 2, 3, 4])
+def test_get_item_bool_slice(
+    fixed_array: type[APyCFixedArray],
+    int_bits: int,
+    shape_ndim: int,
+    slice_ndim: int,
+):
+    seed = 1337
+    np = pytest.importorskip("numpy")
+    rng = np.random.default_rng(seed=seed)
+    MAX_DIM = 3
+
+    for shape in product(range(1, MAX_DIM + 1), repeat=shape_ndim):
+        apy_src = fixed_array.from_float(range(prod(shape)), int_bits, 0).reshape(shape)
+        np_src = np.array(range(prod(shape))).reshape(shape)
+        for slice_shape in product(range(1, MAX_DIM + 1), repeat=slice_ndim):
+            slice = np.array(rng.binomial(1, 0.6, slice_shape), dtype=bool)
+            try:
+                array = apy_src[slice]
+            except IndexError:
+                with pytest.raises(IndexError):
+                    np_src[slice]
+                continue
+
+            ref = np_src[slice]
+            assert array.ndim == ref.ndim
+            assert array.shape == ref.shape
+            assert np.all(array.to_numpy() == ref)
