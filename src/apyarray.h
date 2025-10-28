@@ -15,15 +15,15 @@
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
-#include <nanobind/ndarray.h> // nanobind::ndarray
-#include <nanobind/stl/string.h>
+#include <nanobind/ndarray.h>     // nanobind::ndarray
+#include <nanobind/stl/string.h>  // std::string (with nanobind support)
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
-#include <nanobind/stl/vector.h>  // nanobind::list
-#include <utility>
+#include <nanobind/stl/vector.h>  // std::vector (with nanobind support)
 namespace nb = nanobind;
 
 #include <algorithm>   // std::min_element
 #include <cassert>     // assert
+#include <cstddef>     // std::size_t
 #include <functional>  // std::function, std::bind
 #include <iterator>    // std::begin
 #include <optional>    // std::optional
@@ -359,41 +359,109 @@ public:
         }
     }
 
+    //! Retrieve items from `*this` indexed by a boolean ndarray.
+    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
+    get_item_ndarray(const nb::ndarray<bool, nb::c_contig>& key) const
+    {
+        if (key.ndim() == 0) {
+            std::string err_msg = fmt::format(
+                "{}.__getitem__: boolean key ndim = 0", ARRAY_TYPE::ARRAY_NAME
+            );
+            throw nb::index_error(err_msg.c_str());
+        } else if (key.ndim() > _ndim) {
+            std::string err_msg = fmt::format(
+                "{}.__getitem__: boolean key has too many dimensions for indexing; "
+                "self.ndim: {}, key.ndim: {} ",
+                ARRAY_TYPE::ARRAY_NAME,
+                _ndim,
+                key.ndim()
+            );
+            throw nb::index_error(err_msg.c_str());
+        }
+
+        for (std::size_t i = 0; i < key.ndim(); i++) {
+            if (_shape[i] != key.shape(i)) {
+                std::string err_msg = fmt::format(
+                    "{}.__getitem__: boolean key did not match shape along axis {}; "
+                    "self.shape[{}]: {}, key.shape[{}]: {}",
+                    ARRAY_TYPE::ARRAY_NAME,
+                    i,
+                    i,
+                    _shape[i],
+                    i,
+                    key.shape(i)
+                );
+                throw nb::index_error(err_msg.c_str());
+            }
+        }
+
+        // Extract resulting ndim and chunk size
+        std::size_t res_ndim = _ndim - key.ndim() + 1;
+        std::size_t chnk
+            = fold_shape(std::end(_shape) - res_ndim + 1, std::end(_shape));
+
+        // Compute the resulting shape
+        std::vector<std::size_t> res_shape(res_ndim);
+        std::copy_n(std::end(_shape) - res_ndim, res_ndim, std::begin(res_shape));
+        res_shape[0] = std::count(key.data(), key.data() + key.size(), true);
+
+        // Create the resulting flattened array
+        ARRAY_TYPE res = static_cast<const ARRAY_TYPE*>(this)->create_array(res_shape);
+
+        // Copy elements into result
+        std::size_t i_dst = 0;
+        for (std::size_t i = 0; i < key.size(); i++) {
+            if (key.data()[i]) {
+                std::copy_n(
+                    std::begin(_data) + i * chnk * _itemsize,
+                    chnk * _itemsize,
+                    std::begin(res._data) + i_dst++ * chnk * _itemsize
+                );
+            }
+        }
+
+        return res;
+    }
+
     //! Python exported `__getitem__` function
     std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
-    get_item(const PyArrayKey_t& key) const
+    get_item(const PyArrayKey_t& key_arg) const
     {
         using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
         using RESULT_TYPE = std::variant<ARRAY_TYPE, SCALAR_TYPE>;
 
-        if (std::holds_alternative<nb::int_>(key)) {
+        if (std::holds_alternative<nb::int_>(key_arg)) {
 
             // Key is of integer type
-            return RESULT_TYPE(
-                get_item_integer(static_cast<std::ptrdiff_t>(std::get<nb::int_>(key)))
-            );
+            auto&& key = static_cast<std::ptrdiff_t>(std::get<nb::int_>(key_arg));
+            return RESULT_TYPE(get_item_integer(key));
 
-        } else if (std::holds_alternative<nb::slice>(key)) {
+        } else if (std::holds_alternative<nb::slice>(key_arg)) {
 
             // Key is of slice type
-            nb::tuple tuple = nb::make_tuple(std::get<nb::slice>(key));
-            return RESULT_TYPE(
-                get_item_tuple(resolve_python_tuple_slice(tuple, "__getitem__"))
-            );
+            auto&& tuple = nb::make_tuple(std::get<nb::slice>(key_arg));
+            auto&& key = resolve_python_tuple_slice(tuple, "__getitem__");
+            return RESULT_TYPE(get_item_tuple(key));
 
-        } else if (std::holds_alternative<nb::ellipsis>(key)) {
+        } else if (std::holds_alternative<nb::ellipsis>(key_arg)) {
 
             // Key is a single ellipsis, return a copy of `*this`
             return RESULT_TYPE(*static_cast<const ARRAY_TYPE*>(this));
+
+        } else if (std::holds_alternative<nb::ndarray<bool, nb::c_contig>>(key_arg)) {
+
+            // Key is an ndarray of booleans
+            auto&& key = std::get<nb::ndarray<bool, nb::c_contig>>(key_arg);
+            return RESULT_TYPE(get_item_ndarray(key));
 
         } else { /* std::holds_alternative<nb::tuple>(key) */
 
             // Key is a tuple of slicing instructions
             using VARIANT = std::variant<nb::int_, nb::slice, nb::ellipsis>;
             using TUPLE_TYPE = nb::typed<nb::tuple, VARIANT, nb::ellipsis>;
-            return RESULT_TYPE(get_item_tuple(
-                resolve_python_tuple_slice(std::get<TUPLE_TYPE>(key), "__getitem__")
-            ));
+            auto&& tuple = std::get<TUPLE_TYPE>(key_arg);
+            auto&& key = resolve_python_tuple_slice(tuple, "__getitem__");
+            return RESULT_TYPE(get_item_tuple(key));
         }
     }
 
