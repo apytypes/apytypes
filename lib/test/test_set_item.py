@@ -1,3 +1,6 @@
+from itertools import product
+from math import prod
+
 import pytest
 
 from apytypes import (
@@ -245,3 +248,128 @@ def test_set_item_not_broadcastable(
         match=r"APyC?(Fixed|Float)Array.__setitem__: `val` shape not broadcastable",
     ):
         ap_array[1, 2, 3, 4] = APyArray.from_float([1, 2], 25, 25)
+
+
+@pytest.mark.parametrize(
+    ("APyArray", "APyScalar"),
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
+)
+@pytest.mark.parametrize("int_bits", [20, 200])
+@pytest.mark.parametrize("shape_ndim", [1, 2, 3, 4])
+@pytest.mark.parametrize("slice_ndim", [1, 2, 3, 4])
+def test_set_item_ndarray_scalar(
+    APyArray: type[APyCFixedArray],
+    APyScalar: type[APyCFixed],
+    int_bits: int,
+    shape_ndim: int,
+    slice_ndim: int,
+):
+    seed = 1337
+    np = pytest.importorskip("numpy")
+    rng = np.random.default_rng(seed=seed)
+    MAX_DIM = 3
+
+    for shape in product(range(1, MAX_DIM + 1), repeat=shape_ndim):
+        for slice_shape in product(range(1, MAX_DIM + 1), repeat=slice_ndim):
+            apy = APyArray.from_float(range(prod(shape)), int_bits, 0).reshape(shape)
+            ref = np.array(range(prod(shape))).reshape(shape)
+            slice = np.array(rng.binomial(1, 0.6, slice_shape), dtype=bool)
+            try:
+                apy[slice] = APyScalar.from_float(-1, int_bits, 0)
+            except IndexError:
+                with pytest.raises(IndexError):
+                    ref[slice] = -1
+                continue
+
+            ref[slice] = -1
+            assert apy.ndim == ref.ndim
+            assert apy.shape == ref.shape
+            assert np.all(apy.to_numpy() == ref)
+
+
+@pytest.mark.parametrize(
+    ("APyArray", "APyScalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+@pytest.mark.parametrize("shape_ndim", [1, 2, 3, 4])
+@pytest.mark.parametrize("slice_ndim", [1, 2, 3, 4])
+def test_set_item_ndarray_scalar_float(
+    APyArray: type[APyCFloatArray],
+    APyScalar: type[APyCFloat],
+    shape_ndim: int,
+    slice_ndim: int,
+):
+    seed = 1337
+    np = pytest.importorskip("numpy")
+    rng = np.random.default_rng(seed=seed)
+    MAX_DIM = 3
+
+    for shape in product(range(1, MAX_DIM + 1), repeat=shape_ndim):
+        for slice_shape in product(range(1, MAX_DIM + 1), repeat=slice_ndim):
+            apy = APyArray.from_float(range(prod(shape)), 11, 52).reshape(shape)
+            ref = np.array(range(prod(shape))).reshape(shape)
+            slice = np.array(rng.binomial(1, 0.6, slice_shape), dtype=bool)
+            try:
+                apy[slice] = APyScalar.from_float(-1, 11, 52)
+            except IndexError:
+                with pytest.raises(IndexError):
+                    ref[slice] = -1
+                continue
+
+            ref[slice] = -1
+            assert apy.ndim == ref.ndim
+            assert apy.shape == ref.shape
+            assert np.all(apy.to_numpy() == ref)
+
+
+@pytest.mark.parametrize(("APyArray", "APyScalar"), [(APyFixedArray, APyFixed)])
+@pytest.mark.parametrize("int_bits", [100])
+@pytest.mark.parametrize("shape_ndim", [1, 2, 3, 4])
+@pytest.mark.parametrize("slice_ndim", [1, 2, 3, 4])
+@pytest.mark.parametrize("val_ndim", [1, 2, 3, 4])
+def test_set_item_ndarray_array(
+    APyArray: type[APyCFixedArray],
+    APyScalar: type[APyCFixed],
+    int_bits: int,
+    shape_ndim: int,
+    slice_ndim: int,
+    val_ndim: int,
+):
+    seed = 1337
+    np = pytest.importorskip("numpy")
+    rng = np.random.default_rng(seed=seed)
+    MAX_DIM = 3
+
+    for shape in product(range(1, MAX_DIM + 1), repeat=shape_ndim):
+        for slice_shape in product(range(1, MAX_DIM + 1), repeat=slice_ndim):
+            for val_shape in product(range(1, MAX_DIM + 1), repeat=val_ndim):
+                print("------------------------------------------")
+                print(end="\n\n")
+                ref_np = np.array(range(prod(shape))).reshape(shape)
+                apy = APyArray.from_float(ref_np, int_bits, 0)
+                print(f"ref_np: \n{ref_np!r}\napy: \n{apy!r}")
+
+                val_np = -1 * np.array(range(prod(val_shape))).reshape(val_shape)
+                val = APyArray.from_float(val_np, int_bits, 0).reshape(val_shape)
+                print(f"val_np: \n{val_np!r}\nval: \n{val!r}")
+
+                slice = np.array(rng.binomial(1, 0.6, slice_shape), dtype=bool)
+                print(f"slice: \n{slice!r}")
+
+                # apy[slice] = val
+                try:
+                    apy[slice] = val
+                except IndexError:
+                    # with pytest.raises(IndexError):
+                    #    ref_np[slice] = val_np
+                    continue
+                except ValueError:
+                    # with pytest.raises(ValueError):
+                    #    ref_np[slice] = val_np
+                    continue
+
+                ref_np[slice] = val_np
+                print(f"AFTER -- ref_np: \n{ref_np!r}\n, apy: \n{apy!r}")
+                assert apy.ndim == ref_np.ndim
+                assert apy.shape == ref_np.shape
+                assert np.all(apy.to_numpy() == ref_np)

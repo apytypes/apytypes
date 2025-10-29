@@ -37,7 +37,7 @@ static APY_INLINE bool is_broadcastable(
         return false;
     }
 
-    // Iterate shapes from the trailing (right-most) dimensions
+    // Iterate shapes from the trailing (inner-most) dimensions
     auto [src_it, dst_it] = std::make_tuple(src_shape.crbegin(), dst_shape.crbegin());
     while (src_it != src_shape.crend() && dst_it != dst_shape.crend()) {
         if (*src_it != 1 && *src_it != *dst_it) {
@@ -69,7 +69,7 @@ static APY_INLINE std::vector<std::size_t> smallest_broadcastable_shape(
         }
     }
 
-    // Iterate shapes from the trailing (right-most) dimensions
+    // Iterate shapes from the trailing (inner-most) dimensions
     std::vector<std::size_t> result {};
     auto [shape1_it, shape2_it] = std::make_tuple(shape1.crbegin(), shape2.crbegin());
     while (shape1_it != shape1.crend() && shape2_it != shape2.crend()) {

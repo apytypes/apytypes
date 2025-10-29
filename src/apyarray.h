@@ -395,9 +395,10 @@ public:
             }
         }
 
-        // Extract resulting ndim and chunk size
+        // Extract resulting ndim and chunk size. The chunk size is the number of
+        // contiguous elements to copy for each `true` value in the slice array.
         std::size_t res_ndim = _ndim - key.ndim() + 1;
-        std::size_t chnk
+        std::size_t chunk_size
             = fold_shape(std::end(_shape) - res_ndim + 1, std::end(_shape));
 
         // Compute the resulting shape
@@ -405,17 +406,15 @@ public:
         std::copy_n(std::end(_shape) - res_ndim, res_ndim, std::begin(res_shape));
         res_shape[0] = std::count(key.data(), key.data() + key.size(), true);
 
-        // Create the resulting flattened array
-        ARRAY_TYPE res = static_cast<const ARRAY_TYPE*>(this)->create_array(res_shape);
-
         // Copy elements into result
+        ARRAY_TYPE res = static_cast<const ARRAY_TYPE*>(this)->create_array(res_shape);
         std::size_t i_dst = 0;
         for (std::size_t i = 0; i < key.size(); i++) {
             if (key.data()[i]) {
                 std::copy_n(
-                    std::begin(_data) + i * chnk * _itemsize,
-                    chnk * _itemsize,
-                    std::begin(res._data) + i_dst++ * chnk * _itemsize
+                    std::begin(_data) + i * chunk_size * _itemsize,
+                    chunk_size * _itemsize,
+                    std::begin(res._data) + i_dst++ * chunk_size * _itemsize
                 );
             }
         }
@@ -580,6 +579,7 @@ public:
             );
             throw nb::value_error(error_msg.c_str());
         }
+        assert(_itemsize = val._itemsize);
 
         // Compute the slice shape
         std::vector<std::size_t> slice_shape = compute_slice_shape(key);
@@ -646,12 +646,173 @@ public:
         set_item_from_array(key, array_val);
     }
 
+    //! Set items in `*this` indexed by a boolean ndarray. This function assumes that
+    //! both `key` is of appropriate shapes to perform the assignment
+    void set_item_ndarray_from_scalar(
+        const nb::ndarray<bool, nb::c_contig>& key,
+        const scalar_variant_t<ARRAY_TYPE>& val
+    )
+    {
+        // Make sure that all bit specifiers in `*this` and `val` are equal.
+        if (!static_cast<const ARRAY_TYPE*>(this)->is_same_spec(val)) {
+            std::string error_msg = fmt::format(
+                "{}.__setitem__: `val` has different bit specifiers than `self`",
+                ARRAY_TYPE::ARRAY_NAME
+            );
+            throw nb::value_error(error_msg.c_str());
+        }
+
+        // Extract resulting ndim and chunk size. The chunk size is the number of
+        // contiguous elements to copy for each `true` value in the slice array.
+        std::size_t res_ndim = _ndim - key.ndim() + 1;
+        std::size_t chunk_size
+            = fold_shape(std::end(_shape) - res_ndim + 1, std::end(_shape));
+
+        // Set values in this array
+        for (std::size_t i = 0; i < key.size(); i++) {
+            if (key.data()[i]) {
+                for (std::size_t j = 0; j < chunk_size; j++) {
+                    val.copy_n_to(
+                        std::begin(_data) + i * chunk_size * _itemsize + j * _itemsize,
+                        _itemsize
+                    );
+                }
+            }
+        }
+    }
+
+    //! Set items in `*this` indexed by a boolean ndarray. This function assumes that
+    //! both `key` and `val` are of appropriate shapes to perform the assignment
+    void set_item_ndarray_from_array(
+        const nb::ndarray<bool, nb::c_contig>& key, const ARRAY_TYPE& val
+    )
+    {
+        // Make sure that all bit specifiers in `*this` and `val` are equal.
+        if (!static_cast<const ARRAY_TYPE*>(this)->is_same_spec(val)) {
+            std::string error_msg = fmt::format(
+                "{}.__setitem__: `val` has different bit specifiers than `self`",
+                ARRAY_TYPE::ARRAY_NAME
+            );
+            throw nb::index_error(error_msg.c_str());
+        }
+        assert(_itemsize = val._itemsize);
+
+        // Extract resulting chunk ndim and chunk size. The chunk size is the number of
+        // contiguous elements to copy for each `true` value in the `key` boolean slice
+        // array.
+        std::size_t chunk_ndim = _ndim - key.ndim() + 1;
+        std::size_t chunk_size
+            = fold_shape(std::end(_shape) - chunk_ndim + 1, std::end(_shape));
+
+        // Compute the required shape of the chunks
+        std::vector<std::size_t> chunk_shape(chunk_ndim);
+        std::copy_n(std::end(_shape) - chunk_ndim, chunk_ndim, std::begin(chunk_shape));
+        chunk_shape[0] = std::count(key.data(), key.data() + key.size(), true);
+
+        if (val._shape == chunk_shape) {
+            // The "chunk" exactly matches the shape of the value. Simply copy the data
+            std::size_t chunk_i = 0;
+            for (std::size_t i = 0; i < key.size(); i++) {
+                if (key.data()[i]) {
+                    std::copy_n(
+                        std::begin(val._data) + chunk_i++ * chunk_size * _itemsize,
+                        chunk_size * _itemsize,
+                        std::begin(_data) + i * chunk_size * _itemsize
+                    );
+                }
+            }
+        } else if (is_broadcastable(val._shape, chunk_shape)) {
+            vector_type val_broadcasted(_itemsize * chunk_size * chunk_shape[0]);
+            broadcast_data_copy(
+                std::begin(val._data),       // src
+                std::begin(val_broadcasted), // dst
+                val._shape,                  // src_shape
+                chunk_shape,                 // dst_shape
+                _itemsize                    // itemsize
+            );
+            std::size_t chunk_i = 0;
+            for (std::size_t i = 0; i < key.size(); i++) {
+                if (key.data()[i]) {
+                    std::copy_n(
+                        std::begin(val_broadcasted)
+                            + chunk_i++ * chunk_size * _itemsize,
+                        chunk_size * _itemsize,
+                        std::begin(_data) + i * chunk_size * _itemsize
+                    );
+                }
+            }
+        } else {
+            // The "chunk" is not compatible with the input values
+            std::string err_msg = fmt::format(
+                "{}.__setitem__: shape mismatch; value array of shape {} can not be "
+                "broadcast to the required index slice shape {}",
+                ARRAY_TYPE::ARRAY_NAME,
+                tuple_string_from_vec(val._shape),
+                tuple_string_from_vec(chunk_shape)
+            );
+            throw nb::value_error(err_msg.c_str());
+        }
+    }
+
+    //! Set items in `*this` indexed by a boolean ndarray.
+    void set_item_ndarray(
+        const nb::ndarray<bool, nb::c_contig>& key,
+        const std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>& val
+    )
+    {
+        if (key.ndim() == 0) {
+            std::string err_msg = fmt::format(
+                "{}.__setitem__: boolean key ndim = 0", ARRAY_TYPE::ARRAY_NAME
+            );
+            throw nb::index_error(err_msg.c_str());
+        } else if (key.ndim() > _ndim) {
+            std::string err_msg = fmt::format(
+                "{}.__setitem__: boolean key has too many dimensions for indexing; "
+                "self.ndim: {}, key.ndim: {} ",
+                ARRAY_TYPE::ARRAY_NAME,
+                _ndim,
+                key.ndim()
+            );
+            throw nb::index_error(err_msg.c_str());
+        }
+
+        for (std::size_t i = 0; i < key.ndim(); i++) {
+            if (_shape[i] != key.shape(i)) {
+                std::string err_msg = fmt::format(
+                    "{}.__setitem__: boolean key did not match shape along axis {}; "
+                    "self.shape[{}]: {}, key.shape[{}]: {}",
+                    ARRAY_TYPE::ARRAY_NAME,
+                    i,
+                    i,
+                    _shape[i],
+                    i,
+                    key.shape(i)
+                );
+                throw nb::index_error(err_msg.c_str());
+            }
+        }
+
+        if (std::holds_alternative<scalar_variant_t<ARRAY_TYPE>>(val)) {
+            auto&& scalar = std::get<scalar_variant_t<ARRAY_TYPE>>(val);
+            set_item_ndarray_from_scalar(key, scalar);
+        } else { /* std::holds_alternative<ARRAY_TYPE>(val) */
+            auto&& array = std::get<ARRAY_TYPE>(val);
+            set_item_ndarray_from_array(key, array);
+        }
+    }
+
     //! Python exported `__setitem__` method for APyArrays
     void set_item(
         const PyArrayKey_t& key,
         const std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>& val
     )
     {
+        if (std::holds_alternative<nb::ndarray<bool, nb::c_contig>>(key)) {
+            auto&& bool_key = std::get<nb::ndarray<bool, nb::c_contig>>(key);
+            set_item_ndarray(bool_key, val);
+            return; // early exit
+        }
+
         // Convert the variant of Python objects into a tuple of keys
         nb::tuple python_tuple_key;
         if (std::holds_alternative<nb::int_>(key)) {
