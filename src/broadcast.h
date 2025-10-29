@@ -11,35 +11,45 @@
 #include "apytypes_util.h"
 
 #include <algorithm> // std::any_of, std::copy_n
+#include <iterator>  // std::make_reverse_iterator
 #include <tuple>     // std::make_tuple
 #include <vector>    // std::vector
 
 //! Test if `src_shape` can be broadcast to `dst_shape`
+template <typename RANDOM_ACCESS_IT_SRC, typename RANDOM_ACCESS_IT_DST>
 static APY_INLINE bool is_broadcastable(
-    const std::vector<std::size_t>& src_shape, const std::vector<std::size_t>& dst_shape
+    RANDOM_ACCESS_IT_SRC src_shape_begin,
+    RANDOM_ACCESS_IT_SRC src_shape_end,
+    RANDOM_ACCESS_IT_DST dst_shape_begin,
+    RANDOM_ACCESS_IT_DST dst_shape_end
 )
 {
     // Cannot broadcast if either shape is zero-dimensional
-    if (src_shape.size() == 0 || dst_shape.size() == 0) {
+    std::size_t src_shape_size = std::distance(src_shape_begin, src_shape_end);
+    std::size_t dst_shape_size = std::distance(dst_shape_begin, dst_shape_end);
+    if (src_shape_size == 0 || dst_shape_size == 0) {
         return false;
     }
 
     // Cannot broadcast if either shape has a zero dimension
     auto is_zero = [](auto n) { return n == 0; };
-    for (const auto& shape : { src_shape, dst_shape }) {
-        if (std::any_of(std::begin(shape), std::end(shape), is_zero)) {
-            return false;
-        }
+    if (std::any_of(src_shape_begin, src_shape_end, is_zero)) {
+        return false;
     }
-
-    // Cannot broadcast if destination shape has fewer dimensions than source shape
-    if (src_shape.size() > dst_shape.size()) {
+    if (std::any_of(dst_shape_begin, dst_shape_end, is_zero)) {
         return false;
     }
 
-    // Iterate shapes from the trailing (right-most) dimensions
-    auto [src_it, dst_it] = std::make_tuple(src_shape.crbegin(), dst_shape.crbegin());
-    while (src_it != src_shape.crend() && dst_it != dst_shape.crend()) {
+    // Cannot broadcast if destination shape has fewer dimensions than source shape
+    if (src_shape_size > dst_shape_size) {
+        return false;
+    }
+
+    // Iterate shapes from the trailing (inner-most) dimensions
+    auto src_it = std::make_reverse_iterator(src_shape_end);
+    auto dst_it = std::make_reverse_iterator(dst_shape_end);
+    while (src_it != std::make_reverse_iterator(src_shape_begin)
+           && dst_it != std::make_reverse_iterator(dst_shape_begin)) {
         if (*src_it != 1 && *src_it != *dst_it) {
             return false;
         }
@@ -48,6 +58,17 @@ static APY_INLINE bool is_broadcastable(
     }
 
     return true;
+}
+
+//! Test if `src_shape` can be broadcast to `dst_shape`
+static APY_INLINE bool is_broadcastable(
+    const std::vector<std::size_t>& src_shape, const std::vector<std::size_t>& dst_shape
+)
+{
+    using std::begin, std::end;
+    auto&& [src_begin, src_end] = std::make_tuple(begin(src_shape), end(src_shape));
+    auto&& [dst_begin, dst_end] = std::make_tuple(begin(dst_shape), end(dst_shape));
+    return is_broadcastable(src_begin, src_end, dst_begin, dst_end);
 }
 
 //! Get the smallest broadcastable shape from `shape1` and `shape2`. Return an empty
@@ -69,7 +90,7 @@ static APY_INLINE std::vector<std::size_t> smallest_broadcastable_shape(
         }
     }
 
-    // Iterate shapes from the trailing (right-most) dimensions
+    // Iterate shapes from the trailing (inner-most) dimensions
     std::vector<std::size_t> result {};
     auto [shape1_it, shape2_it] = std::make_tuple(shape1.crbegin(), shape2.crbegin());
     while (shape1_it != shape1.crend() && shape2_it != shape2.crend()) {
