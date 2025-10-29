@@ -2,9 +2,9 @@
 #include "apycfixed.h"
 #include "apycfloat_util.h"
 #include "apyfloat_util.h"
-#include "src/apytypes_common.h"
-#include "src/apytypes_intrinsics.h"
-#include "src/apytypes_util.h"
+#include "apytypes_common.h"
+#include "apytypes_intrinsics.h"
+#include "apytypes_util.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>

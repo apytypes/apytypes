@@ -9,12 +9,12 @@
 #include "apyfixed_util.h"
 #include "apyfixedarray.h"
 #include "apytypes_common.h"
+#include "apytypes_intrinsics.h"
+#include "apytypes_mp.h"
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
+#include "array_utils.h"
 #include "python_util.h"
-#include "src/apytypes_intrinsics.h"
-#include "src/apytypes_mp.h"
-#include "src/array_utils.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
