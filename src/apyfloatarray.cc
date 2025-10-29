@@ -3,11 +3,11 @@
 #include "apyfloat.h"
 #include "apyfloat_util.h"
 #include "apytypes_common.h"
+#include "apytypes_intrinsics.h"
 #include "apytypes_util.h"
 #include "array_utils.h"
 #include "ieee754.h"
 #include "python_util.h"
-#include "src/apytypes_intrinsics.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>

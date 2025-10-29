@@ -1,7 +1,7 @@
 #include "apyfixed_util.h"
+#include "apytypes_fwd.h"
 #include "apytypes_mp.h"
-#include "src/apytypes_fwd.h"
-#include "src/apytypes_util.h"
+#include "apytypes_util.h"
 
 #include <algorithm>
 #include <cstdint>
