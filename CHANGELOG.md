@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented `.to_bits()` and `.from_bits()` for `APyCFloat`.
 - LaTeX representation for `APyCFixed` and `APyCFloat`.
 - Array comparisons
+- Array slicing with boolean arrays slices (`__getitem__` and `__setitem__`)
 - Scalars are now instances of `Numbers` and `Real` and/or `Complex` (as appropriate).
 - `real` and `imag` properties for `APyFixed`, `APyFloat`, `APyFixedArray`, and `APyFloatArray`.
 - `trailing_zeros` property for `APyFixed`.
