@@ -1376,8 +1376,8 @@ APyCFixedArray APyCFixedArray::from_array(
 {
     std::size_t ndim = ndarray.ndim();
     if (ndim == 0) {
-        throw nb::type_error(
-            "APyCFixedArray.from_float(): NDArray with ndim == 0 not supported"
+        throw nb::value_error(
+            "APyCFixedArray.from_array: zero-dimensional arrays not supported"
         );
     }
     std::vector<std::size_t> shape(ndim, 0);
@@ -1555,7 +1555,7 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
             auto view = ndarray.view<__TYPE__, nb::ndim<1>>();                         \
             for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
                 fixed_point_from_integer(                                              \
-                    static_cast<std::uint64_t>(view.data()[i]),                        \
+                    static_cast<__TYPE__>(view.data()[i]),                             \
                     real_begin() + i * _itemsize,                                      \
                     real_begin() + i * _itemsize + _itemsize / 2,                      \
                     _bits,                                                             \

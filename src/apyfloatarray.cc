@@ -1220,7 +1220,12 @@ APyFloatArray APyFloatArray::from_array(
     check_exponent_format(exp_bits, "APyFloatArray.from_array");
     check_mantissa_format(man_bits, "APyFloatArray.from_array");
 
-    assert(ndarray.ndim() > 0);
+    if (ndarray.ndim() == 0) {
+        throw nb::value_error(
+            "APyFloatArray.from_array: zero-dimensional arrays not supported"
+        );
+    }
+
     std::vector<std::size_t> shape(ndarray.ndim(), 0);
     for (std::size_t i = 0; i < ndarray.ndim(); i++) {
         shape[i] = ndarray.shape(i);

@@ -1,7 +1,7 @@
 #include "apytypes_common.h"
 #include "apyfloat_util.h"
+#include "apytypes_intrinsics.h"
 #include "apytypes_util.h"
-#include "src/apytypes_intrinsics.h"
 
 // Python object access through Pybind
 #include <nanobind/nanobind.h>

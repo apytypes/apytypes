@@ -2,7 +2,7 @@
 #define _APYTYPES_COMMON_H
 
 #include "apytypes_fwd.h"
-#include "src/apytypes_intrinsics.h"
+#include "apytypes_intrinsics.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>

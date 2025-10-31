@@ -350,3 +350,54 @@ def test_fizz_fuzz(fixed_array: type[APyCFixedArray]):
     a = fixed_array.from_float(fl, int_bits=16, frac_bits=16)
     b = fixed_array.from_array(np.array(fl), int_bits=16, frac_bits=16)
     assert a.is_identical(b)
+
+
+@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
+@pytest.mark.parametrize("int_bits", [10, 100, 1000])
+@pytest.mark.parametrize("frac_bits", [-5, 0, 10])
+@pytest.mark.parametrize("dt", ["int8", "int16", "int32", "int64"])
+def test_issue_818_mre1_pt1(
+    fixed_array: type[APyCFixedArray], int_bits: int, frac_bits: int, dt: str
+):
+    """
+    MRE1: https://github.com/apytypes/apytypes/issues/818
+    """
+    np = pytest.importorskip("numpy")
+    assert fixed_array.from_array(np.array([-1], dtype=dt), int_bits, frac_bits) == -1
+    assert fixed_array.from_array(np.array([1], dtype=dt), int_bits, frac_bits) == 1
+
+
+@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
+@pytest.mark.parametrize("int_bits", [10, 100, 1000])
+@pytest.mark.parametrize("frac_bits", [-5, 0, 10])
+@pytest.mark.parametrize("dt", ["uint8", "uint16", "uint32", "uint64"])
+def test_issue_818_mre1_pt2(
+    fixed_array: type[APyCFixedArray], int_bits: int, frac_bits: int, dt: str
+):
+    """
+    MRE1: https://github.com/apytypes/apytypes/issues/818
+    """
+    np = pytest.importorskip("numpy")
+    assert fixed_array.from_array(np.array([1], dtype=dt), int_bits, frac_bits) == 1
+    assert fixed_array.from_array(np.array([255], dtype=dt), int_bits, frac_bits) == 255
+
+
+@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
+@pytest.mark.parametrize("int_bits", [10, 100, 1000])
+@pytest.mark.parametrize("np_dt", ["int8", "int16", "int32", "int64"])
+def test_issue_818_mre2(fixed_array: type[APyCFixedArray], int_bits: int, np_dt: str):
+    """
+    MRE2: https://github.com/apytypes/apytypes/issues/818
+    """
+    np = pytest.importorskip("numpy")
+    err_msg = r"APyC?FixedArray\.__init__: zero-dimensional arrays not supported"
+    with pytest.raises(ValueError, match=err_msg):
+        _ = fixed_array(np.array(-1, dtype=np_dt), int_bits, frac_bits=0)
+
+    err_msg = r"APyC?FixedArray\.from_array: zero-dimensional arrays not supported"
+    with pytest.raises(ValueError, match=err_msg):
+        _ = fixed_array.from_float(np.array(-1, dtype=np_dt), int_bits, frac_bits=0)
+
+    err_msg = r"APyC?FixedArray\.from_array: zero-dimensional arrays not supported"
+    with pytest.raises(ValueError, match=err_msg):
+        _ = fixed_array.from_array(np.array(-1, dtype=np_dt), int_bits, frac_bits=0)

@@ -1,6 +1,6 @@
 import pytest
 
-from apytypes import APyFloatArray
+from apytypes import APyCFloatArray, APyFloatArray
 
 
 @pytest.mark.float_array
@@ -184,3 +184,29 @@ def test_c_striding():
     assert APyFloatArray.from_array(a.T, man_bits=10, exp_bits=10).is_identical(
         APyFloatArray.from_float([[1, 4], [2, 5], [3, 6]], man_bits=10, exp_bits=10)
     )
+
+
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+@pytest.mark.parametrize("np_dt", ["int8", "int16", "int32", "int64"])
+def test_issue_818_mre2(float_array: type[APyCFloatArray], np_dt: str):
+    """
+    MRE2: https://github.com/apytypes/apytypes/issues/818
+    """
+    np = pytest.importorskip("numpy")
+    err_msg = r"APyC?FloatArray\.__init__: zero-dimensional arrays not supported"
+    with pytest.raises(ValueError, match=err_msg):
+        _ = float_array(
+            np.array(-1, dtype=np_dt),
+            np.array(-1, dtype=np_dt),
+            np.array(-1, dtype=np_dt),
+            exp_bits=11,
+            man_bits=52,
+        )
+
+    err_msg = r"APyC?FloatArray\.from_array: zero-dimensional arrays not supported"
+    with pytest.raises(ValueError, match=err_msg):
+        _ = float_array.from_float(np.array(-1, dtype=np_dt), exp_bits=11, man_bits=52)
+
+    err_msg = r"APyC?FloatArray\.from_array: zero-dimensional arrays not supported"
+    with pytest.raises(ValueError, match=err_msg):
+        _ = float_array.from_array(np.array(-1, dtype=np_dt), exp_bits=11, man_bits=52)
