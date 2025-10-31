@@ -16,12 +16,14 @@
 #include "python_util.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstdint>    // std::int64_t
 #include <functional> // std::bind, std::function, std::placeholders
 #include <iterator>   // std::begin
 #include <numeric>
 #include <optional> // std::optional
+#include <type_traits>
 
 /* ********************************************************************************** *
  * *    Fixed-point iterator based in-place quantization with multi-limb support    * *
@@ -1462,33 +1464,68 @@ void fixed_point_from_py_integer(
     _overflow_twos_complement(begin_it, end_it, bits, int_bits);
 }
 
-template <typename RANDOM_ACCESS_IT>
+template <typename INT_TYPE, typename RANDOM_ACCESS_IT>
 void fixed_point_from_integer(
-    const std::uint64_t value,
+    const INT_TYPE value,
     RANDOM_ACCESS_IT begin_it,
     RANDOM_ACCESS_IT end_it,
     int bits,
     int int_bits
 )
 {
-    // Zero limb vector data
-    std::fill(begin_it, end_it, 0);
+    static_assert(std::is_integral_v<INT_TYPE>, "`INT_TYPE` must be of integer type");
+    assert(begin_it < end_it);
 
-    std::vector<apy_limb_t> int_limb_vec = { UINT64_TO_LIMB(value) };
-    const auto n = std::min(
-        std::distance(std::begin(int_limb_vec), std::end(int_limb_vec)),
-        std::distance(begin_it, end_it)
-    );
-    std::copy_n(std::begin(int_limb_vec), n, begin_it);
-
-    // Adjust the number
     const int frac_bits = bits - int_bits;
-    if (frac_bits > 0) {
-        limb_vector_lsl(begin_it, end_it, frac_bits);
-    } else {
-        limb_vector_asr(begin_it, end_it, -frac_bits);
-    }
+    constexpr bool INT_IS_SIGNED = std::is_signed_v<INT_TYPE>;
+    apy_limb_t limb_fill_val = value < 0 ? -1 : 0;
 
+    if constexpr (APY_LIMB_SIZE_BYTES >= sizeof(INT_TYPE)) {
+        begin_it[0] = INT_TYPE(value);
+        std::fill(begin_it + 1, end_it, limb_fill_val);
+        if (frac_bits >= 0) {
+            limb_vector_lsl(begin_it, end_it, frac_bits);
+        } else {
+            if constexpr (INT_IS_SIGNED) {
+                limb_vector_asr(begin_it, end_it, -frac_bits);
+            } else {
+                limb_vector_lsr(begin_it, end_it, -frac_bits);
+            }
+        }
+    } else {
+        static_assert(2 * APY_LIMB_SIZE_BYTES == sizeof(INT_TYPE));
+        std::array<apy_limb_t, 2> tmp_arr { UINT64_TO_LIMB(value) };
+        if (std::distance(begin_it, end_it) * APY_LIMB_SIZE_BYTES < sizeof(INT_TYPE)) {
+            // The whole integer *does not* fit into the destination limb vector. Shift
+            // the data in the temporary array and then copy the result.
+            assert(std::distance(begin_it, end_it) == 1);
+            if (frac_bits >= 0) {
+                limb_vector_lsl(std::begin(tmp_arr), std::end(tmp_arr), frac_bits);
+            } else {
+                if constexpr (INT_IS_SIGNED) {
+                    limb_vector_asr(std::begin(tmp_arr), std::end(tmp_arr), -frac_bits);
+                } else {
+                    limb_vector_lsr(std::begin(tmp_arr), std::end(tmp_arr), -frac_bits);
+                }
+            }
+            std::copy_n(std::begin(tmp_arr), 1, begin_it);
+        } else {
+            // The whole integer fits into the destination limb vector. Copy the data
+            // and perform shift on destination limb vector
+            assert(std::distance(begin_it, end_it) >= 2);
+            std::copy_n(std::begin(tmp_arr), 2, begin_it);
+            std::fill(begin_it + 2, end_it, limb_fill_val);
+            if (frac_bits >= 0) {
+                limb_vector_lsl(begin_it, end_it, frac_bits);
+            } else {
+                if constexpr (INT_IS_SIGNED) {
+                    limb_vector_asr(begin_it, end_it, -frac_bits);
+                } else {
+                    limb_vector_lsr(begin_it, end_it, -frac_bits);
+                }
+            }
+        }
+    }
     _overflow_twos_complement(begin_it, end_it, bits, int_bits);
 }
 

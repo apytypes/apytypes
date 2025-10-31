@@ -465,6 +465,11 @@ python_iterable_extract_shape(
     std::vector<std::size_t> result;
     if (nb::isinstance<nb::ndarray<>>(seq)) {
         const auto& ndarray = nb::cast<nb::ndarray<>>(seq);
+        if (ndarray.ndim() == 0) {
+            std::string err_msg
+                = fmt::format("{}: zero-dimensional arrays not supported", err_prefix);
+            throw nb::value_error(err_msg.c_str());
+        }
         result = std::vector<std::size_t>(ndarray.ndim());
         for (std::size_t i = 0; i < ndarray.ndim(); i++) {
             result[i] = ndarray.shape_ptr()[i];

@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bug in `APyFloat.from_float` when result is larger than max value and
   therefore should be infinity.
 - Tests can run with VUnit version 5 installed.
+- Bug resulting in wrong fixed-point numbers when multi-limb
+  `APy(C)FixedArray.from_float` is applied to negative Numpy integers.
+- Segmentation violation when initializing APyTypes arrays from zero-dimensional
+  Numpy arrays.
 
 ### Changed
 
