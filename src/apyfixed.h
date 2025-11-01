@@ -258,6 +258,12 @@ public:
     //! Convert the underlying bit pattern to a Python long integer
     nb::int_ to_bits() const;
 
+    //! Convert to Fraction
+    nb::object to_fraction() const;
+
+    //! Convert to (numerator, denominator) tuple
+    nb::object as_integer_ratio() const;
+
     //! Convert the underlying bit pattern to decimal and return in a string
     std::string bit_pattern_to_string_dec() const;
 
@@ -284,6 +290,9 @@ public:
 
     //! Return leading signs
     std::size_t leading_signs() const;
+
+    //! Return trailing zeros
+    std::size_t trailing_zeros() const;
 
     //! Test if positive value is greater than equal to a integer power-of-two (>= 2 ^
     //! `n`)

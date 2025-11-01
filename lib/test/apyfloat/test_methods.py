@@ -633,3 +633,87 @@ def test_real_imag():
     a = APyFloat.from_float(3.14, exp_bits=10, man_bits=10)
     assert a.real.is_identical(a)
     assert a.imag.is_identical(APyFloat.from_float(0.0, 10, 10))
+
+
+def test_to_fraction():
+    a = APyFloat.from_float(0.1, exp_bits=10, man_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == 819
+    assert frac.denominator == 8192
+
+    a = APyFloat.from_float(0.5, exp_bits=10, man_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == 1
+    assert frac.denominator == 2
+
+    a = APyFloat.from_float(-7, exp_bits=10, man_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == -7
+    assert frac.denominator == 1
+
+    a = APyFloat.from_float(0, exp_bits=10, man_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == 0
+    assert frac.denominator == 1
+
+
+def test_to_fraction_specials():
+    a = APyFloat.from_float(float("nan"), exp_bits=10, man_bits=10)
+    with pytest.raises(ValueError, match="Cannot convert NaN to Fraction"):
+        _ = a.to_fraction()
+
+    a = APyFloat.from_float(float("inf"), exp_bits=10, man_bits=10)
+    with pytest.raises(OverflowError, match="Cannot convert infinity to Fraction"):
+        _ = a.to_fraction()
+
+
+@pytest.mark.parametrize("bits", [20, 40, 100, 200, 500])
+def test_to_fraction_multi_limb(bits: int):
+    a = APyFloat.from_float(1 << bits, exp_bits=10, man_bits=40)
+    frac = a.to_fraction()
+    assert frac.numerator == 1 << bits
+    assert frac.denominator == 1
+
+    a = APyFloat.from_float(-(1 << bits), exp_bits=10, man_bits=40)
+    frac = a.to_fraction()
+    assert frac.numerator == -(1 << bits)
+    assert frac.denominator == 1
+
+
+def test_as_integer_ratio():
+    a = APyFloat.from_float(0.1, exp_bits=10, man_bits=10)
+    num, den = a.as_integer_ratio()
+    assert (num, den) == (819, 8192)
+
+    a = APyFloat.from_float(0.5, exp_bits=10, man_bits=10)
+    num, den = a.as_integer_ratio()
+    assert (num, den) == (1, 2)
+
+    a = APyFloat.from_float(-7, exp_bits=10, man_bits=10)
+    num, den = a.as_integer_ratio()
+    assert (num, den) == (-7, 1)
+
+    a = APyFloat.from_float(0, exp_bits=10, man_bits=10)
+    num, den = a.as_integer_ratio()
+    assert (num, den) == (0, 1)
+
+
+def test_as_integer_ratio_specials():
+    a = APyFloat.from_float(float("nan"), exp_bits=10, man_bits=10)
+    with pytest.raises(ValueError, match="Cannot convert NaN to Fraction"):
+        _ = a.as_integer_ratio()
+
+    a = APyFloat.from_float(float("inf"), exp_bits=10, man_bits=10)
+    with pytest.raises(OverflowError, match="Cannot convert infinity to Fraction"):
+        _ = a.as_integer_ratio()
+
+
+@pytest.mark.parametrize("bits", [20, 40, 100, 200, 500])
+def test_as_integer_ratio_multi_limb(bits: int):
+    a = APyFloat.from_float(1 << bits, exp_bits=10, man_bits=40)
+    num, den = a.as_integer_ratio()
+    assert (num, den) == (1 << bits, 1)
+
+    a = APyFloat.from_float(-(1 << bits), exp_bits=10, man_bits=40)
+    num, den = a.as_integer_ratio()
+    assert (num, den) == (-(1 << bits), 1)

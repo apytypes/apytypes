@@ -356,6 +356,30 @@ double APyFloat::to_double() const
 
 APyFloat::operator double() const { return to_double(); }
 
+// Function to create a Python fractions.Fraction object
+nb::object APyFloat::to_fraction() const
+{
+    if (is_nan()) {
+        throw std::domain_error("Cannot convert NaN to Fraction");
+    }
+    if (is_inf()) {
+        throw std::overflow_error("Cannot convert infinity to Fraction");
+    }
+    return to_fixed().to_fraction();
+}
+
+// Function to create a (numerator-denominator)-tuple
+nb::object APyFloat::as_integer_ratio() const
+{
+    if (is_nan()) {
+        throw std::domain_error("Cannot convert NaN to Fraction");
+    }
+    if (is_inf()) {
+        throw std::overflow_error("Cannot convert infinity to Fraction");
+    }
+    return to_fixed().as_integer_ratio();
+}
+
 APyFloat APyFloat::from_bits(
     nb::int_ python_long_int_bit_pattern,
     int exp_bits,

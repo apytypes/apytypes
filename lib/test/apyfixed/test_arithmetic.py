@@ -662,3 +662,16 @@ def test_multiplication_different_wordlengths_different_fracbits(bits: int):
     a = APyFixed(3, bits=bits, int_bits=8)
     b = APyFixed(18, bits=bits, int_bits=6)
     assert (a * b).is_identical(APyFixed(54, bits=2 * bits, int_bits=14))
+
+
+def test_trailing_zeros():
+    a = APyFixed(0b1100000000, bits=10, int_bits=10)
+    assert a.trailing_zeros == 8
+    a = APyFixed.from_float(0.1, 3, 1000)
+    assert a.trailing_zeros == 945
+
+
+@pytest.mark.parametrize("bits", range(13, 900, 30))
+def test_trailing_zeros_zero(bits: int):
+    a = APyFixed(0, bits=bits, int_bits=bits // 2)
+    assert a.trailing_zeros == bits
