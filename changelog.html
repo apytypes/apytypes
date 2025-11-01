@@ -326,6 +326,10 @@ word lengths.</p></li>
 <li><p>Bug in <code class="docutils literal notranslate"><span class="pre">APyFloat.from_float</span></code> when result is larger than max value and
 therefore should be infinity.</p></li>
 <li><p>Tests can run with VUnit version 5 installed.</p></li>
+<li><p>Bug resulting in wrong fixed-point numbers when multi-limb
+<code class="docutils literal notranslate"><span class="pre">APy(C)FixedArray.from_float</span></code> is applied to negative Numpy integers.</p></li>
+<li><p>Segmentation violation when initializing APyTypes arrays from zero-dimensional
+Numpy arrays.</p></li>
 </ul>
 </section>
 <section id="changed">
