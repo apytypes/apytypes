@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import numbers
+
 from apytypes._apytypes import (
     APyCFixed,
     APyCFixedArray,
@@ -400,3 +402,8 @@ Class for configurable complex-valued array floating-point formats.
     :class:`APyFloatArray`.
 
 """
+
+numbers.Complex.register(APyCFixed)
+numbers.Complex.register(APyCFloat)
+numbers.Real.register(APyFixed)
+numbers.Real.register(APyFloat)

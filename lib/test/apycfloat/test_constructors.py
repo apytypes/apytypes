@@ -1,3 +1,5 @@
+import numbers
+
 import pytest
 
 from apytypes import APyCFixed, APyCFloat, APyFixed
@@ -121,3 +123,10 @@ def test_from_float():
     for t in types:
         a = APyCFloat.from_float(t(125), exp_bits=11, man_bits=52)
         assert a.is_identical(APyCFloat.from_complex(125, exp_bits=11, man_bits=52))
+
+
+def test_isinstance():
+    a = APyCFloat.from_complex(3.14, exp_bits=10, man_bits=10)
+    assert isinstance(a, numbers.Complex)
+    assert not isinstance(a, numbers.Real)
+    assert isinstance(a, numbers.Number)
