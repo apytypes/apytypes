@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated [fmt](https://github.com/fmtlib/fmt) from v11.2.0 to v12.0.0
 - Updated [nanobind](https://github.com/wjakob/nanobind) from v2.8.0 to v2.9.2.
+- The earlier private module `_typing` is now made public as `typing`.
+  This contains the type aliases `APyArray` and `APyScalar` which correspond to
+  all array and scalar classes, respectively.
 
 ### Removed
 

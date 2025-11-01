@@ -33,7 +33,7 @@ from apytypes import (
     zeros,
     zeros_like,
 )
-from apytypes._typing import APyArray
+from apytypes.typing import APyArray
 
 
 @overload

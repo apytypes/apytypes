@@ -13,7 +13,7 @@ from apytypes._apytypes import (
     APyFloat,
     APyFloatArray,
 )
-from apytypes._typing import APyArray, APyScalar
+from apytypes.typing import APyArray, APyScalar
 
 
 @overload
