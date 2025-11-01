@@ -627,3 +627,9 @@ def test_isinstance():
     assert isinstance(a, numbers.Complex)
     assert isinstance(a, numbers.Real)
     assert isinstance(a, numbers.Number)
+
+
+def test_real_imag():
+    a = APyFloat.from_float(3.14, exp_bits=10, man_bits=10)
+    assert a.real.is_identical(a)
+    assert a.imag.is_identical(APyFloat.from_float(0.0, 10, 10))

@@ -250,14 +250,14 @@ void bind_cfloat(nb::module_& m)
 
             Returns
             -------
-            :class:`APyFixed`
+            :class:`APyFloat`
             )pbdoc")
         .def_prop_ro("imag", &APyCFloat::get_imag, R"pbdoc(
             Imaginary part.
 
             Returns
             -------
-            :class:`APyFixed`
+            :class:`APyFloat`
             )pbdoc")
 
         /*

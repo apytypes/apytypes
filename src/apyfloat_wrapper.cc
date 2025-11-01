@@ -503,6 +503,24 @@ void bind_float(nb::module_& m)
             )pbdoc")
 
         /*
+         * Get real and imaginary part
+         */
+        .def_prop_ro("real", &APyFloat::python_copy, R"pbdoc(
+            Real part.
+
+            Returns
+            -------
+            :class:`APyFloat`
+            )pbdoc")
+        .def_prop_ro("imag", &APyFloat::get_zero, R"pbdoc(
+            Imaginary part.
+
+            Returns
+            -------
+            :class:`APyFloat`
+            )pbdoc")
+
+        /*
          * Convenience methods
          */
         .def(
