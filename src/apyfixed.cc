@@ -33,6 +33,7 @@ namespace nb = nanobind;
 #include <vector>           // std::vector, std::swap
 
 #include <fmt/format.h>
+#include <iostream>
 
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
@@ -513,6 +514,122 @@ apy_limb_t APyFixed::increment_lsb() noexcept
     );
 }
 
+// Function to create a Python fractions.Fraction object
+nb::object APyFixed::to_fraction() const
+{
+    nb::module_ fractions = nb::module_::import_("fractions");
+    nb::object Fraction = fractions.attr("Fraction");
+    if (is_zero()) {
+        return Fraction(0, 1);
+    }
+    auto trailing_zs = trailing_zeros();
+    auto frac_bits = this->frac_bits();
+    // Negative fractional bits special case
+    if (frac_bits <= 0) {
+        // Must add more bits to numerator
+        auto numerator = std::vector<apy_limb_t>(bits_to_limbs(bits() - frac_bits));
+        limb_vector_copy_sign_extend(
+            std::begin(_data),
+            std::end(_data),
+            std::begin(numerator),
+            std::end(numerator)
+        );
+
+        limb_vector_lsl(
+            std::begin(numerator), std::end(numerator), -frac_bits // shift amount
+        );
+        return Fraction(
+            python_limb_vec_to_long(numerator.begin(), numerator.end(), true), 1
+        );
+    }
+    // Copy numerator
+    auto numerator = std::vector<apy_limb_t>(_data.size());
+    limb_vector_copy_sign_extend(
+        std::begin(_data), std::end(_data), std::begin(numerator), std::end(numerator)
+    );
+    if (trailing_zs >= std::size_t(frac_bits)) {
+        // Integer result, get rid of fractional bits
+        limb_vector_asr(std::begin(numerator), std::end(numerator), frac_bits);
+        return Fraction(
+            python_limb_vec_to_long(numerator.begin(), numerator.end(), true), 1
+        );
+    }
+    // Remove the trailing zeros from numerator and denominator
+    limb_vector_asr(std::begin(numerator), std::end(numerator), trailing_zs);
+    // Create power-of-two denominator
+    auto denominator = std::vector<apy_limb_t>(
+        bits_to_limbs(std::size_t(frac_bits) - trailing_zs) + 2
+    );
+    denominator[0] = 1;
+    limb_vector_lsl(
+        std::begin(denominator),
+        std::end(denominator),
+        std::size_t(frac_bits) - trailing_zs
+    );
+    return Fraction(
+        python_limb_vec_to_long(numerator.begin(), numerator.end(), true),
+        python_limb_vec_to_long(denominator.begin(), denominator.end(), false)
+    );
+}
+
+// Function to create a Python fractions.Fraction object
+nb::object APyFixed::as_integer_ratio() const
+{
+    nb::module_ fractions = nb::module_::import_("fractions");
+    nb::object Fraction = fractions.attr("Fraction");
+    if (is_zero()) {
+        return nb::make_tuple(0, 1);
+    }
+    auto trailing_zs = trailing_zeros();
+    auto frac_bits = this->frac_bits();
+    // Negative fractional bits special case
+    if (frac_bits <= 0) {
+        // Must add more bits to numerator
+        auto numerator = std::vector<apy_limb_t>(bits_to_limbs(bits() - frac_bits));
+        limb_vector_copy_sign_extend(
+            std::begin(_data),
+            std::end(_data),
+            std::begin(numerator),
+            std::end(numerator)
+        );
+
+        limb_vector_lsl(
+            std::begin(numerator), std::end(numerator), -frac_bits // shift amount
+        );
+        return nb::make_tuple(
+            python_limb_vec_to_long(numerator.begin(), numerator.end(), true), 1
+        );
+    }
+    // Copy numerator
+    auto numerator = std::vector<apy_limb_t>(_data.size());
+    limb_vector_copy_sign_extend(
+        std::begin(_data), std::end(_data), std::begin(numerator), std::end(numerator)
+    );
+    if (trailing_zs >= std::size_t(frac_bits)) {
+        // Integer result, get rid of fractional bits
+        limb_vector_asr(std::begin(numerator), std::end(numerator), frac_bits);
+        return nb::make_tuple(
+            python_limb_vec_to_long(numerator.begin(), numerator.end(), true), 1
+        );
+    }
+    // Remove the trailing zeros from numerator and denominator
+    limb_vector_asr(std::begin(numerator), std::end(numerator), trailing_zs);
+    // Create power-of-two denominator
+    auto denominator = std::vector<apy_limb_t>(
+        bits_to_limbs(std::size_t(frac_bits) - trailing_zs) + 2
+    );
+    denominator[0] = 1;
+    limb_vector_lsl(
+        std::begin(denominator),
+        std::end(denominator),
+        std::size_t(frac_bits) - trailing_zs
+    );
+    return nb::make_tuple(
+        python_limb_vec_to_long(numerator.begin(), numerator.end(), true),
+        python_limb_vec_to_long(denominator.begin(), denominator.end(), false)
+    );
+}
+
 std::string APyFixed::to_string_dec() const
 {
     return fixed_point_to_string_dec(
@@ -742,6 +859,12 @@ std::size_t APyFixed::leading_ones() const
     }
 }
 
+std::size_t APyFixed::trailing_zeros() const
+{
+    std::size_t trailing_zeros = limb_vector_trailing_zeros(_data.begin(), _data.end());
+    return std::min(trailing_zeros, static_cast<std::size_t>(bits()));
+}
+
 std::size_t APyFixed::leading_fractional_zeros() const
 {
     int frac_bits = bits() - int_bits();
@@ -917,7 +1040,7 @@ APyFixed APyFixed::from_unspecified_double(double value)
         exp = 1;
     }
 
-    const int zeros_to_trim = trailing_zeros(man);
+    const int zeros_to_trim = trailing_zeros_intrinsic(man);
     man >>= zeros_to_trim;
     exp = exp + zeros_to_trim - 52 - 1023;
 

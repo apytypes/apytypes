@@ -287,6 +287,38 @@ void bind_float(nb::module_& m)
             --------
             from_bits
             )pbdoc")
+        .def("to_fraction", &APyFloat::to_fraction, R"pbdoc(
+            Get the exact rational value of the :class:`APyFloat`.
+
+            Examples
+            --------
+
+            >>> import apytypes as apy
+            >>> a = apy.fp(0.125, exp_bits=6, man_bits=15)
+            >>> a.to_fraction()
+            Fraction(1, 8)
+
+            Returns
+            -------
+            :class:`Fraction`
+                A fraction representing the exact value of the floating-point number.
+            )pbdoc")
+        .def("as_integer_ratio", &APyFloat::as_integer_ratio, R"pbdoc(
+            Get (numerator, denominator)-tuple for the exact rational value of the :class:`APyFloat`.
+
+            Examples
+            --------
+
+            >>> import apytypes as apy
+            >>> a = apy.fp(0.125, exp_bits=6, man_bits=15)
+            >>> a.as_integer_ratio()
+            (1, 8)
+
+            Returns
+            -------
+            :class:`tuple`
+                A tuple representing the exact value of the floating-point number as (numerator, denominator).
+            )pbdoc")
         .def("__str__", &APyFloat::str)
         .def("__repr__", &APyFloat::repr)
         .def("_repr_latex_", &APyFloat::latex)

@@ -223,7 +223,8 @@ static APY_INLINE void sub_single_limbs_with_carry(
 
 //! Compute the number of trailing zeros in an integer
 template <typename INT_TYPE>
-[[maybe_unused, nodiscard]] static APY_INLINE std::size_t trailing_zeros(INT_TYPE n)
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t
+trailing_zeros_intrinsic(INT_TYPE n)
 {
     static_assert(
         sizeof(INT_TYPE) == 8 || sizeof(INT_TYPE) == 4,
@@ -255,7 +256,8 @@ template <typename INT_TYPE>
     // missing out on these intrinsics.
     static_assert(
         false,
-        "trailing_zeros(INT_TYPE n): No intrinsic available for your compiler. Please "
+        "trailing_zeros_intrinsic(INT_TYPE n): No intrinsic available for your "
+        "compiler. Please "
         "open an issue at https://github.com/apytypes/apytypes/issues with information "
         "about the compiler and platform and we will be happy to add support for it."
     );

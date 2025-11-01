@@ -106,6 +106,23 @@ limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR e
     }
 }
 
+//! Return the number of leading zeros of a limb vector
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t
+limb_vector_trailing_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
+{
+    auto is_non_zero = [](auto n) { return n != 0; };
+    auto non_zero_it = std::find_if(begin, end, is_non_zero);
+    std::size_t zero_limbs = std::distance(begin, non_zero_it);
+    if (non_zero_it == end) {
+        // All limbs are zero limbs
+        return APY_LIMB_SIZE_BITS * zero_limbs;
+    } else {
+        // Some of the limbs are non-zero
+        return APY_LIMB_SIZE_BITS * zero_limbs + trailing_zeros_intrinsic(*non_zero_it);
+    }
+}
+
 //! Return the number of leading signs of a limb vector, minus one.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t

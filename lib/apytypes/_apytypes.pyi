@@ -3418,6 +3418,42 @@ class APyFixed:
         :class:`int`
         """
 
+    def to_fraction(self) -> object:
+        """
+        Get the exact rational value of the :class:`APyFixed`.
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+        >>> a = apy.fx(0.125, int_bits=3, frac_bits=15)
+        >>> a.to_fraction()
+        Fraction(1, 8)
+
+        Returns
+        -------
+        :class:`Fraction`
+            A fraction representing the exact value of the fixed-point number.
+        """
+
+    def as_integer_ratio(self) -> object:
+        """
+        Get the (numerator, denominator)-tuple for the exact rational value of the :class:`APyFixed`.
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+        >>> a = apy.fx(0.125, int_bits=3, frac_bits=15)
+        >>> a.as_integer_ratio()
+        (1, 8)
+
+        Returns
+        -------
+        :class:`tuple`
+            A tuple representing the exact value of the fixed-point number.
+        """
+
     @property
     def bits(self) -> int:
         """
@@ -3577,6 +3613,16 @@ class APyFixed:
     def leading_signs(self) -> int:
         """
         Number of leading signs.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def trailing_zeros(self) -> int:
+        """
+        Number of trailing zeros.
 
         Returns
         -------
@@ -5173,6 +5219,42 @@ class APyFloat:
         See Also
         --------
         from_bits
+        """
+
+    def to_fraction(self) -> object:
+        """
+        Get the exact rational value of the :class:`APyFloat`.
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+        >>> a = apy.fp(0.125, exp_bits=6, man_bits=15)
+        >>> a.to_fraction()
+        Fraction(1, 8)
+
+        Returns
+        -------
+        :class:`Fraction`
+            A fraction representing the exact value of the floating-point number.
+        """
+
+    def as_integer_ratio(self) -> object:
+        """
+        Get (numerator, denominator)-tuple for the exact rational value of the :class:`APyFloat`.
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+        >>> a = apy.fp(0.125, exp_bits=6, man_bits=15)
+        >>> a.as_integer_ratio()
+        (1, 8)
+
+        Returns
+        -------
+        :class:`tuple`
+            A tuple representing the exact value of the floating-point number as (numerator, denominator).
         """
 
     def __str__(self) -> str: ...

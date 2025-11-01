@@ -1,3 +1,5 @@
+import fractions
+
 import pytest
 
 from apytypes import APyCFixed, APyFixed, APyFloat
@@ -356,3 +358,109 @@ def test_real_imag():
     a = APyFixed(3, 4, 5)
     assert a.real.is_identical(a)
     assert a.imag.is_identical(APyFixed(0, 4, 5))
+
+
+def test_to_fraction():
+    a = APyFixed(3, bits=8, int_bits=4)
+    frac = a.to_fraction()
+    assert frac.numerator == 3
+    assert frac.denominator == 16
+
+    a = APyFixed(0, bits=8, int_bits=4)
+    frac = a.to_fraction()
+    assert frac.numerator == 0
+    assert frac.denominator == 1
+
+    a = APyFixed(4096, bits=16, int_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == 64
+    assert frac.denominator == 1
+
+    a = APyFixed.from_float(64, bits=16, int_bits=20)
+    frac = a.to_fraction()
+    assert frac.numerator == 64
+    assert frac.denominator == 1
+
+    a = APyFixed.from_float(-3, bits=8, int_bits=4)
+    frac = a.to_fraction()
+    assert frac.numerator == -3
+    assert frac.denominator == 1
+
+    a = APyFixed.from_float(-6, bits=8, int_bits=5)
+    frac = a.to_fraction()
+    assert frac.numerator == -6
+    assert frac.denominator == 1
+
+    a = APyFixed.from_float(-64, bits=16, int_bits=20)
+    frac = a.to_fraction()
+    assert frac.numerator == -64
+    assert frac.denominator == 1
+
+    a = APyFixed.from_float(-64, bits=16, int_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == -64
+    assert frac.denominator == 1
+
+
+@pytest.mark.parametrize("frac_bits", [4, 10, 52, 100, 1023])
+def test_to_fraction_with_various_frac_bits(frac_bits):
+    a = APyFixed.from_float(0.25, int_bits=2, frac_bits=frac_bits)
+    frac = a.to_fraction()
+    assert frac == fractions.Fraction(1, 4)
+
+    a = APyFixed.from_float(-3 / 8, int_bits=2, frac_bits=frac_bits)
+    frac = a.to_fraction()
+    assert frac == fractions.Fraction(-3, 8)
+
+
+def test_as_integer_ratio():
+    a = APyFixed(3, bits=8, int_bits=4)
+    num, den = a.as_integer_ratio()
+    assert num == 3
+    assert den == 16
+
+    a = APyFixed(0, bits=8, int_bits=4)
+    num, den = a.as_integer_ratio()
+    assert num == 0
+    assert den == 1
+
+    a = APyFixed(4096, bits=16, int_bits=10)
+    num, den = a.as_integer_ratio()
+    assert num == 64
+    assert den == 1
+
+    a = APyFixed.from_float(64, bits=16, int_bits=20)
+    num, den = a.as_integer_ratio()
+    assert num == 64
+    assert den == 1
+
+    a = APyFixed.from_float(-3, bits=8, int_bits=4)
+    num, den = a.as_integer_ratio()
+    assert num == -3
+    assert den == 1
+
+    a = APyFixed.from_float(-6, bits=8, int_bits=5)
+    num, den = a.as_integer_ratio()
+    assert num == -6
+    assert den == 1
+
+    a = APyFixed.from_float(-64, bits=16, int_bits=20)
+    num, den = a.as_integer_ratio()
+    assert num == -64
+    assert den == 1
+
+    a = APyFixed.from_float(-64, bits=16, int_bits=10)
+    num, den = a.as_integer_ratio()
+    assert num == -64
+    assert den == 1
+
+
+@pytest.mark.parametrize("frac_bits", [4, 10, 52, 100, 1023])
+def test_as_integer_ratio_with_various_frac_bits(frac_bits):
+    a = APyFixed.from_float(0.25, int_bits=2, frac_bits=frac_bits)
+    num, den = a.as_integer_ratio()
+    assert (num, den) == (1, 4)
+
+    a = APyFixed.from_float(-3 / 8, int_bits=2, frac_bits=frac_bits)
+    num, den = a.as_integer_ratio()
+    assert (num, den) == (-3, 8)
