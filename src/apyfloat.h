@@ -185,6 +185,9 @@ public:
     //! Convert the underlying bit pattern to a Python long integer
     nanobind::int_ to_bits() const;
 
+    //! Convert to Fraction
+    nb::object to_fraction() const;
+
     //! Cast method exposed to Python
     APyFloat cast(
         std::optional<int> exp_bits,
