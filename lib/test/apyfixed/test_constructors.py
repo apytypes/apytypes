@@ -1,3 +1,4 @@
+import numbers
 from math import pow
 
 import pytest
@@ -172,3 +173,10 @@ def test_conversion_to_and_from_python_int():
         a -= 1 + 2 * k
         afx = APyFixed(a, bits=k + 101, int_bits=k // 2)
         assert afx.to_bits() == a
+
+
+def test_isinstance():
+    a = APyFixed.from_float(3.14, int_bits=10, frac_bits=10)
+    assert isinstance(a, numbers.Complex)
+    assert isinstance(a, numbers.Real)
+    assert isinstance(a, numbers.Number)

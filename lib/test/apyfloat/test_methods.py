@@ -1,3 +1,4 @@
+import numbers
 from itertools import permutations as perm
 
 import pytest
@@ -619,3 +620,10 @@ def test_zero_inf_nan_creation(func: str):
 
         x = eval(f"APyFloat.{func}(4, 3)")
         assert x.is_identical(APyFloat.from_float(float(func), 4, 3, 7))
+
+
+def test_isinstance():
+    a = APyFloat.from_float(3.14, exp_bits=10, man_bits=10)
+    assert isinstance(a, numbers.Complex)
+    assert isinstance(a, numbers.Real)
+    assert isinstance(a, numbers.Number)
