@@ -318,6 +318,24 @@ void bind_fixed(nb::module_& m)
         )
 
         /*
+         * Get real and imaginary part
+         */
+        .def_prop_ro("real", &APyFixed::python_copy, R"pbdoc(
+            Real part.
+
+            Returns
+            -------
+            :class:`APyFixed`
+            )pbdoc")
+        .def_prop_ro("imag", &APyFixed::get_zero, R"pbdoc(
+            Imaginary part.
+
+            Returns
+            -------
+            :class:`APyFixed`
+            )pbdoc")
+
+        /*
          * Dunder methods
          */
         .def("__abs__", &APyFixed::abs)

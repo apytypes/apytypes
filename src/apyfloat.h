@@ -439,7 +439,9 @@ public:
     //! with a value of NaN.
     APyFloat
     construct_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1) const;
-
+    //! Factory method for creating a floating-point object in the same format
+    //! with a value of positive zero.
+    APyFloat get_zero() const { return construct_zero(); }
     //! Update data fields based on a bit pattern
     APyFloat& update_from_bits(nb::int_ python_long_int_bit_pattern);
 

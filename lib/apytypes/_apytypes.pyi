@@ -1857,7 +1857,7 @@ class APyCFloat:
 
         Returns
         -------
-        :class:`APyFixed`
+        :class:`APyFloat`
         """
 
     @property
@@ -1867,7 +1867,7 @@ class APyCFloat:
 
         Returns
         -------
-        :class:`APyFixed`
+        :class:`APyFloat`
         """
 
     @staticmethod
@@ -3581,6 +3581,26 @@ class APyFixed:
         Returns
         -------
         :class:`int`
+        """
+
+    @property
+    def real(self) -> APyFixed:
+        """
+        Real part.
+
+        Returns
+        -------
+        :class:`APyFixed`
+        """
+
+    @property
+    def imag(self) -> APyFixed:
+        """
+        Imaginary part.
+
+        Returns
+        -------
+        :class:`APyFixed`
         """
 
     def __abs__(self) -> APyFixed: ...
@@ -5397,6 +5417,26 @@ class APyFloat:
         Returns
         -------
         :class:`int`
+        """
+
+    @property
+    def real(self) -> APyFloat:
+        """
+        Real part.
+
+        Returns
+        -------
+        :class:`APyFloat`
+        """
+
+    @property
+    def imag(self) -> APyFloat:
+        """
+        Imaginary part.
+
+        Returns
+        -------
+        :class:`APyFloat`
         """
 
     def cast_to_double(self, quantization: QuantizationMode | None = None) -> APyFloat:

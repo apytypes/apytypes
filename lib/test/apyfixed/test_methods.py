@@ -350,3 +350,9 @@ def test_python_deepcopy():
     a <<= 2
     assert a.is_identical(b)
     assert not a.is_identical(c)
+
+
+def test_real_imag():
+    a = APyFixed(3, 4, 5)
+    assert a.real.is_identical(a)
+    assert a.imag.is_identical(APyFixed(0, 4, 5))

@@ -299,6 +299,7 @@ public:
 
     APyFixed ipow(unsigned int n) const;
 
+    APyFixed get_zero() const { return APyFixed(_bits, _int_bits); }
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */
