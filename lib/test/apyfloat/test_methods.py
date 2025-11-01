@@ -633,3 +633,28 @@ def test_real_imag():
     a = APyFloat.from_float(3.14, exp_bits=10, man_bits=10)
     assert a.real.is_identical(a)
     assert a.imag.is_identical(APyFloat.from_float(0.0, 10, 10))
+
+
+def test_to_fraction():
+    a = APyFloat.from_float(0.1, exp_bits=10, man_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == 819
+    assert frac.denominator == 8192
+
+    a = APyFloat.from_float(0.5, exp_bits=10, man_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == 1
+    assert frac.denominator == 2
+
+    a = APyFloat.from_float(-7, exp_bits=10, man_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == -7
+    assert frac.denominator == 1
+
+
+@pytest.mark.xfail(reason="Known issue with multi-limb fractions")
+def test_to_fraction_multi_limb():
+    a = APyFloat.from_float(1 << 100, exp_bits=10, man_bits=10)
+    frac = a.to_fraction()
+    assert frac.numerator == 7
+    assert frac.denominator == 1
