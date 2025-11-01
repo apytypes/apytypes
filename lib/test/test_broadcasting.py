@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 
 from apytypes import APyCFixedArray, APyCFloatArray, APyFixedArray, APyFloatArray
-from apytypes._typing import APyArray
+from apytypes.typing import APyArray
 
 # pyright: reportExplicitAny=false
 # pyright: reportAny=false

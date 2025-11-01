@@ -75,7 +75,7 @@ py3.install_sources(
         'lib/apytypes/__init__.py',
         'lib/apytypes/_apytypes.pyi',
         'lib/apytypes/_array_functions.py',
-        'lib/apytypes/_typing.py',
+        'lib/apytypes/typing.py',
         'lib/apytypes/_utils.py',
         'lib/apytypes/vhdl.py',
         'lib/apytypes/py.typed',
