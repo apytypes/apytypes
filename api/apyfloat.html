@@ -343,7 +343,7 @@ inputs:</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp_bits</span></code></a></dt><dd><p>Number of exponent bits.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></dt><dd><p>Imaginary part.</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.imag" title="apytypes.APyFloat.imag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></a></dt><dd><p>Imaginary part.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.is_finite" title="apytypes.APyFloat.is_finite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_finite</span></code></a></dt><dd><p>True if and only if value is zero, subnormal, or normal.</p>
 </dd>
@@ -361,7 +361,7 @@ inputs:</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man_bits</span></code></a></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></dt><dd><p>Real part.</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.real" title="apytypes.APyFloat.real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></a></dt><dd><p>Real part.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.sign" title="apytypes.APyFloat.sign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sign</span></code></a></dt><dd><p>Sign bit.</p>
 </dd>
@@ -378,7 +378,7 @@ inputs:</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.as_integer_ratio" title="apytypes.APyFloat.as_integer_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code></a></p></td>
 <td><p>Get (numerator, denominator)-tuple for the exact rational value of the <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.cast" title="apytypes.APyFloat.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
@@ -423,7 +423,7 @@ inputs:</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_bits" title="apytypes.APyFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
 <td><p>Get the bit-representation of an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_fraction" title="apytypes.APyFloat.to_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></a></p></td>
 <td><p>Get the exact rational value of the <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.zero" title="apytypes.APyFloat.zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zero</span></code></a></p></td>
@@ -674,6 +674,57 @@ they have the same sign, exponent, mantissa, and format.</p>
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+</section>
+<section id="other">
+<h2>Other<a class="headerlink" href="#other" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloat.as_integer_ratio">
+<span class="sig-name descname"><span class="pre">as_integer_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.as_integer_ratio" title="Link to this definition">¶</a></dt>
+<dd><p>Get (numerator, denominator)-tuple for the exact rational value of the <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></dt><dd><p>A tuple representing the exact value of the floating-point number as (numerator, denominator).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">(</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(1, 8)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloat.to_fraction">
+<span class="sig-name descname"><span class="pre">to_fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.to_fraction" title="Link to this definition">¶</a></dt>
+<dd><p>Get the exact rational value of the <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Fraction</span></code></dt><dd><p>A fraction representing the exact value of the floating-point number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">(</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_fraction</span><span class="p">()</span>
+<span class="go">Fraction(1, 8)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -1189,6 +1240,41 @@ a subnormal number.</p>
 </dd></dl>
 
 </section>
+<section id="real-and-imaginary-part">
+<h3>Real and imaginary part<a class="headerlink" href="#real-and-imaginary-part" title="Link to this heading">¶</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFloat.real">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyFloat.real" title="Link to this definition">¶</a></dt>
+<dd><p>Real part.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFloat.imag">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyFloat.imag" title="Link to this definition">¶</a></dt>
+<dd><p>Imaginary part.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 </dd></dl>
 
@@ -1264,6 +1350,8 @@ a subnormal number.</p>
 <li><a class="reference internal" href="#apytypes.APyFloat.cast"><code class="docutils literal notranslate"><span class="pre">APyFloat.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFloat.to_bits()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_identical()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.as_integer_ratio"><code class="docutils literal notranslate"><span class="pre">APyFloat.as_integer_ratio()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.to_fraction"><code class="docutils literal notranslate"><span class="pre">APyFloat.to_fraction()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.zero"><code class="docutils literal notranslate"><span class="pre">APyFloat.zero()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.inf"><code class="docutils literal notranslate"><span class="pre">APyFloat.inf()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.nan"><code class="docutils literal notranslate"><span class="pre">APyFloat.nan()</span></code></a></li>
@@ -1289,6 +1377,8 @@ a subnormal number.</p>
 <li><a class="reference internal" href="#apytypes.APyFloat.is_normal"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_normal</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.is_subnormal"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_subnormal</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.is_zero"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_zero</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.real"><code class="docutils literal notranslate"><span class="pre">APyFloat.real</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.imag"><code class="docutils literal notranslate"><span class="pre">APyFloat.imag</span></code></a></li>
 </ul>
 </li>
 </ul>

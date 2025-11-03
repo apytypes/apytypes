@@ -30,6 +30,13 @@
 
    .. automethod:: is_identical
 
+   Other
+   -----
+
+   .. automethod:: as_integer_ratio
+
+   .. automethod:: to_fraction
+
    Convenience methods
    -------------------
 
@@ -102,3 +109,10 @@
    .. autoproperty:: is_subnormal
 
    .. autoproperty:: is_zero
+
+   Real and imaginary part
+   ^^^^^^^^^^^^^^^^^^^^^^^
+
+   .. autoproperty:: real
+
+   .. autoproperty:: imag

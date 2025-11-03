@@ -1046,12 +1046,12 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray12is_same_specERK13APyFixedArray">APyFixedArray::is_same_spec (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray12is_same_specERK8APyFixed">[1]</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray6matmulERK13APyFixedArray">APyFixedArray::matmul (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3maxERKNSt8optionalI14PyShapeParam_tEE">APyFixedArray::max (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3minERKNSt8optionalI14PyShapeParam_tEE">APyFixedArray::min (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray4onesERK14PyShapeParam_tNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::ones (C++ function)</a>
@@ -1093,6 +1093,8 @@
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4reprEv">APyFixedArray::repr (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4rsubERK8APyFixed">APyFixedArray::rsub (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray10same_zerosEv">APyFixedArray::same_zeros (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4specEv">APyFixedArray::spec (C++ function)</a>
 </li>
@@ -1488,6 +1490,8 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray4rsubERK8APyFloat">APyFloatArray::rsub (C++ function)</a>
 </li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray10same_zerosEv">APyFloatArray::same_zeros (C++ function)</a>
+</li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray4specEv">APyFloatArray::spec (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray3sumERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::sum (C++ function)</a>
@@ -1542,6 +1546,12 @@
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I0E39array_floating_point_cast_pos_man_delta12APyFloatDataRK12APyFloatDataRK12APyFloatSpecRK12APyFloatSpec16QuantizationMode19QNTZ_FUNC_SIGNATUREK5exp_tK5exp_tK5man_tK5man_tKiK5man_tKNSt7int64_tE">array_floating_point_cast_pos_man_delta (C++ function)</a>
 </li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.as_integer_ratio">as_integer_ratio() (apytypes.APyFixed method)</a>
+
+        <ul>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.as_integer_ratio">(apytypes.APyFloat method)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -2187,6 +2197,14 @@
 </li>
           <li><a href="api/apycfloat.html#apytypes.APyCFloat.imag">(apytypes.APyCFloat property)</a>
 </li>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.imag">(apytypes.APyFixed property)</a>
+</li>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.imag">(apytypes.APyFixedArray property)</a>
+</li>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.imag">(apytypes.APyFloat property)</a>
+</li>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.imag">(apytypes.APyFloatArray property)</a>
+</li>
         </ul></li>
         <li><a href="api/arrayfunctions.html#apytypes.import_csv">import_csv() (in module apytypes)</a>
 </li>
@@ -2212,6 +2230,8 @@
           <li><a href="cpp_api/apyfloat_util.html#_CPPv49is_finiteRK12APyFloatDataRK12APyFloatSpec">(C++ function)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/apycfixed.html#apytypes.APyCFixed.is_identical">is_identical() (apytypes.APyCFixed method)</a>
 
         <ul>
@@ -2230,8 +2250,6 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.is_identical">(apytypes.APyFloatArray method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.is_inf">is_inf (apytypes.APyFloat property)</a>
 
         <ul>
@@ -2667,6 +2685,14 @@
 </li>
           <li><a href="api/apycfloat.html#apytypes.APyCFloat.real">(apytypes.APyCFloat property)</a>
 </li>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.real">(apytypes.APyFixed property)</a>
+</li>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.real">(apytypes.APyFixedArray property)</a>
+</li>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.real">(apytypes.APyFloat property)</a>
+</li>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.real">(apytypes.APyFloatArray property)</a>
+</li>
         </ul></li>
         <li><a href="cpp_api/python_util.html#c.REMAINING_BITS">REMAINING_BITS (C macro)</a>
 </li>
@@ -2676,6 +2702,8 @@
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4N12remove_cvref4typeE">remove_cvref::type (C++ type)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E14remove_cvref_t">remove_cvref_t (C++ type)</a>
 </li>
         <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.reshape">reshape() (apytypes.APyCFixedArray method)</a>
@@ -2687,9 +2715,9 @@
 </li>
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.reshape">(apytypes.APyFloatArray method)</a>
 </li>
+          <li><a href="api/arrayfunctions.html#apytypes.reshape">(in module apytypes)</a>
+</li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv421reverse_double_dabbleRKNSt6vectorINSt7uint8_tEEE">reverse_double_dabble (C++ function)</a>
 </li>
         <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.RND">RND (apytypes.QuantizationMode attribute)</a>
@@ -3040,6 +3068,12 @@
         </ul></li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv414to_bits_uint64RK12APyFloatDataNSt7uint8_tENSt7uint8_tE">to_bits_uint64 (C++ function)</a>
 </li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.to_fraction">to_fraction() (apytypes.APyFixed method)</a>
+
+        <ul>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.to_fraction">(apytypes.APyFloat method)</a>
+</li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TO_NEG">TO_NEG (apytypes.QuantizationMode attribute)</a>
@@ -3060,6 +3094,8 @@
 </li>
         <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TO_ZERO">TO_ZERO (apytypes.QuantizationMode attribute)</a>
 </li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.trailing_zeros">trailing_zeros (apytypes.APyFixed property)</a>
+</li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv427translate_quantization_mode16QuantizationModeb">translate_quantization_mode (C++ function)</a>
 </li>
         <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.transpose">transpose() (apytypes.APyCFixedArray method)</a>
@@ -3070,6 +3106,8 @@
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.transpose">(apytypes.APyFixedArray method)</a>
 </li>
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.transpose">(apytypes.APyFloatArray method)</a>
+</li>
+          <li><a href="api/arrayfunctions.html#apytypes.transpose">(in module apytypes)</a>
 </li>
         </ul></li>
         <li><a href="cpp_api/array_utils.html#_CPPv4I00E28transpose_axes_and_copy_datav28RANDOM_ACCESS_CONST_ITERATOR22RANDOM_ACCESS_ITERATORRKNSt6vectorINSt6size_tEEERKNSt6vectorINSt6size_tEEENSt6size_tE">transpose_axes_and_copy_data (C++ function)</a>

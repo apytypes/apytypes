@@ -392,7 +392,7 @@ table shows word lengths of elementary arithmetic operations.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFixed.frac_bits" title="apytypes.APyFixed.frac_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frac_bits</span></code></a></dt><dd><p>Number of fractional bits.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></dt><dd><p>Imaginary part.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.imag" title="apytypes.APyFixed.imag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></a></dt><dd><p>Imaginary part.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFixed.int_bits" title="apytypes.APyFixed.int_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int_bits</span></code></a></dt><dd><p>Number of integer bits.</p>
 </dd>
@@ -406,9 +406,9 @@ table shows word lengths of elementary arithmetic operations.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFixed.leading_zeros" title="apytypes.APyFixed.leading_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_zeros</span></code></a></dt><dd><p>Number of leading zeros.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></dt><dd><p>Real part.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.real" title="apytypes.APyFixed.real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></a></dt><dd><p>Real part.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">trailing_zeros</span></code></dt><dd><p>Number of trailing zeros.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.trailing_zeros" title="apytypes.APyFixed.trailing_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trailing_zeros</span></code></a></dt><dd><p>Number of trailing zeros.</p>
 </dd>
 </dl>
 </dd>
@@ -417,8 +417,8 @@ table shows word lengths of elementary arithmetic operations.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code></p></td>
-<td><p>Get the (numerator, denominator)-tuple for the exact rational value of the <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.as_integer_ratio" title="apytypes.APyFixed.as_integer_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code></a></p></td>
+<td><p>Get (numerator, denominator)-tuple for the exact rational value of the <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.cast" title="apytypes.APyFixed.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
 <td><p>Change format of the fixed-point number.</p></td>
@@ -438,7 +438,7 @@ table shows word lengths of elementary arithmetic operations.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_bits" title="apytypes.APyFixed.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
 <td><p>Retrieve underlying bit-pattern in an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_fraction" title="apytypes.APyFixed.to_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></a></p></td>
 <td><p>Get the exact rational value of the <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -675,6 +675,57 @@ fixed-point value.</p>
 </dd></dl>
 
 </section>
+<section id="other">
+<h2>Other<a class="headerlink" href="#other" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixed.as_integer_ratio">
+<span class="sig-name descname"><span class="pre">as_integer_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#apytypes.APyFixed.as_integer_ratio" title="Link to this definition">¶</a></dt>
+<dd><p>Get (numerator, denominator)-tuple for the exact rational value of the <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></dt><dd><p>A tuple representing the exact value of the fixed-point number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(1, 8)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixed.to_fraction">
+<span class="sig-name descname"><span class="pre">to_fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#apytypes.APyFixed.to_fraction" title="Link to this definition">¶</a></dt>
+<dd><p>Get the exact rational value of the <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Fraction</span></code></dt><dd><p>A fraction representing the exact value of the fixed-point number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_fraction</span><span class="p">()</span>
+<span class="go">Fraction(1, 8)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
 <section id="properties">
 <h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">¶</a></h2>
 <section id="word-length">
@@ -779,6 +830,57 @@ fixed-point value.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.trailing_zeros">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trailing_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.trailing_zeros" title="Link to this definition">¶</a></dt>
+<dd><p>Number of trailing zeros.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="real-and-imaginary-part">
+<h3>Real and imaginary part<a class="headerlink" href="#real-and-imaginary-part" title="Link to this heading">¶</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.real">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyFixed.real" title="Link to this definition">¶</a></dt>
+<dd><p>Real part.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.imag">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyFixed.imag" title="Link to this definition">¶</a></dt>
+<dd><p>Imaginary part.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 </dd></dl>
@@ -855,6 +957,8 @@ fixed-point value.</p>
 <li><a class="reference internal" href="#apytypes.APyFixed.cast"><code class="docutils literal notranslate"><span class="pre">APyFixed.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.to_bits()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFixed.is_identical()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.as_integer_ratio"><code class="docutils literal notranslate"><span class="pre">APyFixed.as_integer_ratio()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.to_fraction"><code class="docutils literal notranslate"><span class="pre">APyFixed.to_fraction()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.int_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.int_bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.frac_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.frac_bits</span></code></a></li>
@@ -863,6 +967,9 @@ fixed-point value.</p>
 <li><a class="reference internal" href="#apytypes.APyFixed.leading_ones"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_ones</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.leading_signs"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_signs</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.leading_zeros"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_zeros</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.trailing_zeros"><code class="docutils literal notranslate"><span class="pre">APyFixed.trailing_zeros</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.real"><code class="docutils literal notranslate"><span class="pre">APyFixed.real</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.imag"><code class="docutils literal notranslate"><span class="pre">APyFixed.imag</span></code></a></li>
 </ul>
 </li>
 </ul>

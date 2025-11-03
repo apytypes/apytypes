@@ -140,3 +140,10 @@
    ^^^^^^^^^^^^^
 
    .. autoproperty:: T
+
+   Real and imaginary part
+   ^^^^^^^^^^^^^^^^^^^^^^^
+
+   .. autoproperty:: real
+
+   .. autoproperty:: imag
