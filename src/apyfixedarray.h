@@ -257,6 +257,12 @@ public:
     APyFixedArray abs() const;
 
     /*!
+     * Create a new array with the same shape as `*this`, but with all elements
+     * set to zero.
+     */
+    APyFixedArray same_zeros() const;
+
+    /*!
      * Construct a new `APyFixedArray` tensor object with the same `shape` and
      * fixed-point values as `*this`, but with a new word-length. The underlying
      * bit-pattern of each tensor element are copied into place, meaning that lowering

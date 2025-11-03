@@ -2138,3 +2138,11 @@ def test_issue_623(
     assert empty.cumsum(0).is_identical(empty)
     assert empty.cumprod().is_identical(empty)
     assert empty.cumprod(0).is_identical(empty)
+
+
+def test_real_imag():
+    a = APyFloatArray.from_float([1.5, -2.25, 3.75], exp_bits=5, man_bits=4)
+    assert a.real.is_identical(a)
+    assert a.imag.is_identical(
+        APyFloatArray.from_float([0.0, 0.0, 0.0], exp_bits=5, man_bits=4)
+    )

@@ -1824,3 +1824,8 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
         "APyFixedArray.from_array: unsupported `dtype`, expecting float or integer"
     );
 }
+
+APyFixedArray APyFixedArray::same_zeros() const
+{
+    return APyFixedArray(_shape, _bits, _int_bits);
+}

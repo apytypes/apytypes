@@ -290,6 +290,8 @@ void bind_float(nb::module_& m)
         .def("to_fraction", &APyFloat::to_fraction, R"pbdoc(
             Get the exact rational value of the :class:`APyFloat`.
 
+            .. versionadded:: 0.5
+
             Examples
             --------
 
@@ -305,6 +307,8 @@ void bind_float(nb::module_& m)
             )pbdoc")
         .def("as_integer_ratio", &APyFloat::as_integer_ratio, R"pbdoc(
             Get (numerator, denominator)-tuple for the exact rational value of the :class:`APyFloat`.
+
+            .. versionadded:: 0.5
 
             Examples
             --------
@@ -540,12 +544,16 @@ void bind_float(nb::module_& m)
         .def_prop_ro("real", &APyFloat::python_copy, R"pbdoc(
             Real part.
 
+            .. versionadded:: 0.5
+
             Returns
             -------
             :class:`APyFloat`
             )pbdoc")
         .def_prop_ro("imag", &APyFloat::get_zero, R"pbdoc(
             Imaginary part.
+
+            .. versionadded:: 0.5
 
             Returns
             -------

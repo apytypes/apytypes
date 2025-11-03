@@ -3422,6 +3422,8 @@ class APyFixed:
         """
         Get the exact rational value of the :class:`APyFixed`.
 
+        .. versionadded:: 0.5
+
         Examples
         --------
 
@@ -3438,7 +3440,9 @@ class APyFixed:
 
     def as_integer_ratio(self) -> object:
         """
-        Get the (numerator, denominator)-tuple for the exact rational value of the :class:`APyFixed`.
+        Get (numerator, denominator)-tuple for the exact rational value of the :class:`APyFixed`.
+
+        .. versionadded:: 0.5
 
         Examples
         --------
@@ -3624,6 +3628,8 @@ class APyFixed:
         """
         Number of trailing zeros.
 
+        .. versionadded:: 0.5
+
         Returns
         -------
         :class:`int`
@@ -3634,6 +3640,8 @@ class APyFixed:
         """
         Real part.
 
+        .. versionadded:: 0.5
+
         Returns
         -------
         :class:`APyFixed`
@@ -3643,6 +3651,8 @@ class APyFixed:
     def imag(self) -> APyFixed:
         """
         Imaginary part.
+
+        .. versionadded:: 0.5
 
         Returns
         -------
@@ -3947,6 +3957,30 @@ class APyFixedArray:
         The transposition of the array.
 
         Equivalent to calling :func:`APyFixedArray.transpose`.
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+        """
+
+    @property
+    def real(self) -> APyFixedArray:
+        """
+        Real part.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+        """
+
+    @property
+    def imag(self) -> APyFixedArray:
+        """
+        Imaginary part.
+
+        .. versionadded:: 0.5
 
         Returns
         -------
@@ -5225,6 +5259,8 @@ class APyFloat:
         """
         Get the exact rational value of the :class:`APyFloat`.
 
+        .. versionadded:: 0.5
+
         Examples
         --------
 
@@ -5242,6 +5278,8 @@ class APyFloat:
     def as_integer_ratio(self) -> object:
         """
         Get (numerator, denominator)-tuple for the exact rational value of the :class:`APyFloat`.
+
+        .. versionadded:: 0.5
 
         Examples
         --------
@@ -5506,6 +5544,8 @@ class APyFloat:
         """
         Real part.
 
+        .. versionadded:: 0.5
+
         Returns
         -------
         :class:`APyFloat`
@@ -5515,6 +5555,8 @@ class APyFloat:
     def imag(self) -> APyFloat:
         """
         Imaginary part.
+
+        .. versionadded:: 0.5
 
         Returns
         -------
@@ -5876,6 +5918,7 @@ class APyFloatArray:
     def __ge__(self, arg: float, /) -> NDArray[numpy.bool]: ...
     @overload
     def __ge__(self, arg: APyFloat, /) -> NDArray[numpy.bool]: ...
+    def __abs__(self) -> APyFloatArray: ...
     @overload
     def __radd__(self, arg: int) -> APyFloatArray: ...
     @overload
@@ -5901,7 +5944,6 @@ class APyFloatArray:
     @overload
     def __rtruediv__(self, arg: APyFloat) -> APyFloatArray: ...
     def __invert__(self) -> APyFloatArray: ...
-    def __abs__(self) -> APyFloatArray: ...
     @property
     def exp_bits(self) -> int:
         """
@@ -5968,6 +6010,30 @@ class APyFloatArray:
         The transposition of the array.
 
         Equivalent to calling :func:`APyFloatArray.transpose`.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+        """
+
+    @property
+    def real(self) -> APyFloatArray:
+        """
+        Real part.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+        """
+
+    @property
+    def imag(self) -> APyFloatArray:
+        """
+        Imaginary part.
+
+        .. versionadded:: 0.5
 
         Returns
         -------
