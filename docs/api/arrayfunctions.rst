@@ -32,13 +32,19 @@ Array modification functions
 
 .. autofunction:: apytypes.expand_dims
 
-.. autofunction:: apytypes.ravel
+.. autofunction:: apytypes.flatten
 
 .. autofunction:: apytypes.moveaxis
+
+.. autofunction:: apytypes.ravel
+
+.. autofunction:: apytypes.reshape
 
 .. autofunction:: apytypes.squeeze
 
 .. autofunction:: apytypes.swapaxes
+
+.. autofunction:: apytypes.transpose
 
 
 Array utility functions
