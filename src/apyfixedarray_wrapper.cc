@@ -196,7 +196,7 @@ void bind_fixed_array(nb::module_& m)
         .def(~nb::self)
 
         /*
-         * Properties and methods
+         * Properties
          */
         .def_prop_ro("bits", &APyFixedArray::bits, R"pbdoc(
             Total number of bits.
@@ -248,7 +248,30 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
             )pbdoc"
         )
+        /*
+         * Get real and imaginary part
+         */
+        .def_prop_ro("real", &APyFixedArray::python_copy, R"pbdoc(
+            Real part.
 
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+            )pbdoc")
+        .def_prop_ro("imag", &APyFixedArray::same_zeros, R"pbdoc(
+            Imaginary part.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+            )pbdoc")
+        /*
+         * Methods
+         */
         .def(
             "to_numpy",
             &APyFixedArray::to_numpy,

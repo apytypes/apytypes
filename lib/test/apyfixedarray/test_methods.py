@@ -1365,3 +1365,11 @@ def test_issue_683(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFix
     assert arr1[0].is_identical(fixed_scalar.from_float(3, int_bits=7, frac_bits=31))
     assert arr2[0].is_identical(fixed_scalar.from_float(3, int_bits=7, frac_bits=30))
     assert arr3[0].is_identical(fixed_scalar.from_float(3, int_bits=7, frac_bits=31))
+
+
+def test_real_imag():
+    a = APyFixedArray.from_float([1.5, -2.25, 3.75], int_bits=5, frac_bits=4)
+    assert a.real.is_identical(a)
+    assert a.imag.is_identical(
+        APyFixedArray.from_float([0.0, 0.0, 0.0], int_bits=5, frac_bits=4)
+    )

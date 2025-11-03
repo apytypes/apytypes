@@ -438,6 +438,12 @@ public:
      * multiplication.
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
+
+    /*!
+     * Create a new array with the same shape as `*this`, but with all elements
+     * set to zero.
+     */
+    APyFloatArray same_zeros() const;
 };
 
 #endif

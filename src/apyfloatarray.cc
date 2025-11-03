@@ -1612,6 +1612,11 @@ std::string APyFloatArray::to_string(int base) const
     }
 }
 
+APyFloatArray APyFloatArray::same_zeros() const
+{
+    return APyFloatArray(_shape, exp_bits, man_bits, bias);
+}
+
 /*
  * Convenience methods
  */

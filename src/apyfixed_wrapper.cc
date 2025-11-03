@@ -158,6 +158,8 @@ void bind_fixed(nb::module_& m)
         .def("to_fraction", &APyFixed::to_fraction, R"pbdoc(
             Get the exact rational value of the :class:`APyFixed`.
 
+            .. versionadded:: 0.5
+
             Examples
             --------
 
@@ -172,7 +174,9 @@ void bind_fixed(nb::module_& m)
                 A fraction representing the exact value of the fixed-point number.
             )pbdoc")
         .def("as_integer_ratio", &APyFixed::as_integer_ratio, R"pbdoc(
-            Get the (numerator, denominator)-tuple for the exact rational value of the :class:`APyFixed`.
+            Get (numerator, denominator)-tuple for the exact rational value of the :class:`APyFixed`.
+
+            .. versionadded:: 0.5
 
             Examples
             --------
@@ -354,6 +358,8 @@ void bind_fixed(nb::module_& m)
             R"pbdoc(
             Number of trailing zeros.
 
+            .. versionadded:: 0.5
+
             Returns
             -------
             :class:`int`
@@ -366,12 +372,16 @@ void bind_fixed(nb::module_& m)
         .def_prop_ro("real", &APyFixed::python_copy, R"pbdoc(
             Real part.
 
+            .. versionadded:: 0.5
+
             Returns
             -------
             :class:`APyFixed`
             )pbdoc")
         .def_prop_ro("imag", &APyFixed::get_zero, R"pbdoc(
             Imaginary part.
+
+            .. versionadded:: 0.5
 
             Returns
             -------

@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LaTeX representation for `APyCFixed` and `APyCFloat`.
 - Array comparisons
 - Scalars are now instances of `Numbers` and `Real` and/or `Complex` (as appropriate).
-- `real` and `imag` properties for `APyFixed` and `APyFloat`.
+- `real` and `imag` properties for `APyFixed`, `APyFloat`, `APyFixedArray`, and `APyFloatArray`.
 - `trailing_zeros` property for `APyFixed`.
 - `to_fraction()` and `as_integer_ratio()` for `APyFixed` and `APyFloat`.
 

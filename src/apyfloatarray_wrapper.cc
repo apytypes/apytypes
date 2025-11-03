@@ -133,6 +133,7 @@ void bind_float_array(nb::module_& m)
         .def(nb::self > nb::self, CMP("__gt__", "APyFloatArray"))
         .def(nb::self <= nb::self, CMP("__le__", "APyFloatArray"))
         .def(nb::self >= nb::self, CMP("__ge__", "APyFloatArray"))
+        .def("__abs__", &APyFloatArray::abs)
 
         /*
          * Arithmetic operators with integers
@@ -212,9 +213,8 @@ void bind_float_array(nb::module_& m)
         .def(~nb::self)
 
         /*
-         * Methods
+         * Properties
          */
-        .def("__abs__", &APyFloatArray::abs)
         .def_prop_ro("exp_bits", &APyFloatArray::get_exp_bits, R"pbdoc(
             Number of exponent bits.
 
@@ -273,6 +273,27 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc"
         )
+        /*
+         * Get real and imaginary part
+         */
+        .def_prop_ro("real", &APyFloatArray::python_copy, R"pbdoc(
+            Real part.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc")
+        .def_prop_ro("imag", &APyFloatArray::same_zeros, R"pbdoc(
+            Imaginary part.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc")
         .def(
             "to_numpy",
             &APyFloatArray::to_numpy,
