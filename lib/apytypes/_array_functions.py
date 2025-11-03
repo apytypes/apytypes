@@ -147,6 +147,17 @@ def reshape(a: APyArray, new_shape: tuple[int, ...]) -> APyArray:
         -1, its value will be inferred from the length of the array and remaining
         dimensions. Only one dimension can be -1.
 
+    Examples
+    --------
+    >>> import apytypes as apy
+    >>> a = apy.fx([2, 3, 4, 5], int_bits=4, frac_bits=0)
+    >>> a
+    APyFixedArray([2, 3, 4, 5], int_bits=4, frac_bits=0)
+
+    >>> apy.reshape(a, (2, 2))
+    APyFixedArray([[2, 3],
+                   [4, 5]], int_bits=4, frac_bits=0)
+
     Returns
     -------
     reshaped : :class:`APyFloatArray` or :class:`APyFixedArray`
@@ -158,19 +169,6 @@ def reshape(a: APyArray, new_shape: tuple[int, ...]) -> APyArray:
         If negative dimensions less than -1 are provided, if the total size of the new
         array is not unchanged and divisible by the known dimensions, or if the total
         number of elements does not match the original array.
-
-    Examples
-    --------
-    >>> import apytypes as apy
-    >>> a = apy.APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
-    >>> a.to_numpy()
-    array([ 1. ,  1.5, -2. , -1.5])
-
-    >>> apy.reshape(a, (2, 2)).to_numpy()
-    array([[ 1. ,  1.5],
-           [-2. , -1.5]])
-
-    ------
     """
     try:
         reshape = a.reshape
@@ -179,13 +177,13 @@ def reshape(a: APyArray, new_shape: tuple[int, ...]) -> APyArray:
     return reshape(new_shape)
 
 
-def shape(arr: APyArray) -> tuple[int, ...]:
+def shape(a: APyArray) -> tuple[int, ...]:
     """
     Return the shape of an array.
 
     Parameters
     ----------
-    arr : :class:`APyFloatArray` or :class:`APyFixedArray`
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
         Input data.
 
     Returns
@@ -200,9 +198,9 @@ def shape(arr: APyArray) -> tuple[int, ...]:
 
     """
     try:
-        shape = arr.shape
+        shape = a.shape
     except AttributeError:
-        raise TypeError(f"{type(arr)} has no shape")
+        raise TypeError(f"{type(a)} has no shape")
     return shape
 
 
@@ -236,7 +234,7 @@ def transpose(a: APyArray, axes: tuple[int, ...] | None = None) -> APyArray:
 
     Parameters
     ----------
-    arr : :class:`APyFloatArray` or :class:`APyFixedArray`
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
         Input data.
     axes : :class:`tuple` of :class:`int`, optional
         If specified, it must be a tuple which contains a permutation
@@ -245,29 +243,23 @@ def transpose(a: APyArray, axes: tuple[int, ...] | None = None) -> APyArray:
         of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
         which reverses the order of the axes.
 
-    Returns
-    -------
-    transposed : :class:`APyFloatArray` or :class:`APyFixedArray`
-        copy of `a` with its axes permuted.
-
-
     Examples
     --------
     >>> import apytypes as apy
-    >>> a = apy.fp(
+    >>> a = apy.fx(
     ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]],
-    ...     exp_bits=5,
-    ...     man_bits=2,
+    ...     int_bits=5,
+    ...     frac_bits=2,
     ... )
-    >>> a.to_numpy()
-    array([[ 1.,  2.,  3.],
-           [-4., -5., -6.]])
+    >>> a
+    APyFixedArray([[  4,   8,  12],
+                   [112, 108, 104]], int_bits=5, frac_bits=2)
 
     >>> a = apy.transpose(a)
-    >>> a.to_numpy()
-    array([[ 1., -4.],
-           [ 2., -5.],
-           [ 3., -6.]])
+    >>> a
+    APyFixedArray([[  4, 112],
+                   [  8, 108],
+                   [ 12, 104]], int_bits=5, frac_bits=2)
 
     >>> a = apy.ones(
     ...     (1, 2, 3),
@@ -279,6 +271,11 @@ def transpose(a: APyArray, axes: tuple[int, ...] | None = None) -> APyArray:
 
     >>> apy.transpose(a, (-2, -3, -1)).shape
     (2, 1, 3)
+
+    Returns
+    -------
+    transposed : :class:`APyFloatArray` or :class:`APyFixedArray`
+        copy of `a` with its axes permuted.
 
     --------
     """
@@ -306,28 +303,42 @@ def ravel(a: APyArray) -> APyArray:
 
     Same as :py:func:`flatten` with current memory-copy model.
 
-    Returns
-    -------
-    collapsed : :class:`APyFloatArray` or :class:`APyFixedArray`
-        copy of `a` but collapsed
-
     Examples
     --------
     >>> import apytypes as apy
     >>> signs = [[0, 0], [1, 1]]
     >>> exps = [[127, 128], [128, 129]]
     >>> mans = [[0, 0], [4194304, 0]]
-    >>> arr = apy.APyFloatArray(
+    >>> a = apy.APyFloatArray(
     ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
     ... )
-    >>> arr.to_numpy()
-    array([[ 1.,  2.],
-           [-3., -4.]])
+    >>> a
+    APyFloatArray(
+        [[      0,       0],
+         [      1,       1]],
+    <BLANKLINE>
+        [[    127,     128],
+         [    128,     129]],
+    <BLANKLINE>
+        [[      0,       0],
+         [4194304,       0]],
+        exp_bits=8,
+        man_bits=23
+    )
 
-    >>> apy.ravel(arr).to_numpy()
-    array([ 1.,  2., -3., -4.])
+    >>> apy.ravel(a)
+    APyFloatArray(
+        [      0,       0,       1,       1],
+        [    127,     128,     128,     129],
+        [      0,       0, 4194304,       0],
+        exp_bits=8,
+        man_bits=23
+    )
 
-    --------
+    Returns
+    -------
+    collapsed : :class:`APyFloatArray` or :class:`APyFixedArray`
+        copy of `a` but collapsed
     """
     try:
         ravel = a.ravel
