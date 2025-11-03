@@ -30,6 +30,13 @@
 
    .. automethod:: is_identical
 
+   Other
+   -----
+
+   .. automethod:: as_integer_ratio
+
+   .. automethod:: to_fraction
+
    Properties
    ----------
 
@@ -54,3 +61,12 @@
    .. autoproperty:: leading_signs
 
    .. autoproperty:: leading_zeros
+
+   .. autoproperty:: trailing_zeros
+
+   Real and imaginary part
+   ^^^^^^^^^^^^^^^^^^^^^^^
+
+   .. autoproperty:: real
+
+   .. autoproperty:: imag

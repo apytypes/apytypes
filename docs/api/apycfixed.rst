@@ -33,13 +33,6 @@
    Properties
    ----------
 
-   Real and imaginary part
-   ^^^^^^^^^^^^^^^^^^^^^^^
-
-   .. autoproperty:: real
-
-   .. autoproperty:: imag
-
    Word length
    ^^^^^^^^^^^
 
@@ -53,3 +46,10 @@
    ^^^^^^^^^^^^^^^^^^^^^^^
 
    .. autoproperty:: is_zero
+
+   Real and imaginary part
+   ^^^^^^^^^^^^^^^^^^^^^^^
+
+   .. autoproperty:: real
+
+   .. autoproperty:: imag
