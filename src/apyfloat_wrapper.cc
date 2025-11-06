@@ -222,6 +222,17 @@ void bind_float(nb::module_& m)
             from_bits
             )pbdoc"
         )
+        .def_static(
+            "from_number",
+            &APyFloat::from_number,
+            nb::arg("value"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Alias for :func:`~apytypes.APyFloat.from_float`.
+            )pbdoc"
+        )
         .def("__float__", &APyFloat::operator double)
         .def_static(
             "from_bits",

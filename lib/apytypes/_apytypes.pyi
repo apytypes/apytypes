@@ -592,31 +592,16 @@ class APyCFixed:
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> APyCFixed:
-        """
-        Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
-        :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-        :class:`APyCFixed`. This is an alias for
-        :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
+        """Alias for :func:`~apytypes.APyCFixed.from_complex`."""
 
-        .. attention::
-            It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to
-            create an :class:`APyCFixed` from another :class:`APyCFixed`.
-
-        Parameters
-        ----------
-        value : :class:`int`, :class:`float`, :class:`complex`
-            Value to initialize from
-        int_bits : :class:`int`, optional
-            Number of integer bits in the created fixed-point object
-        frac_bits : :class:`int`, optional
-            Number of fractional bits in the created fixed-point object
-        bits : :class:`int`, optional
-            Total number of bits in the created fixed-point object
-
-        Returns
-        -------
-        :class:`APyCFixed`
-        """
+    @staticmethod
+    def from_number(
+        value: object,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyCFixed:
+        """Alias for :func:`~apytypes.APyCFixed.from_complex`."""
 
 class APyCFixedArray:
     """
@@ -1917,42 +1902,13 @@ class APyCFloat:
     def from_float(
         value: object, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyCFloat:
-        """
-        Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
-        :class:`complex`.
+        """Alias for :func:`~apytypes.APyCFloat.from_complex`."""
 
-        The initialize floating-point value is the one closest to `value`. Ties are
-        rounded using :class:`QuantizationMode.TIES_EVEN`.
-
-        Parameters
-        ----------
-        value : int, float, complex
-            Value to initialize from.
-        exp_bits : int
-            Number of exponent bits.
-        man_bits : int
-            Number of mantissa bits.
-        bias : int, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
-
-        Examples
-        --------
-
-        >>> import apytypes as apy
-        >>> a = apy.APyCFloat.from_float(1.25, exp_bits=10, man_bits=15)
-        >>> a
-        APyCFloat(sign=(0, 0), exp=(511, 0), man=(8192, 0), exp_bits=10, man_bits=15)
-        >>> str(a)
-        '(1.25+0j)'
-
-        Returns
-        -------
-        :class:`APyCFloat`
-
-        See Also
-        --------
-        from_complex
-        """
+    @staticmethod
+    def from_number(
+        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloat:
+        """Alias for :func:`~apytypes.APyCFloat.from_complex`."""
 
     def __complex__(self) -> complex: ...
     @staticmethod
@@ -3718,6 +3674,15 @@ class APyFixed:
         """
 
     @staticmethod
+    def from_number(
+        value: object,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixed:
+        """Alias for :func:`~apytypes.APyFixed.from_float`."""
+
+    @staticmethod
     def from_str(
         string_value: str,
         int_bits: int | None = None,
@@ -5196,6 +5161,12 @@ class APyFloat:
         --------
         from_bits
         """
+
+    @staticmethod
+    def from_number(
+        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloat:
+        """Alias for :func:`~apytypes.APyFloat.from_float`."""
 
     def __float__(self) -> float: ...
     @staticmethod
