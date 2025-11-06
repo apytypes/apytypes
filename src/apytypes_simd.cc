@@ -424,6 +424,150 @@ namespace HWY_NAMESPACE { // required: unique per target
         return sum;
     }
 
+    HWY_ATTR void _hwy_vector_and(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v1 = hn::LoadU(d, src1 + i);
+            const auto v2 = hn::LoadU(d, src2 + i);
+            const auto res = hn::And(v1, v2);
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = src1[i] & src2[i];
+        }
+    }
+
+    HWY_ATTR void _hwy_vector_or(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v1 = hn::LoadU(d, src1 + i);
+            const auto v2 = hn::LoadU(d, src2 + i);
+            const auto res = hn::Or(v1, v2);
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = src1[i] | src2[i];
+        }
+    }
+
+    HWY_ATTR void _hwy_vector_xor(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v1 = hn::LoadU(d, src1 + i);
+            const auto v2 = hn::LoadU(d, src2 + i);
+            const auto res = hn::Xor(v1, v2);
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = src1[i] ^ src2[i];
+        }
+    }
+
+    HWY_ATTR void _hwy_vector_shift_and(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        unsigned src1_shift_amount,
+        unsigned src2_shift_amount,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v1
+                = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto v2
+                = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
+            const auto res = hn::And(v1, v2);
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = (src1[i] << src1_shift_amount) & (src2[i] << src2_shift_amount);
+        }
+    }
+
+    HWY_ATTR void _hwy_vector_shift_or(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        unsigned src1_shift_amount,
+        unsigned src2_shift_amount,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v1
+                = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto v2
+                = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
+            const auto res = hn::Or(v1, v2);
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = (src1[i] << src1_shift_amount) | (src2[i] << src2_shift_amount);
+        }
+    }
+
+    HWY_ATTR void _hwy_vector_shift_xor(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        unsigned src1_shift_amount,
+        unsigned src2_shift_amount,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v1
+                = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto v2
+                = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
+            const auto res = hn::Xor(v1, v2);
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = (src1[i] << src1_shift_amount) ^ (src2[i] << src2_shift_amount);
+        }
+    }
+
     HWY_ATTR std::string _hwy_simd_version_str()
     {
         constexpr const hn::ScalableTag<apy_limb_t> d;
@@ -462,6 +606,12 @@ HWY_EXPORT(_hwy_vector_sub);
 HWY_EXPORT(_hwy_vector_neg);
 HWY_EXPORT(_hwy_vector_abs);
 HWY_EXPORT(_hwy_vector_not);
+HWY_EXPORT(_hwy_vector_and);
+HWY_EXPORT(_hwy_vector_or);
+HWY_EXPORT(_hwy_vector_xor);
+HWY_EXPORT(_hwy_vector_shift_and);
+HWY_EXPORT(_hwy_vector_shift_or);
+HWY_EXPORT(_hwy_vector_shift_xor);
 HWY_EXPORT(_hwy_vector_add_const);
 HWY_EXPORT(_hwy_vector_sub_const);
 HWY_EXPORT(_hwy_vector_rsub_const);
@@ -720,5 +870,97 @@ apy_limb_t vector_multiply_accumulate(
     );
 }
 
+void vector_and(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_and)(
+        &*dst_begin, &*src1_begin, &*src2_begin, size
+    );
+}
+
+void vector_or(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_or)(
+        &*dst_begin, &*src1_begin, &*src2_begin, size
+    );
+}
+
+void vector_xor(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_xor)(
+        &*dst_begin, &*src1_begin, &*src2_begin, size
+    );
+}
+
+void vector_shift_and(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_and)(
+        &*dst_begin,
+        &*src1_begin,
+        &*src2_begin,
+        src1_shift_amount,
+        src2_shift_amount,
+        size
+    );
+}
+
+void vector_shift_or(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_or)(
+        &*dst_begin,
+        &*src1_begin,
+        &*src2_begin,
+        src1_shift_amount,
+        src2_shift_amount,
+        size
+    );
+}
+
+void vector_shift_xor(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_xor)(
+        &*dst_begin,
+        &*src1_begin,
+        &*src2_begin,
+        src1_shift_amount,
+        src2_shift_amount,
+        size
+    );
+}
 } // namespace simd
 #endif // HWY_ONCE

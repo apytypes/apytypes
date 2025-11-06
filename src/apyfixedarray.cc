@@ -1232,6 +1232,281 @@ APyFixedArray APyFixedArray::operator-() const
     return result;
 }
 
+/* ********************************************************************************** *
+ * *                                Logic operators                                 * *
+ * ********************************************************************************** */
+
+APyFixedArray APyFixedArray::operator&(const APyFixedArray& rhs) const
+{
+    // Determine word length of result
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits());
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
+
+    // Resulting vector
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Special case #1: Same number of limbs and of fractional bits
+    if (result._itemsize == _itemsize && result._itemsize == rhs._itemsize) {
+        if (frac_bits() == rhs.frac_bits()) {
+            // Operands have equally many fractional bits.
+            simd::vector_and(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                result._data.size()
+            );
+            return result;
+        }
+        // Special case #2: different number of fractional bits, but single limb
+        if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+            auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+            auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+            simd::vector_shift_and(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                lhs_shift_amount,
+                rhs_shift_amount,
+                result._data.size()
+            );
+            return result;
+        }
+        // Special case #3: Equally many limbs, but different fractional bits
+        if (result._itemsize == _itemsize && result._itemsize == rhs._itemsize) {
+            const apy_limb_t* src1_ptr;
+            const apy_limb_t* src2_ptr;
+            if (frac_bits() <= rhs.frac_bits()) {
+                // Right-hand side has more fractional bits. Upsize `*this`
+                _cast_no_quantize_no_overflow(
+                    std::begin(_data),               // src
+                    std::begin(result._data),        // dst
+                    _itemsize,                       // src_limbs
+                    result._itemsize,                // dst_limbs
+                    _nitems,                         // n_items
+                    result.frac_bits() - frac_bits() // left_shift_amount
+                );
+                src1_ptr = &result._data[0];
+                src2_ptr = &rhs._data[0];
+            } else {
+                // Left-hand side has more fractional bits. Upsize `rhs`
+                _cast_no_quantize_no_overflow(
+                    std::begin(rhs._data),               // src
+                    std::begin(result._data),            // dst
+                    rhs._itemsize,                       // src_limbs
+                    result._itemsize,                    // dst_limbs
+                    rhs._nitems,                         // n_items
+                    result.frac_bits() - rhs.frac_bits() // left_shift_amount
+                );
+                src1_ptr = &_data[0];
+                src2_ptr = &result._data[0];
+            }
+            simd::vector_and(
+                src1_ptr,                              // src1
+                src2_ptr,                              // src2
+                &result._data[0],                      // dst
+                result._itemsize * result._data.size() // limb vector length
+            );
+            return result; // early exit
+        }
+    }
+    // Most general case: Works in any situation, but is slowest
+    APyFixedArray imm(_shape, res_bits, res_int_bits);
+    _cast_no_quantize_no_overflow(
+        std::begin(_data),               // src
+        std::begin(result._data),        // dst
+        _itemsize,                       // src_limbs
+        result._itemsize,                // dst_limbs
+        _nitems,                         // n_items
+        result.frac_bits() - frac_bits() // left_shift_amount
+    );
+    _cast_no_quantize_no_overflow(
+        std::begin(rhs._data),            // src
+        std::begin(imm._data),            // dst
+        rhs._itemsize,                    // src_limbs
+        imm._itemsize,                    // dst_limbs
+        rhs._nitems,                      // n_items
+        imm.frac_bits() - rhs.frac_bits() // left_shift_amount
+    );
+
+    simd::vector_and(
+        &result._data[0],                      // src1
+        &imm._data[0],                         // src2
+        &result._data[0],                      // dst
+        result._itemsize * result._data.size() // limb vector length
+    );
+    return result;
+}
+
+/*template <class simd_logic_op, class simd_shift_logic_op>
+inline APyFixedArray APyFixedArray::_apyfixedarray_base_logic(const APyFixedArray& rhs
+) const
+{
+    // Determine word length of result
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits());
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
+
+    // Resulting vector
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Special case #1: Same number of limbs and of fractional bits
+    if (result._itemsize == _itemsize && result._itemsize == rhs._itemsize) {
+        if (frac_bits() == rhs.frac_bits()) {
+            // Operands have equally many fractional bits.
+            simd_logic_op {}(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                result._data.size()
+            );
+            return result;
+        }
+        // Special case #2: different number of fractional bits, but single limb
+        if (res_bits <= APY_LIMB_SIZE_BITS) {
+            auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+            auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+            simd_shift_logic_op {}(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                lhs_shift_amount,
+                rhs_shift_amount,
+                result._data.size()
+            );
+            return result;
+        }
+        // Special case #3: Equally many limbs, but different fractional bits
+        if (result._itemsize == _itemsize && result._itemsize == rhs._itemsize) {
+            const apy_limb_t* src1_ptr;
+            const apy_limb_t* src2_ptr;
+            if (frac_bits() <= rhs.frac_bits()) {
+                // Right-hand side has more fractional bits. Upsize `*this`
+                _cast_no_quantize_no_overflow(
+                    std::begin(_data),               // src
+                    std::begin(result._data),        // dst
+                    _itemsize,                       // src_limbs
+                    result._itemsize,                // dst_limbs
+                    _nitems,                         // n_items
+                    result.frac_bits() - frac_bits() // left_shift_amount
+                );
+                src1_ptr = &result._data[0];
+                src2_ptr = &rhs._data[0];
+            } else {
+                // Left-hand side has more fractional bits. Upsize `rhs`
+                _cast_no_quantize_no_overflow(
+                    std::begin(rhs._data),               // src
+                    std::begin(result._data),            // dst
+                    rhs._itemsize,                       // src_limbs
+                    result._itemsize,                    // dst_limbs
+                    rhs._nitems,                         // n_items
+                    result.frac_bits() - rhs.frac_bits() // left_shift_amount
+                );
+                src1_ptr = &_data[0];
+                src2_ptr = &result._data[0];
+            }
+            simd_logic_op {}(
+                src1_ptr,                              // src1
+                src2_ptr,                              // src2
+                &result._data[i],                      // dst
+                result._itemsize * result._data.size() // limb vector length
+            );
+            return result; // early exit
+        }
+    }
+
+    // Most general case: Works in any situation, but is slowest
+    APyFixedArray imm(_shape, res_bits, res_int_bits);
+    _cast_no_quantize_no_overflow(
+        std::begin(_data),               // src
+        std::begin(result._data),        // dst
+        _itemsize,                       // src_limbs
+        result._itemsize,                // dst_limbs
+        _nitems,                         // n_items
+        result.frac_bits() - frac_bits() // left_shift_amount
+    );
+    _cast_no_quantize_no_overflow(
+        std::begin(rhs._data),            // src
+        std::begin(imm._data),            // dst
+        rhs._itemsize,                    // src_limbs
+        imm._itemsize,                    // dst_limbs
+        rhs._nitems,                      // n_items
+        imm.frac_bits() - rhs.frac_bits() // left_shift_amount
+    );
+
+    simd_logic_op {}(
+        src1_ptr,                              // src1
+        src2_ptr,                              // src2
+        &result._data[i],                      // dst
+        result._itemsize * result._data.size() // limb vector length
+    );
+    return result;
+}
+
+template <class ripple_carry_op, class simd_op_const, class simd_shift_op_const>
+inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) const
+{
+    // Increase word length of result by one
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
+
+    // Resulting vector
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Special case #1: Operands and result fit in single limb
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        if (frac_bits() == rhs.frac_bits()) {
+            // Operands have equally many fractional bits.
+            simd_op_const {}(
+                _data.begin(), rhs._data[0], result._data.begin(), result._data.size()
+            );
+        } else {
+            auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+            auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+            simd_shift_op_const {}(
+                std::begin(_data),                // src1
+                rhs._data[0] << rhs_shift_amount, // constant
+                std::begin(result._data),         // dst
+                lhs_shift_amount,                 // src1 shift amount
+                result._data.size()
+            );
+        }
+        return result; // early exit
+    }
+
+    // Most general case: Works in any situation, but is slowest
+    APyFixed imm(res_bits, res_int_bits);
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+    auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+    _cast_no_quantize_no_overflow(
+        std::begin(_data),        // src
+        std::begin(result._data), // dst
+        _itemsize,                // src_limbs
+        result._itemsize,         // dst_limbs
+        _nitems,                  // n_items
+        lhs_shift_amount          // left_shift_amount
+    );
+    _cast_no_quantize_no_overflow(
+        std::begin(rhs._data),
+        std::end(rhs._data),
+        std::begin(imm._data),
+        std::end(imm._data),
+        rhs_shift_amount
+    );
+    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        // Perform ripple-carry operation
+        ripple_carry_op {}(
+            &result._data[i], // dst
+            &result._data[i], // src1
+            &imm._data[0],    // src2
+            result._itemsize  // limb vector length
+        );
+    }
+
+    return result;
+}
+*/
 APyFixedArray APyFixedArray::operator~() const
 {
     // Resulting `APyFixedArray` fixed-point tensor
