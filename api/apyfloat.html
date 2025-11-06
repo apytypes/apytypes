@@ -405,28 +405,31 @@ inputs:</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.from_float" title="apytypes.APyFloat.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.inf" title="apytypes.APyFloat.inf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inf</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.from_number" title="apytypes.APyFloat.from_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_number</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.is_identical" title="apytypes.APyFloat.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.inf" title="apytypes.APyFloat.inf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inf</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.is_identical" title="apytypes.APyFloat.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.nan" title="apytypes.APyFloat.nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nan</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.nan" title="apytypes.APyFloat.nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nan</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.next_down" title="apytypes.APyFloat.next_down"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_down</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.next_down" title="apytypes.APyFloat.next_down"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_down</span></code></a></p></td>
 <td><p>Get the next smaller number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.next_up" title="apytypes.APyFloat.next_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_up</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.next_up" title="apytypes.APyFloat.next_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_up</span></code></a></p></td>
 <td><p>Get the next larger number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_bits" title="apytypes.APyFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_bits" title="apytypes.APyFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
 <td><p>Get the bit-representation of an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_fraction" title="apytypes.APyFloat.to_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_fraction" title="apytypes.APyFloat.to_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></a></p></td>
 <td><p>Get the exact rational value of the <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.zero" title="apytypes.APyFloat.zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zero</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.zero" title="apytypes.APyFloat.zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zero</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -542,6 +545,12 @@ create an <a class="reference internal" href="#apytypes.APyFloat" title="apytype
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.35</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloat.from_number">
+<span class="sig-name descname"><span class="pre">from_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.from_number" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for <a class="reference internal" href="#apytypes.APyFloat.from_float" title="apytypes.APyFloat.from_float"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_float()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1346,6 +1355,7 @@ a subnormal number.</p>
 <li><a class="reference internal" href="#apytypes.APyFloat"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a><ul>
 <li><a class="reference internal" href="#apytypes.APyFloat.__init__"><code class="docutils literal notranslate"><span class="pre">APyFloat.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.from_float"><code class="docutils literal notranslate"><span class="pre">APyFloat.from_float()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.from_number"><code class="docutils literal notranslate"><span class="pre">APyFloat.from_number()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.from_bits"><code class="docutils literal notranslate"><span class="pre">APyFloat.from_bits()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.cast"><code class="docutils literal notranslate"><span class="pre">APyFloat.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFloat.to_bits()</span></code></a></li>

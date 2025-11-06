@@ -429,16 +429,19 @@ table shows word lengths of elementary arithmetic operations.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.from_str" title="apytypes.APyFixed.from_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_str</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.from_number" title="apytypes.APyFixed.from_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_number</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.is_identical" title="apytypes.APyFixed.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.from_str" title="apytypes.APyFixed.from_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_str</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.is_identical" title="apytypes.APyFixed.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two fixed-point objects are exactly identical.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_bits" title="apytypes.APyFixed.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_bits" title="apytypes.APyFixed.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
 <td><p>Retrieve underlying bit-pattern in an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_fraction" title="apytypes.APyFixed.to_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_fraction" title="apytypes.APyFixed.to_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></a></p></td>
 <td><p>Get the exact rational value of the <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -499,6 +502,12 @@ rounded to 1.25 as it is the closest representable number</p>
 <span class="go">&#39;1.25&#39;</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixed.from_number">
+<span class="sig-name descname"><span class="pre">from_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixed.from_number" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for <a class="reference internal" href="#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_float()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -953,6 +962,7 @@ fixed-point value.</p>
 <li><a class="reference internal" href="#apytypes.APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a><ul>
 <li><a class="reference internal" href="#apytypes.APyFixed.__init__"><code class="docutils literal notranslate"><span class="pre">APyFixed.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.from_float"><code class="docutils literal notranslate"><span class="pre">APyFixed.from_float()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.from_number"><code class="docutils literal notranslate"><span class="pre">APyFixed.from_number()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.from_str"><code class="docutils literal notranslate"><span class="pre">APyFixed.from_str()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.cast"><code class="docutils literal notranslate"><span class="pre">APyFixed.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.to_bits()</span></code></a></li>
