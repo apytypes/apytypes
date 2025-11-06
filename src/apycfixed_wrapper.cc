@@ -401,29 +401,18 @@ void bind_cfixed(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
-            :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-            :class:`APyCFixed`. This is an alias for
-            :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
-
-            .. attention::
-                It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to
-                create an :class:`APyCFixed` from another :class:`APyCFixed`.
-
-            Parameters
-            ----------
-            value : :class:`int`, :class:`float`, :class:`complex`
-                Value to initialize from
-            int_bits : :class:`int`, optional
-                Number of integer bits in the created fixed-point object
-            frac_bits : :class:`int`, optional
-                Number of fractional bits in the created fixed-point object
-            bits : :class:`int`, optional
-                Total number of bits in the created fixed-point object
-
-            Returns
-            -------
-            :class:`APyCFixed`
+            Alias for :func:`~apytypes.APyCFixed.from_complex`.
+            )pbdoc"
+        )
+        .def_static(
+            "from_number",
+            &APyCFixed::from_number,
+            nb::arg("value"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+            Alias for :func:`~apytypes.APyCFixed.from_complex`.
             )pbdoc"
         );
 }

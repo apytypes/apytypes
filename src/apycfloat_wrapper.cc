@@ -315,40 +315,18 @@ void bind_cfloat(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
-            :class:`complex`.
-
-            The initialize floating-point value is the one closest to `value`. Ties are
-            rounded using :class:`QuantizationMode.TIES_EVEN`.
-
-            Parameters
-            ----------
-            value : int, float, complex
-                Value to initialize from.
-            exp_bits : int
-                Number of exponent bits.
-            man_bits : int
-                Number of mantissa bits.
-            bias : int, optional
-                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
-
-            Examples
-            --------
-
-            >>> import apytypes as apy
-            >>> a = apy.APyCFloat.from_float(1.25, exp_bits=10, man_bits=15)
-            >>> a
-            APyCFloat(sign=(0, 0), exp=(511, 0), man=(8192, 0), exp_bits=10, man_bits=15)
-            >>> str(a)
-            '(1.25+0j)'
-
-            Returns
-            -------
-            :class:`APyCFloat`
-
-            See Also
-            --------
-            from_complex
+            Alias for :func:`~apytypes.APyCFloat.from_complex`.
+            )pbdoc"
+        )
+        .def_static(
+            "from_number",
+            &APyCFloat::from_number,
+            nb::arg("value"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Alias for :func:`~apytypes.APyCFloat.from_complex`.
             )pbdoc"
         )
         .def("__complex__", &APyCFloat::to_complex)

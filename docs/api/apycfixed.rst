@@ -15,6 +15,8 @@
 
    .. automethod:: from_float
 
+   .. automethod:: from_number
+
    Change word length
    ------------------
 

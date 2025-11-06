@@ -450,6 +450,17 @@ void bind_fixed(nb::module_& m)
             )pbdoc"
         )
         .def_static(
+            "from_number",
+            &APyFixed::from_number,
+            nb::arg("value"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+            Alias for :func:`~apytypes.APyFixed.from_float`.
+            )pbdoc"
+        )
+        .def_static(
             "from_str",
             &APyFixed::from_string,
             nb::arg("string_value"),

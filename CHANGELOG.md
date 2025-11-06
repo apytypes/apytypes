@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `real` and `imag` properties for `APyFixed`, `APyFloat`, `APyFixedArray`, and `APyFloatArray`.
 - `trailing_zeros` property for `APyFixed`.
 - `to_fraction()` and `as_integer_ratio()` for `APyFixed` and `APyFloat`.
+- All scalar classes have a `from_number` method which aliases
+`from_float`/`from_complex` to match the naming in Python 3.14.
 
 ### Fixed
 
