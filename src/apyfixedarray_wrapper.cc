@@ -98,6 +98,12 @@ void bind_fixed_array(nb::module_& m)
         .def("__deepcopy__", &APyFixedArray::python_deepcopy, nb::arg("memo"))
 
         /*
+         * Pickling support
+         */
+        .def("__getstate__", &APyFixedArray::python_pickle)
+        .def("__setstate__", &APyFixedArray::python_unpickle)
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self + nb::self, NB_NARG())

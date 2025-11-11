@@ -560,7 +560,7 @@ public:
             );
             throw nb::value_error(error_msg.c_str());
         }
-        assert(_itemsize = val._itemsize);
+        assert(_itemsize == val._itemsize);
 
         // Compute the slice shape
         std::vector<std::size_t> slice_shape = compute_slice_shape(key);

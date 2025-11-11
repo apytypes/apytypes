@@ -95,6 +95,12 @@ void bind_cfixed(nb::module_& m)
         .def("__deepcopy__", &APyCFixed::python_deepcopy, nb::arg("memo"))
 
         /*
+         * Pickling support
+         */
+        .def("__getstate__", &APyCFixed::python_pickle)
+        .def("__setstate__", &APyCFixed::python_unpickle)
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self == nb::self)

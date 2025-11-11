@@ -1159,6 +1159,37 @@ bool APyFloatArray::is_identical(const nb::object& other, bool ignore_zero_sign)
     return true;
 }
 
+std::tuple<
+    APyFloatSpec::Tuple,
+    std::vector<std::size_t>,
+    std::vector<APyFloatData::Tuple>>
+APyFloatArray::python_pickle() const
+{
+    std::vector<APyFloatData::Tuple> data(_nitems);
+    auto to_tuple = [](const APyFloatData& data) { return data.to_tuple(); };
+    std::transform(std::begin(_data), std::end(_data), std::begin(data), to_tuple);
+    return std::make_tuple(spec().to_tuple(), shape(), data);
+}
+
+//! Python un-pickling
+void APyFloatArray::python_unpickle(
+    APyFloatArray* apyfloatarray,
+    const std::tuple<
+        APyFloatSpec::Tuple,
+        std::vector<std::size_t>,
+        std::vector<APyFloatData::Tuple>>& state
+)
+{
+    auto&& [spec, shape, data] = state;
+    auto&& [exp_bits, man_bits, bias] = spec;
+    APyFloatArray fp_res(shape, exp_bits, man_bits, bias);
+    auto from_tuple = [](auto&& tuple) { return APyFloatData::from_tuple(tuple); };
+    std::transform(
+        std::begin(data), std::end(data), std::begin(fp_res._data), from_tuple
+    );
+    new (apyfloatarray) APyFloatArray(fp_res);
+}
+
 APyFloatArray APyFloatArray::from_numbers(
     const nb::typed<nb::iterable, nb::any>& number_seq,
     int exp_bits,

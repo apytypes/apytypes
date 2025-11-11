@@ -7,6 +7,7 @@
 #include "ieee754.h"
 
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/array.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/variant.h>
 
@@ -710,6 +711,27 @@ APyFloat APyCFloat::get_imag() const
 APyCFloat
 APyCFloat::one(std::uint8_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias)
 {
-    const exp_t res_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+    const exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
     return APyCFloat({ 0, res_bias, 0 }, { 0, 0, 0 }, exp_bits, man_bits, res_bias);
+}
+
+std::tuple<APyFloatSpec::Tuple, std::array<APyFloatData::Tuple, 2>>
+APyCFloat::python_pickle() const
+{
+    return std::make_tuple(
+        spec().to_tuple(),
+        std::array<APyFloatData::Tuple, 2> { _data[0].to_tuple(), _data[1].to_tuple() }
+    );
+}
+
+void APyCFloat::python_unpickle(
+    APyCFloat* apycfloat_ptr,
+    const std::tuple<APyFloatSpec::Tuple, std::array<APyFloatData::Tuple, 2>>& state
+)
+{
+    auto&& [spec, data] = state;
+    auto&& [exp_bits, man_bits, bias] = spec;
+    auto&& re = APyFloatData::from_tuple(data[0]);
+    auto&& im = APyFloatData::from_tuple(data[1]);
+    new (apycfloat_ptr) APyCFloat(re, im, exp_bits, man_bits, bias);
 }

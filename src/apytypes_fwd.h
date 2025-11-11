@@ -177,9 +177,13 @@ struct APyFloatData {
         return !(*this == other);
     }
 
-    // // Dereference (to act like iterators)
-    // const APyFloatData& operator*() const noexcept { return *this; };
-    // const APyFloatData* operator->() const noexcept { return this; };
+    using Tuple = std::tuple<bool, exp_t, man_t>;
+    Tuple to_tuple() const noexcept { return std::make_tuple(sign, exp, man); }
+    static APyFloatData from_tuple(const Tuple& tuple) noexcept
+    {
+        auto&& [sign, exp, man] = tuple;
+        return APyFloatData { sign, exp, man };
+    }
 };
 
 struct APyFloatSpec {
@@ -198,6 +202,12 @@ struct APyFloatSpec {
     bool operator!=(const APyFloatSpec& other) const noexcept
     {
         return !(*this == other);
+    }
+
+    using Tuple = std::tuple<std::uint8_t, std::uint8_t, exp_t>;
+    Tuple to_tuple() const noexcept
+    {
+        return std::make_tuple(exp_bits, man_bits, bias);
     }
 };
 

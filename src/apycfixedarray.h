@@ -250,6 +250,17 @@ public:
         std::optional<int> bits = std::nullopt
     ) const;
 
+    //! Python pickling
+    std::tuple<int, int, std::vector<std::size_t>, std::vector<std::uint64_t>>
+    python_pickle() const;
+
+    //! Python un-pickling
+    static void python_unpickle(
+        APyCFixedArray* apycfixedarray,
+        const std::
+            tuple<int, int, std::vector<std::size_t>, std::vector<std::uint64_t>>& state
+    );
+
     /* ****************************************************************************** *
      * *                           Static array creation                            * *
      * ****************************************************************************** */

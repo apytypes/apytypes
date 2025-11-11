@@ -212,6 +212,22 @@ public:
     //! the same format
     bool is_identical(const nb::object& other, bool ignore_zero_sign = false) const;
 
+    //! Python pickling
+    std::tuple<
+        APyFloatSpec::Tuple,
+        std::vector<std::size_t>,
+        std::vector<APyFloatData::Tuple>>
+    python_pickle() const;
+
+    //! Python un-pickling
+    static void python_unpickle(
+        APyCFloatArray* apycfloatarray,
+        const std::tuple<
+            APyFloatSpec::Tuple,
+            std::vector<std::size_t>,
+            std::vector<APyFloatData::Tuple>>& state
+    );
+
     /* ****************************************************************************** *
      * *                           Static array creation                            * *
      * ****************************************************************************** */

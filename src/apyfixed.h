@@ -10,7 +10,9 @@
 #include "apytypes_util.h"
 
 // Python object access through Nanobind
-#include <nanobind/nanobind.h> // nanobind::object
+#include <nanobind/nanobind.h>   // nanobind::object
+#include <nanobind/stl/tuple.h>  // std::tuple (with nanobind support)
+#include <nanobind/stl/vector.h> // std::vector (with nanobind support)
 namespace nb = nanobind;
 
 #include <algorithm>        // std::copy_n
@@ -309,6 +311,16 @@ public:
     APyFixed ipow(unsigned int n) const;
 
     APyFixed get_zero() const { return APyFixed(_bits, _int_bits); }
+
+    //! Python pickling
+    std::tuple<int, int, std::vector<std::uint64_t>> python_pickle() const;
+
+    //! Python un-pickling
+    static void python_unpickle(
+        APyFixed* apyfixed,
+        const std::tuple<int, int, std::vector<std::uint64_t>>& state
+    );
+
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */

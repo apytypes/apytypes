@@ -13,9 +13,13 @@
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
+#include "src/apytypes_fwd.h"
+#include "src/apytypes_scratch_vector.h"
 
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/tuple.h>  // std::tuple (with nanobind support)
+#include <nanobind/stl/vector.h> // std::vector (with nanobind support)
 namespace nb = nanobind;
 
 // Standard header includes
@@ -33,7 +37,6 @@ namespace nb = nanobind;
 #include <vector>           // std::vector, std::swap
 
 #include <fmt/format.h>
-#include <iostream>
 
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
@@ -959,6 +962,25 @@ APyFixed APyFixed::ipow(unsigned int n) const
         base = base * base; // Until *= is implemented
     }
     return result;
+}
+
+std::tuple<int, int, std::vector<std::uint64_t>> APyFixed::python_pickle() const
+{
+    // While pickling, we convert the limb vector to a 64-bit vector, so that the
+    // serialized data becomes consistent between 32-bit and 64-bit systems
+    auto&& u64_vec = limb_vector_to_u64_vec(std::begin(_data), std::end(_data));
+    return std::make_tuple(_bits, _int_bits, u64_vec);
+}
+
+void APyFixed::python_unpickle(
+    APyFixed* apyfixed, const std::tuple<int, int, std::vector<std::uint64_t>>& state
+)
+{
+    auto&& [bits, int_bits, u64_vec] = state;
+    APyFixed new_fx(bits, int_bits);
+    new_fx._data = limb_vector_from_u64_vec<decltype(_data)>(u64_vec);
+    new_fx._data.resize(bits_to_limbs(bits));
+    new (apyfixed) APyFixed(new_fx);
 }
 
 /* ********************************************************************************** *

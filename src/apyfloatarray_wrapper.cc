@@ -118,6 +118,12 @@ void bind_float_array(nb::module_& m)
         .def("__deepcopy__", &APyFloatArray::python_deepcopy, nb::arg("memo"))
 
         /*
+         * Pickling support
+         */
+        .def("__getstate__", &APyFloatArray::python_pickle)
+        .def("__setstate__", &APyFloatArray::python_unpickle)
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self + nb::self, NB_NARG())
