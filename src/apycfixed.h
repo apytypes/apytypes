@@ -255,6 +255,15 @@ public:
     //! Convert to built-in complex type over double-precision floating-point
     std::complex<double> to_complex() const;
 
+    //! Python pickling
+    std::tuple<int, int, std::vector<std::uint64_t>> python_pickle() const;
+
+    //! Python un-pickling
+    static void python_unpickle(
+        APyCFixed* apyfixed,
+        const std::tuple<int, int, std::vector<std::uint64_t>>& state
+    );
+
     /* ****************************************************************************** *
      *                     Resize and quantization method (cast)                    * *
      * ****************************************************************************** */

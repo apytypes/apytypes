@@ -91,6 +91,25 @@ void bind_cfloat_array(nb::module_& m)
         )
 
         /*
+         * Copy
+         */
+        .def(
+            "copy",
+            &APyCFloatArray::python_copy,
+            R"pbdoc(
+            Create a copy of the object.
+            )pbdoc"
+        )
+        .def("__copy__", &APyCFloatArray::python_copy)
+        .def("__deepcopy__", &APyCFloatArray::python_deepcopy, nb::arg("memo"))
+
+        /*
+         * Pickling support
+         */
+        .def("__getstate__", &APyCFloatArray::python_pickle)
+        .def("__setstate__", &APyCFloatArray::python_unpickle)
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self + nb::self, NB_NARG())
@@ -165,19 +184,6 @@ void bind_cfloat_array(nb::module_& m)
             NB_OP(),
             NB_NARG()
         )
-
-        /*
-         * Copy
-         */
-        .def(
-            "copy",
-            &APyCFloatArray::python_copy,
-            R"pbdoc(
-            Create a copy of the object.
-            )pbdoc"
-        )
-        .def("__copy__", &APyCFloatArray::python_copy)
-        .def("__deepcopy__", &APyCFloatArray::python_deepcopy, nb::arg("memo"))
 
         /*
          * Properties

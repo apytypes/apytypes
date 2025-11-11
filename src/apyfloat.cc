@@ -7,6 +7,7 @@
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
+#include <tuple>
 #include <variant>
 namespace nb = nanobind;
 
@@ -562,6 +563,22 @@ APyFixed APyFloat::to_fixed() const
         res <<= exponent;
     }
     return res;
+}
+
+std::tuple<APyFloatSpec::Tuple, APyFloatData::Tuple> APyFloat::python_pickle() const
+{
+    return std::make_tuple(spec().to_tuple(), get_data().to_tuple());
+}
+
+void APyFloat::python_unpickle(
+    APyFloat* apyfloat_ptr,
+    const std::tuple<APyFloatSpec::Tuple, APyFloatData::Tuple>& state
+)
+{
+    auto&& [spec, data] = state;
+    auto&& [sign, exp, man] = data;
+    auto&& [exp_bits, man_bits, bias] = spec;
+    new (apyfloat_ptr) APyFloat(sign, exp, man, exp_bits, man_bits, bias);
 }
 
 /* ******************************************************************************

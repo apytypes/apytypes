@@ -989,6 +989,57 @@ limb_vector_to_uint64(const VECTOR_TYPE& limb_vec, std::size_t n)
     }
 }
 
+//! Convert a limb vector into a 64-bit limb vector. This is useful to get consistent
+//! pickling support between 64-bit and 32-bit platforms.
+template <typename RANDOM_ACCESS_IT>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<std::uint64_t>
+limb_vector_to_u64_vec(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it)
+{
+    static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
+
+    if constexpr (APY_LIMB_SIZE_BITS == 64) {
+        return std::vector<uint64_t>(begin_it, end_it);
+    } else { /* APY_LIMB_SIZE_BITS == 32 */
+        std::size_t src_nitems = std::distance(begin_it, end_it);
+        std::vector<uint64_t> limb64_vec(src_nitems / 2 + src_nitems % 2);
+        for (std::size_t i = 0; i < src_nitems / 2; i++) {
+            std::uint64_t limb64_hi = std::uint64_t(*(begin_it + 2 * i + 1)) << 32;
+            std::uint64_t limb64_lo = std::uint64_t(*(begin_it + 2 * i + 0)) << 0;
+            limb64_vec[i] = limb64_hi | limb64_lo;
+        }
+        if (src_nitems % 2) {
+            std::uint64_t limb64 = std::int64_t(apy_limb_signed_t(*(end_it - 1)));
+            limb64_vec.back() = limb64;
+        }
+        return limb64_vec;
+    }
+}
+
+template <typename VEC_RETURN_TYPE, typename RANDOM_ACCESS_IT>
+[[maybe_unused, nodiscard]] static APY_INLINE VEC_RETURN_TYPE
+limb_vector_from_u64_vec(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it)
+{
+    static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
+    if constexpr (APY_LIMB_SIZE_BITS == 64) {
+        return VEC_RETURN_TYPE(begin_it, end_it);
+    } else {
+        std::size_t n_limbs = 2 * std::distance(begin_it, end_it);
+        VEC_RETURN_TYPE res(n_limbs);
+        for (std::size_t i = 0; i < n_limbs / 2; i++) {
+            res[2 * i + 0] = (*(begin_it + i)) >> 0;
+            res[2 * i + 1] = (*(begin_it + i)) >> 32;
+        }
+        return res;
+    }
+}
+
+template <typename VEC_RETURN_TYPE, typename VEC_INPUT_TYPE>
+[[maybe_unused, nodiscard]] static APY_INLINE VEC_RETURN_TYPE
+limb_vector_from_u64_vec(const VEC_INPUT_TYPE& vec)
+{
+    return limb_vector_from_u64_vec<VEC_RETURN_TYPE>(std::begin(vec), std::end(vec));
+}
+
 //! Construct a Python tuple-literal-string from a vector of `T`. The type `T` must be
 //! convertible to string through both a `std::stringstream` and `fmt::format({})`.
 template <typename T> std::string tuple_string_from_vec(const std::vector<T>& vec)

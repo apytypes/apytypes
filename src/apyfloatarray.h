@@ -160,9 +160,6 @@ public:
      */
     std::variant<APyFloatArray, APyFloat> matmul(const APyFloatArray& rhs) const;
 
-    //! Python `__repr__()` function
-    std::string repr() const;
-
     /* ****************************************************************************** *
      *                       Static conversion from other types                       *
      * ****************************************************************************** */
@@ -394,6 +391,25 @@ public:
     //! Test if two floating-point arrays are identical, i.e., has the same values, and
     //! the same format
     bool is_identical(const nb::object& other, bool ignore_zero_sign = false) const;
+
+    //! Python `__repr__()` function
+    std::string repr() const;
+
+    //! Python pickling
+    std::tuple<
+        APyFloatSpec::Tuple,
+        std::vector<std::size_t>,
+        std::vector<APyFloatData::Tuple>>
+    python_pickle() const;
+
+    //! Python un-pickling
+    static void python_unpickle(
+        APyFloatArray* apyfloatarray,
+        const std::tuple<
+            APyFloatSpec::Tuple,
+            std::vector<std::size_t>,
+            std::vector<APyFloatData::Tuple>>& state
+    );
 
     /* ****************************************************************************** *
      * *                          Convenience methods                               * *

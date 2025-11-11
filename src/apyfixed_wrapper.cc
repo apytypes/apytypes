@@ -67,6 +67,12 @@ void bind_fixed(nb::module_& m)
         .def("__deepcopy__", &APyFixed::python_deepcopy, nb::arg("memo"))
 
         /*
+         * Pickling support
+         */
+        .def("__getstate__", &APyFixed::python_pickle)
+        .def("__setstate__", &APyFixed::python_unpickle)
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self == nb::self)

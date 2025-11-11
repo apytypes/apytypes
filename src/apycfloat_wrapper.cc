@@ -164,6 +164,12 @@ void bind_cfloat(nb::module_& m)
         .def("__deepcopy__", &APyCFloat::python_deepcopy, nb::arg("memo"))
 
         /*
+         * Pickling support
+         */
+        .def("__getstate__", &APyCFloat::python_pickle)
+        .def("__setstate__", &APyCFloat::python_unpickle)
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self == nb::self)

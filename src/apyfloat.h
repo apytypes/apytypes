@@ -233,9 +233,18 @@ public:
     std::string _latex_power_of_two_normalized() const;
     std::string _latex_power_of_two_integer() const;
 
-    /* ************************************************************************* *
-     * *                                        Copy                           * *
-     * ************************************************************************* */
+    //! Python pickling
+    std::tuple<APyFloatSpec::Tuple, APyFloatData::Tuple> python_pickle() const;
+
+    //! Python un-pickling
+    static void python_unpickle(
+        APyFloat* apyfloat_ptr,
+        const std::tuple<APyFloatSpec::Tuple, APyFloatData::Tuple>& state
+    );
+
+    /* ****************************************************************************** *
+     * *                                      Copy                                  * *
+     * ****************************************************************************** */
 
     //! Copy scalar
     APyFloat python_copy() const { return *this; }

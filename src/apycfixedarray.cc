@@ -1043,6 +1043,29 @@ APyCFixedArray APyCFixedArray::cast(
     return APyCFixedArray(_shape, new_bits, new_int_bits, std::move(result_data));
 }
 
+std::tuple<int, int, std::vector<std::size_t>, std::vector<std::uint64_t>>
+APyCFixedArray::python_pickle() const
+{
+    // While pickling, we convert the limb vector to a 64-bit vector, so that the
+    // serialized data becomes consistent between 32-bit and 64-bit systems
+    auto&& u64_vec = limb_vector_to_u64_vec(std::begin(_data), std::end(_data));
+    return std::make_tuple(_bits, _int_bits, _shape, u64_vec);
+}
+
+//! Python un-pickling
+void APyCFixedArray::python_unpickle(
+    APyCFixedArray* apycfixedarray,
+    const std::tuple<int, int, std::vector<std::size_t>, std::vector<std::uint64_t>>&
+        state
+)
+{
+    auto&& [bits, int_bits, shape, u64_vec] = state;
+    APyCFixedArray new_fx(shape, bits, int_bits);
+    new_fx._data = limb_vector_from_u64_vec<APyCFixedArray::vector_type>(u64_vec);
+    new_fx._data.resize(2 * bits_to_limbs(bits) * fold_shape(shape));
+    new (apycfixedarray) APyCFixedArray(new_fx);
+}
+
 std::variant<APyCFixedArray, APyCFixed>
 APyCFixedArray::sum(const std::optional<PyShapeParam_t>& py_axis) const
 {

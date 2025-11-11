@@ -4,6 +4,7 @@
 #include "apyfloat.h"
 #include "nanobind/nanobind.h"
 
+#include <nanobind/stl/array.h>
 #include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/tuple.h>
@@ -320,6 +321,16 @@ public:
     one(std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt);
+
+    //! Python pickling
+    std::tuple<APyFloatSpec::Tuple, std::array<APyFloatData::Tuple, 2>>
+    python_pickle() const;
+
+    //! Python un-pickling
+    static void python_unpickle(
+        APyCFloat* apycfloat_ptr,
+        const std::tuple<APyFloatSpec::Tuple, std::array<APyFloatData::Tuple, 2>>& state
+    );
 
     /* ****************************************************************************** *
      * *                           Friends of `APyCFloat`                           * *

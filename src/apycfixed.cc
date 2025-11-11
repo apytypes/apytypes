@@ -699,6 +699,25 @@ std::complex<double> APyCFixed::to_complex() const
     );
 }
 
+std::tuple<int, int, std::vector<std::uint64_t>> APyCFixed::python_pickle() const
+{
+    // While pickling, we convert the limb vector to a 64-bit vector, so that the
+    // serialized data becomes consistent between 32-bit and 64-bit systems
+    auto&& u64_vec = limb_vector_to_u64_vec(std::begin(_data), std::end(_data));
+    return std::make_tuple(_bits, _int_bits, u64_vec);
+}
+
+void APyCFixed::python_unpickle(
+    APyCFixed* apycfixed, const std::tuple<int, int, std::vector<std::uint64_t>>& state
+)
+{
+    auto&& [bits, int_bits, u64_vec] = state;
+    APyCFixed new_fx(bits, int_bits);
+    new_fx._data = limb_vector_from_u64_vec<decltype(_data)>(u64_vec);
+    new_fx._data.resize(2 * bits_to_limbs(bits));
+    new (apycfixed) APyCFixed(new_fx);
+}
+
 /* ********************************************************************************** *
  *                       Static conversion from other types                         * *
  * ********************************************************************************** */
