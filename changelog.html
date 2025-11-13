@@ -323,6 +323,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p><code class="docutils literal notranslate"><span class="pre">to_fraction()</span></code> and <code class="docutils literal notranslate"><span class="pre">as_integer_ratio()</span></code> for <code class="docutils literal notranslate"><span class="pre">APyFixed</span></code> and <code class="docutils literal notranslate"><span class="pre">APyFloat</span></code>.</p></li>
 <li><p>All scalar classes have a <code class="docutils literal notranslate"><span class="pre">from_number</span></code> method which aliases
 <code class="docutils literal notranslate"><span class="pre">from_float</span></code>/<code class="docutils literal notranslate"><span class="pre">from_complex</span></code> to match the naming in Python 3.14.</p></li>
+<li><p>Support for (de-)serialization of APyTypes’ data types using the Python
+<a class="reference external" href="https://docs.python.org/3/library/pickle.html">pickle</a> module.</p></li>
 </ul>
 </section>
 <section id="fixed">
