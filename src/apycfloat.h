@@ -332,6 +332,9 @@ public:
         const std::tuple<APyFloatSpec::Tuple, std::array<APyFloatData::Tuple, 2>>& state
     );
 
+    //! Retrieve complex conjugate
+    APyCFloat conj() const;
+
     /* ****************************************************************************** *
      * *                           Friends of `APyCFloat`                           * *
      * ****************************************************************************** */

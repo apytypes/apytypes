@@ -228,6 +228,12 @@ public:
             std::vector<APyFloatData::Tuple>>& state
     );
 
+    //! Retrieve complex conjugate
+    APyCFloatArray conj() const;
+
+    //! Retrieve Hermitian transpose
+    APyCFloatArray hermitian_transpose() const;
+
     /* ****************************************************************************** *
      * *                           Static array creation                            * *
      * ****************************************************************************** */

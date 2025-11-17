@@ -261,6 +261,12 @@ public:
             tuple<int, int, std::vector<std::size_t>, std::vector<std::uint64_t>>& state
     );
 
+    //! Retrieve complex conjugate
+    APyCFixedArray conj() const;
+
+    //! Retrieve Hermitian transpose
+    APyCFixedArray hermitian_transpose() const;
+
     /* ****************************************************************************** *
      * *                           Static array creation                            * *
      * ****************************************************************************** */

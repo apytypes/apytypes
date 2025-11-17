@@ -735,3 +735,10 @@ void APyCFloat::python_unpickle(
     auto&& im = APyFloatData::from_tuple(data[1]);
     new (apycfloat_ptr) APyCFloat(re, im, exp_bits, man_bits, bias);
 }
+
+APyCFloat APyCFloat::conj() const
+{
+    APyCFloat res = *this;
+    res.imag().sign ^= true;
+    return res;
+}

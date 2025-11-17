@@ -9,6 +9,7 @@
 #include "apyfixed_util.h"
 #include "apyfixedarray.h"
 #include "apytypes_common.h"
+#include "apytypes_fwd.h"
 #include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
 #include "apytypes_simd.h"
@@ -1064,6 +1065,45 @@ void APyCFixedArray::python_unpickle(
     new_fx._data = limb_vector_from_u64_vec<APyCFixedArray::vector_type>(u64_vec);
     new_fx._data.resize(2 * bits_to_limbs(bits) * fold_shape(shape));
     new (apycfixedarray) APyCFixedArray(new_fx);
+}
+
+APyCFixedArray APyCFixedArray::conj() const
+{
+    APyCFixedArray res(_shape, bits() + 1, int_bits() + 1);
+
+    const std::size_t SRC_N = _itemsize / 2;
+    const std::size_t DST_N = res._itemsize / 2;
+
+    if (res._itemsize > _itemsize) {
+        // One additional limb required because of extra integer bit
+        for (std::size_t i = 0; i < res._nitems; i++) {
+            auto src_re = std::begin(_data) + i * _itemsize;
+            auto src_im = src_re + _itemsize / 2;
+            auto dst_re = std::begin(res._data) + i * res._itemsize;
+            auto dst_im = dst_re + res._itemsize / 2;
+            limb_vector_copy_n_sign_extend(src_re, SRC_N, dst_re, DST_N);
+            limb_vector_copy_n_sign_extend(src_im, SRC_N, dst_im, DST_N);
+            limb_vector_negate_inplace(dst_im, dst_im + DST_N);
+        }
+    } else {
+        // No additional limbs required
+        assert(_itemsize == res._itemsize);
+        const std::size_t DST_N = res._itemsize / 2;
+        for (std::size_t i = 0; i < res._nitems; i++) {
+            auto src = std::begin(_data) + i * _itemsize;
+            auto dst = std::begin(res._data) + i * res._itemsize;
+            std::copy_n(src, _itemsize, dst);
+            limb_vector_negate_inplace(dst + DST_N, dst + 2 * DST_N);
+        }
+    }
+
+    return res;
+}
+
+//! Retrieve hermitian transpose
+APyCFixedArray APyCFixedArray::hermitian_transpose() const
+{
+    return conj().transpose();
 }
 
 std::variant<APyCFixedArray, APyCFixed>

@@ -13,6 +13,7 @@
 
 #include <cmath> // std::isnan, std::signbit
 #include <initializer_list>
+#include <optional>
 
 /* ********************************************************************************** *
  * *                         Non-Python accessible constructors                     * *
@@ -464,6 +465,26 @@ void APyCFloatArray::python_unpickle(
         std::begin(data), std::end(data), std::begin(fp_res._data), from_tuple
     );
     new (apycfloatarray) APyCFloatArray(fp_res);
+}
+
+//! Retrieve complex conjugate
+APyCFloatArray APyCFloatArray::conj() const
+{
+    APyCFloatArray res = *this;
+    for (std::size_t i = 0; i < _nitems; i++) {
+        res._data[2 * i + 1].sign ^= true;
+    }
+    return res;
+}
+
+//! Retrieve hermitian transpose
+APyCFloatArray APyCFloatArray::hermitian_transpose() const
+{
+    APyCFloatArray res = transpose(std::nullopt);
+    for (std::size_t i = 0; i < _nitems; i++) {
+        res._data[2 * i + 1].sign ^= true;
+    }
+    return res;
 }
 
 /* ********************************************************************************** *

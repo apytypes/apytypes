@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `from_float`/`from_complex` to match the naming in Python 3.14.
 - Support for (de-)serialization of APyTypes' data types using the Python
   [pickle](https://docs.python.org/3/library/pickle.html) module.
+- Complex conjugate and Hermitian transpose.
 
 ### Fixed
 

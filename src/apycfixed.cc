@@ -12,6 +12,7 @@
 #include "apyfixed.h"
 #include "apyfixed_util.h"
 #include "apyfloat.h"
+#include "apytypes_fwd.h"
 #include "apytypes_util.h"
 #include "python_util.h"
 
@@ -716,6 +717,19 @@ void APyCFixed::python_unpickle(
     new_fx._data = limb_vector_from_u64_vec<decltype(_data)>(u64_vec);
     new_fx._data.resize(2 * bits_to_limbs(bits));
     new (apycfixed) APyCFixed(new_fx);
+}
+
+APyCFixed APyCFixed::conj() const
+{
+    APyCFixed res(bits() + 1, int_bits() + 1);
+    std::copy(real_begin(), real_end(), res.real_begin());
+    std::copy(imag_begin(), imag_end(), res.imag_begin());
+    if (res._data.size() > _data.size()) {
+        *(res.real_end() - 1) = apy_limb_signed_t(*(real_end() - 1)) < 0 ? -1 : 0;
+        *(res.imag_end() - 1) = apy_limb_signed_t(*(imag_end() - 1)) < 0 ? -1 : 0;
+    }
+    limb_vector_negate_inplace(res.imag_begin(), res.imag_end());
+    return res;
 }
 
 /* ********************************************************************************** *

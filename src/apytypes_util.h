@@ -856,7 +856,7 @@ template <class RANDOM_ACCESS_ITERATOR>
         = (begin_it[limb_idx] & bit_unmask) | (apy_limb_t(bit) << bit_idx);
 }
 
-//! Take the two's complement negative value of a limb vector and place onto `res_out`
+//! Compute two's complement negative value and place onto `res_out`
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE apy_limb_t limb_vector_negate(
     RANDOM_ACCESS_ITERATOR_IN cbegin_it,
@@ -949,6 +949,22 @@ template <class RANDOM_ACCESS_ITERATOR>
 
 //! Copy limbs from `src` to `dst` and possibly sign extend the data in `dst`
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
+[[maybe_unused]] static APY_INLINE void limb_vector_copy_n_sign_extend(
+    RANDOM_ACCESS_ITERATOR_IN src_begin,
+    std::size_t src_n,
+    RANDOM_ACCESS_ITERATOR_OUT dst_begin,
+    std::size_t dst_n
+)
+{
+    std::copy_n(src_begin, std::min(src_n, dst_n), dst_begin);
+    if (src_n < dst_n) {
+        bool is_negative = limb_vector_is_negative(src_begin, src_begin + src_n);
+        std::fill_n(dst_begin + src_n, dst_n - src_n, is_negative ? -1 : 0);
+    }
+}
+
+//! Copy limbs from `src` to `dst` and possibly sign extend the data in `dst`
+template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE void limb_vector_copy_sign_extend(
     RANDOM_ACCESS_ITERATOR_IN src_begin,
     RANDOM_ACCESS_ITERATOR_IN src_end,
@@ -956,16 +972,9 @@ template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OU
     RANDOM_ACCESS_ITERATOR_OUT dst_end
 )
 {
-    std::size_t src_vector_size = std::distance(src_begin, src_end);
-    std::size_t dst_vector_size = std::distance(dst_begin, dst_end);
-    std::copy_n(src_begin, std::min(src_vector_size, dst_vector_size), dst_begin);
-    if (src_vector_size < dst_vector_size) {
-        std::fill(
-            dst_begin + src_vector_size,
-            dst_end,
-            limb_vector_is_negative(src_begin, src_end) ? -1 : 0
-        );
-    }
+    std::size_t src_n = std::distance(src_begin, src_end);
+    std::size_t dst_n = std::distance(dst_begin, dst_end);
+    limb_vector_copy_n_sign_extend(src_begin, src_n, dst_begin, dst_n);
 }
 
 //! Read an unsigned 64-bit value from a limb vector. If `APY_LIMB_SIZE_BITS == 64`,
