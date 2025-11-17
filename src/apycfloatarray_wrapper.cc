@@ -239,7 +239,22 @@ void bind_cfloat_array(nb::module_& m)
             "T", [](const APyCFloatArray& self) { return self.transpose(); }, R"pbdoc(
             The transposition of the array.
 
-            Equivalent to calling :func:`APyCFloatArray.transpose`.
+            Equivalent to calling :func:`transpose`.
+
+            Returns
+            -------
+            :class:`APyCFloatArray`
+            )pbdoc"
+        )
+        .def_prop_ro(
+            "H",
+            [](const APyCFloatArray& self) { return self.hermitian_transpose(); },
+            R"pbdoc(
+            The Hermitian transpose of the array.
+
+            Equivalent to calling :func:`transpose` followed by :func:`conj`.
+
+            .. versionadded:: 0.5
 
             Returns
             -------
@@ -1262,6 +1277,34 @@ void bind_cfloat_array(nb::module_& m)
             -------
             convolved : :class:`APyCFloatArray`
                 The convolved array.
+            )pbdoc"
+        )
+        .def(
+            "conj",
+            &APyCFloatArray::conj,
+            R"pbdoc(
+            Retrieve complex conjugate.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyCFloatArray`
+            )pbdoc"
+        )
+        .def(
+            "hermitian_transpose",
+            &APyCFloatArray::hermitian_transpose,
+            R"pbdoc(
+            Retrieve the Hermitian transpose.
+
+            This is equivalent to calling :func:`transpose` followed by :func:`conj`.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyCFloatArray`
             )pbdoc"
         )
 

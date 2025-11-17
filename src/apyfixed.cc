@@ -10,11 +10,11 @@
 #include "apyfixed_util.h"
 #include "apyfloat.h"
 #include "apytypes_common.h"
+#include "apytypes_fwd.h"
+#include "apytypes_scratch_vector.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
-#include "src/apytypes_fwd.h"
-#include "src/apytypes_scratch_vector.h"
 
 // Python object access through Pybind
 #include <nanobind/nanobind.h>

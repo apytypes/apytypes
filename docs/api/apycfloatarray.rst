@@ -61,6 +61,8 @@
 
    .. automethod:: transpose
 
+   .. automethod:: hermitian_transpose
+
    Array shape manipulation
    ------------------------
 
@@ -100,6 +102,8 @@
    .. automethod:: nanmax
 
    .. automethod:: nanmin
+
+   .. automethod:: conj
 
    Broadcasting
    ------------
@@ -142,3 +146,12 @@
    ^^^^^^^^^^^^^
 
    .. autoproperty:: T
+
+   .. autoproperty:: H
+
+   Real and imaginary part
+   ^^^^^^^^^^^^^^^^^^^^^^^
+
+   .. autoproperty:: real
+
+   .. autoproperty:: imag

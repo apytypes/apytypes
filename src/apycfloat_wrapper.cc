@@ -485,6 +485,19 @@ void bind_cfloat(nb::module_& m)
             :class:`bool`
             )pbdoc"
         )
+        .def(
+            "conj",
+            &APyCFloat::conj,
+            R"pbdoc(
+            Retrieve complex conjugate.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyCFloat`
+            )pbdoc"
+        )
 
         /*
          * Properties

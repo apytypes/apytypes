@@ -535,6 +535,20 @@ class APyCFixed:
         :class:`APyCFixed`
         """
 
+    def conj(self) -> APyCFixed:
+        """
+        Retrieve complex conjugate.
+
+        The complex conjugate has one additional integer bit so that the result
+        never overflows.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyCFixed`
+        """
+
     def __repr__(self) -> str: ...
     def __str__(self, base: int = 10) -> str: ...
     def __complex__(self) -> complex: ...
@@ -814,6 +828,22 @@ class APyCFixedArray:
                    Returns
                    -------
                    :class:`APyCFixedArray`
+        """
+
+    @property
+    def H(self) -> APyCFixedArray:
+        """
+        The Hermitian transpose of the array.
+
+        Equivalent to calling :func:`transpose` followed by :func:`conj`. The
+        Hermitian transpose has one additional integer bit so that the result never
+        overflows.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyCFixedArray`
         """
 
     def to_numpy(
@@ -1659,6 +1689,35 @@ class APyCFixedArray:
             An array filled with the specified value.
         """
 
+    def conj(self) -> APyCFixedArray:
+        """
+        Retrieve complex conjugate.
+
+        The complex conjugate has one additional integer bit so that the result
+        never overflows.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyCFixedArray`
+        """
+
+    def hermitian_transpose(self) -> APyCFixedArray:
+        """
+        Retrieve Hermitian transpose.
+
+        Equivalent to calling :func:`transpose` followed by :func:`conj`. The
+        Hermitian transpose has one additional integer bit so that the result never
+        overflows.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyCFixedArray`
+        """
+
     def __matmul__(self, rhs: APyCFixedArray) -> APyCFixedArray | APyCFixed: ...
     def __repr__(self) -> str: ...
     def __str__(self, base: int = 10) -> str: ...
@@ -2058,6 +2117,17 @@ class APyCFloat:
         :class:`bool`
         """
 
+    def conj(self) -> APyCFloat:
+        """
+        Retrieve complex conjugate.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyCFloat`
+        """
+
     @property
     def man_bits(self) -> int:
         """
@@ -2284,7 +2354,21 @@ class APyCFloatArray:
         """
         The transposition of the array.
 
-        Equivalent to calling :func:`APyCFloatArray.transpose`.
+        Equivalent to calling :func:`transpose`.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    @property
+    def H(self) -> APyCFloatArray:
+        """
+        The Hermitian transpose of the array.
+
+        Equivalent to calling :func:`transpose` followed by :func:`conj`.
+
+        .. versionadded:: 0.5
 
         Returns
         -------
@@ -3186,6 +3270,30 @@ class APyCFloatArray:
             The convolved array.
         """
 
+    def conj(self) -> APyCFloatArray:
+        """
+        Retrieve complex conjugate.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def hermitian_transpose(self) -> APyCFloatArray:
+        """
+        Retrieve the Hermitian transpose.
+
+        This is equivalent to calling :func:`transpose` followed by :func:`conj`.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
     def __matmul__(self, rhs: APyCFloatArray) -> APyCFloatArray | APyCFloat: ...
     def __repr__(self) -> str: ...
     def __str__(self, base: int = 10) -> str: ...
@@ -3953,7 +4061,7 @@ class APyFixedArray:
         """
         The transposition of the array.
 
-        Equivalent to calling :func:`APyFixedArray.transpose`.
+        Equivalent to calling :func:`transpose`.
 
         Returns
         -------
@@ -6028,7 +6136,7 @@ class APyFloatArray:
         """
         The transposition of the array.
 
-        Equivalent to calling :func:`APyFloatArray.transpose`.
+        Equivalent to calling :func:`transpose`.
 
         Returns
         -------

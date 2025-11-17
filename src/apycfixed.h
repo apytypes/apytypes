@@ -264,6 +264,9 @@ public:
         const std::tuple<int, int, std::vector<std::uint64_t>>& state
     );
 
+    //! Retrieve complex conjugate
+    APyCFixed conj() const;
+
     /* ****************************************************************************** *
      *                     Resize and quantization method (cast)                    * *
      * ****************************************************************************** */

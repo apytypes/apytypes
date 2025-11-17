@@ -335,6 +335,23 @@ void bind_cfixed(nb::module_& m)
             :class:`APyCFixed`
             )pbdoc"
         )
+        .def(
+            "conj",
+            &APyCFixed::conj,
+            R"pbdoc(
+            Retrieve complex conjugate.
+
+            The complex conjugate has one additional integer bit so that the result
+            never overflows.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyCFixed`
+            )pbdoc"
+        )
+
         /*
          * Dunder methods
          */

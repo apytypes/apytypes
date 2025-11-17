@@ -272,7 +272,7 @@ void bind_float_array(nb::module_& m)
             "T", [](const APyFloatArray& self) { return self.transpose(); }, R"pbdoc(
             The transposition of the array.
 
-            Equivalent to calling :func:`APyFloatArray.transpose`.
+            Equivalent to calling :func:`transpose`.
 
             Returns
             -------

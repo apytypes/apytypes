@@ -270,6 +270,23 @@ void bind_cfixed_array(nb::module_& m)
             :class:`APyCFixedArray`
             )pbdoc"
         )
+        .def_prop_ro(
+            "H",
+            [](const APyCFixedArray& self) { return self.hermitian_transpose(); },
+            R"pbdoc(
+            The Hermitian transpose of the array.
+
+            Equivalent to calling :func:`transpose` followed by :func:`conj`. The
+            Hermitian transpose has one additional integer bit so that the result never
+            overflows.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyCFixedArray`
+            )pbdoc"
+        )
 
         .def(
             "to_numpy",
@@ -1251,6 +1268,40 @@ void bind_cfixed_array(nb::module_& m)
                             [(6, 0), (6, 0), (6, 0)]], int_bits=5, frac_bits=0)
             )pbdoc"
         )
+        .def(
+            "conj",
+            &APyCFixedArray::conj,
+            R"pbdoc(
+            Retrieve complex conjugate.
+
+            The complex conjugate has one additional integer bit so that the result
+            never overflows.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyCFixedArray`
+            )pbdoc"
+        )
+        .def(
+            "hermitian_transpose",
+            &APyCFixedArray::hermitian_transpose,
+            R"pbdoc(
+            Retrieve Hermitian transpose.
+
+            Equivalent to calling :func:`transpose` followed by :func:`conj`. The
+            Hermitian transpose has one additional integer bit so that the result never
+            overflows.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`APyCFixedArray`
+            )pbdoc"
+        )
+
         /*
          * Dunder methods
          */

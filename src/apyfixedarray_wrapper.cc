@@ -247,7 +247,7 @@ void bind_fixed_array(nb::module_& m)
             "T", [](const APyFixedArray& self) { return self.transpose(); }, R"pbdoc(
             The transposition of the array.
 
-            Equivalent to calling :func:`APyFixedArray.transpose`.
+            Equivalent to calling :func:`transpose`.
 
             Returns
             -------
