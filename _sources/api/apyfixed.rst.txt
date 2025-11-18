@@ -39,6 +39,8 @@
 
    .. automethod:: to_fraction
 
+   .. automethod:: copy
+
    Properties
    ----------
 

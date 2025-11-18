@@ -32,6 +32,13 @@
 
    .. automethod:: is_identical
 
+   Other
+   -----
+
+   .. automethod:: conj
+
+   .. automethod:: copy
+
    Properties
    ----------
 

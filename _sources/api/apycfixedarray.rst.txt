@@ -52,6 +52,8 @@
 
    .. automethod:: transpose
 
+   .. automethod:: hermitian_transpose
+
    Array shape manipulation
    ------------------------
 
@@ -75,6 +77,8 @@
    .. automethod:: cumsum
 
    .. automethod:: cumprod
+
+   .. automethod:: conj
 
    Convolution
    -----------
@@ -109,6 +113,8 @@
    ^^^^^^^^^^^^^
 
    .. autoproperty:: T
+
+   .. autoproperty:: H
 
    Real and imaginary part
    ^^^^^^^^^^^^^^^^^^^^^^^

@@ -344,25 +344,28 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.cast" title="apytypes.APyCFloat.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
 <td><p>Change format of the complex-valued floating-point number.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.conj" title="apytypes.APyCFloat.conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conj</span></code></a></p></td>
+<td><p>Retrieve complex conjugate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.copy" title="apytypes.APyCFloat.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Create a copy of the object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_bits" title="apytypes.APyCFloat.from_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bits</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_bits" title="apytypes.APyCFloat.from_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bits</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_complex" title="apytypes.APyCFloat.from_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_complex</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_complex" title="apytypes.APyCFloat.from_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_complex</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_float" title="apytypes.APyCFloat.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_float" title="apytypes.APyCFloat.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_number" title="apytypes.APyCFloat.from_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_number</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_number" title="apytypes.APyCFloat.from_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_number</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.is_identical" title="apytypes.APyCFloat.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.is_identical" title="apytypes.APyCFloat.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.to_bits" title="apytypes.APyCFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.to_bits" title="apytypes.APyCFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
 <td><p>Get the bit-representation of an <a class="reference internal" href="#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -611,6 +614,34 @@ they have the same sign, exponent, mantissa, and format.</p>
 </dd></dl>
 
 </section>
+<section id="other">
+<h2>Other<a class="headerlink" href="#other" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFloat.conj">
+<span class="sig-name descname"><span class="pre">conj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloat" title="APyCFloat"><span class="pre">APyCFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloat.conj" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve complex conjugate.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFloat.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloat" title="APyCFloat"><span class="pre">APyCFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloat.copy" title="Link to this definition">¶</a></dt>
+<dd><p>Create a copy of the object.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.3.</span></p>
+</div>
+</dd></dl>
+
+</section>
 <section id="properties">
 <h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">¶</a></h2>
 <dl class="py property">
@@ -784,6 +815,8 @@ they have the same sign, exponent, mantissa, and format.</p>
 <li><a class="reference internal" href="#apytypes.APyCFloat.cast"><code class="docutils literal notranslate"><span class="pre">APyCFloat.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloat.to_bits"><code class="docutils literal notranslate"><span class="pre">APyCFloat.to_bits()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloat.is_identical"><code class="docutils literal notranslate"><span class="pre">APyCFloat.is_identical()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFloat.conj"><code class="docutils literal notranslate"><span class="pre">APyCFloat.conj()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFloat.copy"><code class="docutils literal notranslate"><span class="pre">APyCFloat.copy()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloat.real"><code class="docutils literal notranslate"><span class="pre">APyCFloat.real</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloat.imag"><code class="docutils literal notranslate"><span class="pre">APyCFloat.imag</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloat.is_zero"><code class="docutils literal notranslate"><span class="pre">APyCFloat.is_zero</span></code></a></li>
