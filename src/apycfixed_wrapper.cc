@@ -278,6 +278,83 @@ void bind_cfixed(nb::module_& m)
             -------
             :class:`bool`
             )pbdoc")
+        .def_prop_ro(
+            "leading_ones",
+            &APyCFixed::leading_ones,
+            R"pbdoc(
+            Number of leading ones.
+
+            Minimum of real and imaginary parts.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
+        .def_prop_ro(
+            "leading_zeros",
+            &APyCFixed::leading_zeros,
+            R"pbdoc(
+            Number of leading zeros.
+
+            Minimum of real and imaginary parts.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
+        /*.def_prop_ro(
+            "leading_fractional_zeros",
+            &APyCFixed::leading_fractional_zeros,
+            R"pbdoc(
+            Number of leading zeros after the binary fixed-point.
+
+            Minimum of real and imaginary parts.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )*/
+        .def_prop_ro(
+            "leading_signs",
+            &APyCFixed::leading_signs,
+            R"pbdoc(
+            Number of leading sign-bits.
+
+            That is, the number of bits that is identical to the most significant bit.
+
+            Minimum of real and imaginary parts.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
+        .def_prop_ro(
+            "trailing_zeros",
+            &APyCFixed::trailing_zeros,
+            R"pbdoc(
+            Number of trailing zeros.
+
+            Minimum of real and imaginary parts.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
         .def_prop_ro("is_zero", &APyCFixed::is_zero, R"pbdoc(
             True if the value equals zero, false otherwise.
             )pbdoc")

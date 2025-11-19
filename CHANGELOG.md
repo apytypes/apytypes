@@ -13,9 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LaTeX representation for `APyCFixed` and `APyCFloat`.
 - Array comparisons
 - Array slicing with boolean arrays slices (`__getitem__` and `__setitem__`)
-- Scalars are now instances of `Numbers` and `Real` and/or `Complex` (as appropriate).
+- Scalars are now instances of :py:class:`~numbers.Number` and
+  :py:class:`~numbers.Real` and/or :py:class:`~numbers.Complex` (as appropriate).
 - `real` and `imag` properties for `APyFixed`, `APyFloat`, `APyFixedArray`, and `APyFloatArray`.
-- `trailing_zeros` property for `APyFixed`.
+- `trailing_zeros` property for `APyFixed`, `APyCFixed`, and `APyFixedArray`.
+- `leading_zeros`, `leading_ones`, and `leading_signs` properties for
+  `APyCFixed` and `APyFixedArray`
+- `is_zero` property for `APyFixedArray`
 - `to_fraction()` and `as_integer_ratio()` for `APyFixed` and `APyFloat`.
 - All scalar classes have a `from_number` method which aliases
 `from_float`/`from_complex` to match the naming in Python 3.14.

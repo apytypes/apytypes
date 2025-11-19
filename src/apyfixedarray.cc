@@ -842,6 +842,69 @@ template ComparissonArray APyFixedArray::operator>(const APyFixed& rhs) const;
 template ComparissonArray APyFixedArray::operator>=(const APyFixedArray& rhs) const;
 template ComparissonArray APyFixedArray::operator>=(const APyFixed& rhs) const;
 
+ThirdPartyArray<std::size_t> APyFixedArray::trailing_zeros() const
+{
+    std::size_t bits = std::size_t(_bits);
+    auto t_zeros = [bits](auto begin, auto end) {
+        return std::min(bits, limb_vector_trailing_zeros(begin, end));
+    };
+    return make_third_party_ndarray(
+        (*this).template to_ndarray<std::size_t>(t_zeros, ""), get_preferred_array_lib()
+    );
+}
+
+ThirdPartyArray<std::size_t> APyFixedArray::leading_zeros() const
+{
+    std::size_t utilized_bits_last_limb = ((bits() - 1) % APY_LIMB_SIZE_BITS) + 1;
+    auto l_zeros = [utilized_bits_last_limb](auto begin, auto end) {
+        std::size_t leading_zeros = limb_vector_leading_zeros(begin, end);
+        return (leading_zeros == 0)
+            ? 0
+            : (leading_zeros - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb));
+    };
+    return make_third_party_ndarray(
+        (*this).template to_ndarray<std::size_t>(l_zeros, ""), get_preferred_array_lib()
+    );
+}
+
+ThirdPartyArray<std::size_t> APyFixedArray::leading_ones() const
+{
+    std::size_t utilized_bits_last_limb = ((bits() - 1) % APY_LIMB_SIZE_BITS) + 1;
+    auto l_ones = [utilized_bits_last_limb](auto begin, auto end) {
+        std::size_t leading_ones = limb_vector_leading_ones(begin, end);
+        return (leading_ones == 0)
+            ? 0
+            : (leading_ones - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb));
+    };
+    return make_third_party_ndarray(
+        (*this).template to_ndarray<std::size_t>(l_ones, ""), get_preferred_array_lib()
+    );
+}
+
+ThirdPartyArray<std::size_t> APyFixedArray::leading_signs() const
+{
+    std::size_t utilized_bits_last_limb = ((bits() - 1) % APY_LIMB_SIZE_BITS) + 1;
+    auto l_signs = [utilized_bits_last_limb](auto begin, auto end) {
+        std::size_t leading_signs = std::max(
+            limb_vector_leading_zeros(begin, end), limb_vector_leading_ones(begin, end)
+        );
+        return (leading_signs == 0)
+            ? 0
+            : (leading_signs - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb));
+    };
+    return make_third_party_ndarray(
+        (*this).template to_ndarray<std::size_t>(l_signs, ""), get_preferred_array_lib()
+    );
+}
+
+ThirdPartyArray<bool> APyFixedArray::is_zero() const
+{
+    auto is_z = [](auto begin, auto end) { return limb_vector_is_zero(begin, end); };
+    return make_third_party_ndarray(
+        (*this).template to_ndarray<bool>(is_z, ""), get_preferred_array_lib()
+    );
+}
+
 std::variant<APyFixedArray, APyFixed>
 APyFixedArray::matmul(const APyFixedArray& rhs) const
 {

@@ -478,6 +478,64 @@ class APyCFixed:
         """
 
     @property
+    def leading_ones(self) -> int:
+        """
+        Number of leading ones.
+
+        Minimum of real and imaginary parts.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def leading_zeros(self) -> int:
+        """
+        Number of leading zeros.
+
+        Minimum of real and imaginary parts.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def leading_signs(self) -> int:
+        """
+        Number of leading sign-bits.
+
+        That is, the number of bits that is identical to the most significant bit.
+
+        Minimum of real and imaginary parts.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def trailing_zeros(self) -> int:
+        """
+        Number of trailing zeros.
+
+        Minimum of real and imaginary parts.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
     def is_zero(self) -> bool:
         """True if the value equals zero, false otherwise."""
 
@@ -3708,7 +3766,9 @@ class APyFixed:
     @property
     def leading_signs(self) -> int:
         """
-        Number of leading signs.
+        Number of leading sign-bits.
+
+        That is, the number of bits that is identical to the most significant bit.
 
         Returns
         -------
@@ -4090,6 +4150,68 @@ class APyFixedArray:
         Returns
         -------
         :class:`APyFixedArray`
+        """
+
+    @property
+    def trailing_zeros(self) -> NDArray[numpy.uint64]:
+        """
+        Number of trailing zeros.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        Array of :class:`int`
+        """
+
+    @property
+    def leading_zeros(self) -> NDArray[numpy.uint64]:
+        """
+        Number of leading zeros.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        Array of :class:`int`
+        """
+
+    @property
+    def leading_ones(self) -> NDArray[numpy.uint64]:
+        """
+        Number of leading ones.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        Array of :class:`int`
+        """
+
+    @property
+    def leading_signs(self) -> NDArray[numpy.uint64]:
+        """
+        Number of leading sign-bits.
+
+        That is, the number of bits that is identical to the most significant bit.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        Array of :class:`int`
+        """
+
+    @property
+    def is_zero(self) -> NDArray[numpy.bool]:
+        """
+        True if value equals zero, false otherwise.
+
+        .. versionadded:: 0.5
+
+        Returns
+        -------
+        Array of :class:`bool`
         """
 
     def to_numpy(

@@ -276,6 +276,95 @@ void bind_fixed_array(nb::module_& m)
             -------
             :class:`APyFixedArray`
             )pbdoc")
+        .def_prop_ro(
+            "trailing_zeros",
+            &APyFixedArray::trailing_zeros,
+            nb::rv_policy::take_ownership,
+            nb::sig("def trailing_zeros(self) -> NDArray[numpy.uint64]"),
+            R"pbdoc(
+            Number of trailing zeros.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            Array of :class:`int`
+            )pbdoc"
+        )
+        .def_prop_ro(
+            "leading_zeros",
+            &APyFixedArray::leading_zeros,
+            nb::rv_policy::take_ownership,
+            nb::sig("def leading_zeros(self) -> NDArray[numpy.uint64]"),
+            R"pbdoc(
+            Number of leading zeros.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            Array of :class:`int`
+            )pbdoc"
+        )
+        .def_prop_ro(
+            "leading_ones",
+            &APyFixedArray::leading_ones,
+            nb::rv_policy::take_ownership,
+            nb::sig("def leading_ones(self) -> NDArray[numpy.uint64]"),
+            R"pbdoc(
+            Number of leading ones.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            Array of :class:`int`
+            )pbdoc"
+        )
+        .def_prop_ro(
+            "leading_signs",
+            &APyFixedArray::leading_signs,
+            nb::rv_policy::take_ownership,
+            nb::sig("def leading_signs(self) -> NDArray[numpy.uint64]"),
+            R"pbdoc(
+            Number of leading sign-bits.
+
+            That is, the number of bits that is identical to the most significant bit.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            Array of :class:`int`
+            )pbdoc"
+        )
+        .def_prop_ro(
+            "is_zero",
+            &APyFixedArray::is_zero,
+            nb::rv_policy::take_ownership,
+            nb::sig("def is_zero(self) -> NDArray[numpy.bool]"),
+            R"pbdoc(
+            True if value equals zero, false otherwise.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            Array of :class:`bool`
+            )pbdoc"
+        )
+        /*.def_prop_ro(
+            "leading_fractional_zeros", &APyFixedArray::leading_fractional_zeros,
+        R"pbdoc( Number of leading zeros after the binary fixed-point.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            Array of :class:`int`
+            )pbdoc"
+        )*/
+
         /*
          * Methods
          */

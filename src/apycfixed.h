@@ -210,6 +210,21 @@ public:
     //! Return the `frac_bits` specifier
     APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
+    //! Return leading zeros
+    std::size_t leading_zeros() const;
+
+    //! Return leading ones
+    std::size_t leading_ones() const;
+
+    //! Return leading fractional zeros
+    // std::size_t leading_fractional_zeros() const;
+
+    //! Return leading signs
+    std::size_t leading_signs() const;
+
+    //! Return trailing zeros
+    std::size_t trailing_zeros() const;
+
     //! Python verbose string representation
     std::string repr() const;
 
