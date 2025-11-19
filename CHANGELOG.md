@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for (de-)serialization of APyTypes' data types using the Python
   [pickle](https://docs.python.org/3/library/pickle.html) module.
 - Complex conjugate and Hermitian transpose.
+- Convenience vector-matrix multiplication (as in Numpy, Pytorch, etc):
+  - `[ M ] @ [ M x N ]` ==> `[ 1 x M ] @ [ M x N ]` ==> `[ 1 x N ]` ==> `[ N ]`
 
 ### Fixed
 

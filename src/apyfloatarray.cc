@@ -392,17 +392,25 @@ template ComparissonArray APyFloatArray::operator>=(const APyFloat& rhs) const;
 std::variant<APyFloatArray, APyFloat>
 APyFloatArray::matmul(const APyFloatArray& rhs) const
 {
+    assert(ndim() >= 1);
+    assert(rhs.ndim() >= 1);
+
     if (ndim() == 1 && rhs.ndim() == 1) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out.
             // Perform the checked inner product.
             return checked_inner_product(rhs);
         }
-    }
-    if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
+    } else if (ndim() == 2 && (rhs.ndim() == 1 || rhs.ndim() == 2)) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
+            return checked_2d_matmul(rhs);
+        }
+    } else if (ndim() == 1 && rhs.ndim() == 2) {
+        if (_shape[0] == rhs._shape[0]) {
+            // Dimensionality for a vector-matrix multiplication checks out. Perform the
+            // checked 2D matrix
             return checked_2d_matmul(rhs);
         }
     }
@@ -1563,10 +1571,17 @@ APyFloat APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
 // shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
 APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 {
+    // Dimensions used in repeated inner products: A @ b, A: [M x N], b: [N x 1]
+    const std::size_t M = (_ndim > 1) ? _shape[0] : 1;
+    const std::size_t N = (_ndim > 1) ? _shape[1] : _shape[0];
+    const std::size_t res_cols = rhs._ndim > 1 ? rhs._shape[1] : 1;
+
+    // Resulting shape
+    const std::vector<std::size_t> res_shape = (_ndim > 1 && rhs._ndim > 1)
+        ? std::vector<std::size_t> { _shape[0], rhs._shape[1] }               // 2-D
+        : std::vector<std::size_t> { _ndim > 1 ? _shape[0] : rhs._shape[1] }; // 1-D
+
     // Resulting parameters
-    const std::vector<std::size_t> res_shape = rhs._shape.size() > 1
-        ? std::vector<std::size_t> { _shape[0], rhs._shape[1] } // rhs is 2-D
-        : std::vector<std::size_t> { _shape[0] };               // rhs is 1-D
     const std::optional<APyFloatAccumulatorOption> mode = get_accumulator_mode_float();
     const QuantizationMode& qntz
         = mode.has_value() ? mode->quantization : get_float_quantization_mode();
@@ -1583,11 +1598,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
     }
 
-    // Result array
+    // Resulting tensor and a working column from `rhs`
     APyFloatArray result(res_shape, res_exp_bits, res_man_bits, res_bias);
-
-    // Current column from rhs, read once and cached for efficiency
-    const auto res_cols = rhs._shape.size() > 1 ? rhs._shape[1] : 1;
     APyFloatArray current_column(
         { rhs._shape[0] }, rhs.exp_bits, rhs.man_bits, rhs.bias
     );
@@ -1605,12 +1617,12 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
         // dst = A x b
         inner_product(
-            &_data[0],                // src1, A: [M x N]
-            &current_column._data[0], // src2, b: [N x 1]
-            &result._data[x],         // dst
-            _shape[1],                // N
-            res_shape[0],             // M
-            res_cols                  // DST_STEP
+            _data.data(),                // src1, A: [M x N]
+            current_column._data.data(), // src2: b: [N x 1]
+            result._data.data() + x,     // dst
+            N,                           // N
+            M,                           // M
+            res_cols                     // DST_STEP
         );
     }
 

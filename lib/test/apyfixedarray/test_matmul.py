@@ -33,6 +33,31 @@ def test_dimension_mismatch_raises(fixed_array: type[APyCFixedArray]):
         _ = b @ a
 
     ##
+    # Vector-matrix and matrix-vector multiplication mismatch
+    #
+    a = fixed_array.from_float([1, 2, 3], int_bits=10, frac_bits=10)
+    b = fixed_array.from_float([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=10)
+    c = fixed_array.from_float([1, 2], int_bits=10, frac_bits=10)
+
+    # Should not throw...
+    _ = b @ a
+    _ = c @ b
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyC?FixedArray.__matmul__: input shape mismatch, "
+        + r"lhs: \(3,\), rhs: \(2, 3\)",
+    ):
+        _ = a @ b
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyC?FixedArray.__matmul__: input shape mismatch, "
+        + r"lhs: \(2, 3\), rhs: \(2,\)",
+    ):
+        _ = b @ c
+
+    ##
     # 2D matrix multiplication mismatch
     #
     a = fixed_array([[1, 2, 3], [4, 5, 6]], bits=10, int_bits=10)
@@ -40,6 +65,7 @@ def test_dimension_mismatch_raises(fixed_array: type[APyCFixedArray]):
 
     # Should not throw...
     _ = a @ b
+    _ = b @ a
 
     with pytest.raises(
         ValueError,
@@ -54,6 +80,24 @@ def test_dimension_mismatch_raises(fixed_array: type[APyCFixedArray]):
         + r"lhs: \(3, 2\), rhs: \(3, 2\)",
     ):
         _ = b @ b
+
+    ##
+    # >=2D matrix multiplications are not yet supported...
+    #
+    a = fixed_array.from_float(range(27), int_bits=10, frac_bits=10).reshape((3, 3, 3))
+    with pytest.raises(
+        ValueError,
+        match=r"APyC?FixedArray.__matmul__: input shape mismatch, "
+        + r"lhs: \(3, 3, 3\), rhs: \(3, 3, 3\)",
+    ):
+        _ = a @ a
+
+    ##
+    # 2D matrix multiplication where inner dimensions is zero must not crash
+    #
+    a = fixed_array.from_float([], int_bits=10, frac_bits=10).reshape((4, 0))
+    b = fixed_array.from_float([], int_bits=10, frac_bits=10).reshape((0, 3))
+    _ = a @ b
 
 
 @pytest.mark.parametrize(
@@ -468,4 +512,19 @@ def test_matrix_multiplication_two_32bit_limb_result(fx_array: type[APyCFixedArr
             int_bits=5 + cb,
             bits=42 + cb,
         )
+    )
+
+
+@pytest.mark.parametrize("fx_array", [APyFixedArray, APyCFixedArray])
+def test_matrix_multiplication_1Dx2D(fx_array: type[APyCFixedArray]):
+    # Complex mult results in one additional bit compared to real mult
+    cb = fx_array == APyCFixedArray
+
+    a = fx_array.from_float([-3.2, 4.5], int_bits=3, frac_bits=20)
+    B = fx_array.from_float(
+        [[0.1, 0.2, 0.3], [-0.2, -0.3, -0.4]], int_bits=0, frac_bits=17
+    )
+
+    assert (a @ B).is_identical(
+        fx_array([52226008023, 56352786350, 60472539218], int_bits=4 + cb, frac_bits=37)
     )
