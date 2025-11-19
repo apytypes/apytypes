@@ -326,6 +326,11 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p>Support for (de-)serialization of APyTypes’ data types using the Python
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">pickle</a> module.</p></li>
 <li><p>Complex conjugate and Hermitian transpose.</p></li>
+<li><p>Convenience vector-matrix multiplication (as in Numpy, Pytorch, etc):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">M</span> <span class="pre">]</span> <span class="pre">&#64;</span> <span class="pre">[</span> <span class="pre">M</span> <span class="pre">x</span> <span class="pre">N</span> <span class="pre">]</span></code> ==&gt; <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">1</span> <span class="pre">x</span> <span class="pre">M</span> <span class="pre">]</span> <span class="pre">&#64;</span> <span class="pre">[</span> <span class="pre">M</span> <span class="pre">x</span> <span class="pre">N</span> <span class="pre">]</span></code> ==&gt; <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">1</span> <span class="pre">x</span> <span class="pre">N</span> <span class="pre">]</span></code> ==&gt; <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">N</span> <span class="pre">]</span></code></p></li>
+</ul>
+</li>
 </ul>
 </section>
 <section id="fixed">
