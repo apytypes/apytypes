@@ -351,7 +351,9 @@ void bind_fixed(nb::module_& m)
             "leading_signs",
             &APyFixed::leading_signs,
             R"pbdoc(
-            Number of leading signs.
+            Number of leading sign-bits.
+
+            That is, the number of bits that is identical to the most significant bit.
 
             Returns
             -------

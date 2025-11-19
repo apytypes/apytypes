@@ -175,6 +175,13 @@ public:
     //! Elementwise logic not
     APyFixedArray operator~() const;
 
+    ThirdPartyArray<std::size_t> trailing_zeros() const;
+    ThirdPartyArray<std::size_t> leading_zeros() const;
+    ThirdPartyArray<std::size_t> leading_ones() const;
+    ThirdPartyArray<std::size_t> leading_signs() const;
+    // ThirdPartyArray<std::size_t> leading_fractional_zeros() const;
+    ThirdPartyArray<bool> is_zero() const;
+
     /*!
      * Matrix multiplication. If both arguments ar 2-D tensors, this method performs the
      * ordinary matrix multiplication. If input dimensions are greater than 2, this

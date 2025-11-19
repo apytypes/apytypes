@@ -120,3 +120,16 @@
    .. autoproperty:: real
 
    .. autoproperty:: imag
+
+   Bit pattern information
+   ^^^^^^^^^^^^^^^^^^^^^^^
+
+   .. autoproperty:: is_zero
+
+   .. autoproperty:: leading_ones
+
+   .. autoproperty:: leading_signs
+
+   .. autoproperty:: leading_zeros
+
+   .. autoproperty:: trailing_zeros

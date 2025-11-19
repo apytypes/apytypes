@@ -622,6 +622,92 @@ std::string APyCFixed::to_string_oct() const
     throw NotImplementedException("APyCFixed::to_string_oct()");
 }
 
+std::size_t APyCFixed::leading_zeros() const
+{
+    std::size_t leading_zeros_re = limb_vector_leading_zeros(real_begin(), real_end());
+    std::size_t leading_zeros_im = limb_vector_leading_zeros(imag_begin(), imag_end());
+    std::size_t leading_zeros = std::min(leading_zeros_re, leading_zeros_im);
+
+    if (leading_zeros == 0) {
+        return 0;
+    } else {
+        std::size_t utilized_bits_last_limb = ((bits() - 1) % APY_LIMB_SIZE_BITS) + 1;
+        return leading_zeros - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb);
+    }
+}
+
+std::size_t APyCFixed::leading_signs() const
+{
+    std::size_t leading_ones_re = limb_vector_leading_ones(real_begin(), real_end());
+    std::size_t leading_ones_im = limb_vector_leading_ones(imag_begin(), imag_end());
+    std::size_t leading_zeros_re = limb_vector_leading_zeros(real_begin(), real_end());
+    std::size_t leading_zeros_im = limb_vector_leading_zeros(imag_begin(), imag_end());
+    std::size_t leading_signs_re = std::max(leading_ones_re, leading_zeros_re);
+    std::size_t leading_signs_im = std::max(leading_ones_im, leading_zeros_im);
+    std::size_t leading_signs = std::min(leading_signs_re, leading_signs_im);
+
+    if (leading_signs == 0) {
+        return 0;
+    } else {
+        std::size_t utilized_bits_last_limb = (bits() - 1) % APY_LIMB_SIZE_BITS + 1;
+        return leading_signs - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb);
+    }
+}
+
+std::size_t APyCFixed::leading_ones() const
+{
+    std::size_t leading_ones_re = limb_vector_leading_ones(real_begin(), real_end());
+    std::size_t leading_ones_im = limb_vector_leading_ones(imag_begin(), imag_end());
+    std::size_t leading_ones = std::min(leading_ones_re, leading_ones_im);
+
+    if (leading_ones == 0) {
+        return 0;
+    } else {
+        std::size_t utilized_bits_last_limb = (bits() - 1) % APY_LIMB_SIZE_BITS + 1;
+        return leading_ones - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb);
+    }
+}
+
+std::size_t APyCFixed::trailing_zeros() const
+{
+    std::size_t trailing_zeros_re
+        = limb_vector_trailing_zeros(real_begin(), real_end());
+    std::size_t trailing_zeros_im
+        = limb_vector_trailing_zeros(imag_begin(), imag_end());
+    std::size_t trailing_zeros = std::min(trailing_zeros_re, trailing_zeros_im);
+    return std::min(trailing_zeros, static_cast<std::size_t>(bits()));
+}
+
+/*std::size_t APyCFixed::leading_fractional_zeros() const
+{
+    int frac_bits = bits() - int_bits();
+    if (frac_bits <= 0) {
+        return 0; // early return
+    }
+
+    std::size_t utilized_full_frac_limbs = frac_bits / APY_LIMB_SIZE_BITS;
+    std::size_t utilized_frac_bits_last_limb = frac_bits % APY_LIMB_SIZE_BITS;
+
+    std::size_t leading_frac_bits_full_limbs = limb_vector_leading_zeros(
+        _data.begin(), _data.begin() + utilized_full_frac_limbs
+    );
+
+    std::size_t leading_frac_bits_last_limb = 0;
+    if (utilized_frac_bits_last_limb) {
+        apy_limb_t mask = (apy_limb_t(1) << utilized_frac_bits_last_limb) - 1;
+        apy_limb_t limb = _data[utilized_full_frac_limbs];
+        limb &= mask;
+        leading_frac_bits_last_limb = ::leading_zeros(limb)
+            - (APY_LIMB_SIZE_BITS - utilized_frac_bits_last_limb);
+    }
+
+    if (leading_frac_bits_last_limb != utilized_frac_bits_last_limb) {
+        return leading_frac_bits_last_limb;
+    } else {
+        return leading_frac_bits_last_limb + leading_frac_bits_full_limbs;
+    }
+}*/
+
 bool APyCFixed::is_zero() const noexcept
 {
     // Both real and imaginary part has to be zero
