@@ -33,6 +33,31 @@ def test_dimension_mismatch_raises(float_array: type[APyCFloatArray]):
         _ = b @ a
 
     ##
+    # Vector-matrix and matrix-vector multiplication mismatch
+    #
+    a = float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    b = float_array.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+    c = float_array.from_float([1, 2], exp_bits=10, man_bits=10)
+
+    # Should not throw...
+    _ = b @ a
+    _ = c @ b
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyC?FloatArray\.__matmul__: input shape mismatch, "
+        + r"lhs: \(3,\), rhs: \(2, 3\)",
+    ):
+        _ = a @ b
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyC?FloatArray\.__matmul__: input shape mismatch, "
+        + r"lhs: \(2, 3\), rhs: \(2,\)",
+    ):
+        _ = b @ c
+
+    ##
     # 2D matrix multiplication mismatch
     #
     a = float_array.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
@@ -40,6 +65,7 @@ def test_dimension_mismatch_raises(float_array: type[APyCFloatArray]):
 
     # Should not throw...
     _ = a @ b
+    _ = b @ a
 
     with pytest.raises(
         ValueError,
@@ -54,6 +80,24 @@ def test_dimension_mismatch_raises(float_array: type[APyCFloatArray]):
         + r"lhs: \(3, 2\), rhs: \(3, 2\)",
     ):
         _ = b @ b
+
+    ##
+    # >=2D matrix multiplications are not yet supported...
+    #
+    a = float_array.from_float(range(27), exp_bits=10, man_bits=10).reshape((3, 3, 3))
+    with pytest.raises(
+        ValueError,
+        match=r"APyC?FloatArray\.__matmul__: input shape mismatch, "
+        + r"lhs: \(3, 3, 3\), rhs: \(3, 3, 3\)",
+    ):
+        _ = a @ a
+
+    ##
+    # 2D matrix multiplication where inner dimensions is zero must not crash
+    #
+    a = float_array.from_float([], exp_bits=10, man_bits=10).reshape((4, 0))
+    b = float_array.from_float([], exp_bits=10, man_bits=10).reshape((0, 3))
+    _ = a @ b
 
 
 @pytest.mark.float_array
@@ -637,3 +681,16 @@ def test_inner_product_with_nan_long():
     assert (a @ b).is_identical(b @ a)
     assert (b @ a).is_identical(APyFloat(0, 1023, 1, 10, 60))
     assert (a @ b).is_identical(sum(a * b))
+
+
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_matrix_multiplication_1Dx2D(float_array: type[APyCFloatArray]):
+    a = float_array.from_float([-3.2, 4.5], exp_bits=10, man_bits=20)
+    B = float_array.from_float(
+        [[0.1, 0.2, 0.3], [-0.2, -0.3, -0.4]], exp_bits=10, man_bits=20
+    )
+
+    print(a @ B)
+    assert (a @ B).is_identical(
+        float_array.from_float([-1.22, -1.99, -2.76], exp_bits=10, man_bits=20)
+    )

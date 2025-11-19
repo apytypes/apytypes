@@ -845,17 +845,25 @@ template ComparissonArray APyFixedArray::operator>=(const APyFixed& rhs) const;
 std::variant<APyFixedArray, APyFixed>
 APyFixedArray::matmul(const APyFixedArray& rhs) const
 {
+    assert(ndim() >= 1);
+    assert(rhs.ndim() >= 1);
+
     if (ndim() == 1 && rhs.ndim() == 1) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out. Perform
             // the checked inner product.
             return _checked_inner_product(rhs, get_accumulator_mode_fixed());
         }
-    }
-    if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
+    } else if (ndim() == 2 && (rhs.ndim() == 1 || rhs.ndim() == 2)) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
+            return _checked_2d_matmul(rhs, get_accumulator_mode_fixed());
+        }
+    } else if (ndim() == 1 && rhs.ndim() == 2) {
+        if (_shape[0] == rhs._shape[0]) {
+            // Dimensionality for a vector-matrix multiplication checks out. Perform the
+            // checked 2D matrix
             return _checked_2d_matmul(rhs, get_accumulator_mode_fixed());
         }
     }
@@ -1679,14 +1687,19 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     const APyFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
 ) const
 {
-    // Resulting shape
-    const std::size_t res_cols = rhs._shape.size() > 1 ? rhs._shape[1] : 1;
-    std::vector<std::size_t> res_shape = rhs._shape.size() > 1
-        ? std::vector<std::size_t> { _shape[0], rhs._shape[1] } // rhs is 2-D
-        : std::vector<std::size_t> { _shape[0] };               // rhs is 1-D
+    // Dimensions used in repeated inner products: A @ b, A: [M x N], b: [N x 1]
+    const std::size_t M = (_ndim > 1) ? _shape[0] : 1;
+    const std::size_t N = (_ndim > 1) ? _shape[1] : _shape[0];
+    const std::size_t res_cols = rhs._ndim > 1 ? rhs._shape[1] : 1;
 
-    // Resulting number of bits
-    std::size_t pad_bits = _shape[1] ? bit_width(_shape[1] - 1) : 0;
+    // Resulting shape
+    const std::vector<std::size_t> res_shape = (_ndim > 1 && rhs._ndim > 1)
+        ? std::vector<std::size_t> { _shape[0], rhs._shape[1] }               // 2-D
+        : std::vector<std::size_t> { _ndim > 1 ? _shape[0] : rhs._shape[1] }; // 1-D
+
+    // Resulting number of bits. `pad_bits` is the extra bits required for accumulating
+    // every product in the inner products.
+    std::size_t pad_bits = N ? bit_width(N - 1) : 0;
     std::size_t res_bits = bits() + rhs.bits() + pad_bits;
     std::size_t res_int_bits = int_bits() + rhs.int_bits() + pad_bits;
     if (mode.has_value()) {
@@ -1716,8 +1729,8 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
             std::begin(_data),                         // src1, A: [M x N]
             std::begin(current_col._data),             // src2, b: [N x 1]
             std::begin(res._data) + res._itemsize * x, // dst
-            _shape[1],                                 // N
-            res_shape[0],                              // M
+            N,                                         // N
+            M,                                         // M
             res_cols                                   // DST_STEP
         );
     }
