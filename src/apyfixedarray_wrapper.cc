@@ -17,7 +17,7 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs) -> APyFixedArray
 {
     if constexpr (std::is_floating_point_v<L_TYPE>) {
         return (rhs.*FUNC)(APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits()));
@@ -35,6 +35,7 @@ static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
  */
 template <typename OP, typename R_TYPE>
 static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
+    -> decltype(OP()(lhs, lhs))
 {
     if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
