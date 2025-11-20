@@ -12,7 +12,7 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static auto R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs) -> APyCFloatArray
 {
     [[maybe_unused]] int exp_bits = rhs.get_exp_bits();
     [[maybe_unused]] int man_bits = rhs.get_man_bits();
@@ -34,6 +34,7 @@ static auto R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs)
  */
 template <typename OP, typename R_TYPE>
 static auto L_OP(const APyCFloatArray& lhs, const R_TYPE& rhs)
+    -> decltype(OP()(lhs, lhs))
 {
     [[maybe_unused]] int exp_bits = lhs.get_exp_bits();
     [[maybe_unused]] int man_bits = lhs.get_man_bits();

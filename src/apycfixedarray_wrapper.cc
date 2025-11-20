@@ -17,7 +17,7 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static auto R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs) -> APyCFixedArray
 {
     if constexpr (std::is_same_v<std::complex<double>, L_TYPE>) {
         return (rhs.*FUNC)(
@@ -46,6 +46,7 @@ static auto R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs)
  */
 template <typename OP, typename R_TYPE>
 static auto L_OP(const APyCFixedArray& lhs, const R_TYPE& rhs)
+    -> decltype(OP()(lhs, lhs))
 {
     if constexpr (std::is_same_v<std::complex<double>, R_TYPE>) {
         return OP()(lhs, APyCFixed::from_complex(rhs, lhs.int_bits(), lhs.frac_bits()));
