@@ -321,11 +321,21 @@
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFixedArray.int_bits" title="apytypes.APyFixedArray.int_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int_bits</span></code></a></dt><dd><p>Number of integer bits.</p>
 </dd>
+<dt><a class="reference internal" href="#apytypes.APyFixedArray.is_zero" title="apytypes.APyFixedArray.is_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zero</span></code></a></dt><dd><p>True if value equals zero, false otherwise.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFixedArray.leading_ones" title="apytypes.APyFixedArray.leading_ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_ones</span></code></a></dt><dd><p>Number of leading ones.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFixedArray.leading_signs" title="apytypes.APyFixedArray.leading_signs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_signs</span></code></a></dt><dd><p>Number of leading sign-bits.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFixedArray.leading_zeros" title="apytypes.APyFixedArray.leading_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_zeros</span></code></a></dt><dd><p>Number of leading zeros.</p>
+</dd>
 <dt><a class="reference internal" href="#apytypes.APyFixedArray.ndim" title="apytypes.APyFixedArray.ndim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndim</span></code></a></dt><dd><p>Number of dimensions in the array.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFixedArray.real" title="apytypes.APyFixedArray.real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></a></dt><dd><p>Real part.</p>
 </dd>
 <dt><a class="reference internal" href="arrayfunctions.html#apytypes.shape" title="apytypes.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a></dt><dd><p>The shape of the array.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFixedArray.trailing_zeros" title="apytypes.APyFixedArray.trailing_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trailing_zeros</span></code></a></dt><dd><p>Number of trailing zeros.</p>
 </dd>
 </dl>
 </dd>
@@ -1504,6 +1514,90 @@ the array.</p>
 </dd></dl>
 
 </section>
+<section id="bit-pattern-information">
+<h3>Bit pattern information<a class="headerlink" href="#bit-pattern-information" title="Link to this heading">¶</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.is_zero">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_zero</span></span><a class="headerlink" href="#apytypes.APyFixedArray.is_zero" title="Link to this definition">¶</a></dt>
+<dd><p>True if value equals zero, false otherwise.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Array of <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.leading_ones">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_ones</span></span><a class="headerlink" href="#apytypes.APyFixedArray.leading_ones" title="Link to this definition">¶</a></dt>
+<dd><p>Number of leading ones.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Array of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.leading_signs">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_signs</span></span><a class="headerlink" href="#apytypes.APyFixedArray.leading_signs" title="Link to this definition">¶</a></dt>
+<dd><p>Number of leading sign-bits.</p>
+<p>That is, the number of bits that is identical to the most significant bit.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Array of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.leading_zeros">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_zeros</span></span><a class="headerlink" href="#apytypes.APyFixedArray.leading_zeros" title="Link to this definition">¶</a></dt>
+<dd><p>Number of leading zeros.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Array of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.trailing_zeros">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trailing_zeros</span></span><a class="headerlink" href="#apytypes.APyFixedArray.trailing_zeros" title="Link to this definition">¶</a></dt>
+<dd><p>Number of trailing zeros.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Array of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 </dd></dl>
 
@@ -1608,6 +1702,11 @@ the array.</p>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.T"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.T</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.real"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.real</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.imag"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.imag</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.is_zero"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.is_zero</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.leading_ones"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.leading_ones</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.leading_signs"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.leading_signs</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.leading_zeros"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.leading_zeros</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.trailing_zeros"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.trailing_zeros</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -56,6 +56,14 @@
 
    .. autoproperty:: is_zero
 
+   .. autoproperty:: leading_ones
+
+   .. autoproperty:: leading_signs
+
+   .. autoproperty:: leading_zeros
+
+   .. autoproperty:: trailing_zeros
+
    Real and imaginary part
    ^^^^^^^^^^^^^^^^^^^^^^^
 

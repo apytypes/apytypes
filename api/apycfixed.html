@@ -378,7 +378,15 @@ fixed-point formats, see <a class="reference internal" href="apyfixed.html#apyty
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyCFixed.is_zero" title="apytypes.APyCFixed.is_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zero</span></code></a></dt><dd><p>True if the value equals zero, false otherwise.</p>
 </dd>
+<dt><a class="reference internal" href="#apytypes.APyCFixed.leading_ones" title="apytypes.APyCFixed.leading_ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_ones</span></code></a></dt><dd><p>Number of leading ones.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyCFixed.leading_signs" title="apytypes.APyCFixed.leading_signs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_signs</span></code></a></dt><dd><p>Number of leading sign-bits.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyCFixed.leading_zeros" title="apytypes.APyCFixed.leading_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_zeros</span></code></a></dt><dd><p>Number of leading zeros.</p>
+</dd>
 <dt><a class="reference internal" href="#apytypes.APyCFixed.real" title="apytypes.APyCFixed.real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></a></dt><dd><p>Real part.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyCFixed.trailing_zeros" title="apytypes.APyCFixed.trailing_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trailing_zeros</span></code></a></dt><dd><p>Number of trailing zeros.</p>
 </dd>
 </dl>
 </dd>
@@ -682,6 +690,75 @@ never overflows.</p>
 <dd><p>True if the value equals zero, false otherwise.</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyCFixed.leading_ones">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_ones</span></span><a class="headerlink" href="#apytypes.APyCFixed.leading_ones" title="Link to this definition">¶</a></dt>
+<dd><p>Number of leading ones.</p>
+<p>Minimum of real and imaginary parts.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyCFixed.leading_signs">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_signs</span></span><a class="headerlink" href="#apytypes.APyCFixed.leading_signs" title="Link to this definition">¶</a></dt>
+<dd><p>Number of leading sign-bits.</p>
+<p>That is, the number of bits that is identical to the most significant bit.</p>
+<p>Minimum of real and imaginary parts.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyCFixed.leading_zeros">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_zeros</span></span><a class="headerlink" href="#apytypes.APyCFixed.leading_zeros" title="Link to this definition">¶</a></dt>
+<dd><p>Number of leading zeros.</p>
+<p>Minimum of real and imaginary parts.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyCFixed.trailing_zeros">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trailing_zeros</span></span><a class="headerlink" href="#apytypes.APyCFixed.trailing_zeros" title="Link to this definition">¶</a></dt>
+<dd><p>Number of trailing zeros.</p>
+<p>Minimum of real and imaginary parts.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="real-and-imaginary-part">
 <h3>Real and imaginary part<a class="headerlink" href="#real-and-imaginary-part" title="Link to this heading">¶</a></h3>
@@ -794,6 +871,10 @@ never overflows.</p>
 <li><a class="reference internal" href="#apytypes.APyCFixed.int_bits"><code class="docutils literal notranslate"><span class="pre">APyCFixed.int_bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixed.frac_bits"><code class="docutils literal notranslate"><span class="pre">APyCFixed.frac_bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixed.is_zero"><code class="docutils literal notranslate"><span class="pre">APyCFixed.is_zero</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixed.leading_ones"><code class="docutils literal notranslate"><span class="pre">APyCFixed.leading_ones</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixed.leading_signs"><code class="docutils literal notranslate"><span class="pre">APyCFixed.leading_signs</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixed.leading_zeros"><code class="docutils literal notranslate"><span class="pre">APyCFixed.leading_zeros</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixed.trailing_zeros"><code class="docutils literal notranslate"><span class="pre">APyCFixed.trailing_zeros</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixed.real"><code class="docutils literal notranslate"><span class="pre">APyCFixed.real</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixed.imag"><code class="docutils literal notranslate"><span class="pre">APyCFixed.imag</span></code></a></li>
 </ul>
