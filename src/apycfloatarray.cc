@@ -2,6 +2,7 @@
 #include "apycfixed.h"
 #include "apycfloat_util.h"
 #include "apyfloat_util.h"
+#include "apyfloatarray.h"
 #include "apytypes_common.h"
 #include "apytypes_intrinsics.h"
 #include "apytypes_util.h"
@@ -30,6 +31,17 @@ APyCFloatArray::APyCFloatArray(
     , man_bits(man_bits)
     , bias(bias.value_or(ieee_bias(exp_bits)))
 {
+}
+
+APyCFloatArray::APyCFloatArray(const APyFloatArray& rhs)
+    : APyArray(rhs._shape, /* itemsize= */ 2)
+    , exp_bits(rhs.get_exp_bits())
+    , man_bits(rhs.get_man_bits())
+    , bias(rhs.get_bias())
+{
+    for (std::size_t i = 0; i < _nitems; i++) {
+        _data[2 * i] = rhs._data[i];
+    }
 }
 
 /* ********************************************************************************** *

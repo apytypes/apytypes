@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complex conjugate and Hermitian transpose.
 - Convenience vector-matrix multiplication (as in Numpy, Pytorch, etc):
   - `[ M ] @ [ M x N ]` ==> `[ 1 x M ] @ [ M x N ]` ==> `[ 1 x N ]` ==> `[ N ]`
+- Mixed real-complex array arithmetic.
 
 ### Fixed
 
@@ -40,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `APy(C)FixedArray.from_float` is applied to negative Numpy integers.
 - Segmentation violation when initializing APyTypes arrays from zero-dimensional
   Numpy arrays.
+- Segmentation violation in `APyCFixedArray` for division-by-zero.
 
 ### Changed
 

@@ -130,10 +130,24 @@ APyCFixedArray::APyCFixedArray(
 {
 }
 
-/* *********************************************************************************** *
- * *                          Arithmetic member functions                            * *
- * ***********************************************************************************
- */
+//! Constructor: construct from APyFixedArray
+APyCFixedArray::APyCFixedArray(const APyFixedArray& rhs)
+    : APyArray(rhs._shape, 2 * rhs._itemsize)
+    , _bits { rhs.bits() }
+    , _int_bits { rhs.int_bits() }
+{
+    for (std::size_t i = 0; i < _nitems; i++) {
+        std::copy_n(
+            std::begin(rhs._data) + i * rhs._itemsize,
+            rhs._itemsize,
+            real_begin() + i * _itemsize
+        );
+    }
+}
+
+/* ********************************************************************************** *
+ * *                          Arithmetic member functions                           * *
+ * ********************************************************************************** */
 
 template <class ripple_carry_op, class simd_op, class simd_shift_op>
 inline APyCFixedArray
@@ -603,6 +617,9 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                     * apy_limb_signed_t(rhs._data[i + 0])
                 + apy_limb_signed_t(rhs._data[i + 1])
                     * apy_limb_signed_t(rhs._data[i + 1]);
+            if (den == 0) {
+                continue;
+            }
             apy_limb_signed_t real
                 = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 0])
                 + apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 1]);
@@ -686,6 +703,9 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
         apy_limb_signed_t den
             = apy_limb_signed_t(rhs._data[0]) * apy_limb_signed_t(rhs._data[0])
             + apy_limb_signed_t(rhs._data[1]) * apy_limb_signed_t(rhs._data[1]);
+        if (den == 0) {
+            return result; // early exit
+        }
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
             apy_limb_signed_t real
                 = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[0])
@@ -801,6 +821,9 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
             apy_limb_signed_t den
                 = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(_data[i + 0])
                 + apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(_data[i + 1]);
+            if (den == 0) {
+                continue;
+            }
             apy_limb_signed_t real
                 = apy_limb_signed_t(lhs._data[0]) * apy_limb_signed_t(_data[i + 0])
                 + apy_limb_signed_t(lhs._data[1]) * apy_limb_signed_t(_data[i + 1]);

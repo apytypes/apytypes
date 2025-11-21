@@ -57,6 +57,8 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    explicit APyCFloatArray(const APyFloatArray& rhs);
+
     /* ****************************************************************************** *
      * *                              CRTP methods                                  * *
      * ****************************************************************************** */
