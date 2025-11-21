@@ -122,6 +122,9 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    //! Constructor: construct from APyFixedArray
+    explicit APyCFixedArray(const APyFixedArray& rhs);
+
     /* ****************************************************************************** *
      * *                        Arithmetic member functions                         * *
      * ****************************************************************************** */

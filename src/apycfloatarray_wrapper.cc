@@ -1,4 +1,5 @@
 #include "apycfloatarray.h"
+#include "apyfloatarray.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -9,7 +10,7 @@ namespace nb = nanobind;
 
 /*
  * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyCFloatArray
- * type
+ * type by first promotong the left-hand side.
  */
 template <auto FUNC, typename L_TYPE>
 static auto R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs) -> APyCFloatArray
@@ -18,39 +19,75 @@ static auto R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs) -> APyCFloatArray
     [[maybe_unused]] int man_bits = rhs.get_man_bits();
     [[maybe_unused]] exp_t bias = rhs.get_bias();
     if constexpr (std::is_same_v<std::complex<double>, L_TYPE>) {
-        return (rhs.*FUNC)(APyCFloat::from_complex(lhs, exp_bits, man_bits, bias));
+        auto lhs_cplx = APyCFloat::from_complex(lhs, exp_bits, man_bits, bias);
+        return (rhs.*FUNC)(lhs_cplx);
     } else if constexpr (std::is_floating_point_v<L_TYPE>) {
-        return (rhs.*FUNC)(APyCFloat::from_double(lhs, exp_bits, man_bits, bias));
+        auto lhs_cplx = APyCFloat::from_double(lhs, exp_bits, man_bits, bias);
+        return (rhs.*FUNC)(lhs_cplx);
     } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyCFloat>) {
         return (rhs.*FUNC)(lhs);
+    } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, nb::int_>) {
+        auto lhs_cplx = APyCFloat::from_integer(lhs, exp_bits, man_bits, bias);
+        return (rhs.*FUNC)(lhs_cplx);
+    } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyFloat>) {
+        auto [exp_bits, man_bits, bias] = lhs.spec();
+        auto lhs_cplx = APyCFloat(lhs.get_data(), exp_bits, man_bits, bias);
+        return (rhs.*FUNC)(lhs_cplx);
     } else {
-        return (rhs.*FUNC)(APyCFloat::from_integer(lhs, exp_bits, man_bits, bias));
+        static_assert(
+            always_false_v<L_TYPE>, "Need to add another R_OP specialization?"
+        );
+    }
+}
+
+template <typename L_FUNC, typename L_TYPE>
+static auto R_OP(const APyCFloatArray& rhs, const L_TYPE& lhs) -> APyCFloatArray
+{
+    [[maybe_unused]] int exp_bits = rhs.get_exp_bits();
+    [[maybe_unused]] int man_bits = rhs.get_man_bits();
+    [[maybe_unused]] exp_t bias = rhs.get_bias();
+    if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyFloatArray>) {
+        return L_FUNC()(APyCFloatArray(lhs), rhs);
+    } else {
+        static_assert(
+            always_false_v<L_TYPE>, "Need to add another R_OP specialization?"
+        );
     }
 }
 
 /*
  * Binding function of a custom L-operator (e.g., `__sub__`) with non APyCFloatArray
- * type
+ * type by first promotong the left-hand side.
  */
-template <typename OP, typename R_TYPE>
+template <typename L_FUNC, typename R_TYPE>
 static auto L_OP(const APyCFloatArray& lhs, const R_TYPE& rhs)
-    -> decltype(OP()(lhs, lhs))
+    -> decltype(L_FUNC()(lhs, lhs))
 {
+    using std::is_same_v;
     [[maybe_unused]] int exp_bits = lhs.get_exp_bits();
     [[maybe_unused]] int man_bits = lhs.get_man_bits();
     [[maybe_unused]] exp_t bias = lhs.get_bias();
-    if constexpr (std::is_same_v<std::complex<double>, R_TYPE>) {
-        return OP()(lhs, APyCFloat::from_complex(rhs, exp_bits, man_bits, bias));
+    if constexpr (is_same_v<std::complex<double>, R_TYPE>) {
+        auto rhs_cplx = APyCFloat::from_complex(rhs, exp_bits, man_bits, bias);
+        return L_FUNC()(lhs, rhs_cplx);
     } else if constexpr (std::is_floating_point_v<R_TYPE>) {
-        return OP()(lhs, APyCFloat::from_double(rhs, exp_bits, man_bits, bias));
-    } else if constexpr (std::is_same_v<nb::int_, R_TYPE>) {
-        return OP()(lhs, APyCFloat::from_integer(rhs, exp_bits, man_bits, bias));
-    } else if constexpr (std::is_same_v<
-                             nb::ndarray<nb::c_contig>,
-                             remove_cvref_t<R_TYPE>>) {
-        return OP()(lhs, APyCFloatArray::from_array(rhs, exp_bits, man_bits, bias));
+        auto rhs_cplx = APyCFloat::from_double(rhs, exp_bits, man_bits, bias);
+        return L_FUNC()(lhs, rhs_cplx);
+    } else if constexpr (is_same_v<nb::int_, R_TYPE>) {
+        auto rhs_cplx = APyCFloat::from_integer(rhs, exp_bits, man_bits, bias);
+        return L_FUNC()(lhs, rhs_cplx);
+    } else if constexpr (is_same_v<nb::ndarray<nb::c_contig>, remove_cvref_t<R_TYPE>>) {
+        auto rhs_cplx = APyCFloatArray::from_array(rhs, exp_bits, man_bits, bias);
+        return L_FUNC()(lhs, rhs_cplx);
+    } else if constexpr (is_same_v<remove_cvref_t<R_TYPE>, APyFloat>) {
+        auto [exp_bits, man_bits, bias] = rhs.spec();
+        auto rhs_cplx = APyCFloat(rhs.get_data(), exp_bits, man_bits, bias);
+        return L_FUNC()(lhs, rhs_cplx);
+    } else if constexpr (is_same_v<remove_cvref_t<R_TYPE>, APyFloatArray>) {
+        APyCFloatArray rhs_cplx(rhs);
+        return L_FUNC()(lhs, rhs_cplx);
     } else {
-        return OP()(lhs, rhs);
+        return L_FUNC()(lhs, rhs);
     }
 }
 
@@ -134,6 +171,36 @@ void bind_cfloat_array(nb::module_& m)
         .def("__mul__", L_OP<STD_MUL<>, APyCFloat>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, APyCFloat>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFloatArray::rdiv, APyCFloat>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, APyCFloat>, CMP("__eq__", "APyCFloat"))
+        .def("__ne__", L_OP<STD_NE<>, APyCFloat>, CMP("__ne__", "APyCFloat"))
+
+        /*
+         * Arithmetic operations with `APyFloat`
+         */
+        .def("__add__", L_OP<STD_ADD<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyCFloatArray::rsub, APyFloat>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyCFloatArray::rdiv, APyFloat>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, APyFloat>, CMP("__eq__", "APyFloat"))
+        .def("__ne__", L_OP<STD_NE<>, APyFloat>, CMP("__ne__", "APyFloat"))
+
+        /*
+         * Arithmetic operations with `APyFloatArray`
+         */
+        .def("__add__", L_OP<STD_ADD<>, APyFloatArray>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, APyFloatArray>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyFloatArray>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<STD_SUB<>, APyFloatArray>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, APyFloatArray>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyFloatArray>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFloatArray>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<STD_DIV<>, APyFloatArray>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, APyFloatArray>, CMP("__eq__", "APyFloatArray"))
+        .def("__ne__", L_OP<STD_NE<>, APyFloatArray>, CMP("__ne__", "APyFloatArray"))
 
         /*
          * Arithmetic operations with Python `int`
@@ -146,6 +213,8 @@ void bind_cfloat_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFloatArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, nb::int_>, CMP("__eq__", "int"))
+        .def("__ne__", L_OP<STD_NE<>, nb::int_>, CMP("__ne__", "int"))
 
         /*
          * Arithmetic operators with Python floats
@@ -158,6 +227,8 @@ void bind_cfloat_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFloatArray::rdiv, double>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, double>, CMP("__eq__", "float"))
+        .def("__ne__", L_OP<STD_NE<>, double>, CMP("__ne__", "float"))
 
         /*
          * Arithmetic operators with Python complex
@@ -170,6 +241,8 @@ void bind_cfloat_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, complex_t>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, complex_t>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFloatArray::rdiv, complex_t>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, complex_t>, CMP("__eq__", "complex"))
+        .def("__ne__", L_OP<STD_NE<>, complex_t>, CMP("__ne__", "complex"))
 
         /*
          * Arithmetic operations with NumPy arrays

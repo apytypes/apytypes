@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from apytypes import APyCFixed, APyCFixedArray, fx
+from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFixedArray, fx
 
 
 def test_prod():
@@ -60,7 +60,9 @@ def test_array_multiplication_with_different_frac_bits(frac_bits: int):
 
 
 @pytest.mark.parametrize("frac_bits", range(10, 68))
-def test_array_multiplication_with_different_frac_bits_and_int_bit_offset(frac_bits):
+def test_array_multiplication_with_different_frac_bits_and_int_bit_offset(
+    frac_bits: int,
+):
     v1 = 1 / 3 + 1j * math.pi
     v2 = math.pi + 1j / 7
     v3 = -math.pi - 1j * math.sqrt(2)
@@ -87,7 +89,7 @@ def test_array_multiplication_with_different_frac_bits_and_int_bit_offset(frac_b
 
 
 @pytest.mark.parametrize("frac_bits", range(10, 68))
-def test_scalar_array_multiplication_with_different_frac_bits(frac_bits):
+def test_scalar_array_multiplication_with_different_frac_bits(frac_bits: int):
     v1 = 1 / 3 + 1j * math.pi
     v2 = math.pi + 1j / 7
     v3 = -math.pi - 1j * math.sqrt(2)
@@ -108,7 +110,7 @@ def test_scalar_array_multiplication_with_different_frac_bits(frac_bits):
 
 @pytest.mark.parametrize("frac_bits", range(10, 68))
 def test_scalar_array_multiplication_with_different_frac_bits_and_int_bit_offset(
-    frac_bits,
+    frac_bits: int,
 ):
     v1 = 1 / 3 + 1j * math.pi
     v2 = math.pi + 1j / 7
@@ -139,3 +141,87 @@ def test_unary_arith():
     )
     assert (-a).is_identical(nega)
     assert (+a).is_identical(a)
+
+
+def test_arithmetic_with_apyfixed():
+    a = APyCFixedArray.from_complex([1 + 2j, -4, 3.5 - 2j], int_bits=7, frac_bits=3)
+    b = APyFixed.from_float(3.0, int_bits=5, frac_bits=0)
+    assert (a + b).is_identical(
+        APyCFixedArray.from_complex([4 + 2j, -1, 6.5 - 2j], int_bits=8, frac_bits=3)
+    )
+    assert (a - b).is_identical(
+        APyCFixedArray.from_complex([-2 + 2j, -7, 0.5 - 2j], int_bits=8, frac_bits=3)
+    )
+    assert (a * b).is_identical(
+        APyCFixedArray.from_complex([3 + 6j, -12, 10.5 - 6j], int_bits=13, frac_bits=3)
+    )
+    assert (a / b).is_identical(
+        APyCFixedArray([(85, 170), (65195, 0), (298, 65366)], int_bits=8, frac_bits=8)
+    )
+    assert (b + a).is_identical(a + b)
+    assert (b * a).is_identical(a * b)
+    assert (b - a).is_identical((-(a - b)).cast(int_bits=8, frac_bits=3))
+    assert (b / a).is_identical(
+        APyCFixedArray([(76, 65383), (65440, 0), (82, 47)], int_bits=9, frac_bits=7)
+    )
+
+    np = pytest.importorskip("numpy")
+    assert np.all(a != b)
+    assert np.all(b != a)
+    assert not (np.all(a == b))
+    assert not (np.all(b == a))
+
+
+def test_arithmetic_with_apyfixedarray():
+    a = APyCFixedArray.from_complex([1 + 2j, -4, 3.5 - 2j], int_bits=7, frac_bits=3)
+    b = APyFixedArray.from_float([3.0, 0.0, 4.0], int_bits=5, frac_bits=0)
+    assert (a + b).is_identical(
+        APyCFixedArray.from_complex([4 + 2j, -4, 7.5 - 2j], int_bits=8, frac_bits=3)
+    )
+    assert (a - b).is_identical(
+        APyCFixedArray.from_complex([-2 + 2j, -4, -0.5 - 2j], int_bits=8, frac_bits=3)
+    )
+    assert (a * b).is_identical(
+        APyCFixedArray.from_complex([3 + 6j, 0, 14 - 8j], int_bits=13, frac_bits=3)
+    )
+    assert (a / b).is_identical(
+        APyCFixedArray([(85, 170), (0, 0), (224, 65408)], int_bits=8, frac_bits=8)
+    )
+    assert (b + a).is_identical(a + b)
+    assert (b * a).is_identical(a * b)
+    assert (b - a).is_identical((-(a - b)).cast(int_bits=8, frac_bits=3))
+    assert (b / a).is_identical(
+        APyCFixedArray([(76, 65383), (0, 0), (110, 63)], int_bits=9, frac_bits=7)
+    )
+
+    np = pytest.importorskip("numpy")
+    assert np.all(a != b)
+    assert np.all(b != a)
+    assert not (np.all(a == b))
+    assert not (np.all(b == a))
+
+
+def test_arrays_dont_crash_on_zero_div():
+    """
+    In APyTypes, array division-by-zero results in an undefined values. However,
+    APyTypes should not crash when such a division occurs
+    """
+    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=10, frac_bits=0)
+    b = APyCFixedArray.from_complex([0.0, 0.0, 1.0], int_bits=10, frac_bits=0)
+    _ = a / b
+    _ = b / a
+
+    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=10, frac_bits=0)
+    b = APyFixedArray.from_float([0.0, 1.0, 0.0], int_bits=10, frac_bits=0)
+    _ = a / b
+    _ = b / a
+
+    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=10, frac_bits=0)
+    b = APyCFixed.from_complex(0.0, int_bits=10, frac_bits=0)
+    _ = a / b
+    _ = b / a
+
+    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=10, frac_bits=0)
+    b = APyFixed.from_float(0.0, int_bits=10, frac_bits=0)
+    _ = a / b
+    _ = b / a

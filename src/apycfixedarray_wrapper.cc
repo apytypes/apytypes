@@ -14,52 +14,69 @@ namespace nb = nanobind;
 
 /*
  * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyCFixedArray
- * type
+ * type by first promotong the left-hand side.
  */
-template <auto FUNC, typename L_TYPE>
+template <auto R_FUNC, typename L_TYPE>
 static auto R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs) -> APyCFixedArray
 {
     if constexpr (std::is_same_v<std::complex<double>, L_TYPE>) {
-        return (rhs.*FUNC)(
-            APyCFixed::from_complex(lhs, rhs.int_bits(), rhs.frac_bits())
-        );
+        auto lhs_cplx = APyCFixed::from_complex(lhs, rhs.int_bits(), rhs.frac_bits());
+        return (rhs.*R_FUNC)(lhs_cplx);
     } else if constexpr (std::is_floating_point_v<L_TYPE>) {
-        return (rhs.*FUNC)(
-            APyCFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
-        );
+        auto lhs_cplx = APyCFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits());
+        return (rhs.*R_FUNC)(lhs_cplx);
     } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyCFixed>) {
-        return (rhs.*FUNC)(lhs);
+        return (rhs.*R_FUNC)(lhs);
     } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyFixed>) {
-        return (rhs.*FUNC)(
-            APyCFixed::from_apyfixed(lhs, lhs.int_bits(), lhs.frac_bits())
-        );
+        auto lhs_cplx = APyCFixed::from_apyfixed(lhs, lhs.int_bits(), lhs.frac_bits());
+        return (rhs.*R_FUNC)(lhs_cplx);
+    } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, nb::int_>) {
+        auto lhs_cplx = APyCFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits());
+        return (rhs.*R_FUNC)(lhs_cplx);
     } else {
-        return (rhs.*FUNC)(
-            APyCFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
+        static_assert(
+            always_false_v<L_TYPE>, "Need to add another R_OP specialization?"
+        );
+    }
+}
+
+template <typename L_FUNC, typename L_TYPE>
+static auto R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs) -> APyCFixedArray
+{
+    if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyFixedArray>) {
+        return L_FUNC()(APyCFixedArray(lhs), rhs);
+    } else {
+        static_assert(
+            always_false_v<L_TYPE>, "Need to add another R_OP specialization?"
         );
     }
 }
 
 /*
  * Binding function of a custom L-operator (e.g., `__sub__`) with non APyCFixedArray
- * type
+ * type by first promotong the left-hand side.
  */
-template <typename OP, typename R_TYPE>
+template <typename L_FUNC, typename R_TYPE>
 static auto L_OP(const APyCFixedArray& lhs, const R_TYPE& rhs)
-    -> decltype(OP()(lhs, lhs))
+    -> decltype(L_FUNC()(lhs, lhs))
 {
     if constexpr (std::is_same_v<std::complex<double>, R_TYPE>) {
-        return OP()(lhs, APyCFixed::from_complex(rhs, lhs.int_bits(), lhs.frac_bits()));
+        auto rhs_cplx = APyCFixed::from_complex(rhs, lhs.int_bits(), lhs.frac_bits());
+        return L_FUNC()(lhs, rhs_cplx);
     } else if constexpr (std::is_floating_point_v<R_TYPE>) {
-        return OP()(lhs, APyCFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
+        auto rhs_cplx = APyCFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
+        return L_FUNC()(lhs, rhs_cplx);
     } else if constexpr (std::is_same_v<nb::int_, R_TYPE>) {
-        return OP()(lhs, APyCFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits()));
+        auto rhs_cplx = APyCFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits());
+        return L_FUNC()(lhs, rhs_cplx);
     } else if constexpr (std::is_same_v<APyFixed, R_TYPE>) {
-        return OP()(
-            lhs, APyCFixed::from_apyfixed(rhs, lhs.int_bits(), lhs.frac_bits())
-        );
+        auto rhs_cplx = APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits());
+        return L_FUNC()(lhs, rhs_cplx);
+    } else if constexpr (std::is_same_v<APyFixedArray, R_TYPE>) {
+        APyCFixedArray rhs_cplx(rhs);
+        return L_FUNC()(lhs, rhs_cplx);
     } else {
-        return OP()(lhs, rhs);
+        return L_FUNC()(lhs, rhs);
     }
 }
 
@@ -145,9 +162,36 @@ void bind_cfixed_array(nb::module_& m)
         .def("__mul__", L_OP<STD_MUL<>, APyCFixed>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, APyCFixed>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, APyCFixed>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, APyCFixed>, CMP("__eq__", "APyCFixed"))
+        .def("__ne__", L_OP<STD_NE<>, APyCFixed>, CMP("__ne__", "APyCFixed"))
 
-        .def("__eq__", L_OP<std::equal_to<>, APyCFixed>, CMP("__eq__", "APyCFixed"))
-        .def("__ne__", L_OP<std::not_equal_to<>, APyCFixed>, CMP("__ne__", "APyCFixed"))
+        /*
+         * Arithmetic operations with `APyFixed`
+         */
+        .def("__add__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyCFixedArray::rsub, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, APyFixed>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, APyFixed>, CMP("__eq__", "APyFixed"))
+        .def("__ne__", L_OP<STD_NE<>, APyFixed>, CMP("__ne__", "APyFixed"))
+
+        /*
+         * Arithmetic operations with `APyFixedArray`
+         */
+        .def("__add__", L_OP<STD_ADD<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<STD_SUB<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<STD_DIV<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def("__eq__", L_OP<STD_EQ<>, APyFixedArray>, CMP("__eq__", "APyFixedArray"))
+        .def("__ne__", L_OP<STD_NE<>, APyFixedArray>, CMP("__ne__", "APyFixedArray"))
 
         /*
          * Arithmetic operation with complex
@@ -160,9 +204,8 @@ void bind_cfixed_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, complex_t>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, complex_t>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, complex_t>, NB_OP(), NB_NARG())
-
-        .def("__eq__", L_OP<std::equal_to<>, complex_t>, CMP("__eq__", "complex"))
-        .def("__ne__", L_OP<std::not_equal_to<>, complex_t>, CMP("__ne__", "complex"))
+        .def("__eq__", L_OP<STD_EQ<>, complex_t>, CMP("__eq__", "complex"))
+        .def("__ne__", L_OP<STD_NE<>, complex_t>, CMP("__ne__", "complex"))
 
         /*
          * Arithmetic operation with floats
@@ -175,9 +218,8 @@ void bind_cfixed_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, double>, NB_OP(), NB_NARG())
-
-        .def("__eq__", L_OP<std::equal_to<>, double>, CMP("__eq__", "float"))
-        .def("__ne__", L_OP<std::not_equal_to<>, double>, CMP("__ne__", "float"))
+        .def("__eq__", L_OP<STD_EQ<>, double>, CMP("__eq__", "float"))
+        .def("__ne__", L_OP<STD_NE<>, double>, CMP("__ne__", "float"))
 
         /*
          * Arithmetic operations with integers
@@ -190,9 +232,8 @@ void bind_cfixed_array(nb::module_& m)
         .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
-
-        .def("__eq__", L_OP<std::equal_to<>, nb::int_>, CMP("__eq__", "int"))
-        .def("__ne__", L_OP<std::not_equal_to<>, nb::int_>, CMP("__ne__", "int"))
+        .def("__eq__", L_OP<STD_EQ<>, nb::int_>, CMP("__eq__", "int"))
+        .def("__ne__", L_OP<STD_NE<>, nb::int_>, CMP("__ne__", "int"))
 
         /*
          * Logic operations

@@ -1182,5 +1182,11 @@ CREATE_FUNCTOR_FROM_FUNC(apy_sub_n_functor, apy_subtraction_same_length);
 #define STD_SUB std::minus
 #define STD_MUL std::multiplies
 #define STD_DIV std::divides
+#define STD_EQ std::equal_to
+#define STD_NE std::not_equal_to
+
+//! Type-dependant `false` value. Can be used as a `false` value in a static assert as
+//! `static_assert(always_false_v)` without triggering ill-formed behaviour.
+template <typename> inline constexpr bool always_false_v = false;
 
 #endif // _APYTYPES_UTIL_H
