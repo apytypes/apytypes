@@ -21,8 +21,7 @@
 #include <cstdint>    // std::int64_t
 #include <functional> // std::bind, std::function, std::placeholders
 #include <iterator>   // std::begin
-#include <numeric>
-#include <optional> // std::optional
+#include <optional>   // std::optional
 #include <type_traits>
 
 /* ********************************************************************************** *

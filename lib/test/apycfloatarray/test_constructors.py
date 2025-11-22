@@ -218,3 +218,65 @@ def test_from_complex():
             man_bits=20,
         )
     )
+
+
+@pytest.mark.parametrize(
+    ("sign", "exp", "man", "ref"),
+    [
+        (
+            [False],
+            [511],
+            [0],
+            APyCFloatArray.from_complex([1], exp_bits=10, man_bits=20),
+        ),
+        (
+            [False, False],
+            [511, 512],
+            [0, 0],
+            APyCFloatArray.from_complex([1 + 2j], exp_bits=10, man_bits=20),
+        ),
+        (
+            [False, False, False],
+            [511, 512, 513],
+            [0, 2**19, 0],
+            APyCFloatArray.from_complex([1, 3, 4], exp_bits=10, man_bits=20),
+        ),
+        (
+            [[False], [False]],
+            [[511], [512]],
+            [[0], [0]],
+            APyCFloatArray.from_complex([[1], [2]], exp_bits=10, man_bits=20),
+        ),
+        (
+            [[False, False], [False, False]],
+            [[511, 512], [512, 513]],
+            [[0, 0], [2**19, 0]],
+            APyCFloatArray.from_complex([1 + 2j, 3 + 4j], exp_bits=10, man_bits=20),
+        ),
+        (
+            [[[False, False]], [[False, False]]],
+            [[[511, 512]], [[512, 513]]],
+            [[[0, 0]], [[2**19, 0]]],
+            APyCFloatArray.from_complex([[1 + 2j], [3 + 4j]], exp_bits=10, man_bits=20),
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "dt",
+    [None, "int64", "int32", "int16", "int8", "uint64", "uint32", "uint16", "uint8"],
+)
+def test_constructor_complex_collapse_from_list(
+    sign: list[list[bool] | bool],
+    exp: list[list[int] | int],
+    man: list[list[int] | int],
+    ref: APyCFloatArray,
+    dt: str | None,
+):
+    if dt is None:
+        assert APyCFloatArray(sign, exp, man, 10, 20).is_identical(ref)
+    else:
+        np = pytest.importorskip("numpy")
+        sign_np = np.array(sign)
+        exp_np = np.array(exp)
+        man_np = np.array(man)
+        assert APyCFloatArray(sign_np, exp_np, man_np, 10, 20).is_identical(ref)

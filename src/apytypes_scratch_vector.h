@@ -109,15 +109,11 @@ public:
         /* Default constructor */
     }
 
-    ~ScratchVector()
-    {
-        if (_capacity > _N_SCRATCH_ELEMENTS) {
-            Allocator().deallocate(_ptr, _capacity);
-        }
-    }
-
     ScratchVector(size_type count, const T& value)
-        : ScratchVector()
+        : _size { 0 }
+        , _capacity { _N_SCRATCH_ELEMENTS }
+        , _scratch_data { value }
+        , _ptr { nullptr }
     {
         if (count <= _N_SCRATCH_ELEMENTS) {
             _size = count;
@@ -153,13 +149,24 @@ public:
         std::copy(first, last, iterator(_ptr));
     }
 
-    ScratchVector(const ScratchVector& other)
-        : ScratchVector(std::begin(other), std::end(other))
+    ScratchVector(std::initializer_list<T> init)
+        : ScratchVector(std::begin(init), std::end(init))
     {
     }
 
-    ScratchVector(std::initializer_list<T> init)
-        : ScratchVector(std::begin(init), std::end(init))
+    /* ****************************************************************************** *
+     * *                             Rule of five                                   * *
+     * ****************************************************************************** */
+
+    ~ScratchVector()
+    {
+        if (_capacity > _N_SCRATCH_ELEMENTS) {
+            Allocator().deallocate(_ptr, _capacity);
+        }
+    }
+
+    ScratchVector(const ScratchVector& other)
+        : ScratchVector(std::begin(other), std::end(other))
     {
     }
 
@@ -191,7 +198,7 @@ public:
 
     ScratchVector& operator=(const ScratchVector& other)
     {
-        return operator= <ScratchVector, true>(other);
+        return operator= <ScratchVector, /*SPECIALIZED=*/true>(other);
     }
 
     /* ****************************************************************************** *
@@ -311,6 +318,8 @@ public:
     }
 
     void pop_back() { resize(_size - 1); }
+
+    T* data() const { return _ptr; }
 
     //! Convert a `ScratchVector` into a `std::vector`
     explicit operator std::vector<T>() const { return std::vector<T>(begin(), end()); }

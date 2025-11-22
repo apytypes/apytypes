@@ -3,6 +3,7 @@
 
 #include "apytypes_fwd.h"
 #include "apytypes_intrinsics.h"
+#include "apytypes_thread_pool.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
@@ -277,5 +278,28 @@ ThirdPartyArray<NB_ARGS...> make_third_party_ndarray(
         APYTYPES_UNREACHABLE();
     }
 }
+
+/* ********************************************************************************** *
+ * *                Threadpool for submitting parallel job tasks to                 * *
+ * ********************************************************************************** */
+
+//! The global APyTypes threadpool
+extern ThreadPool thread_pool;
+
+//! Array-specific thread settings class
+struct ArrayThreadSetting {
+    std::size_t n_mac_threshold;
+};
+
+//! Threadpool settings class
+struct ThreadPoolSettings {
+    ArrayThreadSetting apyfixedarray { /* n_mac_threshold = */ 10'000 };
+    ArrayThreadSetting apycfixedarray { /* n_mac_threshold = */ 2'500 };
+    ArrayThreadSetting apyfloatarray { /* n_mac_threshold = */ 5'000 };
+    ArrayThreadSetting apycfloatarray { /* n_mac_threshold = */ 1'000 };
+};
+
+//! Threadpool settings
+extern ThreadPoolSettings thread_pool_settings;
 
 #endif // _APYTYPES_COMMON_H

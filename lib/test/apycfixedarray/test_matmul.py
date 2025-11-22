@@ -232,3 +232,15 @@ def test_matrix_multiplication_accumulator_context():
                 frac_bits=2,
             )
         )
+
+
+@pytest.mark.parametrize("bits", [20, 40, 60, 80])
+def test_matrix_multiplication_threadpool(bits: int):
+    np = pytest.importorskip("numpy")
+    array_np = np.array(range(200 * 200 * 2)).reshape((200, 200, 2))
+    array_fx = APyCFixedArray(array_np, int_bits=bits, frac_bits=0)
+
+    array_cnp = np.zeros((200, 200), dtype=np.complex128)
+    array_cnp.real = array_np[:, :, 0]
+    array_cnp.imag = array_np[:, :, 1]
+    assert np.all((array_cnp @ array_cnp) == (array_fx @ array_fx).to_numpy())

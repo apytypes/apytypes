@@ -7,8 +7,10 @@
 #include "apyfixed_util.h"
 #include "apyfixedarray.h"
 #include "apytypes_common.h"
+#include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
 #include "apytypes_simd.h"
+#include "apytypes_thread_pool.h"
 #include "apytypes_util.h"
 #include "array_utils.h"
 #include "python_util.h"
@@ -1770,32 +1772,58 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
         res_int_bits = mode->int_bits;
     }
 
-    // Resulting tensor and a working column from `rhs`
-    APyFixedArray res(res_shape, res_bits, res_int_bits);
-    APyFixedArray current_col({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
+    // Determine if threadpool should be used or not.
+    const bool use_threadpool = is_mac_with_threadpool_justified(M * N * res_cols);
+    const std::size_t n_threads = use_threadpool ? thread_pool.get_thread_count() : 1;
 
-    auto inner_product = FixedPointInnerProduct(spec(), rhs.spec(), res.spec(), mode);
-    for (std::size_t x = 0; x < res_cols; x++) {
-        // Copy column from `rhs` and use as the current working column. As
-        // reading columns from `rhs` is cache-inefficient, we like to do this
-        // only once for each element in the resulting matrix.
+    // Resulting tensor
+    APyFixedArray res(res_shape, res_bits, res_int_bits);
+
+    // Specialized inner product functor
+    FixedPointInnerProduct inner_product(spec(), rhs.spec(), res.spec(), mode);
+    FixedPointInnerProduct* inner_product_ptr = &inner_product;
+
+    // RHS column cache
+    const std::size_t limbs_per_col = rhs._shape[0] * bits_to_limbs(rhs._bits);
+    std::vector<apy_limb_t> cache_col(n_threads * limbs_per_col);
+
+    // The matmul task
+    auto matmul_task = [&](std::size_t x) {
+        const std::size_t thread_i = ThisThread::get_index().value_or(0);
+        const auto current_col = std::begin(cache_col) + thread_i * limbs_per_col;
+        auto&& inner_product = inner_product_ptr[thread_i];
+
+        // Copy column from `rhs` and use as the current working column. As reading
+        // columns from `rhs` is cache-inefficient, we like to do this only once for
+        // each element in the resulting matrix.
         for (std::size_t row = 0; row < rhs._shape[0]; row++) {
             std::copy_n(
                 rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
                 rhs._itemsize,
-                current_col._data.begin() + row * rhs._itemsize
+                current_col + row * rhs._itemsize
             );
         }
 
         // dst = A x b
         inner_product(
             std::begin(_data),                         // src1, A: [M x N]
-            std::begin(current_col._data),             // src2, b: [N x 1]
+            current_col,                               // src2, b: [N x 1]
             std::begin(res._data) + res._itemsize * x, // dst
             N,                                         // N
             M,                                         // M
             res_cols                                   // DST_STEP
         );
+    };
+
+    if (n_threads > 1) {
+        std::vector<FixedPointInnerProduct> cache_inner_prod(n_threads, inner_product);
+        inner_product_ptr = cache_inner_prod.data();
+        thread_pool.detach_loop(0, res_cols, matmul_task);
+        thread_pool.wait();
+    } else {
+        for (std::size_t i = 0; i < res_cols; i++) {
+            matmul_task(i);
+        }
     }
 
     return res;

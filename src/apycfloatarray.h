@@ -100,6 +100,12 @@ public:
         return { exp_bits, man_bits, bias };
     }
 
+    //! Test if using threadpool is justified based on number of multiply-accumulate
+    bool is_mac_with_threadpool_justified(std::size_t n_mac) const noexcept
+    {
+        return n_mac >= thread_pool_settings.apycfloatarray.n_mac_threshold;
+    }
+
     /* ****************************************************************************** *
      * *                        Arithmetic member functions                         * *
      * ****************************************************************************** */
@@ -302,6 +308,33 @@ public:
 private:
     //! Set data fields based on an ndarray of doubles
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
+
+    //! Set `sign` bits from ndarray
+    void _set_sign_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array);
+
+    //! Set `exp` bits from ndarray
+    void _set_exp_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array);
+
+    //! Set `man` bits from ndarray
+    void _set_man_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array);
+
+    //! Check and set `sign` from ndarray of `DTYPE`. Returns `true` on success and
+    //! `false` otherwise. This is primarily a helper function to
+    //! `_set_sign_bits_from_ndarray`
+    template <typename CPP_DTYPE>
+    bool _check_and_set_sign_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array);
+
+    //! Check and set `exp` from ndarray of `DTYPE`. Returns `true` on success and
+    //! `false` otherwise. This is primarily a helper function to
+    //! `_set_exp_bits_from_ndarray`
+    template <typename CPP_DTYPE>
+    bool _check_and_set_exp_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array);
+
+    //! Check and set `man` from ndarray of `DTYPE`. Returns `true` on success and
+    //! `false` otherwise. This is primarily a helper function to
+    //! `_set_man_bits_from_ndarray`
+    template <typename CPP_DTYPE>
+    bool _check_and_set_man_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array);
 
     /* ****************************************************************************** *
      * *                           Other member functions                           * *

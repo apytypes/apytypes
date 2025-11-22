@@ -336,6 +336,43 @@ void bind_common(nb::module_& m)
 
             )pbdoc"
         )
+        .def(
+            "n_threads",
+            []() { return thread_pool.get_thread_count(); },
+            R"pbdoc(
+            Retrieve the number of threads active in the APyTypes thread pool.
+
+            On startup, a suitable number of threads is automatically determined by
+            APyTypes, unless the environment variable `APYTYPES_THREAD_COUNT` is set. In
+            that case, the thread pool is initialized with `int(APYTYPES_THREAD_COUNT)`
+            number of threads.
+
+            .. versionadded:: 0.5
+
+            Returns
+            -------
+            :class:`int`
+                Number of threads in the APyTypes thread pool.
+            )pbdoc"
+        )
+        .def(
+            "reset_thread_pool",
+            [](std::size_t n_threads) { thread_pool.reset(n_threads); },
+            nb::arg("n_threads"),
+            R"pbdoc(
+            Reset the APyTypes thread pool with a new thread count.
+
+            If `n_threads == 0`, the thread pool will determine a suitable number of
+            threads on its own.
+
+            .. versionadded:: 0.5
+
+            Parameters
+            ----------
+            n_threads : :class:`int`
+                Number of threads in the new thread pool. Zero to let APyTypes decide.
+            )pbdoc"
+        )
 
         /* Get the APyTypes SIMD version string */
         .def("_get_simd_version_str", &simd::get_simd_version_str);

@@ -83,6 +83,12 @@ public:
     //! Retrieve the bit specification
     APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
 
+    //! Test if using threadpool is justified based on number of multiply-accumulate
+    bool is_mac_with_threadpool_justified(std::size_t n_mac) const noexcept
+    {
+        return n_mac >= thread_pool_settings.apycfixedarray.n_mac_threshold;
+    }
+
     /* ****************************************************************************** *
      * *                          Python constructors                               * *
      * ****************************************************************************** */
@@ -373,6 +379,13 @@ private:
      * member function assumes that the shape of `*this` and `ndarray` are equal.
      */
     void _set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray);
+
+    /*!
+     * Helper function to `_set_bits_from_ndarray`. Returns `true` on success and
+     * `false` otherwise
+     */
+    template <typename DTYPE>
+    bool _check_and_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray);
 
     /*!
      * Set the values of `*this` from a NDArray object of floats/integers. This member

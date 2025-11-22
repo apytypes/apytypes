@@ -203,6 +203,38 @@ def get_preferred_array_lib() -> str:
         The preferred third-party array library in use.
     """
 
+def n_threads() -> int:
+    """
+    Retrieve the number of threads active in the APyTypes thread pool.
+
+    On startup, a suitable number of threads is automatically determined by
+    APyTypes, unless the environment variable `APYTYPES_THREAD_COUNT` is set. In
+    that case, the thread pool is initialized with `int(APYTYPES_THREAD_COUNT)`
+    number of threads.
+
+    .. versionadded:: 0.5
+
+    Returns
+    -------
+    :class:`int`
+        Number of threads in the APyTypes thread pool.
+    """
+
+def reset_thread_pool(n_threads: int) -> None:
+    """
+    Reset the APyTypes thread pool with a new thread count.
+
+    If `n_threads == 0`, the thread pool will determine a suitable number of
+    threads on its own.
+
+    .. versionadded:: 0.5
+
+    Parameters
+    ----------
+    n_threads : :class:`int`
+        Number of threads in the new thread pool. Zero to let APyTypes decide.
+    """
+
 class APyCFixed:
     """
     Class for configurable complex-valued scalar fixed-point formats.

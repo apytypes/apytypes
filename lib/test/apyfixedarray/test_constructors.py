@@ -29,6 +29,26 @@ def test_homogeneous_shape(fixed_array: type[APyCFixedArray]):
         _ = fixed_array([1, 2, 3, [4, 5]], bits=10, int_bits=10)
 
 
+@pytest.mark.parametrize(
+    "dt",
+    [None, "int64", "int32", "int16", "int8", "uint64", "uint32", "uint16", "uint8"],
+)
+@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
+@pytest.mark.parametrize("vals", [[1], [1, -2, 3], [[1, -3, 1], [-4, -2, 0]]])
+def test_simple_constructor(
+    dt: None | str, fixed_array: type[APyCFixedArray], vals: list[list[int] | int]
+):
+    if dt is None:
+        assert fixed_array(vals, int_bits=20, frac_bits=0).is_identical(
+            fixed_array.from_float(vals, int_bits=20, frac_bits=0)
+        )
+    else:
+        np = pytest.importorskip("numpy")
+        assert fixed_array(np.array(vals), int_bits=20, frac_bits=0).is_identical(
+            fixed_array.from_float(vals, int_bits=20, frac_bits=0)
+        )
+
+
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 def test_array_floating_point_construction(fixed_array: type[APyCFixedArray]):
     """

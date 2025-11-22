@@ -1,6 +1,7 @@
 #include "apytypes_common.h"
 #include "apyfloat_util.h"
 #include "apytypes_intrinsics.h"
+#include "apytypes_thread_pool.h"
 #include "apytypes_util.h"
 
 // Python object access through Pybind
@@ -8,7 +9,8 @@
 #include <nanobind/stl/function.h>
 namespace nb = nanobind;
 
-#include <random>
+#include <cstdlib> // std::getenv
+#include <random>  // std::random_devive, std::mt19937_64
 
 /* ********************************************************************************** *
  * *                        Thread-local states for APyTypes                        * *
@@ -286,3 +288,19 @@ std::string get_preferred_array_lib_as_str()
         APYTYPES_UNREACHABLE();
     }
 }
+
+/* ********************************************************************************** *
+ * *                Threadpool for submitting parallel tasks tasks to               * *
+ * ********************************************************************************** */
+
+//! Thread count environment variable
+static const char* ENV_THREAD_COUNT = std::getenv("APYTYPES_THREAD_COUNT");
+
+//! The global APyTypes threadpool
+ThreadPool thread_pool(
+    APYTYPES_THREADPOOL_ENABLED ? (ENV_THREAD_COUNT ? std::atoi(ENV_THREAD_COUNT) : 0)
+                                : (0)
+);
+
+//! The global thread pool settings
+ThreadPoolSettings thread_pool_settings {};

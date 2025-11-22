@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Convenience vector-matrix multiplication (as in Numpy, Pytorch, etc):
   - `[ M ] @ [ M x N ]` ==> `[ 1 x M ] @ [ M x N ]` ==> `[ 1 x N ]` ==> `[ N ]`
 - Mixed real-complex array arithmetic.
+- Thread pool for matrix multiplication.
 
 ### Fixed
 
@@ -42,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Segmentation violation when initializing APyTypes arrays from zero-dimensional
   Numpy arrays.
 - Segmentation violation in `APyCFixedArray` for division-by-zero.
+- Bug where array bit-constructors initialized from NumPy arrays resulted in
+  wrong array values or downright caused a segmentation violation.
 
 ### Changed
 
