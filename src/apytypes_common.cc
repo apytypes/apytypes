@@ -1,4 +1,5 @@
 #include "apytypes_common.h"
+#include "BS_thread_pool.hpp"
 #include "apyfloat_util.h"
 #include "apytypes_intrinsics.h"
 #include "apytypes_util.h"
@@ -286,3 +287,10 @@ std::string get_preferred_array_lib_as_str()
         APYTYPES_UNREACHABLE();
     }
 }
+
+/* ********************************************************************************** *
+ * *                Threadpool for submitting parallel tasks tasks to               * *
+ * ********************************************************************************** */
+
+//! The global APyTypes threadpool
+BS::thread_pool<> thread_pool;

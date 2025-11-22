@@ -1775,7 +1775,7 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     APyFixedArray current_col({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
 
     auto inner_product = FixedPointInnerProduct(spec(), rhs.spec(), res.spec(), mode);
-    for (std::size_t x = 0; x < res_cols; x++) {
+    auto matmul_task = [&](std::size_t x) {
         // Copy column from `rhs` and use as the current working column. As
         // reading columns from `rhs` is cache-inefficient, we like to do this
         // only once for each element in the resulting matrix.
@@ -1796,7 +1796,34 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
             M,                                         // M
             res_cols                                   // DST_STEP
         );
-    }
+    };
+    auto multi_future = thread_pool.submit_sequence(0, res_cols, matmul_task);
+    multi_future.wait();
+
+    return res;
+
+    // for (std::size_t x = 0; x < res_cols; x++) {
+    //     // Copy column from `rhs` and use as the current working column. As
+    //     // reading columns from `rhs` is cache-inefficient, we like to do this
+    //     // only once for each element in the resulting matrix.
+    //     for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+    //         std::copy_n(
+    //             rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
+    //             rhs._itemsize,
+    //             current_col._data.begin() + row * rhs._itemsize
+    //         );
+    //     }
+
+    //     // dst = A x b
+    //     inner_product(
+    //         std::begin(_data),                         // src1, A: [M x N]
+    //         std::begin(current_col._data),             // src2, b: [N x 1]
+    //         std::begin(res._data) + res._itemsize * x, // dst
+    //         N,                                         // N
+    //         M,                                         // M
+    //         res_cols                                   // DST_STEP
+    //     );
+    // }
 
     return res;
 }
