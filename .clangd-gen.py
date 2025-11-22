@@ -47,6 +47,7 @@ python3_includes = run_shell("python3-config --includes")
 nanobind_includes = run_shell("python3 -m nanobind --include_dir")
 fmt_include = include_from_subproject("subprojects/fmt.wrap")
 highway_include = include_from_subproject("subprojects/highway.wrap")
+threadpool_include = include_from_subproject("subprojects/bshoshany-thread-pool.wrap")
 
 compile_flags = [
     "-std=c++17",
@@ -60,6 +61,7 @@ compile_flags = [
     *["-I" + s for s in nanobind_includes.stdout.strip().split(" ")],
     f"-I{APYTYPES_DIR}/subprojects/{fmt_include}/include",
     f"-I{APYTYPES_DIR}/subprojects/{highway_include}",
+    f"-I{APYTYPES_DIR}/subprojects/{threadpool_include}/include",
 ]
 
 # Produce the .clangd configuration

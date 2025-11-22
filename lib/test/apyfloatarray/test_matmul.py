@@ -8,6 +8,7 @@ from apytypes import (
     APyFloatArray,
     APyFloatQuantizationContext,
     QuantizationMode,
+    fp,
 )
 
 
@@ -694,3 +695,11 @@ def test_matrix_multiplication_1Dx2D(float_array: type[APyCFloatArray]):
     assert (a @ B).is_identical(
         float_array.from_float([-1.22, -1.99, -2.76], exp_bits=10, man_bits=20)
     )
+
+
+@pytest.mark.parametrize("force_complex", [False, True])
+def test_matrix_multiplication_threadpool(force_complex: bool):
+    np = pytest.importorskip("numpy")
+    array_np = np.array(range(200 * 200), dtype="int64").reshape((200, 200))
+    array_fp = fp(array_np, exp_bits=11, man_bits=52, force_complex=force_complex)
+    assert np.all((array_np @ array_np) == (array_fp @ array_fp).to_numpy())

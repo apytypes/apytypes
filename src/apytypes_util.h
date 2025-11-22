@@ -1049,7 +1049,7 @@ limb_vector_from_u64_vec(const VEC_INPUT_TYPE& vec)
     return limb_vector_from_u64_vec<VEC_RETURN_TYPE>(std::begin(vec), std::end(vec));
 }
 
-//! Construct a Python tuple-literal-string from a vector of `T`. The type `T` must be
+//! Construct a Python tuple-literal string from a vector of `T`. The type `T` must be
 //! convertible to string through both a `std::stringstream` and `fmt::format({})`.
 template <typename T> std::string tuple_string_from_vec(const std::vector<T>& vec)
 {

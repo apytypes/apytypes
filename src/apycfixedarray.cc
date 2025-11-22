@@ -1512,43 +1512,27 @@ std::string APyCFixedArray::to_string(int base) const
 
 void APyCFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
 {
-#define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                       \
-    do {                                                                               \
-        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
-            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
-            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                apy_limb_t data;                                                       \
-                if constexpr (std::is_signed<__TYPE__>::value) {                       \
-                    data = static_cast<apy_limb_signed_t>(ndarray_view.data()[i]);     \
-                } else {                                                               \
-                    data = static_cast<apy_limb_t>(ndarray_view.data()[i]);            \
-                }                                                                      \
-                _data[i * _itemsize] = data;                                           \
-                if (_itemsize / 2 >= 2) {                                              \
-                    apy_limb_t limb = apy_limb_signed_t(data) < 0 ? -1 : 0;            \
-                    std::size_t real_n = _itemsize / 2 - 1;                            \
-                    std::fill_n(real_begin() + i * _itemsize + 1, real_n, limb);       \
-                }                                                                      \
-                std::fill_n(imag_begin() + i * _itemsize, _itemsize / 2, 0);           \
-            }                                                                          \
-            return; /* Conversion completed, exit `_set_bits_from_ndarray()` */        \
-        }                                                                              \
-    } while (0)
 
-    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // Each `_check_and_set_bits_from_ndarray` checks the dtype of `ndarray` and
     // converts all the data if it matches. If successful,
-    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attempted
+    // `_check_and_set_bits_from_ndarray` returns true. Otherwise, the next attempted
     // conversion will take place
-    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int64_t);
-    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int32_t);
-    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int16_t);
-    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int8_t);
-    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint64_t);
-    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint32_t);
-    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint16_t);
-    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint8_t);
-
-#undef CHECK_AND_SET_BITS_FROM_NPTYPE
+    if (_check_and_set_bits_from_ndarray<std::int64_t>(ndarray))
+        return;
+    if (_check_and_set_bits_from_ndarray<std::int32_t>(ndarray))
+        return;
+    if (_check_and_set_bits_from_ndarray<std::int16_t>(ndarray))
+        return;
+    if (_check_and_set_bits_from_ndarray<std::int8_t>(ndarray))
+        return;
+    if (_check_and_set_bits_from_ndarray<std::uint64_t>(ndarray))
+        return;
+    if (_check_and_set_bits_from_ndarray<std::uint32_t>(ndarray))
+        return;
+    if (_check_and_set_bits_from_ndarray<std::uint16_t>(ndarray))
+        return;
+    if (_check_and_set_bits_from_ndarray<std::uint8_t>(ndarray))
+        return;
 
     // None of the `CHECK_AND_SET_BITS_FROM_NPTYPE` succeeded. Unsupported type,
     // throw an error. If possible, it would be nice to show a string representation
@@ -1557,6 +1541,89 @@ void APyCFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& nda
     throw nb::type_error(
         "APyFixedArray.__init__: unsupported `dtype` in ndarray, expecting integer"
     );
+}
+
+template <typename CPP_DTYPE>
+bool APyCFixedArray::_check_and_set_bits_from_ndarray(
+    const nb::ndarray<nb::c_contig>& ndarray
+)
+{
+    static_assert(APY_LIMB_SIZE_BITS == 32 || APY_LIMB_SIZE_BITS == 64);
+    assert(ndarray.ndim() > 0);
+
+    bool is_complex_collapse = ndarray.shape(ndarray.ndim() - 1) == 2;
+    std::size_t data_offset = is_complex_collapse ? (_itemsize / 2) : _itemsize;
+
+    if (ndarray.dtype() == nb::dtype<CPP_DTYPE>()) {
+        auto ndarray_view = ndarray.view<CPP_DTYPE, nb::ndim<1>>();
+        if constexpr (APY_LIMB_SIZE_BITS == 32) {
+            if constexpr (sizeof(apy_limb_t) < sizeof(CPP_DTYPE)) {
+                for (std::size_t i = 0; i < ndarray.size(); i++) {
+                    _data[i * data_offset + 0] = ndarray_view.data()[i];
+                    if (_itemsize > 2) {
+                        _data[i * data_offset + 1] = ndarray_view.data()[i] >> 32;
+                    }
+                    if constexpr (std::is_signed_v<CPP_DTYPE>) {
+                        if (_itemsize > 2) {
+                            bool negative = ndarray_view.data()[i] < 0;
+                            apy_limb_t limb = negative ? -1 : 0;
+                            std::size_t real_n = _itemsize / 2 - 1;
+                            std::fill_n(
+                                real_begin() + i * data_offset + 1, real_n, limb
+                            );
+                        }
+                    }
+                    if (!is_complex_collapse) {
+                        std::fill_n(imag_begin() + i * _itemsize, _itemsize / 2, 0);
+                    }
+                }
+            } else {
+                for (std::size_t i = 0; i < ndarray.size(); i++) {
+                    apy_limb_t int_data;
+                    if constexpr (std::is_signed<CPP_DTYPE>::value) {
+                        int_data = apy_limb_signed_t(ndarray_view.data()[i]);
+                        _data[i * data_offset] = int_data;
+                        if (_itemsize > 2) {
+                            bool negative = apy_limb_signed_t(int_data) < 0;
+                            apy_limb_t limb = negative ? -1 : 0;
+                            std::size_t real_n = _itemsize / 2 - 1;
+                            std::fill_n(
+                                real_begin() + i * data_offset + 1, real_n, limb
+                            );
+                        }
+                    } else {
+                        int_data = apy_limb_t(ndarray_view.data()[i]);
+                        _data[i * data_offset] = int_data;
+                    }
+                    if (!is_complex_collapse) {
+                        std::fill_n(imag_begin() + i * _itemsize, _itemsize / 2, 0);
+                    }
+                }
+            }
+        } else { /* APY_LIMB_SIZE_BITS == 64 */
+            for (std::size_t i = 0; i < ndarray.size(); i++) {
+                apy_limb_t data;
+                if constexpr (std::is_signed<CPP_DTYPE>::value) {
+                    data = static_cast<apy_limb_signed_t>(ndarray_view.data()[i]);
+                } else {
+                    data = static_cast<apy_limb_t>(ndarray_view.data()[i]);
+                }
+                _data[i * data_offset] = data;
+                if (_itemsize / 2 >= 2) {
+                    apy_limb_t limb = apy_limb_signed_t(data) < 0 ? -1 : 0;
+                    std::size_t real_n = _itemsize / 2 - 1;
+                    std::fill_n(real_begin() + i * data_offset + 1, real_n, limb);
+                }
+                if (!is_complex_collapse) {
+                    std::fill_n(imag_begin() + i * _itemsize, _itemsize / 2, 0);
+                }
+            }
+        }
+
+        return true; // Setting data successful!
+    }
+
+    return false; // Setting data failed...
 }
 
 void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
@@ -1776,33 +1843,59 @@ APyCFixedArray APyCFixedArray::checked_2d_matmul(
         res_int_bits = mode->int_bits;
     }
 
-    // Resulting tensor and a working column from `rhs`
-    APyCFixedArray res(res_shape, res_bits, res_int_bits);
-    APyCFixedArray current_col({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
+    const bool use_threadpool = is_mac_with_threadpool_justified(M * N * res_cols);
+    const std::size_t n_threads = use_threadpool ? thread_pool.get_thread_count() : 1;
 
-    auto inner_product
-        = ComplexFixedPointInnerProduct(spec(), rhs.spec(), res.spec(), mode);
-    for (std::size_t x = 0; x < res_cols; x++) {
-        // Copy column from `rhs` and use as the current working column. As
-        // reading columns from `rhs` is cache-inefficient, we like to do this
-        // only once for each element in the resulting matrix.
+    // Resulting tensor
+    APyCFixedArray res(res_shape, res_bits, res_int_bits);
+
+    // Specialized inner product functor
+    ComplexFixedPointInnerProduct inner_product(spec(), rhs.spec(), res.spec(), mode);
+    ComplexFixedPointInnerProduct* inner_product_ptr = &inner_product;
+
+    // RHS column cache
+    const std::size_t limbs_per_col = 2 * bits_to_limbs(rhs._bits) * rhs._shape[0];
+    std::vector<apy_limb_t> cache_col(n_threads * limbs_per_col);
+
+    // The matmul task
+    auto matmul_task = [&](std::size_t x) {
+        const std::size_t thread_i = ThisThread::get_index().value_or(0);
+        const auto current_col = std::begin(cache_col) + thread_i * limbs_per_col;
+        auto&& inner_product = inner_product_ptr[thread_i];
+
+        // Copy column from `rhs` and use as the current working column. As reading
+        // columns from `rhs` is cache-inefficient, we like to do this only once for
+        // each element in the resulting matrix.
         for (std::size_t row = 0; row < rhs._shape[0]; row++) {
             std::copy_n(
                 rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
                 rhs._itemsize,
-                current_col._data.begin() + row * rhs._itemsize
+                current_col + row * rhs._itemsize
             );
         }
 
         // dst = A x b
         inner_product(
             std::begin(_data),                         // src1, A: [M x N]
-            std::begin(current_col._data),             // src2, b: [N x 1]
+            current_col,                               // src2, b: [N x 1]
             std::begin(res._data) + res._itemsize * x, // dst
             N,                                         // N
             M,                                         // M
             res_cols                                   // DST_STEP
         );
+    };
+
+    if (n_threads > 1) {
+        std::vector<ComplexFixedPointInnerProduct> cache_inner_prod(
+            n_threads, inner_product
+        );
+        inner_product_ptr = cache_inner_prod.data();
+        thread_pool.detach_loop(0, res_cols, matmul_task);
+        thread_pool.wait();
+    } else {
+        for (std::size_t i = 0; i < res_cols; i++) {
+            matmul_task(i);
+        }
     }
 
     return res;

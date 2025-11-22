@@ -57,7 +57,9 @@ APyCFloatArray::APyCFloatArray(
     std::optional<exp_t> bias
 )
     : APyArray(
-          python_iterable_extract_shape<true>(sign_seq, "APyCFloatArray.__init__"),
+          python_iterable_extract_shape</* IS_COMPLEX_COLLAPSE= */ true>(
+              sign_seq, "APyCFloatArray.__init__"
+          ),
           /* itemsize= */ 2
       )
     , exp_bits { check_exponent_format(exp_bits, "APyCFloatArray.__init__") }
@@ -67,8 +69,10 @@ APyCFloatArray::APyCFloatArray(
     constexpr std::string_view NAME = "APyCFloatArray.__init__";
 
     const auto& signs_shape = _shape;
-    const auto exps_shape = python_iterable_extract_shape<true>(exp_seq, NAME);
-    const auto mans_shape = python_iterable_extract_shape<true>(man_seq, NAME);
+    const auto exps_shape
+        = python_iterable_extract_shape</* IS_COMPLEX_COLLAPSE= */ true>(exp_seq, NAME);
+    const auto mans_shape
+        = python_iterable_extract_shape</* IS_COMPLEX_COLLAPSE= */ true>(man_seq, NAME);
     if (!((signs_shape == exps_shape) && (signs_shape == mans_shape))) {
         throw std::domain_error(
             fmt::format(
@@ -78,6 +82,25 @@ APyCFloatArray::APyCFloatArray(
                 tuple_string_from_vec(exps_shape),
                 tuple_string_from_vec(mans_shape)
             )
+        );
+    }
+
+    auto is_ndarray = [](auto&& seq) { return nb::isinstance<nb::ndarray<>>(seq); };
+    if (is_ndarray(sign_seq) || is_ndarray(exp_seq) || is_ndarray(man_seq)) {
+        if (is_ndarray(sign_seq) && is_ndarray(exp_seq) && is_ndarray(man_seq)) {
+            // If any input array is ndarray, than all input arrays *must* be ndarray
+            auto&& ndarray_sign = nb::cast<nb::ndarray<nb::c_contig>>(sign_seq);
+            auto&& ndarray_exp = nb::cast<nb::ndarray<nb::c_contig>>(exp_seq);
+            auto&& ndarray_man = nb::cast<nb::ndarray<nb::c_contig>>(man_seq);
+            _set_sign_bits_from_ndarray(ndarray_sign);
+            _set_exp_bits_from_ndarray(ndarray_exp);
+            _set_man_bits_from_ndarray(ndarray_man);
+
+            return; // initialization completed
+        }
+        throw std::domain_error(
+            "APyCFloatArray.__init__: if any input iterable is ndarray, than all input "
+            "iterables must be ndarray"
         );
     }
 
@@ -357,6 +380,159 @@ void APyCFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
         "APyCFloatArray.from_array: unsupported `dtype`, expecting complex or float "
         "or integer"
     );
+}
+
+void APyCFloatArray::_set_sign_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
+{
+    assert(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
+
+    if (_check_and_set_sign_bits_from_ndarray<bool>(array))
+        return;
+    if (_check_and_set_sign_bits_from_ndarray<std::int64_t>(array))
+        return;
+    if (_check_and_set_sign_bits_from_ndarray<std::int32_t>(array))
+        return;
+    if (_check_and_set_sign_bits_from_ndarray<std::int16_t>(array))
+        return;
+    if (_check_and_set_sign_bits_from_ndarray<std::int8_t>(array))
+        return;
+    if (_check_and_set_sign_bits_from_ndarray<std::uint64_t>(array))
+        return;
+    if (_check_and_set_sign_bits_from_ndarray<std::uint32_t>(array))
+        return;
+    if (_check_and_set_sign_bits_from_ndarray<std::uint16_t>(array))
+        return;
+    if (_check_and_set_sign_bits_from_ndarray<std::uint8_t>(array))
+        return;
+
+    // None of the `_check_and_set_sign_bits_from_ndarray` succeeded. Unsupported type,
+    // throw an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you find
+    // out how this can be achieved.
+    throw nb::type_error(
+        "APyCFloatArray::_set_sign_bits_from_ndarray(): "
+        "unsupported `dtype`, expecting bool or integer"
+    );
+}
+
+void APyCFloatArray::_set_exp_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
+{
+    assert(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
+
+    if (_check_and_set_exp_bits_from_ndarray<std::int64_t>(array))
+        return;
+    if (_check_and_set_exp_bits_from_ndarray<std::int32_t>(array))
+        return;
+    if (_check_and_set_exp_bits_from_ndarray<std::int16_t>(array))
+        return;
+    if (_check_and_set_exp_bits_from_ndarray<std::int8_t>(array))
+        return;
+    if (_check_and_set_exp_bits_from_ndarray<std::uint64_t>(array))
+        return;
+    if (_check_and_set_exp_bits_from_ndarray<std::uint32_t>(array))
+        return;
+    if (_check_and_set_exp_bits_from_ndarray<std::uint16_t>(array))
+        return;
+    if (_check_and_set_exp_bits_from_ndarray<std::uint8_t>(array))
+        return;
+
+    // None of the `_check_and_set_sign_bits_from_ndarray` succeeded. Unsupported type,
+    // throw an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you find
+    // out how this can be achieved.
+    throw nb::type_error(
+        "APyCFloatArray::_set_exp_bits_from_ndarray(): "
+        "unsupported `dtype`, expecting integer"
+    );
+}
+
+void APyCFloatArray::_set_man_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
+{
+    assert(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
+
+    if (_check_and_set_man_bits_from_ndarray<std::int64_t>(array))
+        return;
+    if (_check_and_set_man_bits_from_ndarray<std::int32_t>(array))
+        return;
+    if (_check_and_set_man_bits_from_ndarray<std::int16_t>(array))
+        return;
+    if (_check_and_set_man_bits_from_ndarray<std::int8_t>(array))
+        return;
+    if (_check_and_set_man_bits_from_ndarray<std::uint64_t>(array))
+        return;
+    if (_check_and_set_man_bits_from_ndarray<std::uint32_t>(array))
+        return;
+    if (_check_and_set_man_bits_from_ndarray<std::uint16_t>(array))
+        return;
+    if (_check_and_set_man_bits_from_ndarray<std::uint8_t>(array))
+        return;
+
+    // None of the `_check_and_set_sign_bits_from_ndarray` succeeded. Unsupported type,
+    // throw an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you find
+    // out how this can be achieved.
+    throw nb::type_error(
+        "APyCFloatArray::_set_man_bits_from_ndarray(): "
+        "unsupported `dtype`, expecting integer"
+    );
+}
+
+template <typename DTYPE>
+bool APyCFloatArray::_check_and_set_sign_bits_from_ndarray(
+    const nb::ndarray<nb::c_contig>& ndarray_sign
+)
+{
+    bool is_complex_collapse = ndarray_sign.shape(ndarray_sign.ndim() - 1) == 2;
+    std::size_t data_offset = is_complex_collapse ? 1 : 2;
+
+    if (ndarray_sign.dtype() == nb::dtype<DTYPE>()) {
+        auto&& ndarray_view = ndarray_sign.view<DTYPE, nb::ndim<1>>();
+        for (std::size_t i = 0; i < ndarray_sign.size(); i++) {
+            _data[i * data_offset].sign = bool(DTYPE((ndarray_view.data()[i])));
+        }
+        return true;
+    }
+    return false;
+}
+
+template <typename DTYPE>
+bool APyCFloatArray::_check_and_set_exp_bits_from_ndarray(
+    const nb::ndarray<nb::c_contig>& ndarray_exp
+)
+{
+    bool is_complex_collapse = ndarray_exp.shape(ndarray_exp.ndim() - 1) == 2;
+    std::size_t data_offset = is_complex_collapse ? 1 : 2;
+
+    if (ndarray_exp.dtype() == nb::dtype<DTYPE>()) {
+        auto&& ndarray_view = ndarray_exp.view<DTYPE, nb::ndim<1>>();
+        for (std::size_t i = 0; i < ndarray_exp.size(); i++) {
+            std::uint64_t bits = std::uint64_t(ndarray_view.data()[i]);
+            bits &= ((1ULL) << exp_bits) - 1;
+            _data[i * data_offset].exp = bits;
+        }
+        return true;
+    }
+    return false;
+}
+
+template <typename DTYPE>
+bool APyCFloatArray::_check_and_set_man_bits_from_ndarray(
+    const nb::ndarray<nb::c_contig>& ndarray_man
+)
+{
+    bool is_complex_collapse = ndarray_man.shape(ndarray_man.ndim() - 1) == 2;
+    std::size_t data_offset = is_complex_collapse ? 1 : 2;
+
+    if (ndarray_man.dtype() == nb::dtype<DTYPE>()) {
+        auto&& ndarray_view = ndarray_man.view<DTYPE, nb::ndim<1>>();
+        for (std::size_t i = 0; i < ndarray_man.size(); i++) {
+            std::uint64_t bits = std::uint64_t(ndarray_view.data()[i]);
+            bits &= ((1ULL) << man_bits) - 1;
+            _data[i * data_offset].man = bits;
+        }
+        return true;
+    }
+    return false;
 }
 
 /* ********************************************************************************** *
@@ -1162,36 +1338,63 @@ APyCFloatArray APyCFloatArray::checked_2d_matmul(const APyCFloatArray& rhs) cons
         res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
     }
 
-    // Resulting tensor and a working column from `rhs`
-    APyCFloatArray result(res_shape, res_exp_bits, res_man_bits, res_bias);
-    APyCFloatArray current_column(
-        { rhs._shape[0] }, rhs.exp_bits, rhs.man_bits, rhs.bias
-    );
+    // Determine if threadpool should be used or not.
+    const bool use_threadpool = is_mac_with_threadpool_justified(M * N * res_cols);
+    const std::size_t n_threads = use_threadpool ? thread_pool.get_thread_count() : 1;
 
-    auto inner_product
-        = ComplexFloatingPointInnerProduct(spec(), rhs.spec(), result.spec(), qntz);
+    // Resulting tensor
+    APyCFloatArray res(res_shape, res_exp_bits, res_man_bits, res_bias);
 
-    for (std::size_t x = 0; x < res_cols; x++) {
+    // Specialized inner product functor
+    ComplexFloatingPointInnerProduct inner_prod(spec(), rhs.spec(), res.spec(), qntz);
+    ComplexFloatingPointInnerProduct* inner_prod_ptr = &inner_prod;
+
+    // RHS column cache
+    const std::size_t n_col_elements = 2 * rhs._shape[0];
+    std::vector<APyFloatData> cache_col(n_threads * n_col_elements);
+
+    // THe matmul task
+    auto matmul_task = [&](std::size_t x) {
+        const std::size_t thread_i = ThisThread::get_index().value_or(0);
+        const auto current_col = cache_col.data() + n_col_elements * thread_i;
+        auto&& inner_product = inner_prod_ptr[thread_i];
+
         // Copy column from `rhs` and use as the current working column. As reading
         // columns from `rhs` is cache-inefficient, we like to do this only once for
         // each element in the resulting matrix.
-        for (std::size_t col = 0; col < rhs._shape[0]; col++) {
-            current_column._data[2 * col + 0] = rhs._data[2 * (x + col * res_cols) + 0];
-            current_column._data[2 * col + 1] = rhs._data[2 * (x + col * res_cols) + 1];
+        for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+            std::copy_n(
+                rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
+                rhs._itemsize,
+                current_col + row * rhs._itemsize
+            );
         }
 
         // dst = A x b
         inner_product(
-            _data.data(),                // src1, A: [M x N]
-            current_column._data.data(), // src2: b: [N x 1]
-            result._data.data() + 2 * x, // dst
-            N,                           // N
-            M,                           // M
-            res_cols                     // DST_STEP
+            _data.data(),             // src1, A: [M x N]
+            current_col,              // src2, b: [N x 1]
+            res._data.data() + 2 * x, // dst
+            N,                        // N
+            M,                        // M
+            res_cols                  // DST_STEP
         );
+    };
+
+    if (n_threads > 1) {
+        std::vector<ComplexFloatingPointInnerProduct> cache_inner_prod(
+            n_threads, inner_prod
+        );
+        inner_prod_ptr = cache_inner_prod.data();
+        thread_pool.detach_loop(0, res_cols, matmul_task);
+        thread_pool.wait();
+    } else {
+        for (std::size_t i = 0; i < res_cols; i++) {
+            matmul_task(i);
+        }
     }
 
-    return result;
+    return res;
 }
 
 //! Perform a linear convolution with `other` using `mode`

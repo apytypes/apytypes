@@ -7,6 +7,7 @@ from apytypes import (
     APyFixedAccumulatorContext,
     APyFixedArray,
     QuantizationMode,
+    fx,
 )
 
 
@@ -528,3 +529,11 @@ def test_matrix_multiplication_1Dx2D(fx_array: type[APyCFixedArray]):
     assert (a @ B).is_identical(
         fx_array([52226008023, 56352786350, 60472539218], int_bits=4 + cb, frac_bits=37)
     )
+
+
+@pytest.mark.parametrize("bits", [20, 40, 60, 80])
+def test_matrix_multiplication_threadpool(bits: int):
+    np = pytest.importorskip("numpy")
+    array_np = np.array(range(200 * 200), dtype="int64").reshape((200, 200))
+    array_fx = fx(array_np, int_bits=bits, frac_bits=0)
+    assert np.all((array_np @ array_np) == (array_fx @ array_fx).to_numpy())

@@ -91,6 +91,12 @@ public:
     //! Retrieve the bit specification
     APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
 
+    //! Test if using threadpool is justified based on number of multiply-accumulate
+    bool is_mac_with_threadpool_justified(std::size_t n_mac) const noexcept
+    {
+        return n_mac >= thread_pool_settings.apyfixedarray.n_mac_threshold;
+    }
+
     /* ****************************************************************************** *
      * *                          Python constructors                               * *
      * ****************************************************************************** */

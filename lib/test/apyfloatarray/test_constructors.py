@@ -70,6 +70,43 @@ def test_explicit_constructor():
 
 
 @pytest.mark.float_array
+def test_explicit_constructor_numpy_array():
+    np = pytest.importorskip("numpy")
+    arr = APyFloatArray(np.array([1]), np.array([2]), np.array([3]), 4, 5)
+    assert len(arr) == 1
+    assert arr.shape == (1,)
+    assert arr.exp_bits == 4
+    assert arr.man_bits == 5
+    assert arr.bias == 7  # Default when using 4 exponent bits
+
+    arr2d = APyFloatArray(
+        np.array([[False, True], [False, True]]),
+        np.array([[2, 3], [2, 3]]),
+        np.array([[4, 5], [4, 5]]),
+        exp_bits=6,
+        man_bits=7,
+    )
+    assert len(arr2d) == 2
+    assert arr2d.shape == (2, 2)
+    assert arr2d.exp_bits == 6
+    assert arr2d.man_bits == 7
+    assert arr2d.bias == 31  # Default for 6 bits
+
+    arr2d = APyFloatArray(
+        np.array([[0, 1], [0, 1]]),
+        np.array([[2, 3], [2, 3]]),
+        np.array([[4, 5], [4, 5]]),
+        exp_bits=6,
+        man_bits=7,
+    )
+    assert len(arr2d) == 2
+    assert arr2d.shape == (2, 2)
+    assert arr2d.exp_bits == 6
+    assert arr2d.man_bits == 7
+    assert arr2d.bias == 31  # Default for 6 bits
+
+
+@pytest.mark.float_array
 def test_from_float():
     a = APyFloatArray.from_float([1.0, 1.25, 1.5], exp_bits=5, man_bits=2)
     assert a.is_identical(APyFloatArray([0, 0, 0], [15, 15, 15], [0, 1, 2], 5, 2))
@@ -210,3 +247,68 @@ def test_issue_818_mre2(float_array: type[APyCFloatArray], np_dt: str):
     err_msg = r"APyC?FloatArray\.from_array: zero-dimensional arrays not supported"
     with pytest.raises(ValueError, match=err_msg):
         _ = float_array.from_array(np.array(-1, dtype=np_dt), exp_bits=11, man_bits=52)
+
+
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+@pytest.mark.parametrize(
+    "sign_dt",
+    [
+        "bool",
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "uint8",
+        "uint16",
+        "uint32",
+        "uint64",
+        "float64",
+    ],
+)
+@pytest.mark.parametrize(
+    "exp_dt",
+    ["bool", "int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"],
+)
+@pytest.mark.parametrize(
+    "man_dt",
+    ["bool", "int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"],
+)
+def test_constructor_with_numpy_array(
+    float_array: type[APyCFloatArray], sign_dt: str, man_dt: str, exp_dt: str
+):
+    np = pytest.importorskip("numpy")
+    sign = np.array([0, 1, 1], dtype=sign_dt)
+    exp = np.array([10, 11, 12], dtype=exp_dt)
+    man = np.array([50, 51, 52], dtype=man_dt)
+
+    if sign_dt == "float64":
+        match = r"APyC?FloatArray::_set_sign_bits_from_ndarray\(\): "
+        match += r"unsupported `dtype`, expecting bool or integer"
+        with pytest.raises(TypeError, match=match):
+            _ = float_array(sign, exp, man, exp_bits=5, man_bits=10)
+    elif exp_dt == "bool":
+        match = r"APyC?FloatArray::_set_exp_bits_from_ndarray\(\): "
+        match += r"unsupported `dtype`, expecting integer"
+        with pytest.raises(TypeError, match=match):
+            _ = float_array(sign, exp, man, exp_bits=5, man_bits=10)
+    elif man_dt == "bool":
+        match = r"APyC?FloatArray::_set_man_bits_from_ndarray\(\): "
+        match += r"unsupported `dtype`, expecting integer"
+        with pytest.raises(TypeError, match=match):
+            _ = float_array(sign, exp, man, exp_bits=5, man_bits=10)
+    else:
+        # Must not throw...
+        _ = float_array(sign, exp, man, exp_bits=5, man_bits=10)
+
+
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_constructor_with_mixed_iterable_raises(float_array: type[APyCFloatArray]):
+    np = pytest.importorskip("numpy")
+    sign = np.array([0, 1, 1])
+    exp = np.array([10, 11, 12])
+    man = [50, 51, 52]
+
+    match = "APyC?FloatArray.__init__: if any input iterable is ndarray, than all "
+    match += "input iterables must be ndarray"
+    with pytest.raises(ValueError, match=match):
+        _ = float_array(sign, exp, man, exp_bits=5, man_bits=10)
