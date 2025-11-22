@@ -49,6 +49,9 @@ py3_dep = py3.dependency()
 # Nanobind dependency
 nanobind_dep = dependency('nanobind')
 
+# Threadpool dependency
+threadpool_dep = dependency('bshoshany-thread-pool')
+
 # Google Highway SIMD dynamic dispatching library
 # Thanks germandiagogomez for the Meson/CMake fix for Google Highway
 cmake = import('cmake')
@@ -131,7 +134,7 @@ py3.extension_module(
         'src/apytypes_simd.cc',
         'src/apytypes_wrapper.cc',
     ]),
-    dependencies : [py3_dep, nanobind_dep, hwy_dep, fmt_dep],
+    dependencies : [py3_dep, nanobind_dep, hwy_dep, fmt_dep, threadpool_dep],
     cpp_args: '-fexceptions',
     link_args: '-fexceptions',
     subdir: 'apytypes',

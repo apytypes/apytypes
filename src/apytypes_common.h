@@ -1,6 +1,7 @@
 #ifndef _APYTYPES_COMMON_H
 #define _APYTYPES_COMMON_H
 
+#include "BS_thread_pool.hpp"
 #include "apytypes_fwd.h"
 #include "apytypes_intrinsics.h"
 
@@ -277,5 +278,12 @@ ThirdPartyArray<NB_ARGS...> make_third_party_ndarray(
         APYTYPES_UNREACHABLE();
     }
 }
+
+/* ********************************************************************************** *
+ * *                Threadpool for submitting parallel job tasks to                 * *
+ * ********************************************************************************** */
+
+//! The global APyTypes threadpool
+extern BS::thread_pool<> thread_pool;
 
 #endif // _APYTYPES_COMMON_H
