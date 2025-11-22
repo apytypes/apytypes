@@ -335,6 +335,7 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p><code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">M</span> <span class="pre">]</span> <span class="pre">&#64;</span> <span class="pre">[</span> <span class="pre">M</span> <span class="pre">x</span> <span class="pre">N</span> <span class="pre">]</span></code> ==&gt; <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">1</span> <span class="pre">x</span> <span class="pre">M</span> <span class="pre">]</span> <span class="pre">&#64;</span> <span class="pre">[</span> <span class="pre">M</span> <span class="pre">x</span> <span class="pre">N</span> <span class="pre">]</span></code> ==&gt; <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">1</span> <span class="pre">x</span> <span class="pre">N</span> <span class="pre">]</span></code> ==&gt; <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">N</span> <span class="pre">]</span></code></p></li>
 </ul>
 </li>
+<li><p>Mixed real-complex array arithmetic.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -349,6 +350,7 @@ therefore should be infinity.</p></li>
 <code class="docutils literal notranslate"><span class="pre">APy(C)FixedArray.from_float</span></code> is applied to negative Numpy integers.</p></li>
 <li><p>Segmentation violation when initializing APyTypes arrays from zero-dimensional
 Numpy arrays.</p></li>
+<li><p>Segmentation violation in <code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code> for division-by-zero.</p></li>
 </ul>
 </section>
 <section id="changed">

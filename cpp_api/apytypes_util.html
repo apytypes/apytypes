@@ -352,6 +352,16 @@
 <span class="target" id="apytypes__util_8h_1a72459dc2b3ba76b9e126967e8b0bb8d2"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_DIV</span></span></span><a class="headerlink" href="#c.STD_DIV" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.STD_EQ">
+<span class="target" id="apytypes__util_8h_1a894039f9bea54d8b84554d449eef9617"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_EQ</span></span></span><a class="headerlink" href="#c.STD_EQ" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.STD_NE">
+<span class="target" id="apytypes__util_8h_1a7cc3612777c36e3c1bb2dfa9c0449f28"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_NE</span></span></span><a class="headerlink" href="#c.STD_NE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
@@ -691,6 +701,15 @@
 <dd></dd></dl>
 
 </div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4I0E14always_false_v">
+<span id="_CPPv3I0E14always_false_v"></span><span id="_CPPv2I0E14always_false_v"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="apytypes__util_8h_1ae696a34b97be9b139f09aa17cf854eb9"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">always_false_v</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><a class="headerlink" href="#_CPPv4I0E14always_false_v" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Type-dependant <code class="docutils literal notranslate"><span class="pre">false</span></code> value. Can be used as a <code class="docutils literal notranslate"><span class="pre">false</span></code> value in a static assert as <code class="docutils literal notranslate"><span class="pre">static_assert(always_false_v)</span></code> without triggering ill-formed behaviour. </p>
+</dd></dl>
+
+</div>
 <dl class="cpp struct">
 <dt class="sig sig-object cpp" id="_CPPv4I0E12remove_cvref">
 <span id="_CPPv3I0E12remove_cvref"></span><span id="_CPPv2I0E12remove_cvref"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structremove__cvref"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">remove_cvref</span></span></span><a class="headerlink" href="#_CPPv4I0E12remove_cvref" title="Link to this definition">¶</a><br /></dt>
@@ -845,6 +864,8 @@
 <li><a class="reference internal" href="#c.STD_SUB"><code class="docutils literal notranslate"><span class="pre">STD_SUB</span></code></a></li>
 <li><a class="reference internal" href="#c.STD_MUL"><code class="docutils literal notranslate"><span class="pre">STD_MUL</span></code></a></li>
 <li><a class="reference internal" href="#c.STD_DIV"><code class="docutils literal notranslate"><span class="pre">STD_DIV</span></code></a></li>
+<li><a class="reference internal" href="#c.STD_EQ"><code class="docutils literal notranslate"><span class="pre">STD_EQ</span></code></a></li>
+<li><a class="reference internal" href="#c.STD_NE"><code class="docutils literal notranslate"><span class="pre">STD_NE</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E14remove_cvref_t"><code class="docutils literal notranslate"><span class="pre">remove_cvref_t</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv413bits_to_limbsNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">bits_to_limbs()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E17significant_limbsNSt6size_tE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR"><code class="docutils literal notranslate"><span class="pre">significant_limbs()</span></code></a></li>
@@ -901,6 +922,7 @@
 <li><a class="reference internal" href="#_CPPv4I0E16get_conv_lengthsNSt5tupleINSt6size_tENSt6size_tENSt6size_tEEERKNSt6stringERK9APY_ARRAYRK9APY_ARRAY"><code class="docutils literal notranslate"><span class="pre">get_conv_lengths()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv424CREATE_FUNCTOR_FROM_FUNC17apy_add_n_functor24apy_addition_same_length"><code class="docutils literal notranslate"><span class="pre">CREATE_FUNCTOR_FROM_FUNC()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv424CREATE_FUNCTOR_FROM_FUNC17apy_sub_n_functor27apy_subtraction_same_length"><code class="docutils literal notranslate"><span class="pre">CREATE_FUNCTOR_FROM_FUNC()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0E14always_false_v"><code class="docutils literal notranslate"><span class="pre">always_false_v</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E12remove_cvref"><code class="docutils literal notranslate"><span class="pre">remove_cvref</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N12remove_cvref4typeE"><code class="docutils literal notranslate"><span class="pre">type</span></code></a></li>
 </ul>
