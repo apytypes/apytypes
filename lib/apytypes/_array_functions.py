@@ -2277,6 +2277,49 @@ def fullrange(
         raise ValueError("Could not determine array type")
 
 
+def export_file(
+    a: APyArray,
+    fname: str,
+    delimiter: str = ",",
+    layout: Literal["default", "vunit"] = "default",
+    bit_values: bool = True,
+) -> None:
+    """Export array to a CSV file."""
+    if type(a) in (APyCFixedArray, APyCFloatArray):
+        raise ValueError("Complex data types are not supported yet")
+
+    if layout not in ("default", "vunit"):
+        raise ValueError(f"Unknown layout: {layout}")
+
+    if a.ndim > 3 or (a.ndim > 2 and layout != "vunit"):
+        raise ValueError(f"Unsupported array dimension {a.ndim} for layout {layout}")
+
+    if bit_values:
+        if type(a) is APyFixedArray and layout == "vunit":
+            conversion_fn = "_to_signed_bits"
+        else:
+            conversion_fn = "to_bits"
+    else:
+        conversion_fn = "to_numpy()"
+
+    if layout == "vunit":
+        if a.ndim == 2:
+            a = a.T
+        elif a.ndim == 3:
+            a = a.transpose((1, 0, 2))
+
+    with Path(fname).open(mode="w", newline="") as f:
+        writer = csv.writer(f, delimiter=delimiter)
+        if a.ndim == 1:
+            writer.writerow(getattr(a, conversion_fn)())
+        elif a.ndim == 2:
+            for row in a:
+                writer.writerow(getattr(row, conversion_fn)())
+        elif a.ndim == 3:
+            for depth in a:
+                writer.writerow(getattr(depth.flatten(), conversion_fn)())
+
+
 @overload
 def export_csv(
     a: APyFixedArray,
@@ -2354,39 +2397,78 @@ def export_csv(
     >>> apy.export_csv(b, "input_vunit.csv", layout="vunit")
 
     """
+    export_file(a, fname, delimiter=delimiter, layout=layout, bit_values=True)
 
-    if type(a) in (APyCFixedArray, APyCFloatArray):
+
+def import_file(
+    fname: str,
+    *,
+    delimiter: str = ",",
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool = False,
+    layout: Literal["default", "vunit"] = "default",
+    vunit_3d_shape: tuple[int, ...] | None = None,
+    bit_values: bool = True
+) -> APyArray:
+    """Create an array from a CSV file containing either bit values or floating-point values."""
+    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
+
+    if not a_type:
+        raise ValueError("Could not determine array type from bit-specifiers")
+
+    if force_complex:
         raise ValueError("Complex data types are not supported yet")
 
     if layout not in ("default", "vunit"):
         raise ValueError(f"Unknown layout: {layout}")
 
-    if a.ndim > 3 or (a.ndim > 2 and layout != "vunit"):
-        raise ValueError(f"Unsupported array dimension {a.ndim} for layout {layout}")
+    if layout != "vunit" and vunit_3d_shape is not None:
+        raise ValueError("vunit_3d_shape provided while not using 'vunit' layout")
 
-    to_bits_fn = (
-        "_to_signed_bits"
-        if type(a) is APyFixedArray and layout == "vunit"
-        else "to_bits"
-    )
+    with Path(fname).open(mode="r", newline="") as f:
+        reader = csv.reader(f, delimiter=delimiter)
+        bit_values = []
+        for row in reader:
+            bit_values_row = [int(bit_value) for bit_value in row]
+            bit_values.append(bit_values_row)
+
+    # Check if 1D or 2D array
+    if len(bit_values) == 1:
+        bit_values = bit_values[0]
+
+    if bit_values:
+        if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
+            arr = APyFixedArray(
+                bit_values, bits=bits, int_bits=int_bits, frac_bits=frac_bits
+            )
+        else:
+            arr = APyFloatArray.from_bits(
+                bit_values, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+            )
+    else:
+        if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
+            arr = APyFixedArray.from_float(
+                bit_values, bits=bits, int_bits=int_bits, frac_bits=frac_bits
+            )
+        else:
+            arr = APyFloatArray.from_float(
+                bit_values, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+            )
 
     if layout == "vunit":
-        if a.ndim == 2:
-            a = a.T
-        elif a.ndim == 3:
-            a = a.transpose((1, 0, 2))
+        if vunit_3d_shape is None:
+            return arr.T
+        else:
+            arr = arr.reshape(
+                (vunit_3d_shape[1], vunit_3d_shape[0], vunit_3d_shape[2])
+            ).transpose((1, 0, 2))
 
-    with Path(fname).open(mode="w", newline="") as f:
-        writer = csv.writer(f, delimiter=delimiter)
-        if a.ndim == 1:
-            writer.writerow(getattr(a, to_bits_fn)())
-        elif a.ndim == 2:
-            for row in a:
-                writer.writerow(getattr(row, to_bits_fn)())
-        elif a.ndim == 3:
-            for depth in a:
-                writer.writerow(getattr(depth.flatten(), to_bits_fn)())
-
+    return arr
 
 @overload
 def import_csv(
@@ -2512,50 +2594,20 @@ def import_csv(
                     [6, 7]]], int_bits=4, frac_bits=0)
 
     """
-
-    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
-
-    if not a_type:
-        raise ValueError("Could not determine array type from bit-specifiers")
-
-    if force_complex:
-        raise ValueError("Complex data types are not supported yet")
-
-    if layout not in ("default", "vunit"):
-        raise ValueError(f"Unknown layout: {layout}")
-
-    if layout != "vunit" and vunit_3d_shape is not None:
-        raise ValueError("vunit_3d_shape provided while not using 'vunit' layout")
-
-    with Path(fname).open(mode="r", newline="") as f:
-        reader = csv.reader(f, delimiter=delimiter)
-        bit_values = []
-        for row in reader:
-            bit_values_row = [int(bit_value) for bit_value in row]
-            bit_values.append(bit_values_row)
-
-    # Check if 1D or 2D array
-    if len(bit_values) == 1:
-        bit_values = bit_values[0]
-
-    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
-        arr = APyFixedArray(
-            bit_values, bits=bits, int_bits=int_bits, frac_bits=frac_bits
-        )
-    else:
-        arr = APyFloatArray.from_bits(
-            bit_values, exp_bits=exp_bits, man_bits=man_bits, bias=bias
-        )
-
-    if layout == "vunit":
-        if vunit_3d_shape is None:
-            return arr.T
-        else:
-            arr = arr.reshape(
-                (vunit_3d_shape[1], vunit_3d_shape[0], vunit_3d_shape[2])
-            ).transpose((1, 0, 2))
-
-    return arr
+    return import_file(
+        fname,
+        delimiter=delimiter,
+        int_bits=int_bits,
+        frac_bits=frac_bits,
+        bits=bits,
+        exp_bits=exp_bits,
+        man_bits=man_bits,
+        bias=bias,
+        force_complex=force_complex,
+        layout=layout,
+        vunit_3d_shape=vunit_3d_shape,
+        bit_values=True,
+    )
 
 
 def meshgrid(
