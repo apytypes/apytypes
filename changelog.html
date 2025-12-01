@@ -336,6 +336,7 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </ul>
 </li>
 <li><p>Mixed real-complex array arithmetic.</p></li>
+<li><p>Thread pool for matrix multiplication.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -351,6 +352,8 @@ therefore should be infinity.</p></li>
 <li><p>Segmentation violation when initializing APyTypes arrays from zero-dimensional
 Numpy arrays.</p></li>
 <li><p>Segmentation violation in <code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code> for division-by-zero.</p></li>
+<li><p>Bug where array bit-constructors initialized from NumPy arrays resulted in
+wrong array values or downright caused a segmentation violation.</p></li>
 </ul>
 </section>
 <section id="changed">
