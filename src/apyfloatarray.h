@@ -166,6 +166,12 @@ public:
      */
     std::variant<APyFloatArray, APyFloat> matmul(const APyFloatArray& rhs) const;
 
+    /*!
+     * Matrix outer product. Throws `nb::value_error` unless both `*this` and `rhs`
+     * are 1-D.
+     */
+    APyFloatArray outer_product(const APyFloatArray& rhs) const;
+
     /* ****************************************************************************** *
      *                       Static conversion from other types                       *
      * ****************************************************************************** */

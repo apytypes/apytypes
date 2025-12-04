@@ -181,6 +181,7 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
         auto [high, low] = long_signed_mult(_data[0], rhs._data[0]);
         result._data[1] = high;
         result._data[0] = low;
+        return result; // early exit
     }
 
     // Scratch data:

@@ -444,6 +444,44 @@ APyFloatArray::matmul(const APyFloatArray& rhs) const
     );
 }
 
+APyFloatArray APyFloatArray::outer_product(const APyFloatArray& rhs) const
+{
+    if (_ndim != 1 || rhs._ndim != 1) {
+        std::string err_msg = fmt::format(
+            "{}.outer: both `self` and `rhs` must be 1-D but "
+            "`self.ndim`: {}, `rhs.ndim`: {}",
+            ARRAY_NAME,
+            _ndim,
+            rhs._ndim
+        );
+        throw nb::value_error(err_msg.c_str());
+    }
+
+    const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const std::uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
+    const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
+    APyFloatArray res(
+        { _shape[0], rhs._shape[0] }, res_exp_bits, res_man_bits, res_bias
+    );
+
+    constexpr std::size_t SRC1_INCR = 0;
+    constexpr std::size_t SRC2_INCR = 1;
+    constexpr std::size_t DST_INCR = 1;
+    const QuantizationMode& qntz = get_float_quantization_mode();
+    auto mul = FloatingPointMultiplier<SRC1_INCR, SRC2_INCR, DST_INCR>(
+        spec(), rhs.spec(), res.spec(), qntz
+    );
+
+    for (std::size_t y = 0; y < _shape[0]; y++) {
+        auto src1 = _data.data() + y;
+        auto src2 = rhs._data.data();
+        auto dst = res._data.data() + y * rhs._shape[0];
+        mul(src1, src2, dst, rhs._shape[0]);
+    }
+
+    return res;
+}
+
 APyFloatArray APyFloatArray::operator~() const
 {
     auto res = *this;

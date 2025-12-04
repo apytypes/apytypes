@@ -52,8 +52,10 @@ Array utility functions
 
 .. autofunction:: apytypes.convolve
 
-.. autofunction:: apytypes.shape
-
 .. autofunction:: apytypes.export_csv
 
 .. autofunction:: apytypes.import_csv
+
+.. autofunction:: apytypes.outer
+
+.. autofunction:: apytypes.shape

@@ -570,7 +570,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
     // Scratch data:
     // * op1_abs:       _itemsize / 2
     // * op2_abs:       rhs._data.size() / 2
-    // * prod_imm:      2 + _itemsize + rhs.rhs._data.size()
+    // * prod_imm:      2 + _itemsize + rhs._data.size()
     std::size_t scratch_size = 2 + (3 * _itemsize + 3 * rhs._data.size()) / 2;
     ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto op1_abs_begin = std::begin(scratch);
@@ -1783,6 +1783,88 @@ APyCFixedArray::matmul(const APyCFixedArray& rhs) const
             tuple_string_from_vec(rhs._shape)
         )
     );
+}
+
+APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
+{
+    if (_ndim != 1 || rhs._ndim != 1) {
+        std::string err_msg = fmt::format(
+            "{}.outer: both `self` and `rhs` must be 1-D but "
+            "`self.ndim`: {}, `rhs.ndim`: {}",
+            ARRAY_NAME,
+            _ndim,
+            rhs._ndim
+        );
+        throw nb::value_error(err_msg.c_str());
+    }
+
+    const int res_int_bits = 1 + int_bits() + rhs.int_bits();
+    const int res_frac_bits = frac_bits() + rhs.frac_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
+    APyCFixedArray res({ _shape[0], rhs._shape[0] }, res_bits, res_int_bits);
+
+    // Special case #1: single-limb product
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        for (std::size_t y = 0; y < _shape[0]; y++) {
+            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                apy_limb_signed_t a_re = _data[2 * y + 0];
+                apy_limb_signed_t a_im = _data[2 * y + 1];
+                apy_limb_signed_t b_re = rhs._data[2 * x + 0];
+                apy_limb_signed_t b_im = rhs._data[2 * x + 1];
+                res._data[2 * (y * rhs._shape[0] + x) + 0] = a_re * b_re - a_im * b_im;
+                res._data[2 * (y * rhs._shape[0] + x) + 1] = a_im * b_re + a_re * b_im;
+            }
+        }
+        return res; // early exit
+    }
+
+    // Special case #2: single-limb operands and dual-limb product
+    if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+        for (std::size_t y = 0; y < _shape[0]; y++) {
+            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                const apy_limb_t* a = _data.data() + 2 * y;
+                const apy_limb_t* b = rhs._data.data() + 2 * x;
+                apy_limb_t* dst = res._data.data() + 4 * (y * rhs._shape[0] + x);
+                complex_multiplication_1_1_2(dst, a, b);
+            }
+        }
+        return res; // early exit
+    }
+
+    //
+    // General case: always works but is the slowest
+    //
+    // Scratch data:
+    // * op1_abs:       _itemsize / 2
+    // * op2_abs:       rhs._itemsize / 2
+    // * prod_imm:      2 + _itemsize + rhs._itemsize
+    std::size_t scratch_size = 2 + (3 * _itemsize + 3 * rhs._itemsize) / 2;
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
+    auto op1_abs_begin = std::begin(scratch);
+    auto op2_abs_begin = op1_abs_begin + _itemsize / 2;
+    auto prod_imm_begin = op2_abs_begin + rhs._itemsize / 2;
+
+    for (std::size_t y = 0; y < _shape[0]; y++) {
+        for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+            const apy_limb_t* a = _data.data() + _itemsize * y;
+            const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
+            auto* dst = res._data.data() + res._itemsize * (y * rhs._shape[0] + x);
+            complex_fixed_point_product(
+                a,                 // src1
+                b,                 // src2
+                dst,               // dst
+                _itemsize / 2,     // src1_limbs
+                rhs._itemsize / 2, // src2_limbs
+                res._itemsize / 2, // dst_limbs
+                op1_abs_begin,     // op1_abs
+                op2_abs_begin,     // op2_abs
+                prod_imm_begin     // prod_imm
+            );
+        }
+    }
+
+    return res;
 }
 
 // Evaluate the inner between two vectors. This method assumes that the shape of

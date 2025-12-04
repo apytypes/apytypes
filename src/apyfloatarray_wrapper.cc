@@ -1672,6 +1672,35 @@ void bind_float_array(nb::module_& m)
             -------
             :class:`APyFloatArray`
             )pbdoc"
+        )
+        .def(
+            "outer",
+            &APyFloatArray::outer_product,
+            nb::arg("rhs"),
+            R"pbdoc(
+            Compute the outer product between `self` and `rhs`.
+
+            The outer product of 1-D arrays `a` and `b` of length :code:`M` and
+            :code:`N`, respectively, is:
+
+            .. code-block:: python
+
+                [[   a_0*b_0,     a_0*b_1,   ...     a_0*b_{N-1}   ],
+                 [   a_1*b_0,        .                    .        ],
+                 [      .                     .           .        ],
+                 [ a_{M-1}*b_0,     ...      ...   a_{M-1}*b_{N-1} ]]
+
+            .. versionadded:: 0.5
+
+            Parameters
+            ----------
+            rhs : :class:`APyFloatArray`
+                Second 1-D input vector to outer product.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc"
         );
 
     nb::class_<APyFloatArrayIterator>(m, "APyFloatArrayIterator")

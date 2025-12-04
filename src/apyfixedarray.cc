@@ -943,6 +943,72 @@ APyFixedArray::matmul(const APyFixedArray& rhs) const
     );
 }
 
+APyFixedArray APyFixedArray::outer_product(const APyFixedArray& rhs) const
+{
+    if (_ndim != 1 || rhs._ndim != 1) {
+        std::string err_msg = fmt::format(
+            "{}.outer: both `self` and `rhs` must be 1-D but "
+            "`self.ndim`: {}, `rhs.ndim`: {}",
+            ARRAY_NAME,
+            _ndim,
+            rhs._ndim
+        );
+        throw nb::value_error(err_msg.c_str());
+    }
+
+    const int res_bits = bits() + rhs.bits();
+    const int res_int_bits = int_bits() + rhs.int_bits();
+    APyFixedArray res({ _shape[0], rhs._shape[0] }, res_bits, res_int_bits);
+
+    // Special case #1: single-limb product
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        for (std::size_t y = 0; y < _shape[0]; y++) {
+            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                res._data[y * rhs._shape[0] + x] = _data[y] * rhs._data[x];
+            }
+        }
+        return res; // early exit
+    }
+
+    // Special case #2: both operands are single limb and product has two limbs
+    if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+        for (std::size_t y = 0; y < _shape[0]; y++) {
+            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                auto [high, low] = long_signed_mult(_data[y], rhs._data[x]);
+                res._data[2 * (y * rhs._shape[0] + x) + 0] = low;
+                res._data[2 * (y * rhs._shape[0] + x) + 1] = high;
+            }
+        }
+        return res; // early exit
+    }
+
+    // General case, always works but is the slowest
+    ScratchVector<apy_limb_t, 8> op1_abs(_itemsize);
+    ScratchVector<apy_limb_t, 8> op2_abs(rhs._itemsize);
+    ScratchVector<apy_limb_t, 16> prod_abs(_itemsize + rhs._itemsize);
+    for (std::size_t y = 0; y < _shape[0]; y++) {
+        for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+            const apy_limb_t* a = _data.data() + _itemsize * y;
+            const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
+            auto* dst = res._data.data() + res._itemsize * (y * rhs._shape[0] + x);
+            fixed_point_product(
+                a,                   // src1
+                b,                   // src2
+                dst,                 // dst
+                _itemsize,           // src1_limbs
+                rhs._itemsize,       // src2_limbs
+                res._itemsize,       // dst_limbs
+                std::begin(op1_abs), // op1_abs
+                std::begin(op2_abs), // op2_abs
+                std::begin(prod_abs) // prod_abs
+            );
+        }
+    }
+
+    return res;
+}
+
 /* ********************************************************************************** *
  * *                               Other methods                                    * *
  * ********************************************************************************** */

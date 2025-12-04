@@ -196,6 +196,12 @@ public:
      */
     std::variant<APyFixedArray, APyFixed> matmul(const APyFixedArray& rhs) const;
 
+    /*!
+     * Matrix outer product. Throws `nb::value_error` unless both `*this` and `rhs`
+     * are 1-D.
+     */
+    APyFixedArray outer_product(const APyFixedArray& rhs) const;
+
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */

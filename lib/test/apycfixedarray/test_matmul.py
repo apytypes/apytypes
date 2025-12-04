@@ -5,6 +5,8 @@ from apytypes import (
     APyCFixedArray,
     APyFixedAccumulatorContext,
     QuantizationMode,
+    fx,
+    outer,
 )
 
 
@@ -244,3 +246,91 @@ def test_matrix_multiplication_threadpool(bits: int):
     array_cnp.real = array_np[:, :, 0]
     array_cnp.imag = array_np[:, :, 1]
     assert np.all((array_cnp @ array_cnp) == (array_fx @ array_fx).to_numpy())
+
+
+@pytest.mark.parametrize("int_bits", [20, 40, 200, 2000])
+@pytest.mark.parametrize("frac_bits", [10, 40, 100, 2500])
+def test_outer_product(int_bits: int, frac_bits: int):
+    a = fx(
+        [1j, 1.25j, 0, -4, -3.25 + 2j, 0 + 1j, 99 + 2j],
+        int_bits=int_bits,
+        frac_bits=frac_bits,
+        force_complex=True,
+    )
+    b = fx(
+        [-1 + 2j, 1.25 - 1j, 0 - 0.25j, -4j, -3.25j],
+        int_bits=int_bits,
+        frac_bits=frac_bits,
+        force_complex=True,
+    )
+
+    assert outer(a, b).is_identical(
+        fx(
+            [
+                [-2 - 1j, 1 + 1.25j, 0.25 + 0j, 4 + 0j, 3.25 + 0j],
+                [-2.5 - 1.25j, 1.25 + 1.5625j, 0.3125 + 0j, 5 + 0j, 4.0625 + 0j],
+                [0 + 0j, 0 + 0j, 0 + 0j, 0 + 0j, 0 + 0j],
+                [4 - 8j, -5 + 4j, 0 + 1j, 0 + 16j, 0 + 13j],
+                [-0.75 - 8.5j, -2.0625 + 5.75j, 0.5 + 0.8125j, 8 + 13j, 6.5 + 10.5625j],
+                [-2 - 1j, 1 + 1.25j, 0.25 + 0j, 4 + 0j, 3.25 + 0j],
+                [-103 + 196j, 125.75 - 96.5j, 0.5 - 24.75j, 8 - 396j, 6.5 - 321.75j],
+            ],
+            int_bits=2 * int_bits + 1,
+            frac_bits=2 * frac_bits,
+            force_complex=True,
+        )
+    )
+
+    assert outer(b, a).is_identical(
+        fx(
+            [
+                [-2 - 1j, -2.5 - 1.25j, 0, 4 - 8j, -0.75 - 8.5j, -2 - 1j, -103 + 196j],
+                [
+                    1 + 1.25j,
+                    1.25 + 1.5625j,
+                    0,
+                    -5 + 4j,
+                    -2.0625 + 5.75j,
+                    1 + 1.25j,
+                    125.75 - 96.5j,
+                ],
+                [
+                    0.25 + 0j,
+                    0.3125 + 0j,
+                    0,
+                    0 + 1j,
+                    0.5 + 0.8125j,
+                    0.25 + 0j,
+                    0.5 - 24.75j,
+                ],
+                [4 + 0j, 5 + 0j, 0, 0 + 16j, 8 + 13j, 4 + 0j, 8 - 396j],
+                [
+                    3.25 + 0j,
+                    4.0625 + 0j,
+                    0,
+                    0 + 13j,
+                    6.5 + 10.5625j,
+                    3.25 + 0j,
+                    6.5 - 321.75j,
+                ],
+            ],
+            int_bits=2 * int_bits + 1,
+            frac_bits=2 * frac_bits,
+            force_complex=True,
+        )
+    )
+
+
+def test_outer_product_raises():
+    a = fx([[1, 1.25, 0, 4, -3.25, 0]], int_bits=10, frac_bits=10, force_complex=True)
+    b = fx([-1, 1.25, 0, -4, -3.25], int_bits=10, frac_bits=10, force_complex=True)
+
+    with pytest.raises(
+        ValueError, match=r"APyCFixedArray\.outer: both `self` and `rhs`"
+    ):
+        _ = outer(a, b)
+
+    with pytest.raises(
+        ValueError, match=r"APyCFixedArray\.outer: both `self` and `rhs`"
+    ):
+        _ = outer(b, a)

@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `[ M ] @ [ M x N ]` ==> `[ 1 x M ] @ [ M x N ]` ==> `[ 1 x N ]` ==> `[ N ]`
 - Mixed real-complex array arithmetic.
 - Thread pool for matrix multiplication.
+- Vector outer products (`apytypes.outer`).
 
 ### Fixed
 

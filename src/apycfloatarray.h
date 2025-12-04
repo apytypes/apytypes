@@ -167,6 +167,12 @@ public:
     std::variant<APyCFloatArray, APyCFloat> matmul(const APyCFloatArray& rhs) const;
 
     /*!
+     * Matrix outer product. Throws `nb::value_error` unless both `*this` and `rhs`
+     * are 1-D.
+     */
+    APyCFloatArray outer_product(const APyCFloatArray& rhs) const;
+
+    /*!
      * Evaluate the inner between two vectors. This method assumes that the shape
      * of both `*this` and `rhs` are equally long. Anything else is undefined
      * behaviour.

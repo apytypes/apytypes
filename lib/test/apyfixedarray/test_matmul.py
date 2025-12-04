@@ -8,6 +8,7 @@ from apytypes import (
     APyFixedArray,
     QuantizationMode,
     fx,
+    outer,
 )
 
 
@@ -537,3 +538,68 @@ def test_matrix_multiplication_threadpool(bits: int):
     array_np = np.array(range(200 * 200), dtype="int64").reshape((200, 200))
     array_fx = fx(array_np, int_bits=bits, frac_bits=0)
     assert np.all((array_np @ array_np) == (array_fx @ array_fx).to_numpy())
+
+
+@pytest.mark.parametrize("int_bits", [20, 40, 200, 2000])
+@pytest.mark.parametrize("frac_bits", [10, 40, 100, 2500])
+@pytest.mark.parametrize("force_complex", [False, True])
+def test_outer_product(int_bits: int, frac_bits: int, force_complex: bool):
+    a = fx(
+        [1, 1.25, 0, 4, -3.25, 0, 99],
+        int_bits=int_bits,
+        frac_bits=frac_bits,
+        force_complex=force_complex,
+    )
+    b = fx(
+        [-1, 1.25, 0, -4, -3.25],
+        int_bits=int_bits,
+        frac_bits=frac_bits,
+        force_complex=force_complex,
+    )
+
+    assert outer(a, b).is_identical(
+        fx(
+            [
+                [-1.0, 1.25, 0.0, -4.0, -3.25],
+                [-1.25, 1.5625, 0.0, -5.0, -4.0625],
+                [-0.0, 0.0, 0.0, -0.0, -0.0],
+                [-4.0, 5.0, 0.0, -16.0, -13.0],
+                [3.25, -4.0625, -0.0, 13.0, 10.5625],
+                [-0.0, 0.0, 0.0, -0.0, -0.0],
+                [-99.0, 123.75, 0.0, -396.0, -321.75],
+            ],
+            int_bits=2 * int_bits + force_complex,
+            frac_bits=2 * frac_bits,
+            force_complex=force_complex,
+        )
+    )
+
+    assert outer(b, a).is_identical(
+        fx(
+            [
+                [-1, -1.25, 0, -4, 3.25, 0, -99],
+                [1.25, 1.5625, 0, 5, -4.0625, 0, 123.75],
+                [0, 0, 0, 0, 0, 0, 0],
+                [-4, -5, 0, -16, 13, 0, -396],
+                [-3.25, -4.0625, 0, -13, 10.5625, 0, -321.75],
+            ],
+            int_bits=2 * int_bits + force_complex,
+            frac_bits=2 * frac_bits,
+            force_complex=force_complex,
+        )
+    )
+
+
+def test_outer_product_raises():
+    a = fx([[1, 1.25, 0, 4, -3.25, 0, 99]], int_bits=10, frac_bits=10)
+    b = fx([-1, 1.25, 0, -4, -3.25], int_bits=10, frac_bits=10)
+
+    with pytest.raises(
+        ValueError, match=r"APyFixedArray\.outer: both `self` and `rhs`"
+    ):
+        _ = outer(a, b)
+
+    with pytest.raises(
+        ValueError, match=r"APyFixedArray\.outer: both `self` and `rhs`"
+    ):
+        _ = outer(b, a)
