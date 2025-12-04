@@ -180,6 +180,12 @@ public:
     std::variant<APyCFixedArray, APyCFixed> matmul(const APyCFixedArray& rhs) const;
 
     /*!
+     * Matrix outer product. Throws `nb::value_error` unless both `*this` and `rhs`
+     * are 1-D.
+     */
+    APyCFixedArray outer_product(const APyCFixedArray& rhs) const;
+
+    /*!
      * Evaluate the inner between two vectors. This method assumes that the shape
      * of both `*this` and `rhs` are equally long. Anything else is undefined
      * behaviour.

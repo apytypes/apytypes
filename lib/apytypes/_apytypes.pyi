@@ -1552,6 +1552,32 @@ class APyCFixedArray:
             for the array.
         """
 
+    def outer(self, rhs: APyCFixedArray) -> APyCFixedArray:
+        """
+        Compute the outer product between `self` and `rhs`.
+
+        The outer product of 1-D arrays `a` and `b` of length :code:`M` and
+        :code:`N`, respectively, is:
+
+        .. code-block:: python
+
+            [[   a_0*b_0,     a_0*b_1,   ...     a_0*b_{N-1}   ],
+             [   a_1*b_0,        .                    .        ],
+             [      .                     .           .        ],
+             [ a_{M-1}*b_0,     ...      ...   a_{M-1}*b_{N-1} ]]
+
+        .. versionadded:: 0.5
+
+        Parameters
+        ----------
+        rhs : :class:`APyCFixedArray`
+            Second 1-D input vector to outer product.
+
+        Returns
+        -------
+        :class:`APyCFixedArray`
+        """
+
     @staticmethod
     def from_complex(
         complex_sequence: Iterable[Any],
@@ -3482,6 +3508,32 @@ class APyCFloatArray:
         :class:`APyCFloatArray`
         """
 
+    def outer(self, rhs: APyCFloatArray) -> APyCFloatArray:
+        """
+        Compute the outer product between `self` and `rhs`.
+
+        The outer product of 1-D arrays `a` and `b` of length :code:`M` and
+        :code:`N`, respectively, is:
+
+        .. code-block:: python
+
+            [[   a_0*b_0,     a_0*b_1,   ...     a_0*b_{N-1}   ],
+             [   a_1*b_0,        .                    .        ],
+             [      .                     .           .        ],
+             [ a_{M-1}*b_0,     ...      ...   a_{M-1}*b_{N-1} ]]
+
+        .. versionadded:: 0.5
+
+        Parameters
+        ----------
+        rhs : :class:`APyCFloatArray`
+            Second 1-D input vector to outer product.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
     def __matmul__(self, rhs: APyCFloatArray) -> APyCFloatArray | APyCFloat: ...
     def __repr__(self) -> str: ...
     def __str__(self, base: int = 10) -> str: ...
@@ -5042,6 +5094,32 @@ class APyFixedArray:
         :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions
             for the array.
+        """
+
+    def outer(self, rhs: APyFixedArray) -> APyFixedArray:
+        """
+        Compute the outer product between `self` and `rhs`.
+
+        The outer product of 1-D arrays `a` and `b` of length :code:`M` and
+        :code:`N`, respectively, is:
+
+        .. code-block:: python
+
+            [[   a_0*b_0,     a_0*b_1,   ...     a_0*b_{N-1}   ],
+             [   a_1*b_0,        .                    .        ],
+             [      .                     .           .        ],
+             [ a_{M-1}*b_0,     ...      ...   a_{M-1}*b_{N-1} ]]
+
+        .. versionadded:: 0.5
+
+        Parameters
+        ----------
+        rhs : :class:`APyFixedArray`
+            Second 1-D input vector to outer product.
+
+        Returns
+        -------
+        :class:`APyFixedArray`
         """
 
     @staticmethod
@@ -7609,6 +7687,32 @@ class APyFloatArray:
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
             see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+        """
+
+    def outer(self, rhs: APyFloatArray) -> APyFloatArray:
+        """
+        Compute the outer product between `self` and `rhs`.
+
+        The outer product of 1-D arrays `a` and `b` of length :code:`M` and
+        :code:`N`, respectively, is:
+
+        .. code-block:: python
+
+            [[   a_0*b_0,     a_0*b_1,   ...     a_0*b_{N-1}   ],
+             [   a_1*b_0,        .                    .        ],
+             [      .                     .           .        ],
+             [ a_{M-1}*b_0,     ...      ...   a_{M-1}*b_{N-1} ]]
+
+        .. versionadded:: 0.5
+
+        Parameters
+        ----------
+        rhs : :class:`APyFloatArray`
+            Second 1-D input vector to outer product.
 
         Returns
         -------

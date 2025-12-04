@@ -112,7 +112,7 @@ public:
     ScratchVector(size_type count, const T& value)
         : _size { 0 }
         , _capacity { _N_SCRATCH_ELEMENTS }
-        , _scratch_data { value }
+        , _scratch_data()
         , _ptr { nullptr }
     {
         if (count <= _N_SCRATCH_ELEMENTS) {

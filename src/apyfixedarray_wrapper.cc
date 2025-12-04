@@ -1123,7 +1123,6 @@ void bind_fixed_array(nb::module_& m)
                     for the array.
             )pbdoc"
         )
-
         .def(
             "nancumprod",
             &APyFixedArray::cumprod,
@@ -1148,6 +1147,35 @@ void bind_fixed_array(nb::module_& m)
                     If a specified axis is outside of the existing number of dimensions
                     for the array.
 
+            )pbdoc"
+        )
+        .def(
+            "outer",
+            &APyFixedArray::outer_product,
+            nb::arg("rhs"),
+            R"pbdoc(
+            Compute the outer product between `self` and `rhs`.
+
+            The outer product of 1-D arrays `a` and `b` of length :code:`M` and
+            :code:`N`, respectively, is:
+
+            .. code-block:: python
+
+                [[   a_0*b_0,     a_0*b_1,   ...     a_0*b_{N-1}   ],
+                 [   a_1*b_0,        .                    .        ],
+                 [      .                     .           .        ],
+                 [ a_{M-1}*b_0,     ...      ...   a_{M-1}*b_{N-1} ]]
+
+            .. versionadded:: 0.5
+
+            Parameters
+            ----------
+            rhs : :class:`APyFixedArray`
+                Second 1-D input vector to outer product.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
             )pbdoc"
         )
 

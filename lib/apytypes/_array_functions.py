@@ -276,7 +276,6 @@ def transpose(a: APyArray, axes: tuple[int, ...] | None = None) -> APyArray:
     -------
     transposed : :class:`APyFloatArray` or :class:`APyFixedArray`
         copy of `a` with its axes permuted.
-
     --------
     """
 
@@ -2609,6 +2608,57 @@ def meshgrid(
         raise ValueError("meshgrid: input arrays must have a meshgrid method")
 
     return meshgrid(arrays, indexing)
+
+
+@overload
+def outer(a: APyFixedArray, b: APyFixedArray) -> APyFixedArray: ...
+
+
+@overload
+def outer(a: APyFloatArray, b: APyFloatArray) -> APyFloatArray: ...
+
+
+@overload
+def outer(a: APyCFixedArray, b: APyCFixedArray) -> APyCFixedArray: ...
+
+
+@overload
+def outer(a: APyCFloatArray, b: APyCFloatArray) -> APyCFloatArray: ...
+
+
+def outer(a: APyArray, b: APyArray) -> APyArray:
+    """
+    Compute the outer product of two 1-D vectors.
+
+    The outer product of 1-D arrays `a` and `b` of length :code:`M` and :code:`N`,
+    respectively, is:
+
+    .. code-block:: python
+
+        [[   a_0*b_0,     a_0*b_1,   ...     a_0*b_{N-1}   ],
+         [   a_1*b_0,        .                    .        ],
+         [      .                     .           .        ],
+         [ a_{M-1}*b_0,     ...      ...   a_{M-1}*b_{N-1} ]]
+
+    .. versionadded:: 0.5
+
+    Parameters
+    ----------
+    a : :class:`APyArray`
+        First 1-D input vector outer product.
+    b : :class:`APyArray`
+        Second 1-D input vector to outer product.
+
+    Returns
+    -------
+    :class:`APyArray`
+        Same type as inputs `a` and `b`.
+    """
+    try:
+        outer = a.outer
+    except AttributeError:
+        raise TypeError(f"Type {type(a)} has no attribute `outer`")
+    return outer(b)
 
 
 # =============================================================================

@@ -105,6 +105,8 @@
 
    .. automethod:: conj
 
+   .. automethod:: outer
+
    Broadcasting
    ------------
 

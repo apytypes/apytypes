@@ -80,6 +80,8 @@
 
    .. automethod:: conj
 
+   .. automethod:: outer
+
    Convolution
    -----------
 
