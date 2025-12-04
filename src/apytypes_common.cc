@@ -29,30 +29,25 @@ void set_float_quantization_mode(QuantizationMode mode) { qntz_mode_fl = mode; }
  * *            Random number engines for APyTypes stochastic quantization          * *
  * ********************************************************************************** */
 
-// Seed used for the current stochastic rounding engine
+// Seed used for the default stochastic rounding engines
 thread_local static std::uint64_t rnd64_fx_seed = std::random_device {}();
 thread_local static std::uint64_t rnd64_fp_seed = std::random_device {}();
 
-// Default random-number generators for stochastic quantization (uniform distribution)
-thread_local static std::mt19937_64 default_mt19937_fx { rnd64_fx_seed };
-thread_local static std::mt19937_64 default_mt19937_fp { rnd64_fp_seed };
-static std::uint64_t default_rnd64_fx() { return default_mt19937_fx(); }
-static std::uint64_t default_rnd64_fp() { return default_mt19937_fp(); }
-
-// Current (thread local) stochastic rounding floating-point random number engine
-thread_local static std::function<std::uint64_t()> rnd64_fx_ptr = default_rnd64_fx;
-thread_local static std::function<std::uint64_t()> rnd64_fp_ptr = default_rnd64_fp;
+// Current thread-local random-number generators for stochastic quantization: uniform on
+// the interval [0, 2^64)
+thread_local static std::mt19937_64 current_mt19937_fx { rnd64_fx_seed };
+thread_local static std::mt19937_64 current_mt19937_fp { rnd64_fp_seed };
 
 // Reset the default stochastic quantization random number generators
 void rst_default_rnd64_fx(std::uint64_t seed)
 {
     rnd64_fx_seed = seed;
-    default_mt19937_fx.seed(seed);
+    current_mt19937_fx.seed(seed);
 }
 void rst_default_rnd64_fp(std::uint64_t seed)
 {
     rnd64_fp_seed = seed;
-    default_mt19937_fp.seed(seed);
+    current_mt19937_fp.seed(seed);
 }
 
 // Retrieve the seed used to initialize the active random number engine
@@ -60,8 +55,8 @@ std::uint64_t get_rnd64_fx_seed() { return rnd64_fx_seed; }
 std::uint64_t get_rnd64_fp_seed() { return rnd64_fp_seed; }
 
 // Generate a 64-bit random number using the current random-number engines
-std::uint64_t rnd64_fx() { return rnd64_fx_ptr(); }
-std::uint64_t rnd64_fp() { return rnd64_fp_ptr(); }
+std::uint64_t rnd64_fx() { return current_mt19937_fx(); }
+std::uint64_t rnd64_fp() { return current_mt19937_fp(); }
 
 /* ********************************************************************************** *
  * *                          Quantization context for APyFloat                     * *
@@ -74,24 +69,26 @@ APyFloatQuantizationContext::APyFloatQuantizationContext(
     , new_mode { new_mode }
     , prev_seed { rnd64_fp_seed }
     , new_seed { seed.value_or(std::random_device {}()) }
-    , prev_engine { rnd64_fp_ptr }
-    , default_engine(new_seed)
-    , new_engine(std::bind(default_engine))
+    , prev_engine() /* is copied on `enter_context()` */
+    , new_engine { new_seed }
 {
 }
 
 void APyFloatQuantizationContext::enter_context()
 {
+    // Copy the old RNG engine
+    prev_engine = current_mt19937_fp;
+
     set_float_quantization_mode(new_mode);
     rnd64_fp_seed = new_seed;
-    rnd64_fp_ptr = new_engine;
+    current_mt19937_fp = new_engine;
 }
 
 void APyFloatQuantizationContext::exit_context()
 {
     set_float_quantization_mode(prev_mode);
     rnd64_fp_seed = prev_seed;
-    rnd64_fp_ptr = prev_engine;
+    current_mt19937_fp = prev_engine;
 }
 
 /* ********************************************************************************** *

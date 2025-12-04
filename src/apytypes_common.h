@@ -46,6 +46,12 @@ enum class OverflowMode {
  * *            Random number engines for APyTypes stochastic quantization          * *
  * ********************************************************************************** */
 
+//! Uniform 64-bit random number generator function type
+using Rnd64Func_t = std::uint64_t();
+
+//! Uniform 64-bit random number generator function pointer type
+using Rnd64FuncPtr_t = Rnd64Func_t*;
+
 //! 64-bit uniform random number generator for fixed-point stachastic quantization
 std::uint64_t rnd64_fx();
 std::uint64_t rnd64_fp();
@@ -102,10 +108,7 @@ public:
 private:
     QuantizationMode prev_mode, new_mode;
     std::uint64_t prev_seed, new_seed;
-    const std::function<std::uint64_t()>& prev_engine;
-
-    std::mt19937_64 default_engine;
-    std::function<std::uint64_t()> new_engine;
+    std::mt19937_64 prev_engine, new_engine;
 };
 
 //! Set the global quantization mode for APyFloat
