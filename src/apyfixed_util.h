@@ -434,7 +434,7 @@ static APY_INLINE void _quantize_stoch_equal(
     int int_bits,
     int new_bits,
     int new_int_bits,
-    std::function<std::uint64_t()> get_random_uint64
+    Rnd64FuncPtr_t get_random_uint64
 )
 {
     int frac_bits = bits - int_bits;
@@ -462,7 +462,7 @@ static APY_INLINE void _quantize_stoch_weighted(
     int int_bits,
     int new_bits,
     int new_int_bits,
-    std::function<std::uint64_t()> get_random_uint64
+    Rnd64FuncPtr_t get_random_uint64
 )
 {
     int frac_bits = bits - int_bits;
@@ -508,7 +508,7 @@ static void quantize(
     int new_bits,
     int new_int_bits,
     QuantizationMode quantization,
-    std::optional<std::function<std::uint64_t()>> get_random_uint64 = std::nullopt
+    Rnd64FuncPtr_t get_random_uint64 = nullptr
 )
 {
     /*
@@ -564,12 +564,12 @@ static void quantize(
         break;
     case QuantizationMode::STOCH_EQUAL:
         _quantize_stoch_equal(
-            it_begin, it_end, bits, int_bits, new_bits, new_int_bits, *get_random_uint64
+            it_begin, it_end, bits, int_bits, new_bits, new_int_bits, get_random_uint64
         );
         break;
     case QuantizationMode::STOCH_WEIGHTED:
         _quantize_stoch_weighted(
-            it_begin, it_end, bits, int_bits, new_bits, new_int_bits, *get_random_uint64
+            it_begin, it_end, bits, int_bits, new_bits, new_int_bits, get_random_uint64
         );
         break;
     default:
