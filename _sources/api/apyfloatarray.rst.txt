@@ -99,6 +99,8 @@
 
    .. automethod:: nanmin
 
+   .. automethod:: outer
+
    Broadcasting
    ------------
 

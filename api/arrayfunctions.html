@@ -1348,32 +1348,6 @@ single-dimensional shape will have length <code class="code docutils literal not
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="apytypes.shape">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#apytypes.shape" title="Link to this definition">¶</a></dt>
-<dd><p>Return the shape of an array.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>a</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Input data.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd><p>Shape of the input array.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>TypeError</dt><dd><p>If the input does not have a <cite>shape</cite> attribute.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="apytypes.export_csv">
 <span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">export_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'default'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'vunit'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#apytypes.export_csv" title="Link to this definition">¶</a></dt>
 <dt class="sig sig-object py">
@@ -1525,6 +1499,71 @@ Lastly, negative fixed-point values are represented using the minus sign to matc
 </div>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="apytypes.outer">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">outer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.outer" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">outer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">outer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">outer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></span></dt>
+<dd><p>Compute the outer product of two 1-D vectors.</p>
+<p>The outer product of 1-D arrays <cite>a</cite> and <cite>b</cite> of length <code class="code docutils literal notranslate"><span class="pre">M</span></code> and <code class="code docutils literal notranslate"><span class="pre">N</span></code>,
+respectively, is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span>   <span class="n">a_0</span><span class="o">*</span><span class="n">b_0</span><span class="p">,</span>     <span class="n">a_0</span><span class="o">*</span><span class="n">b_1</span><span class="p">,</span>   <span class="o">...</span>     <span class="n">a_0</span><span class="o">*</span><span class="n">b_</span><span class="p">{</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span>   <span class="p">],</span>
+ <span class="p">[</span>   <span class="n">a_1</span><span class="o">*</span><span class="n">b_0</span><span class="p">,</span>        <span class="o">.</span>                    <span class="o">.</span>        <span class="p">],</span>
+ <span class="p">[</span>      <span class="o">.</span>                     <span class="o">.</span>           <span class="o">.</span>        <span class="p">],</span>
+ <span class="p">[</span> <span class="n">a_</span><span class="p">{</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span><span class="o">*</span><span class="n">b_0</span><span class="p">,</span>     <span class="o">...</span>      <span class="o">...</span>   <span class="n">a_</span><span class="p">{</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span><span class="o">*</span><span class="n">b_</span><span class="p">{</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="p">]]</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>a</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyArray</span></code></span></dt><dd><p>First 1-D input vector outer product.</p>
+</dd>
+<dt><strong>b</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyArray</span></code></span></dt><dd><p>Second 1-D input vector to outer product.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">APyArray</span></code></dt><dd><p>Same type as inputs <cite>a</cite> and <cite>b</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apytypes.shape">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#apytypes.shape" title="Link to this definition">¶</a></dt>
+<dd><p>Return the shape of an array.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>a</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Input data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd><p>Shape of the input array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the input does not have a <cite>shape</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -1617,9 +1656,10 @@ Lastly, negative fixed-point values are represented using the minus sign to matc
 </li>
 <li><a class="reference internal" href="#array-utility-functions">Array utility functions</a><ul>
 <li><a class="reference internal" href="#apytypes.convolve"><code class="docutils literal notranslate"><span class="pre">convolve()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.shape"><code class="docutils literal notranslate"><span class="pre">shape()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.export_csv"><code class="docutils literal notranslate"><span class="pre">export_csv()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.import_csv"><code class="docutils literal notranslate"><span class="pre">import_csv()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.outer"><code class="docutils literal notranslate"><span class="pre">outer()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.shape"><code class="docutils literal notranslate"><span class="pre">shape()</span></code></a></li>
 </ul>
 </li>
 </ul>

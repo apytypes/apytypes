@@ -85,6 +85,8 @@
 
    .. automethod:: min
 
+   .. automethod:: outer
+
    Broadcasting
    ------------
 
