@@ -297,7 +297,7 @@ struct ArrayThreadSetting {
 //! Threadpool settings class
 struct ThreadPoolSettings {
     ArrayThreadSetting apyfixedarray { /* n_mac_threshold = */ 10'000 };
-    ArrayThreadSetting apycfixedarray { /* n_mac_threshold = */ 2'500 };
+    ArrayThreadSetting apycfixedarray { /* n_mac_threshold = */ 10'000 };
     ArrayThreadSetting apyfloatarray { /* n_mac_threshold = */ 5'000 };
     ArrayThreadSetting apycfloatarray { /* n_mac_threshold = */ 1'000 };
 };

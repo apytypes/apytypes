@@ -685,6 +685,155 @@ static void overflow(
  * *    Fixed-point iterator based casting with quantization and overflowing        * *
  * ********************************************************************************** */
 
+template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_INOUT>
+struct FixedPointCasterUnsafe {
+    FixedPointCasterUnsafe(
+        const APyFixedSpec& src_spec,
+        const APyFixedSpec& dst_spec,
+        const QuantizationMode& q_mode,
+        const OverflowMode& v_mode
+    )
+        : _src_spec(src_spec)
+        , _dst_spec(dst_spec)
+    {
+
+// --- Macro definition for a CASE in the preceding switch
+#define CASE(Q_MODE, Q_PTR)                                                            \
+    case Q_MODE: {                                                                     \
+        f = &FixedPointCasterUnsafe::_cast<Q_PTR, V_PTR>;                              \
+    }
+        // --- Macro end
+
+        switch (v_mode) {
+        case OverflowMode::WRAP: {
+            constexpr FixedPointOverflowFuncPtr_t V_PTR = _overflow_twos_complement;
+            switch (q_mode) {
+                CASE(QuantizationMode::JAM, _quantize_jam) break;
+                CASE(QuantizationMode::JAM_UNBIASED, _quantize_jam_unbiased) break;
+                CASE(QuantizationMode::RND, _quantize_rnd) break;
+                CASE(QuantizationMode::RND_CONV, _quantize_rnd_conv) break;
+                CASE(QuantizationMode::RND_CONV_ODD, _quantize_rnd_conv_odd) break;
+                CASE(QuantizationMode::RND_INF, _quantize_rnd_inf) break;
+                CASE(QuantizationMode::RND_MIN_INF, _quantize_rnd_min_inf) break;
+                CASE(QuantizationMode::RND_ZERO, _quantize_rnd_zero) break;
+                CASE(QuantizationMode::TRN, _quantize_trn) break;
+                CASE(QuantizationMode::TRN_AWAY, _quantize_trn_away) break;
+                CASE(QuantizationMode::TRN_INF, _quantize_trn_inf) break;
+                CASE(QuantizationMode::TRN_MAG, _quantize_trn_mag) break;
+                CASE(QuantizationMode::TRN_ZERO, _quantize_trn_zero) break;
+            }
+        } break;
+        case OverflowMode::SAT: {
+            constexpr FixedPointOverflowFuncPtr_t V_PTR = _overflow_saturate;
+            switch (q_mode) {
+                CASE(QuantizationMode::JAM, _quantize_jam) break;
+                CASE(QuantizationMode::JAM_UNBIASED, _quantize_jam_unbiased) break;
+                CASE(QuantizationMode::RND, _quantize_rnd) break;
+                CASE(QuantizationMode::RND_CONV, _quantize_rnd_conv) break;
+                CASE(QuantizationMode::RND_CONV_ODD, _quantize_rnd_conv_odd) break;
+                CASE(QuantizationMode::RND_INF, _quantize_rnd_inf) break;
+                CASE(QuantizationMode::RND_MIN_INF, _quantize_rnd_min_inf) break;
+                CASE(QuantizationMode::RND_ZERO, _quantize_rnd_zero) break;
+                CASE(QuantizationMode::TRN, _quantize_trn) break;
+                CASE(QuantizationMode::TRN_AWAY, _quantize_trn_away) break;
+                CASE(QuantizationMode::TRN_INF, _quantize_trn_inf) break;
+                CASE(QuantizationMode::TRN_MAG, _quantize_trn_mag) break;
+                CASE(QuantizationMode::TRN_ZERO, _quantize_trn_zero) break;
+            }
+        } break;
+        case OverflowMode::NUMERIC_STD: {
+            constexpr FixedPointOverflowFuncPtr_t V_PTR = _overflow_numeric_std;
+            switch (q_mode) {
+                CASE(QuantizationMode::JAM, _quantize_jam) break;
+                CASE(QuantizationMode::JAM_UNBIASED, _quantize_jam_unbiased) break;
+                CASE(QuantizationMode::RND, _quantize_rnd) break;
+                CASE(QuantizationMode::RND_CONV, _quantize_rnd_conv) break;
+                CASE(QuantizationMode::RND_CONV_ODD, _quantize_rnd_conv_odd) break;
+                CASE(QuantizationMode::RND_INF, _quantize_rnd_inf) break;
+                CASE(QuantizationMode::RND_MIN_INF, _quantize_rnd_min_inf) break;
+                CASE(QuantizationMode::RND_ZERO, _quantize_rnd_zero) break;
+                CASE(QuantizationMode::TRN, _quantize_trn) break;
+                CASE(QuantizationMode::TRN_AWAY, _quantize_trn_away) break;
+                CASE(QuantizationMode::TRN_INF, _quantize_trn_inf) break;
+                CASE(QuantizationMode::TRN_MAG, _quantize_trn_mag) break;
+                CASE(QuantizationMode::TRN_ZERO, _quantize_trn_zero) break;
+            }
+        } break;
+        }
+
+// --- Macro undefine
+#undef CASE
+        // --- Macro undefine
+    }
+
+    void operator()(
+        RANDOM_ACCESS_ITERATOR_IN src_begin,
+        RANDOM_ACCESS_ITERATOR_IN src_end,
+        RANDOM_ACCESS_ITERATOR_INOUT dst_begin,
+        RANDOM_ACCESS_ITERATOR_INOUT dst_end
+    ) const
+    {
+        std::invoke(f, this, src_begin, src_end, dst_begin, dst_end);
+    }
+
+private:
+    using FixedPointQuantizationFuncPtr_t = void (*)(
+        RANDOM_ACCESS_ITERATOR_INOUT it_begin,
+        RANDOM_ACCESS_ITERATOR_INOUT it_end,
+        int bits,
+        int int_bits,
+        int new_bits,
+        int new_int_bits
+    );
+
+    using FixedPointOverflowFuncPtr_t = void (*)(
+        RANDOM_ACCESS_ITERATOR_INOUT it_begin,
+        RANDOM_ACCESS_ITERATOR_INOUT it_end,
+        int new_bits,
+        int new_int_bits
+    );
+
+    template <
+        FixedPointQuantizationFuncPtr_t QUANTIZATION_F,
+        FixedPointOverflowFuncPtr_t OVERFLOW_F>
+    void _cast(
+        RANDOM_ACCESS_ITERATOR_IN src_begin,
+        RANDOM_ACCESS_ITERATOR_IN src_end,
+        RANDOM_ACCESS_ITERATOR_INOUT dst_begin,
+        RANDOM_ACCESS_ITERATOR_INOUT dst_end
+    ) const
+    {
+        assert(std::distance(src_begin, src_end) <= std::distance(dst_begin, dst_end));
+
+        // Copy data into the result region and possibly sign extend
+        limb_vector_copy_sign_extend(src_begin, src_end, dst_begin, dst_end);
+
+        // First perform quantization
+        QUANTIZATION_F(
+            dst_begin,
+            dst_end,
+            _src_spec.bits,
+            _src_spec.int_bits,
+            _dst_spec.bits,
+            _dst_spec.int_bits
+        );
+
+        // Then perform overflowing
+        OVERFLOW_F(dst_begin, dst_end, _dst_spec.bits, _dst_spec.int_bits);
+    }
+
+    APyFixedSpec _src_spec;
+    APyFixedSpec _dst_spec;
+
+    // Pointer to the appropriate caster function
+    void (FixedPointCasterUnsafe::*f)(
+        RANDOM_ACCESS_ITERATOR_IN src_begin,
+        RANDOM_ACCESS_ITERATOR_IN src_end,
+        RANDOM_ACCESS_ITERATOR_INOUT dst_begin,
+        RANDOM_ACCESS_ITERATOR_INOUT dst_end
+    ) const;
+};
+
 /*!
  * General casting method for fixed-point numbers. General casting can perform both
  * quantization and overflowing. The size of the output region
@@ -708,7 +857,7 @@ static APY_INLINE void fixed_point_cast_unsafe(
 {
     assert(std::distance(src_begin, src_end) <= std::distance(dst_begin, dst_end));
 
-    // Copy data into the result region and sign extend
+    // Copy data into the result region and possibly sign extend
     limb_vector_copy_sign_extend(src_begin, src_end, dst_begin, dst_end);
 
     // First perform quantization

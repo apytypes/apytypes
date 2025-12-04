@@ -455,7 +455,6 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     auto op2_begin = rhs._data.begin();
     auto op2_end = rhs._data.begin() + rhs.vector_size();
     std::vector<apy_limb_t> op2_abs(rhs.vector_size());
-    // Compute the absolute value of operand, as required by multiplication algorithm
     bool sign2 = limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
 
     // Perform multiplication for each element in the tensor.
