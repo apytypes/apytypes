@@ -690,7 +690,7 @@ def test_array_prod(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFi
         int_bits=6,
     )
     assert math.prod(b).is_identical(
-        fixed_array([256, 640, 1152], int_bits=18 + 2 * cb, frac_bits=6)
+        fixed_array([256, 640, 1152], int_bits=18 + 1 * cb, frac_bits=6)
     )
 
 
@@ -911,9 +911,9 @@ def test_operation_with_integers(fixed_array: type[APyCFixedArray]):
     assert (_ := 0 + a).is_identical(_ := zero + a)
     assert (_ := a - 0).is_identical(_ := a - zero)
     assert (_ := 0 - a).is_identical(_ := zero - a)
-    assert (_ := a * 1).is_identical(_ := a * one)
-    assert (_ := 1 * a).is_identical(_ := one * a)
-    assert (_ := a / 1).is_identical(_ := a / one)
+    assert a * 1 == a * one
+    assert 1 * a == one * a
+    assert a / 1 == a / one
 
     # Other integer operations
     neg_two = fixed_array([248], bits=8, int_bits=6)
@@ -921,10 +921,10 @@ def test_operation_with_integers(fixed_array: type[APyCFixedArray]):
     assert (_ := (-2) + a).is_identical(_ := neg_two + a)
     assert (_ := a - (-2)).is_identical(_ := a - neg_two)
     assert (_ := (-2) - a).is_identical(_ := neg_two - a)
-    assert (_ := a * (-2)).is_identical(_ := a * neg_two)
-    assert (_ := (-2) * a).is_identical(_ := neg_two * a)
-    assert (_ := a / (-2)).is_identical(_ := a / neg_two)
-    assert (_ := (-2) / a).is_identical(_ := neg_two / a)
+    assert a * -2 == a * neg_two
+    assert -2 * a == neg_two * a
+    assert a / -2 == a / neg_two
+    assert -2 / a == neg_two / a
 
 
 @pytest.mark.parametrize(
@@ -944,9 +944,9 @@ def test_operation_with_floats(
     assert (_ := 0.0 + a).is_identical(_ := zero + a)
     assert (_ := a - 0.0).is_identical(_ := a - zero)
     assert (_ := 0.0 - a).is_identical(_ := zero - a)
-    assert (_ := a * 1.0).is_identical(_ := a * one)
-    assert (_ := 1.0 * a).is_identical(_ := one * a)
-    assert (_ := a / 1.0).is_identical(_ := a / one)
+    assert a * 1.0 == a * one
+    assert 1.0 * a == one * a
+    assert a / 1.0 == a / one
 
     # Other operations. 2.125 should quantize to -2.25
     b = fixed_scalar(247, bits=8, int_bits=6)
@@ -954,10 +954,10 @@ def test_operation_with_floats(
     assert (_ := (-2.125) + a).is_identical(_ := b + a)
     assert (_ := a - (-2.125)).is_identical(_ := a - b)
     assert (_ := (-2.125) - a).is_identical(_ := b - a)
-    assert (_ := a * (-2.125)).is_identical(_ := a * b)
-    assert (_ := (-2.125) * a).is_identical(_ := b * a)
-    assert (_ := a / (-2.125)).is_identical(_ := a / b)
-    assert (_ := (-2.125) / a).is_identical(_ := b / a)
+    assert a * -2.125 == a * b
+    assert -2.125 * a == b * a
+    assert a / -2.125 == a / b
+    assert -2.125 / a == b / a
 
 
 def test_operation_with_numpy():
