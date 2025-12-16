@@ -44,7 +44,7 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install ninja-build valgrind
         python -m pip install --upgrade pip
-        python -m pip install pytest numpy meson-python setuptools_scm
+        python -m pip install pytest numpy "meson<=1.9.1" meson-python setuptools_scm
     - name: Install APyTypes (debug mode)
       run: |
         git fetch --tags
