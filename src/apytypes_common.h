@@ -12,6 +12,7 @@
 #include <cstdint>  // std::uint32_t, uint64_t
 #include <optional> // std::optional
 #include <random>   // std::mt19937_64, std::random_device
+#include <utility>  // std::in_place_t
 #include <variant>
 
 /* ********************************************************************************** *
@@ -258,25 +259,26 @@ ThirdPartyArray<NB_ARGS...> make_third_party_ndarray(
 {
     namespace nb = nanobind;
     switch (array_lib) {
-    case ThirdPartyArrayTag::NUMPY:
-        return ThirdPartyArray<NB_ARGS...>(
-            nb::ndarray<nb::numpy, NB_ARGS...>(array_ref)
-        );
-    case ThirdPartyArrayTag::PYTORCH:
-        return ThirdPartyArray<NB_ARGS...>(
-            nb::ndarray<nb::pytorch, NB_ARGS...>(array_ref)
-        );
-    case ThirdPartyArrayTag::TENSORFLOW:
-        return ThirdPartyArray<NB_ARGS...>(
-            nb::ndarray<nb::tensorflow, NB_ARGS...>(array_ref)
-        );
-    case ThirdPartyArrayTag::JAX:
-        return ThirdPartyArray<NB_ARGS...>(nb::ndarray<nb::jax, NB_ARGS...>(array_ref));
-    case ThirdPartyArrayTag::CUPY:
-        return ThirdPartyArray<NB_ARGS...>(
-            nb::ndarray<nb::cupy, NB_ARGS...>(array_ref)
-        );
-
+    case ThirdPartyArrayTag::NUMPY: {
+        using NDARRAY_T = nb::ndarray<nb::numpy, NB_ARGS...>;
+        return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
+    }
+    case ThirdPartyArrayTag::PYTORCH: {
+        using NDARRAY_T = nb::ndarray<nb::pytorch, NB_ARGS...>;
+        return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
+    }
+    case ThirdPartyArrayTag::TENSORFLOW: {
+        using NDARRAY_T = nb::ndarray<nb::tensorflow, NB_ARGS...>;
+        return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
+    }
+    case ThirdPartyArrayTag::JAX: {
+        using NDARRAY_T = nb::ndarray<nb::jax, NB_ARGS...>;
+        return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
+    }
+    case ThirdPartyArrayTag::CUPY: {
+        using NDARRAY_T = nb::ndarray<nb::cupy, NB_ARGS...>;
+        return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
+    }
     default:
         APYTYPES_UNREACHABLE();
     }
