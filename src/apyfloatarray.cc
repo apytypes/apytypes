@@ -25,6 +25,7 @@ namespace nb = nanobind;
 #include <stdlib.h>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 
 void APyFloatArray::create_in_place(
@@ -414,23 +415,30 @@ APyFloatArray::matmul(const APyFloatArray& rhs) const
     assert(ndim() >= 1);
     assert(rhs.ndim() >= 1);
 
+    using RESULT_TYPE = std::variant<APyFloatArray, APyFloat>;
     if (ndim() == 1 && rhs.ndim() == 1) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out.
             // Perform the checked inner product.
-            return checked_inner_product(rhs);
+            return RESULT_TYPE(
+                std::in_place_type<APyFloat>, checked_inner_product(rhs)
+            );
         }
     } else if (ndim() == 2 && (rhs.ndim() == 1 || rhs.ndim() == 2)) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
-            return checked_2d_matmul(rhs);
+            return RESULT_TYPE(
+                std::in_place_type<APyFloatArray>, checked_2d_matmul(rhs)
+            );
         }
     } else if (ndim() == 1 && rhs.ndim() == 2) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a vector-matrix multiplication checks out. Perform the
             // checked 2D matrix
-            return checked_2d_matmul(rhs);
+            return RESULT_TYPE(
+                std::in_place_type<APyFloatArray>, checked_2d_matmul(rhs)
+            );
         }
     }
 
@@ -1126,19 +1134,40 @@ std::variant<
     nb::ndarray<nb::numpy, std::uint8_t>>
 APyFloatArray::to_bits(bool numpy) const
 {
+    using RESULT_TYPE = std::variant<
+        nb::list,
+        nb::ndarray<nb::numpy, std::uint64_t>,
+        nb::ndarray<nb::numpy, std::uint32_t>,
+        nb::ndarray<nb::numpy, std::uint16_t>,
+        nb::ndarray<nb::numpy, std::uint8_t>>;
+
     if (numpy) {
         if (get_bits() <= 8) {
-            return to_bits_ndarray<nb::numpy, std::uint8_t>();
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint8_t>>,
+                to_bits_ndarray<nb::numpy, std::uint8_t>()
+            );
         } else if (get_bits() <= 16) {
-            return to_bits_ndarray<nb::numpy, std::uint16_t>();
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint16_t>>,
+                to_bits_ndarray<nb::numpy, std::uint16_t>()
+            );
         } else if (get_bits() <= 32) {
-            return to_bits_ndarray<nb::numpy, std::uint32_t>();
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint32_t>>,
+                to_bits_ndarray<nb::numpy, std::uint32_t>()
+            );
         } else {
-            return to_bits_ndarray<nb::numpy, std::uint64_t>();
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint64_t>>,
+                to_bits_ndarray<nb::numpy, std::uint64_t>()
+            );
         }
     } else {
         auto it = std::cbegin(_data);
-        return to_bits_python_recursive_descent(0, it);
+        return RESULT_TYPE(
+            std::in_place_type<nb::list>, to_bits_python_recursive_descent(0, it)
+        );
     }
 }
 

@@ -910,11 +910,10 @@ ThirdPartyArray<bool> APyFixedArray::is_zero() const
 std::variant<APyFixedArray, APyFixed>
 APyFixedArray::matmul(const APyFixedArray& rhs) const
 {
-    using RESULT_TYPE = std::variant<APyFixedArray, APyFixed>;
-
     assert(ndim() >= 1);
     assert(rhs.ndim() >= 1);
 
+    using RESULT_TYPE = std::variant<APyFixedArray, APyFixed>;
     if (ndim() == 1 && rhs.ndim() == 1) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out. Perform
