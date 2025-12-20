@@ -1670,11 +1670,9 @@ public:
     {
         assert(formatters.size());
         if (_nitems == 0) {
-            return { std::vector<std::vector<std::string>>(
-                         formatters.size(),
-                         { std::string(_ndim, '[') + std::string(_ndim, ']') }
-                     ),
-                     2 * _ndim };
+            using VEC_T = std::vector<std::vector<std::string>>;
+            std::string brackets = std::string(_ndim, '[') + std::string(_ndim, ']');
+            return std::make_tuple(VEC_T(formatters.size(), { brackets }), 2 * _ndim);
         }
 
         // Retrieve necessary padding of elements
@@ -1735,7 +1733,7 @@ public:
             result.emplace_back(std::move(format_lines));
         }
 
-        return { result, format_len };
+        return std::make_tuple(result, format_len);
     }
 
     //! Format the array content of `*this` using a single `formatter` on each element.
