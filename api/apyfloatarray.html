@@ -6,10 +6,10 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Array functions" href="arrayfunctions.html"><link rel="prev" title="APyFloat" href="apyfloat.html">
         <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image">
 
-    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>APyFloatArray - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -307,7 +307,7 @@
 <h1><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code><a class="headerlink" href="#apyfloatarray" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyFloatArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.APyFloatArray" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyFloatArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.APyFloatArray" title="Link to this definition">¶</a></dt>
 <dd><p>Class for multidimensional arrays with configurable floating-point formats.</p>
 <p><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> is a class for multidimensional arrays with configurable
 floating-point formats. The interface is much like the one of NumPy, and direct plotting
@@ -344,40 +344,40 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.broadcast_to" title="apytypes.APyFloatArray.broadcast_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_to</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.broadcast_to" title="apytypes.APyFloatArray.broadcast_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_to</span></code></a>(self, shape)</p></td>
 <td><p>Broadcast array to new shape.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast" title="apytypes.APyFloatArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast" title="apytypes.APyFloatArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a>(self[, exp_bits, man_bits, bias, ...])</p></td>
 <td><p>Change format of the floating-point array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_bfloat16" title="apytypes.APyFloatArray.cast_to_bfloat16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_bfloat16</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_bfloat16" title="apytypes.APyFloatArray.cast_to_bfloat16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_bfloat16</span></code></a>(self[, quantization])</p></td>
 <td><p>Cast to bfloat16 format.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_double" title="apytypes.APyFloatArray.cast_to_double"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_double</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_double" title="apytypes.APyFloatArray.cast_to_double"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_double</span></code></a>(self[, quantization])</p></td>
 <td><p>Cast to IEEE 754 binary64 (double-precision) format.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_half" title="apytypes.APyFloatArray.cast_to_half"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_half</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_half" title="apytypes.APyFloatArray.cast_to_half"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_half</span></code></a>(self[, quantization])</p></td>
 <td><p>Cast to IEEE 754 binary16 (half-precision) format.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_single" title="apytypes.APyFloatArray.cast_to_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_single</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_single" title="apytypes.APyFloatArray.cast_to_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_single</span></code></a>(self[, quantization])</p></td>
 <td><p>Cast to IEEE 754 binary32 (single-precision) format.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.convolve" title="apytypes.APyFloatArray.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.convolve" title="apytypes.APyFloatArray.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a>(self, other[, mode])</p></td>
 <td><p>Return the discrete linear convolution with another one-dimensional array.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.copy" title="apytypes.APyFloatArray.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.copy" title="apytypes.APyFloatArray.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>(self)</p></td>
 <td><p>Create a copy of the object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cumprod" title="apytypes.APyFloatArray.cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cumprod" title="apytypes.APyFloatArray.cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></a>(self[, axis])</p></td>
 <td><p>Return cumulative product of elements along a given axes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cumsum" title="apytypes.APyFloatArray.cumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumsum</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cumsum" title="apytypes.APyFloatArray.cumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumsum</span></code></a>(self[, axis])</p></td>
 <td><p>Return the cumulative sum of the elements along a given axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.eye" title="apytypes.APyFloatArray.eye"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eye</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.flatten" title="apytypes.APyFloatArray.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.flatten" title="apytypes.APyFloatArray.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a>(self)</p></td>
 <td><p>Return a copy of the array collapsed into one dimension.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_array" title="apytypes.APyFloatArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
@@ -395,64 +395,64 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.identity" title="apytypes.APyFloatArray.identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">identity</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.is_identical" title="apytypes.APyFloatArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.is_identical" title="apytypes.APyFloatArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a>(self, other[, ignore_zero_sign])</p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.max" title="apytypes.APyFloatArray.max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.max" title="apytypes.APyFloatArray.max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></a>(self[, axis])</p></td>
 <td><p>Return maximum value of array or along an axis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.min" title="apytypes.APyFloatArray.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.min" title="apytypes.APyFloatArray.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a>(self[, axis])</p></td>
 <td><p>Return maximum value of array or along an axis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nancumprod" title="apytypes.APyFloatArray.nancumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nancumprod" title="apytypes.APyFloatArray.nancumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></a>(self[, axis])</p></td>
 <td><p>Return cumulative product of elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nancumsum" title="apytypes.APyFloatArray.nancumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nancumsum" title="apytypes.APyFloatArray.nancumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></a>(self[, axis])</p></td>
 <td><p>Return cumulative sum of elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanmax" title="apytypes.APyFloatArray.nanmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmax</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanmax" title="apytypes.APyFloatArray.nanmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmax</span></code></a>(self[, axis])</p></td>
 <td><p>Return maximum value of array or along an axis ignoring NaN.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanmin" title="apytypes.APyFloatArray.nanmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmin</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanmin" title="apytypes.APyFloatArray.nanmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmin</span></code></a>(self[, axis])</p></td>
 <td><p>Return minimum value of array or along an axis ignoring NaN.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanprod" title="apytypes.APyFloatArray.nanprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanprod" title="apytypes.APyFloatArray.nanprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></a>(self[, axis])</p></td>
 <td><p>Return product of the elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nansum" title="apytypes.APyFloatArray.nansum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nansum" title="apytypes.APyFloatArray.nansum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></a>(self[, axis])</p></td>
 <td><p>Return the sum of the elements along specified axis/axes treating NaN as 0.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.ones" title="apytypes.APyFloatArray.ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ones</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.outer" title="apytypes.APyFloatArray.outer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">outer</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.outer" title="apytypes.APyFloatArray.outer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">outer</span></code></a>(self, rhs)</p></td>
 <td><p>Compute the outer product between <cite>self</cite> and <cite>rhs</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.prod" title="apytypes.APyFloatArray.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.prod" title="apytypes.APyFloatArray.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a>(self[, axis])</p></td>
 <td><p>Return product of elements along specified axis/axes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.ravel" title="apytypes.APyFloatArray.ravel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ravel</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.ravel" title="apytypes.APyFloatArray.ravel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ravel</span></code></a>(self)</p></td>
 <td><p>Return a copy of the array collapsed into one dimension.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.reshape" title="apytypes.APyFloatArray.reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.reshape" title="apytypes.APyFloatArray.reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape</span></code></a>(self, new_shape)</p></td>
 <td><p>Reshape the APyFloatArray to the specified shape without changing its data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.squeeze" title="apytypes.APyFloatArray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.squeeze" title="apytypes.APyFloatArray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a>(self[, axis])</p></td>
 <td><p>Remove axes of size one at the specified axis/axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.sum" title="apytypes.APyFloatArray.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.sum" title="apytypes.APyFloatArray.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a>(self[, axis])</p></td>
 <td><p>Return the sum of the elements along specified axis/axes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.swapaxes" title="apytypes.APyFloatArray.swapaxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapaxes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.swapaxes" title="apytypes.APyFloatArray.swapaxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapaxes</span></code></a>(self, axis1, axis2)</p></td>
 <td><p>Interchange two axes of an array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.to_bits" title="apytypes.APyFloatArray.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.to_bits" title="apytypes.APyFloatArray.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a>(self, numpy)</p></td>
 <td><p>Return the underlying bit representations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.to_numpy" title="apytypes.APyFloatArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.to_numpy" title="apytypes.APyFloatArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a>(self, dtype, copy)</p></td>
 <td><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.transpose" title="apytypes.APyFloatArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.transpose" title="apytypes.APyFloatArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a>(self[, axes])</p></td>
 <td><p>Return copy of array with axes transposed.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.zeros" title="apytypes.APyFloatArray.zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zeros</span></code></a></p></td>
@@ -1869,7 +1869,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <h3>Word length<a class="headerlink" href="#word-length" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyFloatArray.bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyFloatArray.bits" title="Link to this definition">¶</a></dt>
 <dd><p>Total number of bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1882,7 +1882,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.exp_bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exp_bits</span></span><a class="headerlink" href="#apytypes.APyFloatArray.exp_bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">exp_bits</span></span><a class="headerlink" href="#apytypes.APyFloatArray.exp_bits" title="Link to this definition">¶</a></dt>
 <dd><p>Number of exponent bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1895,7 +1895,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.man_bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">man_bits</span></span><a class="headerlink" href="#apytypes.APyFloatArray.man_bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">man_bits</span></span><a class="headerlink" href="#apytypes.APyFloatArray.man_bits" title="Link to this definition">¶</a></dt>
 <dd><p>Number of mantissa bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1908,7 +1908,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.bias">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bias</span></span><a class="headerlink" href="#apytypes.APyFloatArray.bias" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bias</span></span><a class="headerlink" href="#apytypes.APyFloatArray.bias" title="Link to this definition">¶</a></dt>
 <dd><p>Exponent bias.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1924,7 +1924,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <h3>Array properties<a class="headerlink" href="#array-properties" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.ndim">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ndim</span></span><a class="headerlink" href="#apytypes.APyFloatArray.ndim" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ndim</span></span><a class="headerlink" href="#apytypes.APyFloatArray.ndim" title="Link to this definition">¶</a></dt>
 <dd><p>Number of dimensions in the array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1937,7 +1937,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.shape">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#apytypes.APyFloatArray.shape" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#apytypes.APyFloatArray.shape" title="Link to this definition">¶</a></dt>
 <dd><p>The shape of the array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1953,7 +1953,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <h3>Transposition<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.T">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">T</span></span><a class="headerlink" href="#apytypes.APyFloatArray.T" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">T</span></span><a class="headerlink" href="#apytypes.APyFloatArray.T" title="Link to this definition">¶</a></dt>
 <dd><p>The transposition of the array.</p>
 <p>Equivalent to calling <a class="reference internal" href="arrayfunctions.html#apytypes.transpose" title="apytypes.transpose"><code class="xref py py-func docutils literal notranslate"><span class="pre">transpose()</span></code></a>.</p>
 <dl class="field-list simple">
@@ -1970,7 +1970,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <h3>Real and imaginary part<a class="headerlink" href="#real-and-imaginary-part" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.real">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyFloatArray.real" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyFloatArray.real" title="Link to this definition">¶</a></dt>
 <dd><p>Real part.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.5.</span></p>
@@ -1986,7 +1986,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.imag">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyFloatArray.imag" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyFloatArray.imag" title="Link to this definition">¶</a></dt>
 <dd><p>Imaginary part.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.5.</span></p>
@@ -2132,8 +2132,8 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>

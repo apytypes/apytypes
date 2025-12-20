@@ -6,10 +6,10 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="APyFixedArray" href="apyfixedarray.html"><link rel="prev" title="APyCFloatArray" href="apycfloatarray.html">
         <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image">
 
-    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>APyFixed - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -307,7 +307,7 @@
 <h1><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code><a class="headerlink" href="#apyfixed" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="apytypes.APyFixed">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyFixed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.APyFixed" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyFixed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.APyFixed" title="Link to this definition">¶</a></dt>
 <dd><p>Class for configurable scalar fixed-point formats.</p>
 <p><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a> is an arbitrary precision two’s complement fixed-point scalar type. In
 many ways it behaves like the built-in Python types <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> and <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, in
@@ -417,13 +417,13 @@ table shows word lengths of elementary arithmetic operations.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.as_integer_ratio" title="apytypes.APyFixed.as_integer_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.as_integer_ratio" title="apytypes.APyFixed.as_integer_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code></a>(self)</p></td>
 <td><p>Get (numerator, denominator)-tuple for the exact rational value of the <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.cast" title="apytypes.APyFixed.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.cast" title="apytypes.APyFixed.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a>(self[, int_bits, frac_bits, ...])</p></td>
 <td><p>Change format of the fixed-point number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.copy" title="apytypes.APyFixed.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.copy" title="apytypes.APyFixed.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>(self)</p></td>
 <td><p>Create a copy of the object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
@@ -435,13 +435,13 @@ table shows word lengths of elementary arithmetic operations.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.from_str" title="apytypes.APyFixed.from_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_str</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.is_identical" title="apytypes.APyFixed.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.is_identical" title="apytypes.APyFixed.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a>(self, other)</p></td>
 <td><p>Test if two fixed-point objects are exactly identical.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_bits" title="apytypes.APyFixed.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_bits" title="apytypes.APyFixed.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a>(self)</p></td>
 <td><p>Retrieve underlying bit-pattern in an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_fraction" title="apytypes.APyFixed.to_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_fraction" title="apytypes.APyFixed.to_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_fraction</span></code></a>(self)</p></td>
 <td><p>Get the exact rational value of the <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -750,7 +750,7 @@ fixed-point value.</p>
 <h3>Word length<a class="headerlink" href="#word-length" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyFixed.bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyFixed.bits" title="Link to this definition">¶</a></dt>
 <dd><p>Total number of bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -763,7 +763,7 @@ fixed-point value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.int_bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">int_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.int_bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">int_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.int_bits" title="Link to this definition">¶</a></dt>
 <dd><p>Number of integer bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -776,7 +776,7 @@ fixed-point value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.frac_bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frac_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.frac_bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">frac_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.frac_bits" title="Link to this definition">¶</a></dt>
 <dd><p>Number of fractional bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -792,13 +792,13 @@ fixed-point value.</p>
 <h3>Bit pattern information<a class="headerlink" href="#bit-pattern-information" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.is_zero">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_zero</span></span><a class="headerlink" href="#apytypes.APyFixed.is_zero" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_zero</span></span><a class="headerlink" href="#apytypes.APyFixed.is_zero" title="Link to this definition">¶</a></dt>
 <dd><p>True if the value equals zero, false otherwise.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.leading_fractional_zeros">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_fractional_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_fractional_zeros" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">leading_fractional_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_fractional_zeros" title="Link to this definition">¶</a></dt>
 <dd><p>Number of leading zeros after the binary fixed-point.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -811,7 +811,7 @@ fixed-point value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.leading_ones">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_ones</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_ones" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">leading_ones</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_ones" title="Link to this definition">¶</a></dt>
 <dd><p>Number of leading ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -824,7 +824,7 @@ fixed-point value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.leading_signs">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_signs</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_signs" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">leading_signs</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_signs" title="Link to this definition">¶</a></dt>
 <dd><p>Number of leading sign-bits.</p>
 <p>That is, the number of bits that is identical to the most significant bit.</p>
 <dl class="field-list simple">
@@ -838,7 +838,7 @@ fixed-point value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.leading_zeros">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_zeros" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">leading_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_zeros" title="Link to this definition">¶</a></dt>
 <dd><p>Number of leading zeros.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -851,7 +851,7 @@ fixed-point value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.trailing_zeros">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trailing_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.trailing_zeros" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">trailing_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.trailing_zeros" title="Link to this definition">¶</a></dt>
 <dd><p>Number of trailing zeros.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.5.</span></p>
@@ -870,7 +870,7 @@ fixed-point value.</p>
 <h3>Real and imaginary part<a class="headerlink" href="#real-and-imaginary-part" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.real">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyFixed.real" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyFixed.real" title="Link to this definition">¶</a></dt>
 <dd><p>Real part.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.5.</span></p>
@@ -886,7 +886,7 @@ fixed-point value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixed.imag">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyFixed.imag" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyFixed.imag" title="Link to this definition">¶</a></dt>
 <dd><p>Imaginary part.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.5.</span></p>
@@ -1005,11 +1005,11 @@ fixed-point value.</p>
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>

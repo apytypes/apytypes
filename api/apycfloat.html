@@ -6,10 +6,10 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="APyCFloatArray" href="apycfloatarray.html"><link rel="prev" title="APyCFixedArray" href="apycfixedarray.html">
         <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image">
 
-    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>APyCFloat - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -307,7 +307,7 @@
 <h1><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code><a class="headerlink" href="#apycfloat" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="apytypes.APyCFloat">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyCFloat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.APyCFloat" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyCFloat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.APyCFloat" title="Link to this definition">¶</a></dt>
 <dd><p>Class for configurable complex-valued scalar floating-point formats.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.4.</span></p>
@@ -341,13 +341,13 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.cast" title="apytypes.APyCFloat.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.cast" title="apytypes.APyCFloat.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a>(self[, exp_bits, man_bits, bias, ...])</p></td>
 <td><p>Change format of the complex-valued floating-point number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.conj" title="apytypes.APyCFloat.conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conj</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.conj" title="apytypes.APyCFloat.conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conj</span></code></a>(self)</p></td>
 <td><p>Retrieve complex conjugate.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.copy" title="apytypes.APyCFloat.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.copy" title="apytypes.APyCFloat.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>(self)</p></td>
 <td><p>Create a copy of the object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_bits" title="apytypes.APyCFloat.from_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bits</span></code></a></p></td>
@@ -362,10 +362,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.from_number" title="apytypes.APyCFloat.from_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_number</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.is_identical" title="apytypes.APyCFloat.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloat.is_identical" title="apytypes.APyCFloat.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a>(self, other[, ignore_zero_sign])</p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.to_bits" title="apytypes.APyCFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloat.to_bits" title="apytypes.APyCFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a>(self)</p></td>
 <td><p>Get the bit-representation of an <a class="reference internal" href="#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -646,7 +646,7 @@ they have the same sign, exponent, mantissa, and format.</p>
 <h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">¶</a></h2>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyCFloat.real">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyCFloat.real" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyCFloat.real" title="Link to this definition">¶</a></dt>
 <dd><p>Real part.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -659,7 +659,7 @@ they have the same sign, exponent, mantissa, and format.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyCFloat.imag">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyCFloat.imag" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyCFloat.imag" title="Link to this definition">¶</a></dt>
 <dd><p>Imaginary part.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -672,7 +672,7 @@ they have the same sign, exponent, mantissa, and format.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyCFloat.is_zero">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_zero</span></span><a class="headerlink" href="#apytypes.APyCFloat.is_zero" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_zero</span></span><a class="headerlink" href="#apytypes.APyCFloat.is_zero" title="Link to this definition">¶</a></dt>
 <dd><p>True if, and only if, both the real and imaginary parts are zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -687,7 +687,7 @@ they have the same sign, exponent, mantissa, and format.</p>
 <h3>Word length<a class="headerlink" href="#word-length" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyCFloat.bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyCFloat.bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyCFloat.bits" title="Link to this definition">¶</a></dt>
 <dd><p>Total number of bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -700,7 +700,7 @@ they have the same sign, exponent, mantissa, and format.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyCFloat.exp_bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exp_bits</span></span><a class="headerlink" href="#apytypes.APyCFloat.exp_bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">exp_bits</span></span><a class="headerlink" href="#apytypes.APyCFloat.exp_bits" title="Link to this definition">¶</a></dt>
 <dd><p>Number of exponent bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -713,7 +713,7 @@ they have the same sign, exponent, mantissa, and format.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyCFloat.man_bits">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">man_bits</span></span><a class="headerlink" href="#apytypes.APyCFloat.man_bits" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">man_bits</span></span><a class="headerlink" href="#apytypes.APyCFloat.man_bits" title="Link to this definition">¶</a></dt>
 <dd><p>Number of mantissa bits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -726,7 +726,7 @@ they have the same sign, exponent, mantissa, and format.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyCFloat.bias">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bias</span></span><a class="headerlink" href="#apytypes.APyCFloat.bias" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bias</span></span><a class="headerlink" href="#apytypes.APyCFloat.bias" title="Link to this definition">¶</a></dt>
 <dd><p>Exponent bias.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -838,8 +838,8 @@ they have the same sign, exponent, mantissa, and format.</p>
     </aside>
   </div>
 </div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
