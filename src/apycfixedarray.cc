@@ -1189,7 +1189,10 @@ APyCFixedArray::prod(const std::optional<PyShapeParam_t>& py_axis) const
 
     if (n_elems == 0) {
         // Empty array, return scalar one (NumPy semantics)
-        return APyCFixed::one(_bits, _int_bits);
+        using RESULT_TYPE = std::variant<APyCFixedArray, APyCFixed>;
+        return RESULT_TYPE(
+            std::in_place_type<APyCFixed>, APyCFixed::one(_bits, _int_bits)
+        );
     } else {
         // Non-empty array
         int int_bits = _int_bits * n_elems + n_elems - 1;
@@ -1752,6 +1755,8 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
 std::variant<APyCFixedArray, APyCFixed>
 APyCFixedArray::matmul(const APyCFixedArray& rhs) const
 {
+    using RESULT_TYPE = std::variant<APyCFixedArray, APyCFixed>;
+
     assert(ndim() >= 1);
     assert(rhs.ndim() >= 1);
 
@@ -1759,19 +1764,28 @@ APyCFixedArray::matmul(const APyCFixedArray& rhs) const
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out.
             // Perform the checked inner product.
-            return checked_inner_product(rhs, get_accumulator_mode_fixed());
+            return RESULT_TYPE(
+                std::in_place_type<APyCFixed>,
+                checked_inner_product(rhs, get_accumulator_mode_fixed())
+            );
         }
     } else if (ndim() == 2 && (rhs.ndim() == 1 || rhs.ndim() == 2)) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
-            return checked_2d_matmul(rhs, get_accumulator_mode_fixed());
+            return RESULT_TYPE(
+                std::in_place_type<APyCFixedArray>,
+                checked_2d_matmul(rhs, get_accumulator_mode_fixed())
+            );
         }
     } else if (ndim() == 1 && rhs.ndim() == 2) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a vector-matrix multiplication checks out. Perform the
             // checked 2D matrix
-            return checked_2d_matmul(rhs, get_accumulator_mode_fixed());
+            return RESULT_TYPE(
+                std::in_place_type<APyCFixedArray>,
+                checked_2d_matmul(rhs, get_accumulator_mode_fixed())
+            );
         }
     }
 
