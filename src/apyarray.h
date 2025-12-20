@@ -30,6 +30,7 @@ namespace nb = nanobind;
 #include <set>         // std::set
 #include <string>      // std::string
 #include <string_view> // std::string_view
+#include <utility>     // std::in_place_type
 #include <variant>     // std::variant
 
 /*!
@@ -144,9 +145,9 @@ public:
         for (std::size_t i = 0; i < key.size(); i++) {
             const auto& tuple_element = key[i];
             if (nb::try_cast<nb::slice>(tuple_element, slice)) {
-                cpp_tuple.push_back(slice);
+                cpp_tuple.emplace_back(std::in_place_type<nb::slice>, slice);
             } else if (nb::try_cast<nb::int_>(tuple_element, integer)) {
-                cpp_tuple.push_back(integer);
+                cpp_tuple.emplace_back(std::in_place_type<nb::int_>, integer);
             } else if (nb::try_cast<nb::ellipsis>(tuple_element, ellipsis)) {
                 if (ellipsis_found) {
                     // An ellipsis object has already been processed. Only a single
@@ -162,7 +163,9 @@ public:
                     ellipsis_found = true;
                     std::size_t n_fill = _ndim - key.size() + 1;
                     for (std::size_t j = 0; j < n_fill; j++) {
-                        cpp_tuple.push_back(nb::slice(_shape[i + j]));
+                        cpp_tuple.emplace_back(
+                            std::in_place_type<nb::slice>, _shape[i + j]
+                        );
                     }
                 }
             } else {
@@ -191,7 +194,7 @@ public:
         if (_ndim == 1) {
             SCALAR_TYPE result = static_cast<const ARRAY_TYPE*>(this)->create_scalar();
             result.copy_n_from(std::begin(_data) + idx * _itemsize, _itemsize);
-            return RESULT_TYPE(result);
+            return RESULT_TYPE(std::in_place_type<SCALAR_TYPE>, result);
         } else {
             // New shape contains all dimensions except the very first one
             auto new_shape
@@ -204,7 +207,7 @@ public:
                 = static_cast<const ARRAY_TYPE*>(this)->create_array(new_shape);
             auto src = std::begin(_data) + idx * _itemsize * element_stride;
             std::copy_n(src, _itemsize * element_stride, std::begin(result._data));
-            return RESULT_TYPE(result);
+            return RESULT_TYPE(std::in_place_type<ARRAY_TYPE>, result);
         }
     }
 
@@ -310,7 +313,7 @@ public:
         // Return everything on an empty tuple
         if (tuple.size() == 0) {
             ARRAY_TYPE result = *static_cast<const ARRAY_TYPE*>(this);
-            return RESULT_TYPE(result);
+            return RESULT_TYPE(std::in_place_type<ARRAY_TYPE>, result);
         }
 
         // Compute the resulting shape
@@ -332,7 +335,7 @@ public:
                 item_idx += strides[i] * axis;
             }
             result.copy_n_from(std::begin(_data) + item_idx * _itemsize, _itemsize);
-            return RESULT_TYPE(result);
+            return RESULT_TYPE(std::in_place_type<SCALAR_TYPE>, result);
         } else {
             /*
              * The result is an array
@@ -345,7 +348,7 @@ public:
                 tuple, strides, std::cbegin(_data), std::begin(result._data)
             );
 
-            return RESULT_TYPE(result);
+            return RESULT_TYPE(std::in_place_type<ARRAY_TYPE>, result);
         }
     }
 
@@ -353,6 +356,9 @@ public:
     std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
     get_item_ndarray(const nb::ndarray<bool, nb::c_contig>& key) const
     {
+        using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
+        using RESULT_TYPE = std::variant<ARRAY_TYPE, SCALAR_TYPE>;
+
         if (key.ndim() == 0) {
             std::string err_msg = fmt::format(
                 "{}.__getitem__: boolean key ndim = 0", ARRAY_TYPE::ARRAY_NAME
@@ -407,7 +413,8 @@ public:
             }
         }
 
-        return res;
+        // Slicing APyArray with boolean array always returns APyArray
+        return RESULT_TYPE(std::in_place_type<ARRAY_TYPE>, res);
     }
 
     //! Python exported `__getitem__` function
@@ -421,19 +428,21 @@ public:
 
             // Key is of integer type
             auto&& key = static_cast<std::ptrdiff_t>(std::get<nb::int_>(key_arg));
-            return RESULT_TYPE(get_item_integer(key));
+            return RESULT_TYPE(/* RVO from return type */ get_item_integer(key));
 
         } else if (std::holds_alternative<nb::slice>(key_arg)) {
 
             // Key is of slice type
             auto&& tuple = nb::make_tuple(std::get<nb::slice>(key_arg));
             auto&& key = resolve_python_tuple_slice(tuple, "__getitem__");
-            return RESULT_TYPE(get_item_tuple(key));
+            return RESULT_TYPE(/* RVO from return type */ get_item_tuple(key));
 
         } else if (std::holds_alternative<nb::ellipsis>(key_arg)) {
 
             // Key is a single ellipsis, return a copy of `*this`
-            return RESULT_TYPE(*static_cast<const ARRAY_TYPE*>(this));
+            return RESULT_TYPE(
+                std::in_place_type<ARRAY_TYPE>, *static_cast<const ARRAY_TYPE*>(this)
+            );
 
         } else if (std::holds_alternative<nb::ndarray<bool, nb::c_contig>>(key_arg)) {
 
@@ -448,7 +457,7 @@ public:
             using TUPLE_TYPE = nb::typed<nb::tuple, VARIANT, nb::ellipsis>;
             auto&& tuple = std::get<TUPLE_TYPE>(key_arg);
             auto&& key = resolve_python_tuple_slice(tuple, "__getitem__");
-            return RESULT_TYPE(get_item_tuple(key));
+            return RESULT_TYPE(/* RVO from return type */ get_item_tuple(key));
         }
     }
 
@@ -838,8 +847,7 @@ public:
         }
 
         // Resolve the tuple of ellipsis objects and flatten to `std::vector` key
-        std::vector<std::variant<nb::int_, nb::slice>> cpp_key
-            = resolve_python_tuple_slice(python_tuple_key, "__setitem__");
+        auto&& cpp_key = resolve_python_tuple_slice(python_tuple_key, "__setitem__");
 
         if (std::holds_alternative<scalar_variant_t<ARRAY_TYPE>>(val)) {
             set_item_from_scalar(cpp_key, std::get<scalar_variant_t<ARRAY_TYPE>>(val));
@@ -1424,6 +1432,9 @@ public:
         ARGS... args
     ) const
     {
+        using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
+        using RESULT_TYPE = std::variant<ARRAY_TYPE, SCALAR_TYPE>;
+
         // Compute the resulting shape
         std::vector<std::size_t> result_shape = _shape;
         for (auto rev_it = std::crbegin(axes); rev_it != std::crend(axes); ++rev_it) {
@@ -1447,12 +1458,12 @@ public:
         array_fold_recursive_descent(src, dst, axes, strides, result._itemsize, fold);
 
         if (result_shape.size()) {
-            return result;
+            return RESULT_TYPE(std::in_place_type<ARRAY_TYPE>, result);
         } else {
             // Result is scalar
-            scalar_variant_t<ARRAY_TYPE> scalar(args...);
+            SCALAR_TYPE scalar(args...);
             scalar.copy_n_from(std::begin(result._data), result._itemsize);
-            return scalar;
+            return RESULT_TYPE(std::in_place_type<SCALAR_TYPE>, scalar);
         }
     }
 
