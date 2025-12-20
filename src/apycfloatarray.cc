@@ -15,6 +15,7 @@
 #include <cmath> // std::isnan, std::signbit
 #include <initializer_list>
 #include <optional>
+#include <utility>
 
 /* ********************************************************************************** *
  * *                         Non-Python accessible constructors                     * *
@@ -1239,23 +1240,30 @@ APyCFloatArray::matmul(const APyCFloatArray& rhs) const
     assert(ndim() >= 1);
     assert(rhs.ndim() >= 1);
 
+    using RESULT_TYPE = std::variant<APyCFloatArray, APyCFloat>;
     if (ndim() == 1 && rhs.ndim() == 1) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out.
             // Perform the checked inner product.
-            return checked_inner_product(rhs);
+            return RESULT_TYPE(
+                std::in_place_type<APyCFloat>, checked_inner_product(rhs)
+            );
         }
     } else if (ndim() == 2 && (rhs.ndim() == 1 || rhs.ndim() == 2)) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
-            return checked_2d_matmul(rhs);
+            return RESULT_TYPE(
+                std::in_place_type<APyCFloatArray>, checked_2d_matmul(rhs)
+            );
         }
     } else if (ndim() == 1 && rhs.ndim() == 2) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a vector-matrix multiplication checks out. Perform the
             // checked 2D matrix
-            return checked_2d_matmul(rhs);
+            return RESULT_TYPE(
+                std::in_place_type<APyCFloatArray>, checked_2d_matmul(rhs)
+            );
         }
     }
 
