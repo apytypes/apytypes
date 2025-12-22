@@ -12,7 +12,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           fetch-tags: true
           fetch-depth: 0
@@ -74,7 +74,7 @@ jobs:
           git checkout -- src/apybuffer.h src/apyfloat.h src/apyfixed.h src/apytypes_common.h src/apytypes_util.h src/ieee754.h src/python_util.h src/apyfloatarray.h src/apyfixedarray.h src/apyfloat_util.h src/broadcast.h src/array_utils.h src/apyfixed_util.h src/apycfixed.h src/apycfixedarray.h src/apycfloat.h src/apycfloatarray.h src/apytypes_mp.h src/apycfixed_util.h src/apytypes_intrinsics.h src/apycfloat_util.h
       # Download previous benchmark result from cache (if exists)
       - name: Download previous benchmark data
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb  # v5.0.1
         with:
           path: ./cache
           key: ${{ runner.os }}-benchmark
