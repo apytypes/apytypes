@@ -318,8 +318,10 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p>Array comparisons</p></li>
 <li><p>Array slicing with boolean arrays slices (<code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> and <code class="docutils literal notranslate"><span class="pre">__setitem__</span></code>)</p></li>
 <li><p>Scalars are now instances of <a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Number</span></code></a> and
-<a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Real" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Real</span></code></a> and/or <a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Complex" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Complex</span></code></a> (as appropriate).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">real</span></code> and <code class="docutils literal notranslate"><span class="pre">imag</span></code> properties for <code class="docutils literal notranslate"><span class="pre">APyFixed</span></code>, <code class="docutils literal notranslate"><span class="pre">APyFloat</span></code>, <code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code>, and <code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code>.</p></li>
+<a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Real" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Real</span></code></a> and/or <a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Complex" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Complex</span></code></a>
+(as appropriate).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">real</span></code> and <code class="docutils literal notranslate"><span class="pre">imag</span></code> properties for <code class="docutils literal notranslate"><span class="pre">APyFixed</span></code>, <code class="docutils literal notranslate"><span class="pre">APyFloat</span></code>, <code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trailing_zeros</span></code> property for <code class="docutils literal notranslate"><span class="pre">APyFixed</span></code>, <code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code>, and <code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">leading_zeros</span></code>, <code class="docutils literal notranslate"><span class="pre">leading_ones</span></code>, and <code class="docutils literal notranslate"><span class="pre">leading_signs</span></code> properties for
 <code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code> and <code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></p></li>
@@ -580,7 +582,8 @@ ints.</p></li>
 <li><p>Docstrings are made compatible with
 <a class="reference external" href="https://docs.python.org/3/library/doctest.html">doctest</a>, which is
 run in the CI.</p></li>
-<li><p>Linting using <a class="reference external" href="https://docs.astral.sh/ruff/">ruff</a> is added to pre-commit and CI.</p></li>
+<li><p>Linting using <a class="reference external" href="https://docs.astral.sh/ruff/">ruff</a> is added to pre-commit and
+CI.</p></li>
 <li><p>Array manipulation and mathematical functions added:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">squeeze()</span></code></p></li>
@@ -625,8 +628,8 @@ run in the CI.</p></li>
 <section id="id34">
 <h3>Changed<a class="headerlink" href="#id34" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Updated <a class="reference external" href="https://github.com/wjakob/nanobind">nanobind</a> dependency from v1.9.2 to
-v2.0.0.</p></li>
+<li><p>Updated <a class="reference external" href="https://github.com/wjakob/nanobind">nanobind</a> dependency from v1.9.2
+to v2.0.0.</p></li>
 <li><p><a class="reference external" href="https://docs.astral.sh/ruff/">ruff</a> is used instead of black to format the code.</p></li>
 </ul>
 </section>
