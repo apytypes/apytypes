@@ -14,8 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Array comparisons
 - Array slicing with boolean arrays slices (`__getitem__` and `__setitem__`)
 - Scalars are now instances of :py:class:`~numbers.Number` and
-  :py:class:`~numbers.Real` and/or :py:class:`~numbers.Complex` (as appropriate).
-- `real` and `imag` properties for `APyFixed`, `APyFloat`, `APyFixedArray`, and `APyFloatArray`.
+  :py:class:`~numbers.Real` and/or :py:class:`~numbers.Complex`
+  (as appropriate).
+- `real` and `imag` properties for `APyFixed`, `APyFloat`, `APyFixedArray`, and
+  `APyFloatArray`.
 - `trailing_zeros` property for `APyFixed`, `APyCFixed`, and `APyFixedArray`.
 - `leading_zeros`, `leading_ones`, and `leading_signs` properties for
   `APyCFixed` and `APyFixedArray`
@@ -223,7 +225,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docstrings are made compatible with
   [doctest](https://docs.python.org/3/library/doctest.html), which is
   run in the CI.
-- Linting using [ruff](https://docs.astral.sh/ruff/) is added to pre-commit and CI.
+- Linting using [ruff](https://docs.astral.sh/ruff/) is added to pre-commit and
+  CI.
 - Array manipulation and mathematical functions added:
   - `squeeze()`
   - `reshape()`
@@ -260,8 +263,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated [nanobind](https://github.com/wjakob/nanobind) dependency from v1.9.2 to
-  v2.0.0.
+- Updated [nanobind](https://github.com/wjakob/nanobind) dependency from v1.9.2
+  to v2.0.0.
 - [ruff](https://docs.astral.sh/ruff/) is used instead of black to format the code.
 
 ### Fixed
