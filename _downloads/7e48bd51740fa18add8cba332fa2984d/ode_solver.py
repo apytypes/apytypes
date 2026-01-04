@@ -9,9 +9,9 @@ The ODE in question is
 
 .. math::
 
-   u'(t) = v(t), \quad u(0) = 1,
+   u'(t) = v(t), \\quad u(0) = 1,
 
-   v'(t) = -u(t), \quad v(0) = 0,
+   v'(t) = -u(t), \\quad v(0) = 0,
 
 and the solution is the unit circle in the (u, v) plane.
 

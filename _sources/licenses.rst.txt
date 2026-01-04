@@ -8,7 +8,7 @@ APyTypes is released under the MIT license:
 Dependencies
 ------------
 
-In addition, the pre-built version of APyTypes uses the following packages:
+In addition, the pre-built version of APyTypes uses the following packages
 
  - `Nanobind <https://nanobind.readthedocs.io/en/latest/>`_: `3-clause BSD license <https://github.com/wjakob/nanobind/blob/master/LICENSE>`_
  - `fmt <https://fmt.dev/>`_: `MIT license <https://github.com/fmtlib/fmt/blob/master/LICENSE>`_

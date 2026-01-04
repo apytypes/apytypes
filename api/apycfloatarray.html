@@ -806,15 +806,16 @@ quantization mode.</p>
 <span class="sig-name descname"><span class="pre">is_identical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_zero_sign</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloatArray.is_identical" title="Link to this definition">¶</a></dt>
 <dd><p>Test if two <a class="reference internal" href="#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a> objects are identical.</p>
 <p>Two <a class="reference internal" href="#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a> objects are considered identical if, and only
-if:</p>
-<blockquote>
-<div><ul class="simple">
+if</p>
+<ul class="simple">
 <li><p>They represent exactly the same tensor shape</p></li>
 <li><p>They store the exact same floating-point values in all elements</p></li>
-<li><p>They have the exact same bit format (<cite>exp_bits</cite>, <cite>man_bits</cite>, and
-<cite>bias</cite>)</p></li>
+<li><dl class="simple">
+<dt>They have the exact same bit format (<cite>exp_bits</cite>, <cite>man_bits</cite>, and</dt><dd><p><cite>bias</cite>)</p>
+</dd>
+</dl>
+</li>
 </ul>
-</div></blockquote>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -1496,7 +1497,7 @@ the array.</p>
 <span class="sig-name descname"><span class="pre">outer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloatArray.outer" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the outer product between <cite>self</cite> and <cite>rhs</cite>.</p>
 <p>The outer product of 1-D arrays <cite>a</cite> and <cite>b</cite> of length <code class="code docutils literal notranslate"><span class="pre">M</span></code> and
-<code class="code docutils literal notranslate"><span class="pre">N</span></code>, respectively, is:</p>
+<code class="code docutils literal notranslate"><span class="pre">N</span></code>, respectively, is</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span>   <span class="n">a_0</span><span class="o">*</span><span class="n">b_0</span><span class="p">,</span>     <span class="n">a_0</span><span class="o">*</span><span class="n">b_1</span><span class="p">,</span>   <span class="o">...</span>     <span class="n">a_0</span><span class="o">*</span><span class="n">b_</span><span class="p">{</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span>   <span class="p">],</span>
  <span class="p">[</span>   <span class="n">a_1</span><span class="o">*</span><span class="n">b_0</span><span class="p">,</span>        <span class="o">.</span>                    <span class="o">.</span>        <span class="p">],</span>
  <span class="p">[</span>      <span class="o">.</span>                     <span class="o">.</span>           <span class="o">.</span>        <span class="p">],</span>

@@ -332,7 +332,7 @@ default to an IEEE-like bias using the formula</p>
 the input operands’ by quantizing to nearest number with ties to even
 (<a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN" title="apytypes.QuantizationMode.TIES_EVEN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TIES_EVEN</span></code></a>). If the operands do not share the same format, the
 resulting bit widths of the exponent and mantissa field will be the maximum of its
-inputs:</p>
+inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -458,7 +458,7 @@ inputs:</p>
 <p>If the operands of an arithmetic operation have IEEE-like biases, then the result will
 also have an IEEE-like bias – based on the resulting number of exponent bits. To
 support operations with biases deviating from the standard, the bias of the resulting
-format is calculated as the “average” of the inputs’ biases:</p>
+format is calculated as the “average” of the inputs’ biases as</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,\]</div>

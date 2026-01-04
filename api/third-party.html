@@ -310,7 +310,7 @@
 These can be used as input to APyTypes functions.
 APyTypes arrays can be converted to these formats and comparisons can generate results in these formats.</p>
 <p>It is required to install these third-party libraries separately if you want to use them.</p>
-<p>The following third-party array libraries are supported:</p>
+<p>The following third-party array libraries are supported</p>
 <ul class="simple">
 <li><p>NumPy</p></li>
 <li><p>PyTorch</p></li>
@@ -322,16 +322,48 @@ APyTypes arrays can be converted to these formats and comparisons can generate r
 <dl class="py class">
 <dt class="sig sig-object py" id="apytypes.ThirdPartyArrayLibrary">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">ThirdPartyArrayLibrary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.ThirdPartyArrayLibrary" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.ThirdPartyArrayLibrary.NUMPY">
+<span class="sig-name descname"><span class="pre">NUMPY</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#apytypes.ThirdPartyArrayLibrary.NUMPY" title="Link to this definition">¶</a></dt>
+<dd><p>Use NumPy.</p>
+</dd></dl>
 
-<p>To choose which third-party library to use for output arrays, the following functions are provided:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.ThirdPartyArrayLibrary.PYTORCH">
+<span class="sig-name descname"><span class="pre">PYTORCH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#apytypes.ThirdPartyArrayLibrary.PYTORCH" title="Link to this definition">¶</a></dt>
+<dd><p>Use PyTorch.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.ThirdPartyArrayLibrary.TENSORFLOW">
+<span class="sig-name descname"><span class="pre">TENSORFLOW</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></span><a class="headerlink" href="#apytypes.ThirdPartyArrayLibrary.TENSORFLOW" title="Link to this definition">¶</a></dt>
+<dd><p>Use TensorFlow.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.ThirdPartyArrayLibrary.JAX">
+<span class="sig-name descname"><span class="pre">JAX</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></span><a class="headerlink" href="#apytypes.ThirdPartyArrayLibrary.JAX" title="Link to this definition">¶</a></dt>
+<dd><p>Use JAX.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.ThirdPartyArrayLibrary.CUPY">
+<span class="sig-name descname"><span class="pre">CUPY</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#apytypes.ThirdPartyArrayLibrary.CUPY" title="Link to this definition">¶</a></dt>
+<dd><p>Use CuPy.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>To choose which third-party library to use for output arrays,
+the following functions are provided</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.set_array_library">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">set_array_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#apytypes.set_array_library" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">set_array_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_lib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary" title="ThirdPartyArrayLibrary"><span class="pre">ThirdPartyArrayLibrary</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#apytypes.set_array_library" title="Link to this definition">¶</a></dt>
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">set_array_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_lib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary" title="ThirdPartyArrayLibrary"><span class="pre">ThirdPartyArrayLibrary</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span></dt>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">set_array_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span></dt>
 <dd><p>Overloaded function.</p>
 <ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">set_array_library(array_lib:</span> <span class="pre">ThirdPartyArrayLibrary)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">set_array_library(arg:</span> <span class="pre">str,</span> <span class="pre">/)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
 <blockquote>
 <div><p>Set the preferred third-party array library returned when nothing else is
@@ -342,7 +374,7 @@ specified explicitly. For example, when two APyTypes’ arrays are compared
 against one another, the resulting array of <cite>bool</cite> will have the type
 specified by this function.</p>
 <p>The preferred third-party array library is a global state. When loading in
-the APyTypes module, it is set to <code class="xref py py-class docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary.NUMPY</span></code>.</p>
+the APyTypes module, it is set to <a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary.NUMPY" title="apytypes.ThirdPartyArrayLibrary.NUMPY"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary.NUMPY</span></code></a>.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -351,7 +383,6 @@ the APyTypes module, it is set to <code class="xref py py-class docutils literal
 <dd class="field-odd"><dl>
 <dt><strong>array_lib</strong><span class="classifier">{ “numpy”, “pytorch”, “tensorflow”, “jax”, “cupy” } or <a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary" title="apytypes.ThirdPartyArrayLibrary"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary</span></code></a></span></dt><dd><p>Preferred third-party array library to use.</p>
 </dd>
-<dt><strong>2. ``set_array_library(array_lib: ThirdPartyArrayLibrary) -&gt; None``</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -442,7 +473,14 @@ the APyTypes module, it is set to <code class="xref py py-class docutils literal
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Third-party array libraries</a><ul>
-<li><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary"><code class="docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary"><code class="docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary</span></code></a><ul>
+<li><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary.NUMPY"><code class="docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary.NUMPY</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary.PYTORCH"><code class="docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary.PYTORCH</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary.TENSORFLOW"><code class="docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary.TENSORFLOW</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary.JAX"><code class="docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary.JAX</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.ThirdPartyArrayLibrary.CUPY"><code class="docutils literal notranslate"><span class="pre">ThirdPartyArrayLibrary.CUPY</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#apytypes.set_array_library"><code class="docutils literal notranslate"><span class="pre">set_array_library()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.get_array_library"><code class="docutils literal notranslate"><span class="pre">get_array_library()</span></code></a></li>
 </ul>

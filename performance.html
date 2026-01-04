@@ -354,7 +354,7 @@ done in parallel in the SIMD unit.</p>
 word length of the result. If you work with 20-bit numbers, a multiplication will result in a 40-bit result, and
 there will be no SIMD-benefit. However, if almost all intermediate results are 32 bits or less, this <em>may</em> give
 better performance.</p>
-<p>To compile APyTypes with 32-bit limbs (on a 64-bit platform), do:</p>
+<p>To compile APyTypes with 32-bit limbs (on a 64-bit platform), do</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">.</span> <span class="o">-</span><span class="n">v</span> <span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">settings</span><span class="o">=</span><span class="n">setup</span><span class="o">-</span><span class="n">args</span><span class="o">=</span><span class="s2">&quot;-Dlimb_size=32&quot;</span>
 </pre></div>
 </div>
