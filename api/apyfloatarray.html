@@ -471,12 +471,12 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>signs</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a> of :class:<a href="#id1"><span class="problematic" id="id2">`</span></a>bool`s or :class:<a href="#id3"><span class="problematic" id="id4">`</span></a>int`s</span></dt><dd><p>The sign of the float. False/0 means positive. True/non-zero means
+<dt><strong>signs</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>The sign of the float. False/0 means positive. True/non-zero means
 negative.</p>
 </dd>
-<dt><strong>exps</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a> of :class:<a href="#id5"><span class="problematic" id="id6">`</span></a>int`s</span></dt><dd><p>Exponents of the floats as stored, i.e., actual value + bias.</p>
+<dt><strong>exps</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Exponents of the floats as stored, i.e., actual value + bias.</p>
 </dd>
-<dt><strong>mans</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a> of :class:<a href="#id7"><span class="problematic" id="id8">`</span></a>int`s</span></dt><dd><p>Mantissas of the floats as stored, i.e., without a hidden one.</p>
+<dt><strong>mans</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Mantissas of the floats as stored, i.e., without a hidden one.</p>
 </dd>
 <dt><strong>exp_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of exponent bits.</p>
 </dd>
@@ -506,7 +506,7 @@ method rounds away from infinity on ties.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>dtype</strong><span class="classifier"><span class="xref std std-doc">numpy:dtype</span></span></dt><dd><p>The desired data type of the output array. This parameter is currently ignored.</p>
+<dt><strong>dtype</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.dtype</span></code></a></span></dt><dd><p>The desired data type of the output array. This parameter is currently ignored.</p>
 </dd>
 <dt><strong>copy</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></dt><dd><p>Whether to copy the data or not. Must be <code class="code docutils literal notranslate"><span class="pre">True</span></code> or <code class="code docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
@@ -1250,7 +1250,6 @@ the array.</p>
 <span class="go">21</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
@@ -1301,7 +1300,6 @@ the array.</p>
 <span class="go">720</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
@@ -1345,7 +1343,6 @@ the array.</p>
 <span class="go">15</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
@@ -1420,7 +1417,6 @@ the array.</p>
 <span class="go"> [ 4,  9, 15]]</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
@@ -1468,7 +1464,6 @@ the array.</p>
 <span class="go"> [  4,  20, 120]]</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
@@ -1529,7 +1524,6 @@ the array.</p>
 <span class="go"> [4, 9, 9]]</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
@@ -1601,7 +1595,6 @@ the array.</p>
 <span class="go">[3, 6]</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
@@ -1652,7 +1645,6 @@ the array.</p>
 <span class="go">[1, 4]</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
@@ -1951,8 +1943,8 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 </dd></dl>
 
 </section>
-<section id="id9">
-<h3>Transposition<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<section id="id1">
+<h3>Transposition<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.T">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">T</span></span><a class="headerlink" href="#apytypes.APyFloatArray.T" title="Link to this definition">¶</a></dt>
