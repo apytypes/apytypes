@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="APyFixed" href="apyfixed.html"><link rel="prev" title="APyCFloat" href="apycfloat.html">
         <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image">
 
-    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>APyCFloatArray - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
@@ -223,6 +223,7 @@
 <li class="toctree-l2"><a class="reference internal" href="codegeneration.html">Code generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third-party.html">Third-Party Array Libraries</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utility functions</a></li>
 </ul>
 </li>
@@ -350,7 +351,7 @@
 <td><p>Change format of the floating-point array.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.conj" title="apytypes.APyCFloatArray.conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conj</span></code></a>(self)</p></td>
-<td><p>Retrieve complex conjugate.</p></td>
+<td><p>Return complex conjugate.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.convolve" title="apytypes.APyCFloatArray.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a>(self, other[, mode])</p></td>
 <td><p>Return the discrete linear convolution with another one-dimensional array.</p></td>
@@ -383,7 +384,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.hermitian_transpose" title="apytypes.APyCFloatArray.hermitian_transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hermitian_transpose</span></code></a>(self)</p></td>
-<td><p>Retrieve the Hermitian transpose.</p></td>
+<td><p>Return the Hermitian transpose.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.identity" title="apytypes.APyCFloatArray.identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">identity</span></code></a></p></td>
 <td><p></p></td>
@@ -935,7 +936,7 @@ the axes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyCFloatArray.hermitian_transpose">
 <span class="sig-name descname"><span class="pre">hermitian_transpose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloatArray.hermitian_transpose" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve the Hermitian transpose.</p>
+<dd><p>Return the Hermitian transpose.</p>
 <p>This is equivalent to calling <a class="reference internal" href="arrayfunctions.html#apytypes.transpose" title="apytypes.transpose"><code class="xref py py-func docutils literal notranslate"><span class="pre">transpose()</span></code></a> followed by <a class="reference internal" href="#apytypes.APyCFloatArray.conj" title="apytypes.APyCFloatArray.conj"><code class="xref py py-func docutils literal notranslate"><span class="pre">conj()</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.5.</span></p>
@@ -1477,7 +1478,7 @@ the array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyCFloatArray.conj">
 <span class="sig-name descname"><span class="pre">conj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloatArray.conj" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve complex conjugate.</p>
+<dd><p>Return complex conjugate.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.5.</span></p>
 </div>

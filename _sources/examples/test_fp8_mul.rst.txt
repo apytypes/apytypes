@@ -149,7 +149,7 @@ The contents of ``fp8_multiplier.vhdl`` is shown below.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.830 seconds)
+   **Total running time of the script:** (0 minutes 4.105 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:

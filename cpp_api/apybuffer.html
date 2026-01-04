@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="APyCFixed" href="apycfixed.html"><link rel="prev" title="APyTypes C++ API" href="index.html">
         <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image">
 
-    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+    <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>apybuffer.h - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
@@ -223,6 +223,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/third-party.html">Third-Party Array Libraries</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
 </ul>
 </li>
@@ -406,25 +407,25 @@
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer4ndimEv">
 <span id="_CPPv3NK9APyBuffer4ndimEv"></span><span id="_CPPv2NK9APyBuffer4ndimEv"></span><span id="APyBuffer::ndimC"></span><span class="target" id="classAPyBuffer_1a06371109f03531211334a83c919d9e8c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ndim</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer4ndimEv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Retrieve number of array dimensions. </p>
+<dd><p>Return number of array dimensions. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer4sizeEv">
 <span id="_CPPv3NK9APyBuffer4sizeEv"></span><span id="_CPPv2NK9APyBuffer4sizeEv"></span><span id="APyBuffer::sizeC"></span><span class="target" id="classAPyBuffer_1a7b255e1b3803d582b536814c779af45d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer4sizeEv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Retrieve array size. </p>
+<dd><p>Return array size. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer5shapeEv">
 <span id="_CPPv3NK9APyBuffer5shapeEv"></span><span id="_CPPv2NK9APyBuffer5shapeEv"></span><span id="APyBuffer::shapeC"></span><span class="target" id="classAPyBuffer_1a78ce47f5097b464963b1c7eed91e3e48"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer5shapeEv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Retrieve array shape. </p>
+<dd><p>Return array shape. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer16python_get_shapeEv">
 <span id="_CPPv3NK9APyBuffer16python_get_shapeEv"></span><span id="_CPPv2NK9APyBuffer16python_get_shapeEv"></span><span id="APyBuffer::python_get_shapeC"></span><span class="target" id="classAPyBuffer_1a559c521242b68fad88d0ce6062855f91"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">nb</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">typed</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">nb</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">nb</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ellipsis</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">python_get_shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer16python_get_shapeEv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Retrieve array shape (exported to Python) </p>
+<dd><p>Return array shape (exported to Python) </p>
 </dd></dl>
 
 </div>

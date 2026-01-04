@@ -17,4 +17,5 @@
    codegeneration
    context
    quantizationoverflow
+   third-party
    utils
