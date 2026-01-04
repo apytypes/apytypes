@@ -311,6 +311,11 @@ void bind_common(nb::module_& m)
         )
         .def(
             "set_array_library",
+            nb::overload_cast<ThirdPartyArrayLibrary>(&set_array_library),
+            nb::arg("array_lib")
+        )
+        .def(
+            "set_array_library",
             &set_array_library_from_str,
             R"pbdoc(
             Set the preferred third-party array library returned when nothing else is
@@ -331,11 +336,6 @@ void bind_common(nb::module_& m)
                 Preferred third-party array library to use.
 
             )pbdoc"
-        )
-        .def(
-            "set_array_library",
-            nb::overload_cast<ThirdPartyArrayLibrary>(&set_array_library),
-            nb::arg("array_lib")
         )
         .def(
             "get_array_library",

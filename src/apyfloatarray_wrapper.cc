@@ -753,14 +753,14 @@ void bind_float_array(nb::module_& m)
             R"pbdoc(
             Create an array with evenly spaced values within a given interval.
 
-            The function can be called with varying number of positional arguments:
+            The function can be called with varying number of positional arguments
 
-            * ``arange(stop)``: Values are generated within the half-open interval
+            - ``arange(stop)``: Values are generated within the half-open interval
               ``[0, stop)`` (in other words, the interval including ``start`` but
               excluding ``stop``).
-            * ``arange(start, stop)``: Values are generated within the half-open
+            - ``arange(start, stop)``: Values are generated within the half-open
               interval ``[start, stop)``.
-            * ``arange(start, stop, step)``: Values are generated within the half-open
+            - ``arange(start, stop, step)``: Values are generated within the half-open
               interval ``[start, stop)``, with spacing between values given by ``step``.
 
             Parameters
@@ -794,12 +794,12 @@ void bind_float_array(nb::module_& m)
             R"pbdoc(
             Create an array with all values within a given interval.
 
-            The function can be called with varying number of positional arguments:
+            The function can be called with varying number of positional arguments
 
-            * ``arange(stop)``: Values are generated within the half-open interval
+            - ``arange(stop)``: Values are generated within the half-open interval
               ``[0, stop)`` (in other words, the interval including ``start`` but
               excluding ``stop``).
-            * ``arange(start, stop)``: Values are generated within the half-open
+            - ``arange(start, stop)``: Values are generated within the half-open
               interval ``[start, stop)``.
 
             Parameters
@@ -877,11 +877,12 @@ void bind_float_array(nb::module_& m)
             R"pbdoc(
             Test if two :class:`APyFloatArray` objects are identical.
 
-            Two :class:`APyFloatArray` objects are considered identical if, and only if:
-                * They represent exactly the same tensor shape
-                * They store the exact same floating-point values in all tensor elements
-                * They have the exact same bit format (`exp_bits`, `man_bits`, and
-                  `bias`)
+            Two :class:`APyFloatArray` objects are considered identical if, and only if
+
+            - They represent exactly the same tensor shape
+            - They store the exact same floating-point values in all tensor elements
+            - They have the exact same bit format (`exp_bits`, `man_bits`, and
+                `bias`)
 
             Parameters
             ----------

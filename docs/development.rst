@@ -12,7 +12,7 @@ Here, there will be some development information to be expanded over time.
 Pre-requisites
 --------------
 
-Most required packages will be installed during the installation process, but a few things are required:
+Most required packages will be installed during the installation process, but a few things are required
 
 * A C/C++ compiler supporting at least C++17.
 * CMake
@@ -41,7 +41,7 @@ Installation
 ------------
 
 To install APyTypes from a cloned git-version, make sure that you stand in the
-directory containing the cloned git-version, then do:
+directory containing the cloned git-version, then do
 
 .. code-block:: bash
 
@@ -62,7 +62,7 @@ dependencies are updated.)
 Run test suite
 --------------
 
-To run all test cases do:
+To run all test cases do
 
 .. code-block:: bash
 

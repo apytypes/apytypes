@@ -465,11 +465,12 @@ void bind_cfixed_array(nb::module_& m)
             Test if two :class:`APyCFixedArray` objects are identical.
 
             Two :class:`APyCFixedArray` objects are considered identical if, and only
-            if:
-              * They represent exactly the same tensor shape
-              * They store the exact same fixed-point values in all tensor elements
-              * They have the exact same bit specification (`bits`, `int_bits`, and
-                `frac_bits`) are all equal)
+            if
+
+            - They represent exactly the same tensor shape
+            - They store the exact same fixed-point values in all tensor elements
+            - They have the exact same bit specification (`bits`, `int_bits`, and
+              `frac_bits`) are all equal)
 
             Returns
             -------

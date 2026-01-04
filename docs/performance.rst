@@ -61,7 +61,7 @@ word length of the result. If you work with 20-bit numbers, a multiplication wil
 there will be no SIMD-benefit. However, if almost all intermediate results are 32 bits or less, this *may* give
 better performance.
 
-To compile APyTypes with 32-bit limbs (on a 64-bit platform), do:
+To compile APyTypes with 32-bit limbs (on a 64-bit platform), do
 
 .. code-block::
 

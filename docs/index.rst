@@ -10,13 +10,13 @@ simulation. Written in C++, the focus is on performance and flexibility.
 The repository can be found at `https://github.com/apytypes/apytypes <https://github.com/apytypes/apytypes>`_.
 Please report any issues or suggestions there. Contributions are also welcome!
 
-To install APyTypes do:
+To install APyTypes do
 
 .. code-block:: bash
 
    pip install apytypes
 
-To install the latest version from source, without having to set up git etc, do:
+To install the latest version from source, without having to set up git etc, do
 
 .. code-block:: bash
 
