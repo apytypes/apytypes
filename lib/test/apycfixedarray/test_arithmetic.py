@@ -143,33 +143,65 @@ def test_unary_arith():
     assert (+a).is_identical(a)
 
 
-def test_arithmetic_with_apyfixed():
-    a = APyCFixedArray.from_complex([1 + 2j, -4, 3.5 - 2j], int_bits=7, frac_bits=3)
-    b = APyFixed.from_float(3.0, int_bits=5, frac_bits=0)
+@pytest.mark.parametrize("int_bits_array", [7, 50, 1000])
+@pytest.mark.parametrize("frac_bits_array", [7, 50, 1000])
+@pytest.mark.parametrize("int_bits_scalar", [7, 50, 1000])
+@pytest.mark.parametrize("frac_bits_scalar", [0, 50, 1000])
+def test_arithmetic_with_apyfixed(
+    int_bits_array: int,
+    frac_bits_array: int,
+    int_bits_scalar: int,
+    frac_bits_scalar: int,
+):
+    a = APyCFixedArray.from_complex(
+        [1 + 2j, -4, 3.5 - 2j],
+        int_bits=int_bits_array,
+        frac_bits=frac_bits_array,
+    )
+    b = APyFixed.from_float(3.0, int_bits=int_bits_scalar, frac_bits=frac_bits_scalar)
     assert (a + b).is_identical(
-        APyCFixedArray.from_complex([4 + 2j, -1, 6.5 - 2j], int_bits=8, frac_bits=3)
+        APyCFixedArray.from_complex(
+            [4 + 2j, -1, 6.5 - 2j],
+            int_bits=max(int_bits_array, int_bits_scalar) + 1,
+            frac_bits=max(frac_bits_scalar, frac_bits_array),
+        )
     )
     assert (a - b).is_identical(
-        APyCFixedArray.from_complex([-2 + 2j, -7, 0.5 - 2j], int_bits=8, frac_bits=3)
+        APyCFixedArray.from_complex(
+            [-2 + 2j, -7, 0.5 - 2j],
+            int_bits=max(int_bits_array, int_bits_scalar) + 1,
+            frac_bits=max(frac_bits_scalar, frac_bits_array),
+        )
     )
     assert (a * b).is_identical(
-        APyCFixedArray.from_complex([3 + 6j, -12, 10.5 - 6j], int_bits=13, frac_bits=3)
-    )
-    assert (a / b).is_identical(
-        APyCFixedArray([(85, 170), (65195, 0), (298, 65366)], int_bits=8, frac_bits=8)
+        APyCFixedArray.from_complex(
+            [3 + 6j, -12, 10.5 - 6j],
+            int_bits=int_bits_array + int_bits_scalar,
+            frac_bits=frac_bits_array + frac_bits_scalar,
+        )
     )
     assert (b + a).is_identical(a + b)
     assert (b * a).is_identical(a * b)
-    assert (b - a).is_identical((-(a - b)).cast(int_bits=8, frac_bits=3))
-    assert (b / a).is_identical(
-        APyCFixedArray([(76, 65383), (65440, 0), (82, 47)], int_bits=9, frac_bits=7)
-    )
+    assert (b - a).is_identical((-(a - b)).cast((b - a).int_bits, (b - a).frac_bits))
 
     np = pytest.importorskip("numpy")
     assert np.all(a != b)
     assert np.all(b != a)
     assert not (np.all(a == b))
     assert not (np.all(b == a))
+
+
+def test_division_with_apyfixed():
+    a = APyCFixedArray.from_complex([1 + 2j, -4, 3.5 - 2j], int_bits=7, frac_bits=3)
+    b = APyFixed.from_float(3.0, int_bits=5, frac_bits=0)
+
+    assert (a / b).is_identical(
+        APyCFixedArray([(85, 170), (65195, 0), (298, 65366)], int_bits=7, frac_bits=8)
+    )
+
+    assert (b / a).is_identical(
+        APyCFixedArray([(76, 65383), (65440, 0), (82, 47)], int_bits=8, frac_bits=7)
+    )
 
 
 def test_arithmetic_with_apyfixedarray():
@@ -182,10 +214,10 @@ def test_arithmetic_with_apyfixedarray():
         APyCFixedArray.from_complex([-2 + 2j, -4, -0.5 - 2j], int_bits=8, frac_bits=3)
     )
     assert (a * b).is_identical(
-        APyCFixedArray.from_complex([3 + 6j, 0, 14 - 8j], int_bits=13, frac_bits=3)
+        APyCFixedArray.from_complex([3 + 6j, 0, 14 - 8j], int_bits=12, frac_bits=3)
     )
     assert (a / b).is_identical(
-        APyCFixedArray([(85, 170), (0, 0), (224, 65408)], int_bits=8, frac_bits=8)
+        APyCFixedArray([(85, 170), (0, 0), (224, 65408)], int_bits=7, frac_bits=8)
     )
     assert (b + a).is_identical(a + b)
     assert (b * a).is_identical(a * b)
