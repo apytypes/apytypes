@@ -1,4 +1,4 @@
-Third-Party Array Libraries
+Third-party array libraries
 ===========================
 
 APyTypes can interoperate with several third-party array libraries.
@@ -8,11 +8,27 @@ APyTypes arrays can be converted to these formats and comparisons can generate r
 It is required to install these third-party libraries separately if you want to use them.
 
 The following third-party array libraries are supported:
+
 - NumPy
 - PyTorch
 - TensorFlow
 - JAX
 - CuPy
+
+These are represented by the enumeration :class:`ThirdPartyArrayLibrary`.
+
+.. autoclass:: apytypes.ThirdPartyArrayLibrary
+
+   .. automember:: NUMPY
+
+   .. automember:: PYTORCH
+
+   .. automember:: TENSORFLOW
+
+   .. automember:: JAX
+
+   .. automember:: CUPY
+
 
 To choose which third-party library to use for output arrays, the following functions are provided:
 

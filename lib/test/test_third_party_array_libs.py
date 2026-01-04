@@ -2,7 +2,13 @@ import re
 
 import pytest
 
-from apytypes import fp, fx, get_array_library, set_array_library
+from apytypes import (
+    ThirdPartyArrayLibrary,
+    fp,
+    fx,
+    get_array_library,
+    set_array_library,
+)
 
 
 @pytest.fixture(scope="session")
@@ -10,11 +16,20 @@ def test_at_startup():
     """
     At startup (loading the APyTypes module) the preferred array library is set to Numpy
     """
-    assert get_array_library() == "numpy"
+    assert get_array_library() == ThirdPartyArrayLibrary.NUMPY
 
 
 @pytest.mark.usefixtures("test_at_startup")
-@pytest.mark.parametrize("lib", ["numpy", "pytorch", "tensorflow", "jax", "cupy"])
+@pytest.mark.parametrize(
+    "lib",
+    [
+        ThirdPartyArrayLibrary.NUMPY,
+        ThirdPartyArrayLibrary.PYTORCH,
+        ThirdPartyArrayLibrary.TENSORFLOW,
+        ThirdPartyArrayLibrary.JAX,
+        ThirdPartyArrayLibrary.CUPY,
+    ],
+)
 def test_is_settable(lib: str):
     """
     All third-party array libraries are settable. Setting them, without using them, does

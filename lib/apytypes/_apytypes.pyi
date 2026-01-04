@@ -104,6 +104,22 @@ class OverflowMode(enum.Enum):
     for signed.
     """
 
+class ThirdPartyArrayLibrary(enum.Enum):
+    NUMPY = 0
+    """NumPy ndarray."""
+
+    PYTORCH = 1
+    """PyTorch tensor."""
+
+    TENSORFLOW = 2
+    """TensorFlow tensor."""
+
+    JAX = 3
+    """JAX array."""
+
+    CUPY = 4
+    """CuPy array."""
+
 def set_float_quantization_mode(mode: QuantizationMode) -> None:
     """
     Set current quantization context.
@@ -169,6 +185,7 @@ def get_fixed_quantization_seed() -> int:
     :class:`int`
     """
 
+@overload
 def set_array_library(arg: str, /) -> None:
     """
     Set the preferred third-party array library returned when nothing else is
@@ -181,15 +198,17 @@ def set_array_library(arg: str, /) -> None:
     specified by this function.
 
     The preferred third-party array library is a global state. When loading in
-    the APyTypes module, it is set to `"numpy"`.
+    the APyTypes module, it is set to :class:`ThirdPartyArrayLibrary.NUMPY`.
 
     Parameters
     ----------
-    array_lib : { "numpy", "pytorch", "tensorflow", "jax", "cupy" }
+    array_lib : { "numpy", "pytorch", "tensorflow", "jax", "cupy" } or :class:`ThirdPartyArrayLibrary`
         Preferred third-party array library to use.
     """
 
-def get_array_library() -> str:
+@overload
+def set_array_library(array_lib: ThirdPartyArrayLibrary) -> None: ...
+def get_array_library() -> ThirdPartyArrayLibrary:
     """
     Return the preferred third-party array library in use with APyTypes.
 
@@ -199,7 +218,7 @@ def get_array_library() -> str:
 
     Returns
     -------
-    :class:`str`
+    :class:`ThirdPartyArrayLibrary`
         The preferred third-party array library in use.
     """
 

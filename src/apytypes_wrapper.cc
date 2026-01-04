@@ -218,6 +218,19 @@ void bind_common(nb::module_& m)
             )pbdoc"
         );
 
+    nb::enum_<ThirdPartyArrayLibrary>(m, "ThirdPartyArrayLibrary")
+        .value("NUMPY", ThirdPartyArrayLibrary::NUMPY, R"pbdoc(NumPy ndarray.)pbdoc")
+        .value(
+            "PYTORCH", ThirdPartyArrayLibrary::PYTORCH, R"pbdoc(PyTorch tensor.)pbdoc"
+        )
+        .value(
+            "TENSORFLOW",
+            ThirdPartyArrayLibrary::TENSORFLOW,
+            R"pbdoc(TensorFlow tensor.)pbdoc"
+        )
+        .value("JAX", ThirdPartyArrayLibrary::JAX, R"pbdoc(JAX array.)pbdoc")
+        .value("CUPY", ThirdPartyArrayLibrary::CUPY, R"pbdoc(CuPy array.)pbdoc");
+
     m.def(
          "set_float_quantization_mode",
          &set_float_quantization_mode,
@@ -310,18 +323,23 @@ void bind_common(nb::module_& m)
             specified by this function.
 
             The preferred third-party array library is a global state. When loading in
-            the APyTypes module, it is set to `"numpy"`.
+            the APyTypes module, it is set to :class:`ThirdPartyArrayLibrary.NUMPY`.
 
             Parameters
             ----------
-            array_lib : { "numpy", "pytorch", "tensorflow", "jax", "cupy" }
+            array_lib : { "numpy", "pytorch", "tensorflow", "jax", "cupy" } or :class:`ThirdPartyArrayLibrary`
                 Preferred third-party array library to use.
 
             )pbdoc"
         )
         .def(
+            "set_array_library",
+            nb::overload_cast<ThirdPartyArrayLibrary>(&set_array_library),
+            nb::arg("array_lib")
+        )
+        .def(
             "get_array_library",
-            &get_array_library_as_str,
+            &get_array_library,
             R"pbdoc(
             Return the preferred third-party array library in use with APyTypes.
 
@@ -331,7 +349,7 @@ void bind_common(nb::module_& m)
 
             Returns
             -------
-            :class:`str`
+            :class:`ThirdPartyArrayLibrary`
                 The preferred third-party array library in use.
 
             )pbdoc"
