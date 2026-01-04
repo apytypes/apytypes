@@ -71,7 +71,7 @@ public:
             && bias == other.bias;
     }
 
-    //! Retrieve the bit specification
+    //! Return the bit specification
     APY_INLINE APyFloatSpec spec() const noexcept
     {
         return { exp_bits, man_bits, bias };
@@ -263,7 +263,7 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Retrieve the Python string representation
+    //! Return the Python string representation
     APyCFloat cast(
         std::optional<int> new_exp_bits,
         std::optional<int> new_man_bits,
@@ -279,10 +279,10 @@ public:
         QuantizationMode quantization
     ) const;
 
-    //! Retrieve the Python string representation
+    //! Return the Python string representation
     std::string repr() const;
 
-    //! Retrieve the LaTeX string representation
+    //! Return the LaTeX string representation
     std::string latex() const;
 
     //! Conversion to string
@@ -291,20 +291,20 @@ public:
     std::string to_string_oct() const;
     std::string to_string_dec() const;
 
-    //! Retrieve a `std::complex<double>`
+    //! Return a `std::complex<double>`
     std::complex<double> to_complex() const;
 
     //! Test if two floating-point numbers are identical, i.e., has the same values, the
     //! same number of exponent bits, and the same number of mantissa bits
     bool is_identical(const nb::object& other, bool ignore_zero_sign = false) const;
 
-    //! Retrieve real part
+    //! Return real part
     APyFloat get_real() const;
 
-    //! Retrieve imaginary part
+    //! Return imaginary part
     APyFloat get_imag() const;
 
-    //! Retrieve the bias
+    //! Return the bias
     exp_t get_bias() const noexcept { return bias; }
 
     //! True if and only if value is zero.
@@ -332,7 +332,7 @@ public:
         const std::tuple<APyFloatSpec::Tuple, std::array<APyFloatData::Tuple, 2>>& state
     );
 
-    //! Retrieve complex conjugate
+    //! Return complex conjugate
     APyCFloat conj() const;
 
     /* ****************************************************************************** *

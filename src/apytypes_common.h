@@ -61,7 +61,7 @@ std::uint64_t rnd64_fp();
 void rst_default_rnd64_fx(std::uint64_t seed);
 void rst_default_rnd64_fp(std::uint64_t seed);
 
-// Retrieve the seed used to initialize the active random number engine
+// Return the seed used to initialize the active random number engine
 std::uint64_t get_rnd64_fx_seed();
 std::uint64_t get_rnd64_fp_seed();
 
@@ -220,8 +220,8 @@ std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float();
  * *                     Preferred third-party array library                        * *
  * ********************************************************************************** */
 
-//! Tags for the supported third-party array libraries
-enum class ThirdPartyArrayTag {
+//! Enum for the supported third-party array libraries
+enum class ThirdPartyArrayLibrary {
     NUMPY,
     PYTORCH,
     TENSORFLOW,
@@ -239,43 +239,43 @@ using ThirdPartyArray = std::variant<
     nanobind::ndarray<nanobind::cupy, NB_ARGS...>>;
 
 //! Python-exported set preferred array library function
-void set_preferred_array_lib_from_str(const std::string& array_lib);
+void set_array_library_from_str(const std::string& array_lib);
 
 //! Set the preferred third-party array library.
-void set_preferred_array_lib(ThirdPartyArrayTag array_lib);
+void set_array_library(ThirdPartyArrayLibrary array_lib);
 
-//! Retrieve the currently set preferred third-party array library.
-ThirdPartyArrayTag get_preferred_array_lib();
+//! Return the currently set preferred third-party array library.
+ThirdPartyArrayLibrary get_array_library();
 
-//! Retrieve the currently set preferred third-party array library as a string.
-std::string get_preferred_array_lib_as_str();
+//! Return the currently set preferred third-party array library as a string.
+std::string get_array_library_as_str();
 
 //! Convert an un-tagged `nb::ndarray` (Python capsule around `void *`) to a third-party
 //! array-library specific array.
 template <typename... NB_ARGS>
 ThirdPartyArray<NB_ARGS...> make_third_party_ndarray(
-    const nanobind::ndarray<NB_ARGS...>& array_ref, ThirdPartyArrayTag array_lib
+    const nanobind::ndarray<NB_ARGS...>& array_ref, ThirdPartyArrayLibrary array_lib
 )
 {
     namespace nb = nanobind;
     switch (array_lib) {
-    case ThirdPartyArrayTag::NUMPY: {
+    case ThirdPartyArrayLibrary::NUMPY: {
         using NDARRAY_T = nb::ndarray<nb::numpy, NB_ARGS...>;
         return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
     }
-    case ThirdPartyArrayTag::PYTORCH: {
+    case ThirdPartyArrayLibrary::PYTORCH: {
         using NDARRAY_T = nb::ndarray<nb::pytorch, NB_ARGS...>;
         return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
     }
-    case ThirdPartyArrayTag::TENSORFLOW: {
+    case ThirdPartyArrayLibrary::TENSORFLOW: {
         using NDARRAY_T = nb::ndarray<nb::tensorflow, NB_ARGS...>;
         return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
     }
-    case ThirdPartyArrayTag::JAX: {
+    case ThirdPartyArrayLibrary::JAX: {
         using NDARRAY_T = nb::ndarray<nb::jax, NB_ARGS...>;
         return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
     }
-    case ThirdPartyArrayTag::CUPY: {
+    case ThirdPartyArrayLibrary::CUPY: {
         using NDARRAY_T = nb::ndarray<nb::cupy, NB_ARGS...>;
         return ThirdPartyArray<NB_ARGS...>(std::in_place_type<NDARRAY_T>, array_ref);
     }

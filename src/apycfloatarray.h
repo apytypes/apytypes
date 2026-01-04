@@ -94,7 +94,7 @@ public:
         return spec() == other.spec();
     }
 
-    //! Retrieve the bit specification
+    //! Return the bit specification
     APY_INLINE APyFloatSpec spec() const noexcept
     {
         return { exp_bits, man_bits, bias };
@@ -194,10 +194,10 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Retrieve the string representation
+    //! Return the string representation
     std::string repr() const;
 
-    //! Retrieve a string of the stored values in this array.
+    //! Return a string of the stored values in this array.
     std::string to_string(int base = 10) const;
     std::string to_string_dec() const;
 
@@ -242,10 +242,10 @@ public:
             std::vector<APyFloatData::Tuple>>& state
     );
 
-    //! Retrieve complex conjugate
+    //! Return complex conjugate
     APyCFloatArray conj() const;
 
-    //! Retrieve Hermitian transpose
+    //! Return Hermitian transpose
     APyCFloatArray hermitian_transpose() const;
 
     /* ****************************************************************************** *

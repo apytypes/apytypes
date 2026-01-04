@@ -1343,7 +1343,7 @@ void bind_cfixed_array(nb::module_& m)
             "conj",
             &APyCFixedArray::conj,
             R"pbdoc(
-            Retrieve complex conjugate.
+            Return complex conjugate.
 
             The complex conjugate has one additional integer bit so that the result
             never overflows.
@@ -1359,7 +1359,7 @@ void bind_cfixed_array(nb::module_& m)
             "hermitian_transpose",
             &APyCFixedArray::hermitian_transpose,
             R"pbdoc(
-            Retrieve Hermitian transpose.
+            Return Hermitian transpose.
 
             Equivalent to calling :func:`transpose` followed by :func:`conj`. The
             Hermitian transpose has one additional integer bit so that the result never

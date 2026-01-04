@@ -885,7 +885,7 @@ static APY_INLINE void fixed_point_product(
     RANDOM_ACCESS_ITERATOR_INOUT prod_abs
 )
 {
-    // Retrieve the absolute value of both operands
+    // Return the absolute value of both operands
     bool sign1 = limb_vector_abs(src1, src1 + src1_limbs, op1_abs);
     bool sign2 = limb_vector_abs(src2, src2 + src2_limbs, op2_abs);
 
@@ -1575,7 +1575,7 @@ std::string fixed_point_to_string_dec(
  * *                        Fixed-point folding functions                           * *
  * ********************************************************************************** */
 
-//! Retrieve an accumulative fixed-point fold function
+//! Return an accumulative fixed-point fold function
 template <typename VECTOR_TYPE>
 static APY_INLINE std::function<
     void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
@@ -1606,7 +1606,7 @@ fold_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
     }
 }
 
-//! Retrieve a multiplicative fold function
+//! Return a multiplicative fold function
 template <typename VECTOR_TYPE, typename SCRATCH_VEC>
 static APY_INLINE std::function<
     void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
@@ -1635,7 +1635,7 @@ fold_multiply(std::size_t src_limbs, std::size_t acc_limbs, SCRATCH_VEC& scratch
     }
 }
 
-//! Retrieve a complex-valued accumulative fixed-point fold function
+//! Return a complex-valued accumulative fixed-point fold function
 template <typename VECTOR_TYPE>
 static APY_INLINE std::function<
     void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
@@ -1688,7 +1688,7 @@ fold_complex_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
     }
 }
 
-//! Retrieve a complex-valued multiplicative fold function
+//! Return a complex-valued multiplicative fold function
 template <typename VECTOR_TYPE, typename SCRATCH_VEC>
 static APY_INLINE std::function<
     void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>

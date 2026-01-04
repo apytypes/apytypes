@@ -181,7 +181,7 @@ public:
         return cpp_tuple;
     }
 
-    //! Retrieve item from integer index
+    //! Return item from integer index
     std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
     get_item_integer(std::ptrdiff_t idx) const
     {
@@ -301,7 +301,7 @@ public:
         }
     }
 
-    //! Retrieve item(s) from a `std::vector` of `nb::int_` and `nb::slice`. Assumes
+    //! Return item(s) from a `std::vector` of `nb::int_` and `nb::slice`. Assumes
     //! that `tuple.size() <= _shape.size()`.
     std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
     get_item_tuple(const std::vector<std::variant<nb::int_, nb::slice>>& tuple) const
@@ -352,7 +352,7 @@ public:
         }
     }
 
-    //! Retrieve items from `*this` indexed by a boolean ndarray.
+    //! Return items from `*this` indexed by a boolean ndarray.
     std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
     get_item_ndarray(const nb::ndarray<bool, nb::c_contig>& key) const
     {
@@ -988,7 +988,7 @@ public:
         return new_shape_vec;
     }
 
-    //! Retrieve a copy of `*this`, reshaped to `shape`. The returned array will have
+    //! Return a copy of `*this`, reshaped to `shape`. The returned array will have
     //! exactly the same data as `*this` but with another shape.
     ARRAY_TYPE reshape(const nb::tuple& shape) const
     {
@@ -1506,7 +1506,7 @@ public:
         return result;
     }
 
-    // Retrieve the number of elements folded when folding `*this` using `axes`
+    // Return the number of elements folded when folding `*this` using `axes`
     std::size_t array_fold_get_elements(const std::vector<std::size_t>& axes) const
     {
         auto acc = [&](std::size_t p, std::size_t i) { return p * _shape[i]; };
@@ -1523,7 +1523,7 @@ public:
     )>;
 
 private:
-    //! Retrieve the padding needed to display the widest (in terms of number of `char`
+    //! Return the padding needed to display the widest (in terms of number of `char`
     //! characters) in `*this` array.
     std::size_t _array_format_get_padding(formatter_t formatter) const
     {
@@ -1536,7 +1536,7 @@ private:
         return padding;
     }
 
-    //! Retrieve a `std::vector<std::string>` of all elements in this vector formatted
+    //! Return a `std::vector<std::string>` of all elements in this vector formatted
     //! using `formatter`. All elements are right-padded and are equally long
     std::vector<std::string>
     _array_format_apply_formatter(formatter_t formatter, std::size_t padding) const
@@ -1675,7 +1675,7 @@ public:
             return std::make_tuple(VEC_T(formatters.size(), { brackets }), 2 * _ndim);
         }
 
-        // Retrieve necessary padding of elements
+        // Return necessary padding of elements
         std::size_t padding = 0;
         for (auto&& formatter : formatters) {
             padding = std::max(padding, _array_format_get_padding(formatter));
@@ -1725,7 +1725,7 @@ public:
                 l.erase(it.base(), std::end(l));
             }
 
-            // Retrieve the length of the longest format line
+            // Return the length of the longest format line
             for (auto&& line : format_lines) {
                 format_len = std::max(format_len, line.length());
             }
@@ -1760,7 +1760,7 @@ public:
         return std::make_tuple(vectors[0], len);
     }
 
-    //! Retrieve an array format of `*this` in a `std::string`. Each element is
+    //! Return an array format of `*this` in a `std::string`. Each element is
     //! formatted using the `formatter`
     std::string array_format(
         formatter_t formatter,

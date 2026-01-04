@@ -88,7 +88,7 @@ public:
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
-    //! Retrieve the bit specification
+    //! Return the bit specification
     APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
 
     //! Test if using threadpool is justified based on number of multiply-accumulate
@@ -388,7 +388,7 @@ public:
      *                           Conversion to other types                            *
      * ****************************************************************************** */
 public:
-    //! Retrieve a string of the stored values in this array.
+    //! Return a string of the stored values in this array.
     std::string to_string(int base = 10) const;
     std::string to_string_dec() const;
 

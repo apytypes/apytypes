@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mixed real-complex array arithmetic.
 - Thread pool for matrix multiplication.
 - Vector outer products (`apytypes.outer`).
+- Support for interaction with PyTorch, TensorFlow, JAX, and CuPy (in addition
+  to NumPy).
 
 ### Fixed
 
@@ -108,8 +110,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of [Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence).
 - BREAKING: arguments related to word length/data type are now keyword only
   in array utility functions.
-
-### Removed
 
 ## [0.3.1] - 2025-04-01
 

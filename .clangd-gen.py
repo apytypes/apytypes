@@ -20,7 +20,7 @@ APYTYPES_DIR = Path(__file__).parent
 
 def run_shell(cmd: str) -> subprocess.CompletedProcess[str]:
     """
-    Run a shell command and retrieve its stdout in a `list` of `str`.
+    Run a shell command and return its stdout in a `list` of `str`.
     """
     run = subprocess.run
     res = run(cmd.split(" "), capture_output=True, encoding="utf-8", check=False)

@@ -175,7 +175,7 @@ normalize(const APyFloatData& src, const APyFloatSpec& spec)
     return normalize(src, spec.exp_bits, spec.man_bits, spec.bias);
 }
 
-//! Retrieve a generalized IEEE-754 bias for `exp_bits`
+//! Return a generalized IEEE-754 bias for `exp_bits`
 [[maybe_unused]] static APY_INLINE exp_t ieee_bias(std::uint8_t exp_bits)
 {
     return (1ULL << (exp_bits - 1)) - 1;
@@ -306,7 +306,7 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
     }
 }
 
-//! Retrieve a specialized quantization function
+//! Return a specialized quantization function
 [[maybe_unused]] static APY_INLINE auto
 get_qntz_func(QuantizationMode qntz, bool support_negative_bits_to_quantize = false)
 {

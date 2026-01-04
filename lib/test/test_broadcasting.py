@@ -13,7 +13,7 @@ from apytypes.typing import APyArray
 
 def all_shapes(ndim: int, dim_elements: int):
     """
-    Retrieve a list of all possible shapes with `ndim` dimensions, spanning from one to
+    Return a list of all possible shapes with `ndim` dimensions, spanning from one to
     `dim_elements` (inclusive)
     """
     return product(range(1, dim_elements + 1), repeat=ndim)

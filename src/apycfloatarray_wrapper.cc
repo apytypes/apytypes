@@ -1357,7 +1357,7 @@ void bind_cfloat_array(nb::module_& m)
             "conj",
             &APyCFloatArray::conj,
             R"pbdoc(
-            Retrieve complex conjugate.
+            Return complex conjugate.
 
             .. versionadded:: 0.5
 
@@ -1370,7 +1370,7 @@ void bind_cfloat_array(nb::module_& m)
             "hermitian_transpose",
             &APyCFloatArray::hermitian_transpose,
             R"pbdoc(
-            Retrieve the Hermitian transpose.
+            Return the Hermitian transpose.
 
             This is equivalent to calling :func:`transpose` followed by :func:`conj`.
 

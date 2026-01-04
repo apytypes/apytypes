@@ -153,7 +153,7 @@ def set_fixed_quantization_seed(seed: int) -> None:
 
 def get_float_quantization_seed() -> int:
     """
-    Retrieve the currently used floating-point quantization seed.
+    Return the currently used floating-point quantization seed.
 
     Returns
     -------
@@ -162,14 +162,14 @@ def get_float_quantization_seed() -> int:
 
 def get_fixed_quantization_seed() -> int:
     """
-    Retrieve the currently used fixed-point quantization seed.
+    Return the currently used fixed-point quantization seed.
 
     Returns
     -------
     :class:`int`
     """
 
-def set_preferred_array_lib(arg: str, /) -> None:
+def set_array_library(arg: str, /) -> None:
     """
     Set the preferred third-party array library returned when nothing else is
     specified.
@@ -189,13 +189,13 @@ def set_preferred_array_lib(arg: str, /) -> None:
         Preferred third-party array library to use.
     """
 
-def get_preferred_array_lib() -> str:
+def get_array_library() -> str:
     """
-    Retrieve the preferred third-party array library in use with APyTypes.
+    Return the preferred third-party array library in use with APyTypes.
 
     See Also
     --------
-    set_preferred_array_lib
+    set_array_library
 
     Returns
     -------
@@ -205,7 +205,7 @@ def get_preferred_array_lib() -> str:
 
 def n_threads() -> int:
     """
-    Retrieve the number of threads active in the APyTypes thread pool.
+    Return the number of threads active in the APyTypes thread pool.
 
     On startup, a suitable number of threads is automatically determined by
     APyTypes, unless the environment variable `APYTYPES_THREAD_COUNT` is set. In
@@ -427,7 +427,7 @@ class APyCFixed:
 
     def to_bits(self) -> tuple[int, int]:
         """
-        Retrieve underlying bit-pattern in a :class:`tuple` of :class:`int`.
+        Return underlying bit-pattern in a :class:`tuple` of :class:`int`.
 
         Examples
         --------
@@ -627,7 +627,7 @@ class APyCFixed:
 
     def conj(self) -> APyCFixed:
         """
-        Retrieve complex conjugate.
+        Return complex conjugate.
 
         The complex conjugate has one additional integer bit so that the result
         never overflows.
@@ -1847,7 +1847,7 @@ class APyCFixedArray:
 
     def conj(self) -> APyCFixedArray:
         """
-        Retrieve complex conjugate.
+        Return complex conjugate.
 
         The complex conjugate has one additional integer bit so that the result
         never overflows.
@@ -1861,7 +1861,7 @@ class APyCFixedArray:
 
     def hermitian_transpose(self) -> APyCFixedArray:
         """
-        Retrieve Hermitian transpose.
+        Return Hermitian transpose.
 
         Equivalent to calling :func:`transpose` followed by :func:`conj`. The
         Hermitian transpose has one additional integer bit so that the result never
@@ -2275,7 +2275,7 @@ class APyCFloat:
 
     def conj(self) -> APyCFloat:
         """
-        Retrieve complex conjugate.
+        Return complex conjugate.
 
         .. versionadded:: 0.5
 
@@ -3486,7 +3486,7 @@ class APyCFloatArray:
 
     def conj(self) -> APyCFloatArray:
         """
-        Retrieve complex conjugate.
+        Return complex conjugate.
 
         .. versionadded:: 0.5
 
@@ -3497,7 +3497,7 @@ class APyCFloatArray:
 
     def hermitian_transpose(self) -> APyCFloatArray:
         """
-        Retrieve the Hermitian transpose.
+        Return the Hermitian transpose.
 
         This is equivalent to calling :func:`transpose` followed by :func:`conj`.
 
@@ -3730,7 +3730,7 @@ class APyFixed:
     def __pow__(self, arg: int, /) -> APyFixed: ...
     def to_bits(self) -> int:
         """
-        Retrieve underlying bit-pattern in an :class:`int`.
+        Return underlying bit-pattern in an :class:`int`.
 
         Examples
         --------

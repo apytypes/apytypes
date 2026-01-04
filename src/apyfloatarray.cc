@@ -327,8 +327,7 @@ ThirdPartyArray<bool> APyFloatArray::operator==(const T& rhs) const
 {
     auto is_zero = [](auto begin, auto) { return ::is_zero(*begin); };
     return make_third_party_ndarray(
-        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"),
-        get_preferred_array_lib()
+        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"), get_array_library()
     );
 }
 
@@ -338,7 +337,7 @@ ThirdPartyArray<bool> APyFloatArray::operator!=(const T& rhs) const
     auto is_non_zero = [](auto begin, auto) { return !::is_zero(*begin); };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_non_zero, "__ne__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -349,7 +348,7 @@ template <typename T> ThirdPartyArray<bool> APyFloatArray::operator<(const T& rh
         return floating_point_less_than(*begin, spec, { 0, 0, 0 }, spec);
     };
     return make_third_party_ndarray(
-        diff.template to_ndarray<bool>(is_negative, "__lt__"), get_preferred_array_lib()
+        diff.template to_ndarray<bool>(is_negative, "__lt__"), get_array_library()
     );
 }
 
@@ -363,7 +362,7 @@ ThirdPartyArray<bool> APyFloatArray::operator<=(const T& rhs) const
     };
     return make_third_party_ndarray(
         diff.template to_ndarray<bool>(is_negative_or_zero, "__le__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -376,7 +375,7 @@ template <typename T> ThirdPartyArray<bool> APyFloatArray::operator>(const T& rh
     };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_strict_positive, "__gt__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -388,8 +387,7 @@ ThirdPartyArray<bool> APyFloatArray::operator>=(const T& rhs) const
         return !floating_point_less_than(*begin, spec, { 0, 0, 0 }, spec);
     };
     return make_third_party_ndarray(
-        diff.template to_ndarray<bool>(is_non_negative, "__ge__"),
-        get_preferred_array_lib()
+        diff.template to_ndarray<bool>(is_non_negative, "__ge__"), get_array_library()
     );
 }
 

@@ -86,7 +86,7 @@ public:
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
-    //! Retrieve the bit specification
+    //! Return the bit specification
     APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
 
     /* ****************************************************************************** *
@@ -261,10 +261,10 @@ public:
     //! Logic not
     APyCFixed operator~() const;
 
-    //! Retrieve real part
+    //! Return real part
     APyFixed get_real() const;
 
-    //! Retrieve imaginary part
+    //! Return imaginary part
     APyFixed get_imag() const;
 
     //! Convert to built-in complex type over double-precision floating-point
@@ -279,7 +279,7 @@ public:
         const std::tuple<int, int, std::vector<std::uint64_t>>& state
     );
 
-    //! Retrieve complex conjugate
+    //! Return complex conjugate
     APyCFixed conj() const;
 
     /* ****************************************************************************** *

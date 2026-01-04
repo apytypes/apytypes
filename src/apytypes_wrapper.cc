@@ -276,7 +276,7 @@ void bind_common(nb::module_& m)
             "get_float_quantization_seed",
             &get_rnd64_fp_seed,
             R"pbdoc(
-            Retrieve the currently used floating-point quantization seed.
+            Return the currently used floating-point quantization seed.
 
             Returns
             -------
@@ -288,7 +288,7 @@ void bind_common(nb::module_& m)
             "get_fixed_quantization_seed",
             &get_rnd64_fx_seed,
             R"pbdoc(
-            Retrieve the currently used fixed-point quantization seed.
+            Return the currently used fixed-point quantization seed.
 
             Returns
             -------
@@ -297,8 +297,8 @@ void bind_common(nb::module_& m)
             )pbdoc"
         )
         .def(
-            "set_preferred_array_lib",
-            &set_preferred_array_lib_from_str,
+            "set_array_library",
+            &set_array_library_from_str,
             R"pbdoc(
             Set the preferred third-party array library returned when nothing else is
             specified.
@@ -320,14 +320,14 @@ void bind_common(nb::module_& m)
             )pbdoc"
         )
         .def(
-            "get_preferred_array_lib",
-            &get_preferred_array_lib_as_str,
+            "get_array_library",
+            &get_array_library_as_str,
             R"pbdoc(
-            Retrieve the preferred third-party array library in use with APyTypes.
+            Return the preferred third-party array library in use with APyTypes.
 
             See Also
             --------
-            set_preferred_array_lib
+            set_array_library
 
             Returns
             -------
@@ -340,7 +340,7 @@ void bind_common(nb::module_& m)
             "n_threads",
             []() { return thread_pool.get_thread_count(); },
             R"pbdoc(
-            Retrieve the number of threads active in the APyTypes thread pool.
+            Return the number of threads active in the APyTypes thread pool.
 
             On startup, a suitable number of threads is automatically determined by
             APyTypes, unless the environment variable `APYTYPES_THREAD_COUNT` is set. In

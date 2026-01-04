@@ -391,7 +391,7 @@ is_iterable_and_exclude(const nanobind::handle& obj)
 }
 
 /*!
- * Retrieve the sequence of a python sequence object through recursive descent along the
+ * Return the sequence of a python sequence object through recursive descent along the
  * dimensions.
  */
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
@@ -451,7 +451,7 @@ _python_iterable_extract_shape_recursive_descent(
 }
 
 /*!
- * Retrieve the shape of a possibly nested Python sequence of iterable object. When
+ * Return the shape of a possibly nested Python sequence of iterable object. When
  * `IS_COMPLEX_COLLAPSE` is true, the last dimension is truncated if it is exactly
  * equal to two.
  */

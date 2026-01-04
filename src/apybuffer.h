@@ -150,16 +150,16 @@ protected:
                                        // function `get_py_buffer()` is called)
 
 public:
-    //! Retrieve number of array dimensions
+    //! Return number of array dimensions
     std::size_t ndim() const noexcept { return _shape.size(); }
 
-    //! Retrieve array size
+    //! Return array size
     std::size_t size() const noexcept { return _shape[0]; }
 
-    //! Retrieve array shape
+    //! Return array shape
     const std::vector<std::size_t>& shape() const noexcept { return _shape; }
 
-    //! Retrieve array shape (exported to Python)
+    //! Return array shape (exported to Python)
     nb::typed<nb::tuple, std::size_t, nb::ellipsis> python_get_shape() const
     {
         nb::list result_list;
