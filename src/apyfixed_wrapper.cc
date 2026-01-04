@@ -141,7 +141,7 @@ void bind_fixed(nb::module_& m)
             "to_bits",
             &APyFixed::to_bits,
             R"pbdoc(
-            Retrieve underlying bit-pattern in an :class:`int`.
+            Return underlying bit-pattern in an :class:`int`.
 
             Examples
             --------

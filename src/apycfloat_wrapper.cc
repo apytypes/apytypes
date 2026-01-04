@@ -489,7 +489,7 @@ void bind_cfloat(nb::module_& m)
             "conj",
             &APyCFloat::conj,
             R"pbdoc(
-            Retrieve complex conjugate.
+            Return complex conjugate.
 
             .. versionadded:: 0.5
 

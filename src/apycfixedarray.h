@@ -80,7 +80,7 @@ public:
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
-    //! Retrieve the bit specification
+    //! Return the bit specification
     APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
 
     //! Test if using threadpool is justified based on number of multiply-accumulate
@@ -220,7 +220,7 @@ public:
     //! Number of fractional bits
     APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
-    //! Retrieve the string representation
+    //! Return the string representation
     std::string repr() const;
 
     //! Convert to a NumPy array
@@ -243,10 +243,10 @@ public:
     //! Cumulative multiplication over one or more axes.
     APyCFixedArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
-    //! Retrieve real part
+    //! Return real part
     APyFixedArray get_real() const;
 
-    //! Retrieve imaginary part
+    //! Return imaginary part
     APyFixedArray get_imag() const;
 
     /*!
@@ -276,10 +276,10 @@ public:
             tuple<int, int, std::vector<std::size_t>, std::vector<std::uint64_t>>& state
     );
 
-    //! Retrieve complex conjugate
+    //! Return complex conjugate
     APyCFixedArray conj() const;
 
-    //! Retrieve Hermitian transpose
+    //! Return Hermitian transpose
     APyCFixedArray hermitian_transpose() const;
 
     /* ****************************************************************************** *
@@ -317,7 +317,7 @@ public:
      *                           Conversion to other types                            *
      * ****************************************************************************** */
 public:
-    //! Retrieve a string of the stored values in this array.
+    //! Return a string of the stored values in this array.
     std::string to_string(int base = 10) const;
     std::string to_string_dec() const;
 

@@ -656,7 +656,7 @@ void APyCFloatArray::python_unpickle(
     new (apycfloatarray) APyCFloatArray(fp_res);
 }
 
-//! Retrieve complex conjugate
+//! Return complex conjugate
 APyCFloatArray APyCFloatArray::conj() const
 {
     APyCFloatArray res = *this;
@@ -666,7 +666,7 @@ APyCFloatArray APyCFloatArray::conj() const
     return res;
 }
 
-//! Retrieve hermitian transpose
+//! Return hermitian transpose
 APyCFloatArray APyCFloatArray::hermitian_transpose() const
 {
     APyCFloatArray res = transpose(std::nullopt);
@@ -861,8 +861,7 @@ ThirdPartyArray<bool> APyCFloatArray::operator==(const T& rhs) const
     auto is_zero
         = [](auto begin, auto) { return ::is_zero(*begin) && ::is_zero(*(begin + 1)); };
     return make_third_party_ndarray(
-        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"),
-        get_preferred_array_lib()
+        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"), get_array_library()
     );
 }
 
@@ -874,7 +873,7 @@ ThirdPartyArray<bool> APyCFloatArray::operator!=(const T& rhs) const
     };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_non_zero, "__ne__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 

@@ -207,7 +207,7 @@ void bind_cfixed(nb::module_& m)
                 return nb::typed<nb::tuple, nb::int_, nb::int_>(self.to_bits());
             },
             R"pbdoc(
-            Retrieve underlying bit-pattern in a :class:`tuple` of :class:`int`.
+            Return underlying bit-pattern in a :class:`tuple` of :class:`int`.
 
             Examples
             --------
@@ -416,7 +416,7 @@ void bind_cfixed(nb::module_& m)
             "conj",
             &APyCFixed::conj,
             R"pbdoc(
-            Retrieve complex conjugate.
+            Return complex conjugate.
 
             The complex conjugate has one additional integer bit so that the result
             never overflows.

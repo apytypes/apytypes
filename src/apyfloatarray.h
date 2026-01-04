@@ -101,7 +101,7 @@ public:
         return spec() == other.spec();
     }
 
-    //! Retrieve the bit specification
+    //! Return the bit specification
     APY_INLINE APyFloatSpec spec() const noexcept
     {
         return { exp_bits, man_bits, bias };
@@ -250,7 +250,7 @@ public:
      *                           Conversion to other types                            *
      * ****************************************************************************** */
 public:
-    //! Retrieve a string of the stored values in this array.
+    //! Return a string of the stored values in this array.
     std::string to_string(int base = 10) const;
     std::string to_string_dec() const;
 

@@ -68,7 +68,7 @@ public:
             && bias == other.bias;
     }
 
-    //! Retrieve the bit specification
+    //! Return the bit specification
     APY_INLINE APyFloatSpec spec() const noexcept
     {
         return { exp_bits, man_bits, bias };

@@ -50,7 +50,7 @@ void rst_default_rnd64_fp(std::uint64_t seed)
     current_mt19937_fp.seed(seed);
 }
 
-// Retrieve the seed used to initialize the active random number engine
+// Return the seed used to initialize the active random number engine
 std::uint64_t get_rnd64_fx_seed() { return rnd64_fx_seed; }
 std::uint64_t get_rnd64_fp_seed() { return rnd64_fp_seed; }
 
@@ -135,7 +135,7 @@ APyFixedCastOption get_fixed_cast_mode() { return global_cast_option_fixed; }
 thread_local static std::optional<APyFixedAccumulatorOption>
     global_accumulator_option_fixed = std::nullopt;
 
-// Retrieve the global accumulator mode
+// Return the global accumulator mode
 std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed()
 {
     return global_accumulator_option_fixed;
@@ -182,7 +182,7 @@ void APyFixedAccumulatorContext::exit_context()
 thread_local static std::optional<APyFloatAccumulatorOption>
     global_accumulator_option_float = std::nullopt;
 
-// Retrieve the global accumulator mode
+// Return the global accumulator mode
 std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float()
 {
     return global_accumulator_option_float;
@@ -233,31 +233,31 @@ void APyFloatAccumulatorContext::exit_context()
  * *                     Preferred third-party array library                        * *
  * ********************************************************************************** */
 
-static ThirdPartyArrayTag preferred_array_lib { ThirdPartyArrayTag::NUMPY };
+static ThirdPartyArrayLibrary preferred_array_lib { ThirdPartyArrayLibrary::NUMPY };
 
-void set_preferred_array_lib(ThirdPartyArrayTag array_lib)
+void set_array_library(ThirdPartyArrayLibrary array_lib)
 {
     preferred_array_lib = array_lib;
 }
 
-void set_preferred_array_lib_from_str(const std::string& array_lib)
+void set_array_library_from_str(const std::string& array_lib)
 {
     if (array_lib == "numpy") {
-        set_preferred_array_lib(ThirdPartyArrayTag::NUMPY);
+        set_array_library(ThirdPartyArrayLibrary::NUMPY);
         return;
     } else if (array_lib == "pytorch") {
-        set_preferred_array_lib(ThirdPartyArrayTag::PYTORCH);
+        set_array_library(ThirdPartyArrayLibrary::PYTORCH);
         return;
     } else if (array_lib == "tensorflow") {
-        set_preferred_array_lib(ThirdPartyArrayTag::TENSORFLOW);
+        set_array_library(ThirdPartyArrayLibrary::TENSORFLOW);
         return;
     } else if (array_lib == "jax") {
-        set_preferred_array_lib(ThirdPartyArrayTag::JAX);
+        set_array_library(ThirdPartyArrayLibrary::JAX);
     } else if (array_lib == "cupy") {
-        set_preferred_array_lib(ThirdPartyArrayTag::CUPY);
+        set_array_library(ThirdPartyArrayLibrary::CUPY);
     } else {
         auto err_msg = fmt::format(
-            "set_preferred_array_lib: library '{}' not exactly in ('numpy', 'pytorch', "
+            "set_array_library: library '{}' not exactly in ('numpy', 'pytorch', "
             "'tensorflow', 'jax', 'cupy')",
             array_lib
         );
@@ -265,20 +265,20 @@ void set_preferred_array_lib_from_str(const std::string& array_lib)
     }
 }
 
-ThirdPartyArrayTag get_preferred_array_lib() { return preferred_array_lib; }
+ThirdPartyArrayLibrary get_array_library() { return preferred_array_lib; }
 
-std::string get_preferred_array_lib_as_str()
+std::string get_array_library_as_str()
 {
     switch (preferred_array_lib) {
-    case ThirdPartyArrayTag::NUMPY:
+    case ThirdPartyArrayLibrary::NUMPY:
         return "numpy";
-    case ThirdPartyArrayTag::PYTORCH:
+    case ThirdPartyArrayLibrary::PYTORCH:
         return "pytorch";
-    case ThirdPartyArrayTag::TENSORFLOW:
+    case ThirdPartyArrayLibrary::TENSORFLOW:
         return "tensorflow";
-    case ThirdPartyArrayTag::JAX:
+    case ThirdPartyArrayLibrary::JAX:
         return "jax";
-    case ThirdPartyArrayTag::CUPY:
+    case ThirdPartyArrayLibrary::CUPY:
         return "cupy";
 
     default:

@@ -85,7 +85,7 @@ public:
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
-    //! Retrieve the bit specification
+    //! Return the bit specification
     APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
 
     //! Peak at the underlying data vector
@@ -391,7 +391,7 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
-    //! Retrieve an `APyFixed` of `bits` and `int_bits` with the maximum value
+    //! Return an `APyFixed` of `bits` and `int_bits` with the maximum value
     static APyFixed get_max(int bits, int int_bits)
     {
         APyFixed init_max(bits, int_bits);
@@ -402,7 +402,7 @@ public:
         return init_max;
     }
 
-    //! Retrieve an `APyFixed` of `bits` and `int_bits` with the minimum value
+    //! Return an `APyFixed` of `bits` and `int_bits` with the minimum value
     static APyFixed get_min(int bits, int int_bits)
     {
         APyFixed init_min = get_max(bits, int_bits);

@@ -955,8 +955,7 @@ ThirdPartyArray<bool> APyCFixedArray::operator==(const T& rhs) const
 {
     auto is_zero = [](auto begin, auto end) { return limb_vector_is_zero(begin, end); };
     return make_third_party_ndarray(
-        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"),
-        get_preferred_array_lib()
+        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"), get_array_library()
     );
 }
 
@@ -967,7 +966,7 @@ ThirdPartyArray<bool> APyCFixedArray::operator!=(const T& rhs) const
         = [](auto begin, auto end) { return !limb_vector_is_zero(begin, end); };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_non_zero, "__ne__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -1123,7 +1122,7 @@ APyCFixedArray APyCFixedArray::conj() const
     return res;
 }
 
-//! Retrieve hermitian transpose
+//! Return hermitian transpose
 APyCFixedArray APyCFixedArray::hermitian_transpose() const
 {
     return conj().transpose();
@@ -1135,7 +1134,7 @@ APyCFixedArray::sum(const std::optional<PyShapeParam_t>& py_axis) const
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
-    // Retrieve how many elements will be summed together
+    // Return how many elements will be summed together
     std::size_t n_elems = array_fold_get_elements(axes);
 
     // Compute the result word length
@@ -1162,7 +1161,7 @@ APyCFixedArray APyCFixedArray::cumsum(std::optional<nb::int_> py_axis) const
         throw nb::index_error(msg.c_str());
     }
 
-    // Retrieve how many elements will be summed together
+    // Return how many elements will be summed together
     std::size_t n_elems = axis.has_value() ? _shape[*axis] : _nitems;
 
     // Compute the result word length
@@ -1184,7 +1183,7 @@ APyCFixedArray::prod(const std::optional<PyShapeParam_t>& py_axis) const
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
-    // Retrieve how many elements will be summed together
+    // Return how many elements will be summed together
     std::size_t n_elems = array_fold_get_elements(axes);
 
     if (n_elems == 0) {
@@ -1225,7 +1224,7 @@ APyCFixedArray APyCFixedArray::cumprod(std::optional<nb::int_> py_axis) const
         throw nb::index_error(msg.c_str());
     }
 
-    // Retrieve how many elements will be multiplied together
+    // Return how many elements will be multiplied together
     std::size_t n_elems = axis.has_value() ? _shape[*axis] : _nitems;
 
     // Compute the result word length
@@ -1252,7 +1251,7 @@ APyCFixedArray APyCFixedArray::cumprod(std::optional<nb::int_> py_axis) const
     return array_fold_cumulative(axis, fold, post_proc, init_one, bits, int_bits);
 }
 
-//! Retrieve real part
+//! Return real part
 APyFixedArray APyCFixedArray::get_real() const
 {
     APyFixedArray result(_shape, _bits, _int_bits);
@@ -1266,7 +1265,7 @@ APyFixedArray APyCFixedArray::get_real() const
     return result;
 }
 
-//! Retrieve imaginary part
+//! Return imaginary part
 APyFixedArray APyCFixedArray::get_imag() const
 {
     APyFixedArray result(_shape, _bits, _int_bits);

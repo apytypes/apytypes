@@ -768,8 +768,7 @@ ThirdPartyArray<bool> APyFixedArray::operator==(const T& rhs) const
 {
     auto is_zero = [](auto begin, auto end) { return limb_vector_is_zero(begin, end); };
     return make_third_party_ndarray(
-        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"),
-        get_preferred_array_lib()
+        (*this - rhs).template to_ndarray<bool>(is_zero, "__eq__"), get_array_library()
     );
 }
 
@@ -780,7 +779,7 @@ ThirdPartyArray<bool> APyFixedArray::operator!=(const T& rhs) const
         = [](auto begin, auto end) { return !limb_vector_is_zero(begin, end); };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_non_zero, "__ne__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -790,7 +789,7 @@ template <typename T> ThirdPartyArray<bool> APyFixedArray::operator<(const T& rh
         = [](auto begin, auto end) { return limb_vector_is_negative(begin, end); };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_negative, "__lt__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -802,7 +801,7 @@ ThirdPartyArray<bool> APyFixedArray::operator<=(const T& rhs) const
     };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_negative_or_zero, "__le__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -813,7 +812,7 @@ template <typename T> ThirdPartyArray<bool> APyFixedArray::operator>(const T& rh
     };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_strict_positive, "__gt__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -824,7 +823,7 @@ ThirdPartyArray<bool> APyFixedArray::operator>=(const T& rhs) const
         = [](auto begin, auto end) { return !limb_vector_is_negative(begin, end); };
     return make_third_party_ndarray(
         (*this - rhs).template to_ndarray<bool>(is_non_negative, "__ge__"),
-        get_preferred_array_lib()
+        get_array_library()
     );
 }
 
@@ -851,7 +850,7 @@ ThirdPartyArray<std::size_t> APyFixedArray::trailing_zeros() const
         return std::min(bits, limb_vector_trailing_zeros(begin, end));
     };
     return make_third_party_ndarray(
-        (*this).template to_ndarray<std::size_t>(t_zeros, ""), get_preferred_array_lib()
+        (*this).template to_ndarray<std::size_t>(t_zeros, ""), get_array_library()
     );
 }
 
@@ -865,7 +864,7 @@ ThirdPartyArray<std::size_t> APyFixedArray::leading_zeros() const
             : (leading_zeros - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb));
     };
     return make_third_party_ndarray(
-        (*this).template to_ndarray<std::size_t>(l_zeros, ""), get_preferred_array_lib()
+        (*this).template to_ndarray<std::size_t>(l_zeros, ""), get_array_library()
     );
 }
 
@@ -879,7 +878,7 @@ ThirdPartyArray<std::size_t> APyFixedArray::leading_ones() const
             : (leading_ones - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb));
     };
     return make_third_party_ndarray(
-        (*this).template to_ndarray<std::size_t>(l_ones, ""), get_preferred_array_lib()
+        (*this).template to_ndarray<std::size_t>(l_ones, ""), get_array_library()
     );
 }
 
@@ -895,7 +894,7 @@ ThirdPartyArray<std::size_t> APyFixedArray::leading_signs() const
             : (leading_signs - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb));
     };
     return make_third_party_ndarray(
-        (*this).template to_ndarray<std::size_t>(l_signs, ""), get_preferred_array_lib()
+        (*this).template to_ndarray<std::size_t>(l_signs, ""), get_array_library()
     );
 }
 
@@ -903,7 +902,7 @@ ThirdPartyArray<bool> APyFixedArray::is_zero() const
 {
     auto is_z = [](auto begin, auto end) { return limb_vector_is_zero(begin, end); };
     return make_third_party_ndarray(
-        (*this).template to_ndarray<bool>(is_z, ""), get_preferred_array_lib()
+        (*this).template to_ndarray<bool>(is_z, ""), get_array_library()
     );
 }
 
@@ -1029,7 +1028,7 @@ APyFixedArray::sum(const std::optional<PyShapeParam_t>& py_axis) const
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
-    // Retrieve how many elements will be summed together
+    // Return how many elements will be summed together
     std::size_t n_elems = array_fold_get_elements(axes);
 
     // Compute the result word length
@@ -1057,7 +1056,7 @@ APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> py_axis) const
         throw nb::index_error(msg.c_str());
     }
 
-    // Retrieve how many elements will be summed together
+    // Return how many elements will be summed together
     std::size_t n_elems = axis.has_value() ? _shape[*axis] : _nitems;
 
     // Compute the result word length
@@ -1079,7 +1078,7 @@ APyFixedArray::prod(const std::optional<PyShapeParam_t>& py_axis) const
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
-    // Retrieve how many elements will be summed together
+    // Return how many elements will be summed together
     std::size_t n_elems = array_fold_get_elements(axes);
 
     // Compute the result word length
@@ -1118,7 +1117,7 @@ APyFixedArray APyFixedArray::cumprod(std::optional<nb::int_> py_axis) const
         throw nb::index_error(msg.c_str());
     }
 
-    // Retrieve how many elements will be folded together
+    // Return how many elements will be folded together
     std::size_t n_elems = axis.has_value() ? _shape[*axis] : _nitems;
 
     // Compute the result word length

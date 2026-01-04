@@ -701,7 +701,7 @@ def zeros(
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
     `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
-    for :class:`APyFloatArray`. Specify `force_complex` to retrieve a complex-valued
+    for :class:`APyFloatArray`. Specify `force_complex` to return a complex-valued
     array type.
 
     Parameters
@@ -721,7 +721,7 @@ def zeros(
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
     force_complex : :class:`bool`, optional
-        Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
+        Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
 
     Returns
@@ -832,7 +832,7 @@ def ones(
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
     `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
-    for :class:`APyFloatArray`. Specify `force_complex` to retrieve a complex-valued
+    for :class:`APyFloatArray`. Specify `force_complex` to return a complex-valued
     array type.
 
     Parameters
@@ -852,7 +852,7 @@ def ones(
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
     force_complex : :class:`bool`, optional
-        Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
+        Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
 
     Returns
@@ -970,7 +970,7 @@ def eye(
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
     `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
-    for :class:`APyFloatArray`. Specify `force_complex` to retrieve a complex-valued
+    for :class:`APyFloatArray`. Specify `force_complex` to return a complex-valued
     array type.
 
     Parameters
@@ -1105,7 +1105,7 @@ def identity(
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
     `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
-    for :class:`APyFloatArray`. Specify `force_complex` to retrieve a complex-valued
+    for :class:`APyFloatArray`. Specify `force_complex` to return a complex-valued
     array type.
 
     Parameters
