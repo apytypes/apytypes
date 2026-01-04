@@ -381,7 +381,7 @@ void bind_fixed_array(nb::module_& m)
 
             Parameters
             ----------
-            dtype : :std:doc:`numpy:dtype`
+            dtype : :py:class:`numpy.dtype`
                 The desired data type of the output array. This parameter is currently ignored.
             copy : :class:`bool`
                 Whether to copy the data or not. Must be :code:`True` or :code:`None`.
@@ -507,7 +507,7 @@ void bind_fixed_array(nb::module_& m)
             - They represent exactly the same tensor shape
             - They store the exact same fixed-point values in all tensor elements
             - They have the exact same bit specification (`bits`, `int_bits`, and
-            `frac_bits` are all equal)
+              `frac_bits` are all equal)
 
             Returns
             -------
@@ -751,16 +751,6 @@ void bind_fixed_array(nb::module_& m)
                 The axis/axes to summate across. Will summate the whole array if no int
                 or tuple is specified.
 
-            Returns
-            -------
-            :class:`APyFixedArray` or :class:`APyFixed`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
-
             Examples
             --------
             >>> import apytypes as apy
@@ -772,7 +762,15 @@ void bind_fixed_array(nb::module_& m)
             >>> a.sum()
             APyFixed(21, bits=13, int_bits=13)
 
+            Returns
             -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 
@@ -788,16 +786,6 @@ void bind_fixed_array(nb::module_& m)
             axis : :class:`int`, optional
                 The axes to summate across. If not given an axis it will return the
                 cumulative sum of the flattened array.
-
-            Returns
-            -------
-            :class:`APyFixedArray`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
 
             Examples
             --------
@@ -818,7 +806,15 @@ void bind_fixed_array(nb::module_& m)
             APyFixedArray([[ 1,  3,  6],
                            [ 4,  9, 15]], int_bits=12, frac_bits=0)
 
+            Returns
             -------
+            :class:`APyFixedArray`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 
@@ -887,16 +883,6 @@ void bind_fixed_array(nb::module_& m)
             axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis to get the maximum along.
 
-            Returns
-            -------
-            :class:`APyFixedArray` or :class:`APyFixed`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
-
             Examples
             --------
             >>> from apytypes import fx
@@ -914,8 +900,15 @@ void bind_fixed_array(nb::module_& m)
             >>> a.max(1)
             APyFixedArray([3, 6], int_bits=10, frac_bits=0)
 
+            Returns
             -------
+            :class:`APyFixedArray` or :class:`APyFixed`
 
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 
@@ -930,16 +923,6 @@ void bind_fixed_array(nb::module_& m)
             ----------
             axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis to get the minimum along.
-
-            Returns
-            -------
-            :class:`APyFixedArray` or :class:`APyFixed`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
 
             Examples
             --------
@@ -958,7 +941,15 @@ void bind_fixed_array(nb::module_& m)
             >>> a.min(1)
             APyFixedArray([1, 4], int_bits=10, frac_bits=0)
 
+            Returns
             -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 
@@ -1029,16 +1020,6 @@ void bind_fixed_array(nb::module_& m)
                 The axis/axes to calculate the product across. If not given an axis it
                 will return the product of the flattened array.
 
-            Returns
-            -------
-            :class:`APyFixedArray` or :class:`APyFixed`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
-
             Examples
             --------
             >>> import apytypes as apy
@@ -1050,7 +1031,15 @@ void bind_fixed_array(nb::module_& m)
             >>> a.prod()
             APyFixed(720, bits=60, int_bits=60)
 
+            Returns
             -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 
@@ -1066,16 +1055,6 @@ void bind_fixed_array(nb::module_& m)
             axis : :class:`int`, optional
                 The axes to calculate the product across. If not given an axis it will
                 return the cumulative product of the flattened array.
-
-            Returns
-            -------
-            :class:`APyFixedArray`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
 
             Examples
             --------
@@ -1096,7 +1075,15 @@ void bind_fixed_array(nb::module_& m)
             APyFixedArray([[  1,   2,   6],
                            [  4,  20, 120]], int_bits=30, frac_bits=0)
 
+            Returns
             -------
+            :class:`APyFixedArray`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 

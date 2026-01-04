@@ -343,7 +343,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            dtype : :std:doc:`numpy:dtype`
+            dtype : :py:class:`numpy.dtype`
                 The desired data type of the output array. This parameter is currently ignored.
             copy : :class:`bool`
                 Whether to copy the data or not. Must be :code:`True` or :code:`None`.
@@ -720,16 +720,6 @@ void bind_cfixed_array(nb::module_& m)
                 The axis/axes to summate across. Will summate the whole array if
                 no int or tuple is specified.
 
-            Returns
-            -------
-            :class:`APyCFixedArray` or :class:`APyCFixed`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of
-                dimensions for the array.
-
             Examples
             --------
 
@@ -742,7 +732,15 @@ void bind_cfixed_array(nb::module_& m)
             >>> a.sum()
             APyCFixed((21, 0), bits=13, int_bits=13)
 
+            Returns
             -------
+            :class:`APyCFixedArray` or :class:`APyCFixed`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of
+                dimensions for the array.
             )pbdoc"
         )
 
@@ -758,16 +756,6 @@ void bind_cfixed_array(nb::module_& m)
             axis : :class:`int`, optional
                 The axes to summate across. If not given an axis it will return the
                 cumulative sum of the flattened array.
-
-            Returns
-            -------
-            :class:`APyCFixedArray`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
 
             Examples
             --------
@@ -796,7 +784,15 @@ void bind_cfixed_array(nb::module_& m)
             [[ 1+1j,  3+4j,  6+2j],
              [ 4-1j,  9+1j, 15+1j]]
 
+            Returns
             -------
+            :class:`APyCFixedArray`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 
@@ -865,16 +861,6 @@ void bind_cfixed_array(nb::module_& m)
                 The axis/axes to calculate the product across. If not given an axis it
                 will return the product of the flattened array.
 
-            Returns
-            -------
-            :class:`APyCFixedArray` or :class:`APyCFixed`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
-
             Examples
             --------
 
@@ -889,7 +875,15 @@ void bind_cfixed_array(nb::module_& m)
             >>> print(a.prod())
             (-1395-225j)
 
+            Returns
             -------
+            :class:`APyCFixedArray` or :class:`APyCFixed`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 
@@ -905,16 +899,6 @@ void bind_cfixed_array(nb::module_& m)
             axis : :class:`int`, optional
                 The axes to calculate the product across. If not given an axis it will
                 return the cumulative product of the flattened array.
-
-            Returns
-            -------
-            :class:`APyCFixedArray`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
 
             Examples
             --------
@@ -940,7 +924,15 @@ void bind_cfixed_array(nb::module_& m)
             [[   1+1j,    1+3j,  -3+11j],
              [   4-2j,   24-2j, 146+12j]]
 
+            Returns
             -------
+            :class:`APyCFixedArray`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 

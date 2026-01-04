@@ -1829,7 +1829,7 @@ template <
 
 //! Divide two APyFixed and convert to APyFloat
 [[maybe_unused]]
-static void APY_INLINE _division_core(
+static APY_INLINE void _division_core(
     APyFloatData& z,
     const APyFixed& apy_mx,
     const APyFixed& apy_my,
@@ -1885,7 +1885,7 @@ static void APY_INLINE _division_core(
 }
 
 [[maybe_unused]]
-static void APY_INLINE _floating_point_quotient_inner(
+static APY_INLINE void _floating_point_quotient_inner(
     const APyFloatData& x,
     const APyFloatData& y,
     APyFloatData& z,
@@ -1947,7 +1947,7 @@ static void APY_INLINE _floating_point_quotient_inner(
 //! For the numerator, many things are pre-computed and the value is not zero, inf, or
 //! nan.
 [[maybe_unused]]
-static void APY_INLINE _floating_point_quotient_inner_scalar_array(
+static APY_INLINE void _floating_point_quotient_inner_scalar_array(
     const APyFloatData& x,
     const APyFloatData& y,
     APyFloatData& z,
@@ -1996,7 +1996,7 @@ static void APY_INLINE _floating_point_quotient_inner_scalar_array(
 //! For the denominator, many things are pre-computed and the value is not zero, inf, or
 //! nan.
 [[maybe_unused]]
-static void APY_INLINE _floating_point_quotient_inner_array_scalar(
+static APY_INLINE void _floating_point_quotient_inner_array_scalar(
     const APyFloatData& x,
     const APyFloatData& y,
     APyFloatData& z,
