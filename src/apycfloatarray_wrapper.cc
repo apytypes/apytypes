@@ -966,7 +966,7 @@ void bind_cfloat_array(nb::module_& m)
 
             Parameters
             ----------
-            dtype : :std:doc:`numpy:dtype`
+            dtype : :py:class:`numpy.dtype`
                 The desired data type of the output array. This parameter is currently ignored.
             copy : :class:`bool`
                 Whether to copy the data or not. Must be :code:`True` or :code:`None`.
@@ -1036,16 +1036,6 @@ void bind_cfloat_array(nb::module_& m)
                 The axis/axes to summate across. Will summate the whole array if no int
                 or tuple is specified.
 
-            Returns
-            -------
-            :class:`APyCFloatArray` or :class:`APyCFloat`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
-
             Examples
             --------
             >>> import apytypes as apy
@@ -1059,7 +1049,15 @@ void bind_cfloat_array(nb::module_& m)
             >>> print(a.sum())
             (21+0j)
 
+            Returns
             -------
+            :class:`APyCFloatArray` or :class:`APyCFloat`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc")
 
         .def("cumsum", &APyCFloatArray::cumsum, nb::arg("axis") = nb::none(), R"pbdoc(
@@ -1070,16 +1068,6 @@ void bind_cfloat_array(nb::module_& m)
             axis : :class:`int`, optional
                 The axis to summate across. If not given an axis it will return the
                 cumulative sum of the flattened array.
-
-            Returns
-            -------
-            :class:`APyCFloatArray`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
 
             Examples
             --------
@@ -1098,21 +1086,19 @@ void bind_cfloat_array(nb::module_& m)
             [[ 1+0j,  3+0j,  6+0j],
              [ 4+0j,  9+0j, 15+0j]]
 
+            Returns
             -------
+            :class:`APyCFloatArray`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc")
 
         .def("nansum", &APyCFloatArray::nansum, nb::arg("axis") = nb::none(), R"pbdoc(
             Return the sum of the elements along specified axis/axes treating NaN as 0.
-
-            Parameters
-            ----------
-            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
-                The axis/axes to summate across. Will summate the whole array if no int
-                or tuple is specified.
-
-            Returns
-            -------
-            :class:`APyCFloatArray` or :class:`APyCFloat`
 
             Raises
             ------
@@ -1136,7 +1122,15 @@ void bind_cfloat_array(nb::module_& m)
             >>> print(a.nansum())
             (15+0j)
 
+            Parameters
+            ----------
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
+                The axis/axes to summate across. Will summate the whole array if no int
+                or tuple is specified.
+
+            Returns
             -------
+            :class:`APyCFloatArray` or :class:`APyCFloat`
             )pbdoc")
 
         .def(
@@ -1151,16 +1145,6 @@ void bind_cfloat_array(nb::module_& m)
             axis : :class:`int`, optional
                 The axis to summate across. If not given an axis it will return the
                 cumulative sum of the flattened array.
-
-            Returns
-            -------
-            :class:`APyCFloatArray`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
 
             Examples
             --------
@@ -1194,7 +1178,15 @@ void bind_cfloat_array(nb::module_& m)
             [[ 1+0j,  3+0j,  6+0j],
              [ 4+0j,  4+0j, 10+0j]]
 
+            Returns
             -------
+            :class:`APyCFloatArray`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc"
         )
 
@@ -1207,16 +1199,6 @@ void bind_cfloat_array(nb::module_& m)
                 The axis/axes to calculate the product across. If not given an axis it
                 will return the product of the flattened array.
 
-            Returns
-            -------
-            :class:`APyCFloatArray` or :class:`APyCFloat`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
-
             Examples
             --------
             >>> import apytypes as apy
@@ -1228,7 +1210,15 @@ void bind_cfloat_array(nb::module_& m)
             >>> print(a.prod())
             (720+0j)
 
+            Returns
             -------
+            :class:`APyCFloatArray` or :class:`APyCFloat`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc")
 
         .def("cumprod", &APyCFloatArray::cumprod, nb::arg("axis") = nb::none(), R"pbdoc(
@@ -1239,16 +1229,6 @@ void bind_cfloat_array(nb::module_& m)
             axis : :class:`int`, optional
                 The axes to calculate the product across. If not given an axis it will
                 return the cumulative product of the flattened array.
-
-            Returns
-            -------
-            :class:`APyCFloatArray`
-
-            Raises
-            ------
-            :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for
-                the array.
 
             Examples
             --------
@@ -1271,7 +1251,15 @@ void bind_cfloat_array(nb::module_& m)
             [[  1+0j,   2+0j,   6+0j],
              [  4+0j,  20+0j, 120+0j]]
 
+            Returns
             -------
+            :class:`APyCFloatArray`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
             )pbdoc")
 
         .def("nanprod", &APyCFloatArray::nanprod, nb::arg("axis") = nb::none(), R"pbdoc(

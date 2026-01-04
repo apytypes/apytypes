@@ -276,7 +276,7 @@ def transpose(a: APyArray, axes: tuple[int, ...] | None = None) -> APyArray:
     -------
     transposed : :class:`APyFloatArray` or :class:`APyFixedArray`
         copy of `a` with its axes permuted.
-    --------
+
     """
 
     try:
