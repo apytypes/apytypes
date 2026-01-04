@@ -502,11 +502,12 @@ void bind_fixed_array(nb::module_& m)
         .def("is_identical", &APyFixedArray::is_identical, nb::arg("other"), R"pbdoc(
             Test if two :class:`APyFixedArray` objects are identical.
 
-            Two :class:`APyFixedArray` objects are considered identical if, and only if:
-              * They represent exactly the same tensor shape
-              * They store the exact same fixed-point values in all tensor elements
-              * They have the exact same bit specification (`bits`, `int_bits`, and
-                `frac_bits` are all equal)
+            Two :class:`APyFixedArray` objects are considered identical if, and only if
+
+            - They represent exactly the same tensor shape
+            - They store the exact same fixed-point values in all tensor elements
+            - They have the exact same bit specification (`bits`, `int_bits`, and
+            `frac_bits` are all equal)
 
             Returns
             -------
@@ -1157,7 +1158,7 @@ void bind_fixed_array(nb::module_& m)
             Compute the outer product between `self` and `rhs`.
 
             The outer product of 1-D arrays `a` and `b` of length :code:`M` and
-            :code:`N`, respectively, is:
+            :code:`N`, respectively, is
 
             .. code-block:: python
 
@@ -1440,14 +1441,14 @@ void bind_fixed_array(nb::module_& m)
             R"pbdoc(
             Create an array with evenly spaced values within a given interval.
 
-            The function can be called with varying number of positional arguments:
+            The function can be called with varying number of positional arguments
 
-            * ``arange(stop)``: Values are generated within the half-open interval
+            - ``arange(stop)``: Values are generated within the half-open interval
               ``[0, stop)`` (in other words, the interval including ``start`` but
               excluding ``stop``).
-            * ``arange(start, stop)``: Values are generated within the half-open
+            - ``arange(start, stop)``: Values are generated within the half-open
               interval ``[start, stop)``.
-            * ``arange(start, stop, step)``: Values are generated within the half-open
+            - ``arange(start, stop, step)``: Values are generated within the half-open
               interval ``[start, stop)``, with spacing between values given by ``step``.
 
             Parameters
@@ -1481,12 +1482,12 @@ void bind_fixed_array(nb::module_& m)
             R"pbdoc(
             Create an array with all values within a given interval.
 
-            The function can be called with varying number of positional arguments:
+            The function can be called with varying number of positional arguments
 
-            * ``arange(stop)``: Values are generated within the half-open interval
+            - ``arange(stop)``: Values are generated within the half-open interval
               ``[0, stop)`` (in other words, the interval including ``start`` but
               excluding ``stop``).
-            * ``arange(start, stop)``: Values are generated within the half-open
+            - ``arange(start, stop)``: Values are generated within the half-open
               interval ``[start, stop)``.
 
             Parameters

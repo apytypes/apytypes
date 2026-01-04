@@ -511,11 +511,12 @@ void bind_cfloat_array(nb::module_& m)
             Test if two :py:class:`APyCFloatArray` objects are identical.
 
             Two :class:`APyCFloatArray` objects are considered identical if, and only
-            if:
-                * They represent exactly the same tensor shape
-                * They store the exact same floating-point values in all elements
-                * They have the exact same bit format (`exp_bits`, `man_bits`, and
-                  `bias`)
+            if
+
+            - They represent exactly the same tensor shape
+            - They store the exact same floating-point values in all elements
+            - They have the exact same bit format (`exp_bits`, `man_bits`, and
+                `bias`)
 
             Parameters
             ----------
@@ -1389,7 +1390,7 @@ void bind_cfloat_array(nb::module_& m)
             Compute the outer product between `self` and `rhs`.
 
             The outer product of 1-D arrays `a` and `b` of length :code:`M` and
-            :code:`N`, respectively, is:
+            :code:`N`, respectively, is
 
             .. code-block:: python
 

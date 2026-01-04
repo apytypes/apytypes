@@ -347,6 +347,68 @@ def ravel(a: APyArray) -> APyArray:
 
 
 @overload
+def flatten(a: APyFixedArray) -> APyFixedArray: ...
+@overload
+def flatten(a: APyFloatArray) -> APyFloatArray: ...
+@overload
+def flatten(a: APyCFixedArray) -> APyCFixedArray: ...
+@overload
+def flatten(a: APyCFloatArray) -> APyCFloatArray: ...
+
+
+def flatten(a: APyArray) -> APyArray:
+    """
+    Return a copy of the array collapsed into one dimension.
+
+    Same as :py:func:`ravel` with current memory-copy model.
+
+    .. versionadded:: 0.5
+
+    Examples
+    --------
+    >>> import apytypes as apy
+    >>> signs = [[0, 0], [1, 1]]
+    >>> exps = [[127, 128], [128, 129]]
+    >>> mans = [[0, 0], [4194304, 0]]
+    >>> a = apy.APyFloatArray(
+    ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
+    ... )
+    >>> a
+    APyFloatArray(
+        [[      0,       0],
+         [      1,       1]],
+    <BLANKLINE>
+        [[    127,     128],
+         [    128,     129]],
+    <BLANKLINE>
+        [[      0,       0],
+         [4194304,       0]],
+        exp_bits=8,
+        man_bits=23
+    )
+
+    >>> apy.flatten(a)
+    APyFloatArray(
+        [      0,       0,       1,       1],
+        [    127,     128,     128,     129],
+        [      0,       0, 4194304,       0],
+        exp_bits=8,
+        man_bits=23
+    )
+
+    Returns
+    -------
+    collapsed : :class:`APyFloatArray` or :class:`APyFixedArray`
+        copy of `a` but collapsed
+    """
+    try:
+        flatten = a.flatten
+    except AttributeError:
+        raise TypeError(f"Cannot flatten {type(a)}")
+    return flatten()
+
+
+@overload
 def moveaxis(
     a: APyFixedArray, source: int | Sequence[int], destination: int | Sequence[int]
 ) -> APyFixedArray: ...
@@ -390,7 +452,7 @@ def moveaxis(
     >>> apy.moveaxis(x, -1, 0).shape
     (5, 3, 4)
 
-    These all achieve the same result:
+    These all achieve the same result
 
     >>> apy.transpose(x).shape
     (5, 4, 3)

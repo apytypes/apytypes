@@ -186,6 +186,8 @@ def get_fixed_quantization_seed() -> int:
     """
 
 @overload
+def set_array_library(array_lib: ThirdPartyArrayLibrary) -> None: ...
+@overload
 def set_array_library(arg: str, /) -> None:
     """
     Set the preferred third-party array library returned when nothing else is
@@ -206,8 +208,6 @@ def set_array_library(arg: str, /) -> None:
         Preferred third-party array library to use.
     """
 
-@overload
-def set_array_library(array_lib: ThirdPartyArrayLibrary) -> None: ...
 def get_array_library() -> ThirdPartyArrayLibrary:
     """
     Return the preferred third-party array library in use with APyTypes.
@@ -1108,11 +1108,12 @@ class APyCFixedArray:
         Test if two :class:`APyCFixedArray` objects are identical.
 
         Two :class:`APyCFixedArray` objects are considered identical if, and only
-        if:
-          * They represent exactly the same tensor shape
-          * They store the exact same fixed-point values in all tensor elements
-          * They have the exact same bit specification (`bits`, `int_bits`, and
-            `frac_bits`) are all equal)
+        if
+
+        - They represent exactly the same tensor shape
+        - They store the exact same fixed-point values in all tensor elements
+        - They have the exact same bit specification (`bits`, `int_bits`, and
+          `frac_bits`) are all equal)
 
         Returns
         -------
@@ -2771,11 +2772,12 @@ class APyCFloatArray:
         Test if two :py:class:`APyCFloatArray` objects are identical.
 
         Two :class:`APyCFloatArray` objects are considered identical if, and only
-        if:
-            * They represent exactly the same tensor shape
-            * They store the exact same floating-point values in all elements
-            * They have the exact same bit format (`exp_bits`, `man_bits`, and
-              `bias`)
+        if
+
+        - They represent exactly the same tensor shape
+        - They store the exact same floating-point values in all elements
+        - They have the exact same bit format (`exp_bits`, `man_bits`, and
+            `bias`)
 
         Parameters
         ----------
@@ -3532,7 +3534,7 @@ class APyCFloatArray:
         Compute the outer product between `self` and `rhs`.
 
         The outer product of 1-D arrays `a` and `b` of length :code:`M` and
-        :code:`N`, respectively, is:
+        :code:`N`, respectively, is
 
         .. code-block:: python
 
@@ -3590,7 +3592,7 @@ class APyFixed:
     fix-point and the total word length. Only two of three bit specifiers need to be set to
     uniquely determine the complete fixed-point format.
 
-    In general, the fixed-point representation is described by:
+    In general, the fixed-point representation is described by
 
     .. math::
         \underbrace{
@@ -3604,7 +3606,7 @@ class APyFixed:
         }_{\mathrm{bits}}
 
     The following is an example of a fixed-point number with :code:`bits=8`,
-    :code:`int_bits=5`, and :code:`frac_bits=3`, that has a stored value of -6.625:
+    :code:`int_bits=5`, and :code:`frac_bits=3`, that has a stored value of -6.625
 
     .. math::
         \begin{align*}
@@ -4541,11 +4543,12 @@ class APyFixedArray:
         """
         Test if two :class:`APyFixedArray` objects are identical.
 
-        Two :class:`APyFixedArray` objects are considered identical if, and only if:
-          * They represent exactly the same tensor shape
-          * They store the exact same fixed-point values in all tensor elements
-          * They have the exact same bit specification (`bits`, `int_bits`, and
-            `frac_bits` are all equal)
+        Two :class:`APyFixedArray` objects are considered identical if, and only if
+
+        - They represent exactly the same tensor shape
+        - They store the exact same fixed-point values in all tensor elements
+        - They have the exact same bit specification (`bits`, `int_bits`, and
+        `frac_bits` are all equal)
 
         Returns
         -------
@@ -5120,7 +5123,7 @@ class APyFixedArray:
         Compute the outer product between `self` and `rhs`.
 
         The outer product of 1-D arrays `a` and `b` of length :code:`M` and
-        :code:`N`, respectively, is:
+        :code:`N`, respectively, is
 
         .. code-block:: python
 
@@ -5440,7 +5443,7 @@ class APyFloat:
     the input operands' by quantizing to nearest number with ties to even
     (:class:`QuantizationMode.TIES_EVEN`). If the operands do not share the same format, the
     resulting bit widths of the exponent and mantissa field will be the maximum of its
-    inputs:
+    inputs.
 
     Examples
     --------
@@ -5464,7 +5467,7 @@ class APyFloat:
     If the operands of an arithmetic operation have IEEE-like biases, then the result will
     also have an IEEE-like bias -- based on the resulting number of exponent bits. To
     support operations with biases deviating from the standard, the bias of the resulting
-    format is calculated as the "average" of the inputs' biases:
+    format is calculated as the "average" of the inputs' biases as
 
     .. math::
         \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
@@ -6955,11 +6958,12 @@ class APyFloatArray:
         """
         Test if two :class:`APyFloatArray` objects are identical.
 
-        Two :class:`APyFloatArray` objects are considered identical if, and only if:
-            * They represent exactly the same tensor shape
-            * They store the exact same floating-point values in all tensor elements
-            * They have the exact same bit format (`exp_bits`, `man_bits`, and
-              `bias`)
+        Two :class:`APyFloatArray` objects are considered identical if, and only if
+
+        - They represent exactly the same tensor shape
+        - They store the exact same floating-point values in all tensor elements
+        - They have the exact same bit format (`exp_bits`, `man_bits`, and
+            `bias`)
 
         Parameters
         ----------

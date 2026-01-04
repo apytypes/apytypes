@@ -36,6 +36,7 @@ from apytypes._array_functions import (
     expand_dims,
     export_csv,
     eye,
+    flatten,
     full,
     full_like,
     fullrange,
@@ -81,6 +82,7 @@ __all__ = [
     "expand_dims",
     "export_csv",
     "eye",
+    "flatten",
     "fn",
     "fp",
     "full",
@@ -139,7 +141,7 @@ Arithmetic can be performed similarly to the operations of the built-in type
 the input operands' by quantizing to nearest number with ties to even
 (:class:`QuantizationMode.TIES_EVEN`). If the operands do not share the same format, the
 resulting bit widths of the exponent and mantissa field will be the maximum of its
-inputs:
+inputs.
 
 Examples
 --------
@@ -163,7 +165,7 @@ APyFloat(sign=0, exp=16, man=8, exp_bits=5, man_bits=4)
 If the operands of an arithmetic operation have IEEE-like biases, then the result will
 also have an IEEE-like bias -- based on the resulting number of exponent bits. To
 support operations with biases deviating from the standard, the bias of the resulting
-format is calculated as the "average" of the inputs' biases:
+format is calculated as the "average" of the inputs' biases as
 
 .. math::
     \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
@@ -276,7 +278,7 @@ has an associated word length, determined by its :attr:`bits`, :attr:`int_bits`,
 fix-point and the total word length. Only two of three bit specifiers need to be set to
 uniquely determine the complete fixed-point format.
 
-In general, the fixed-point representation is described by:
+In general, the fixed-point representation is described by
 
 .. math::
     \underbrace{
@@ -290,7 +292,7 @@ In general, the fixed-point representation is described by:
     }_{\mathrm{bits}}
 
 The following is an example of a fixed-point number with :code:`bits=8`,
-:code:`int_bits=5`, and :code:`frac_bits=3`, that has a stored value of -6.625:
+:code:`int_bits=5`, and :code:`frac_bits=3`, that has a stored value of -6.625
 
 .. math::
     \begin{align*}
