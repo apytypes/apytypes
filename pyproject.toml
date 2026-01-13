@@ -27,9 +27,9 @@ keywords = ["fixed-point", "floating-point", "finite word length"]
 [project.urls]
 Repository = "https://github.com/apytypes/apytypes/"
 Issues = "https://github.com/apytypes/apytypes/issues"
-Homepage = "https://apytypes.github.io/"
-Documentation = "https://apytypes.github.io/apytypes/"
-Changelog = "https://github.com/apytypes/apytypes/blob/main/CHANGELOG.md"
+Homepage = "https://apytypes.org/"
+Documentation = "https://apytypes.org/"
+Changelog = "https://apytypes.org/changelog.html"
 
 [project.optional-dependencies]
 docs = [
