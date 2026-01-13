@@ -14,7 +14,7 @@ flexibility.
 
 ## Documentation
 
-<https://apytypes.github.io/apytypes/>
+<https://apytypes.org/>
 
 ## Installation
 

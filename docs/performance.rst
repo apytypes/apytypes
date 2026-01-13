@@ -11,7 +11,7 @@ Still, there are some ways to improve the performance when running APyTypes. Thi
 practices and expand over time.
 
 To track the computational speed of some selected operations over time, as the code evolves and hopefully improves,
-see `here <https://apytypes.github.io/apytypes/dev/bench/>`_.
+see `here <https://apytypes.org/dev/bench/>`_.
 These graphs are updated after every commit. However, as they are executed as part of the CI, one can expect
 a bit of variation. It should still be possible to note significant changes though.
 
