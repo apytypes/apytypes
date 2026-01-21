@@ -1,0 +1,39 @@
+name: Unit tests (RISC-V)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: [self-hosted]
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Clone APyTypes
+      run: |
+        rm -rf apytypes
+        git clone https://github.com/apytypes/apytypes.git --depth 1
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -yy python3 python3-venv python3-pip python3-numpy ninja-build meson patchelf cmake
+    - name: Install APyTypes
+      run: |
+        python3 -m venv venv/apytypes
+        source venv/apytypes/bin/activate
+        cd apytypes
+        git fetch --tags
+        python3 -m pip install ".[test]" -v
+    - name: Test with pytest
+      run: |
+        pytest3 --color=yes lib/test
