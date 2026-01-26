@@ -12,12 +12,12 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-tags: true
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: "3.12"
       # - uses: nickg/setup-nvc@40dcbd31cf07b60479a31f94a5df70c0bfbb9ce5  # v1v1
@@ -74,7 +74,7 @@ jobs:
           git checkout -- src/apybuffer.h src/apyfloat.h src/apyfixed.h src/apytypes_common.h src/apytypes_util.h src/ieee754.h src/python_util.h src/apyfloatarray.h src/apyfixedarray.h src/apyfloat_util.h src/broadcast.h src/array_utils.h src/apyfixed_util.h src/apycfixed.h src/apycfixedarray.h src/apycfloat.h src/apycfloatarray.h src/apytypes_mp.h src/apycfixed_util.h src/apytypes_intrinsics.h src/apycfloat_util.h
       # Download previous benchmark result from cache (if exists)
       - name: Download previous benchmark data
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb  # v5.0.1
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7  # v5.0.2
         with:
           path: ./cache
           key: ${{ runner.os }}-benchmark
