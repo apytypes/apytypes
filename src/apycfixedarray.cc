@@ -16,6 +16,7 @@
 #include "apytypes_util.h"
 #include "array_utils.h"
 #include "python_util.h"
+#include "src/apytypes_scratch_vector.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -348,9 +349,25 @@ APyCFixedArray APyCFixedArray::operator+(const APyCFixedArray& rhs) const
         simd::shift_add_functor<>>(rhs);
 }
 
+APyCFixedArray APyCFixedArray::operator+(const APyFixedArray& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    return *this + APyCFixedArray(rhs);
+}
+
 APyCFixedArray APyCFixedArray::operator+(const APyCFixed& rhs) const
 {
     return _apycfixed_base_add_sub<std::plus<>, apy_add_n_functor<>>(rhs);
+}
+
+APyCFixedArray APyCFixedArray::operator+(const APyFixed& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    return *this + APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits());
 }
 
 APyCFixedArray APyCFixedArray::operator-(const APyCFixedArray& rhs) const
@@ -365,9 +382,25 @@ APyCFixedArray APyCFixedArray::operator-(const APyCFixedArray& rhs) const
         simd::shift_sub_functor<>>(rhs);
 }
 
+APyCFixedArray APyCFixedArray::operator-(const APyFixedArray& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    return *this - APyCFixedArray(rhs);
+}
+
 APyCFixedArray APyCFixedArray::operator-(const APyCFixed& rhs) const
 {
     return _apycfixed_base_add_sub<std::minus<>, apy_sub_n_functor<>>(rhs);
+}
+
+APyCFixedArray APyCFixedArray::operator-(const APyFixed& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    return *this - APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits());
 }
 
 APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
@@ -437,6 +470,14 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
     return result;
 }
 
+APyCFixedArray APyCFixedArray::rsub_real(const APyFixed& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    return rsub(APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits()));
+}
+
 APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
@@ -500,6 +541,17 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
     }
 
     return result;
+}
+
+APyCFixedArray APyCFixedArray::operator*(const APyFixedArray& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    auto res = *this * APyCFixedArray(rhs);
+    res._bits -= 1;
+    res._int_bits -= 1;
+    return res;
 }
 
 APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
@@ -594,6 +646,98 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
     return result;
 }
 
+APyCFixedArray APyCFixedArray::operator*(const APyFixed& rhs) const
+{
+    const int res_int_bits = int_bits() + rhs.int_bits();
+    const int res_bits = bits() + rhs.bits();
+
+    // Resulting `APyCFixedArray` fixed-point tensor
+    APyCFixedArray res(_shape, res_bits, res_int_bits);
+
+    // Special case #1: The resulting number of bits fit in a single limb
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        simd::vector_mul_const(
+            std::begin(_data),     // src1
+            rhs._data[0],          // src2
+            std::begin(res._data), // dst
+            res._data.size()       // elements
+        );
+        return res; // early exit
+    }
+
+    // Special case #2: Both arguments are single limb, result two limbs
+    if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+        for (std::size_t i = 0; i < 2 * _nitems; i++) {
+            auto [high, low] = long_signed_mult(_data[i], rhs._data[0]);
+            res._data[i * 2 + 1] = high;
+            res._data[i * 2 + 0] = low;
+        }
+        return res;
+    }
+
+    // General case: This always works but is slower than the special cases.
+    auto op2_begin = rhs._data.begin();
+    auto op2_end = rhs._data.begin() + rhs.vector_size();
+    std::vector<apy_limb_t> op2_abs(rhs.vector_size());
+    bool sign2 = limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
+
+    // Perform multiplication for each element in the tensor.
+    // `apy_unsigned_multiplication` requires: "The destination has to have space for
+    // `s1n` + `s2n` limbs, even if the product’s most significant limbs are zero."
+    std::vector<apy_limb_t> res_tmp_vec(_itemsize / 2 + rhs.vector_size(), 0);
+    std::vector<apy_limb_t> op1_abs(_itemsize / 2);
+    auto op1_begin = _data.begin();
+    for (std::size_t i = 0; i < 2 * _nitems; i++) {
+        // Current working operands
+        auto op1_end = op1_begin + _itemsize / 2;
+
+        // Compute the absolute value of operand, as required by multiplication
+        // algorithm
+        bool sign1 = limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
+
+        // Evaluate resulting sign
+        bool result_sign = sign1 ^ sign2;
+
+        // Perform the multiplication
+        if (op1_abs.size() < op2_abs.size()) {
+            apy_unsigned_multiplication(
+                &res_tmp_vec[0], // dst
+                &op2_abs[0],     // src1
+                op2_abs.size(),  // src1 limb vector length
+                &op1_abs[0],     // src2
+                op1_abs.size()   // src2 limb vector length
+            );
+        } else {
+            apy_unsigned_multiplication(
+                &res_tmp_vec[0], // dst
+                &op1_abs[0],     // src1
+                op1_abs.size(),  // src1 limb vector length
+                &op2_abs[0],     // src2
+                op2_abs.size()   // src2 limb vector length
+            );
+        }
+
+        // Handle sign
+        if (result_sign) {
+            limb_vector_negate(
+                res_tmp_vec.begin(),
+                res_tmp_vec.begin() + res._itemsize / 2,
+                res._data.begin() + (i + 0) * res._itemsize / 2
+            );
+        } else {
+            // Copy into resulting vector
+            std::copy_n(
+                res_tmp_vec.begin(),
+                res._itemsize / 2,
+                res._data.begin() + (i + 0) * res._itemsize / 2
+            );
+        }
+        op1_begin = op1_end;
+    }
+    return res;
+}
+
 APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
@@ -686,6 +830,17 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     return result;
 }
 
+APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    auto res = *this / APyCFixedArray(rhs);
+    res._bits -= 1;
+    res._int_bits -= 1;
+    return res;
+}
+
 APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
 {
     // Divider bits (denominator known to be positive)
@@ -771,6 +926,17 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
     }
 
     return result;
+}
+
+APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    auto res = *this / APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits());
+    res._bits -= 1;
+    res._int_bits -= 1;
+    return res;
 }
 
 APyCFixedArray APyCFixedArray::operator<<(const int shift_val) const
@@ -891,6 +1057,17 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     return result;
 }
 
+APyCFixedArray APyCFixedArray::rdiv_real(const APyFixed& rhs) const
+{
+    //
+    // TODO: Optimize me please....
+    //
+    auto res = rdiv(APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits()));
+    res._bits -= 1;
+    res._int_bits -= 1;
+    return res;
+}
+
 //! Elementwise unary negation
 APyCFixedArray APyCFixedArray::operator-() const
 {
@@ -978,6 +1155,11 @@ template ComparissonArray APyCFixedArray::operator==(const APyCFixed& rhs) const
 template ComparissonArray APyCFixedArray::operator!=(const APyCFixedArray& rhs) const;
 template ComparissonArray APyCFixedArray::operator!=(const APyCFixed& rhs) const;
 
+template ComparissonArray APyCFixedArray::operator==(const APyFixedArray& rhs) const;
+template ComparissonArray APyCFixedArray::operator==(const APyFixed& rhs) const;
+template ComparissonArray APyCFixedArray::operator!=(const APyFixedArray& rhs) const;
+template ComparissonArray APyCFixedArray::operator!=(const APyFixed& rhs) const;
+
 /* ********************************************************************************** *
  * *                            Public member functions                             * *
  * ********************************************************************************** */
@@ -1038,32 +1220,87 @@ APyCFixedArray APyCFixedArray::cast(
         = bits_from_optional_cast(bits, int_bits, frac_bits, _bits, _int_bits);
 
     const APyFixedCastOption cast_option = get_fixed_cast_mode();
-    const auto quantization_mode = quantization.value_or(cast_option.quantization);
-    const auto overflow_mode = overflow.value_or(cast_option.overflow);
+    const auto q_mode = quantization.value_or(cast_option.quantization);
+    const auto v_mode = overflow.value_or(cast_option.overflow);
 
     // The new result array (`bit_specifier_sanitize()` called in constructor)
-    std::size_t result_limbs = bits_to_limbs(new_bits);
-    std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
-    APyCFixedArray::vector_type result_data(_nitems * 2 * result_limbs + pad_limbs);
+    std::size_t res_limbs = bits_to_limbs(new_bits);
+    std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - res_limbs;
+    APyCFixedArray res(_shape, new_bits, new_int_bits);
 
-    // Do the casting: `fixed_point_cast_unsafe` is safe to use because of `pad_limbs`
-    for (std::size_t i = 0; i < 2 * _nitems; i++) {
-        fixed_point_cast_unsafe(
-            std::begin(_data) + (i + 0) * _itemsize / 2,
-            std::begin(_data) + (i + 1) * _itemsize / 2,
-            std::begin(result_data) + (i + 0) * result_limbs,
-            std::begin(result_data) + (i + 1) * result_limbs + pad_limbs,
-            _bits,
-            _int_bits,
-            new_bits,
-            new_int_bits,
-            quantization_mode,
-            overflow_mode
-        );
+    // The used fixed-point caster. The fixed-point caster is thread safe.
+    using IT1 = vector_type::const_iterator;
+    using IT2 = ScratchVector<apy_limb_t, 32>::iterator;
+    auto caster = FixedPointCasterUnsafe<IT1, IT2>(spec(), res.spec(), q_mode, v_mode);
+
+    const bool use_threadpool = is_mac_with_threadpool_justified(_data.size());
+    std::size_t n_threads = use_threadpool ? thread_pool.get_thread_count() : 1;
+
+    // The casting task
+    auto task = [&](std::size_t lo, std::size_t hi) {
+        ScratchVector<apy_limb_t, 8> tmp(res_limbs + pad_limbs);
+        for (std::size_t i = lo; i < hi; i++) {
+            const auto src_begin = std::begin(_data) + (i + 0) * _itemsize / 2;
+            const auto src_end = std::begin(_data) + (i + 1) * _itemsize / 2;
+            caster(src_begin, src_end, std::begin(tmp), std::end(tmp));
+
+            const auto dst_begin = std::begin(res._data) + i * res_limbs;
+            std::copy_n(std::begin(tmp), res_limbs, dst_begin);
+        }
+    };
+
+    if (n_threads > 1) {
+        thread_pool.detach_blocks(0, 2 * _nitems, task);
+        thread_pool.wait();
+    } else {
+        task(0, 2 * _nitems);
     }
 
-    result_data.resize(_nitems * 2 * result_limbs);
-    return APyCFixedArray(_shape, new_bits, new_int_bits, std::move(result_data));
+    // if (pad_limbs == 0) {
+    //     /*
+    //      * No padlimbs => no need for temporary casting storage
+    //      */
+    //     using CONST_IT_TYPE = vector_type::const_iterator;
+    //     using IT_TYPE = vector_type::iterator;
+    //     auto fx_caster = FixedPointCasterUnsafe<CONST_IT_TYPE, IT_TYPE>(
+    //         spec(), res.spec(), q_mode, v_mode
+    //     );
+    //     auto cast_task = [&](std::size_t i) {
+    //         auto src_begin = std::begin(_data) + (i + 0) * _itemsize / 2;
+    //         auto src_end = std::begin(_data) + (i + 1) * _itemsize / 2;
+    //         auto dst_begin = std::begin(res._data) + (i + 0) * res_limbs;
+    //         auto dst_end = std::begin(res._data) + (i + 1) * res_limbs;
+    //         fx_caster(src_begin, src_end, dst_begin, dst_end);
+    //     };
+    //     thread_pool.detach_loop(0, 2 * _nitems, cast_task);
+    //     thread_pool.wait();
+    // } else {
+    //     /*
+    //      * Pad limbs required => temporary storage required
+    //      */
+    //     using CONST_IT_TYPE = vector_type::const_iterator;
+    //     using IT_TYPE = ScratchVector<apy_limb_t, 8>::iterator;
+    //     ScratchVector<apy_limb_t, 8> tmp(res_limbs + pad_limbs);
+    //     auto fx_caster = FixedPointCasterUnsafe<CONST_IT_TYPE, IT_TYPE>(
+    //         spec(), res.spec(), q_mode, v_mode
+    //     );
+    //     auto cast_task = [&](std::size_t lo, std::size_t hi) {
+    //         ScratchVector<apy_limb_t, 8> tmp(res_limbs + pad_limbs);
+    //         for (std::size_t i = lo; i < hi; i++) {
+    //             auto src_begin = std::begin(_data) + (i + 0) * _itemsize / 2;
+    //             auto src_end = std::begin(_data) + (i + 1) * _itemsize / 2;
+    //             fx_caster(src_begin, src_end, std::begin(tmp), std::end(tmp));
+
+    //             auto dst_begin = std::begin(res._data) + i * res_limbs;
+    //             std::copy(std::begin(tmp), std::begin(tmp) + res_limbs, dst_begin);
+    //         }
+
+    //     };
+    //     thread_pool.detach_blocks(0, 2 * _nitems, cast_task);
+    //     thread_pool.wait();
+    // }
+
+    return res;
 }
 
 std::tuple<int, int, std::vector<std::size_t>, std::vector<std::uint64_t>>
@@ -1938,59 +2175,47 @@ APyCFixedArray APyCFixedArray::checked_2d_matmul(
         res_int_bits = mode->int_bits;
     }
 
-    const bool use_threadpool = is_mac_with_threadpool_justified(M * N * res_cols);
-    const std::size_t n_threads = use_threadpool ? thread_pool.get_thread_count() : 1;
-
     // Resulting tensor
     APyCFixedArray res(res_shape, res_bits, res_int_bits);
 
-    // Specialized inner product functor
-    ComplexFixedPointInnerProduct inner_product(spec(), rhs.spec(), res.spec(), mode);
-    ComplexFixedPointInnerProduct* inner_product_ptr = &inner_product;
-
-    // RHS column cache
+    // Limbs to cache a whole column of RHS
     const std::size_t limbs_per_col = 2 * bits_to_limbs(rhs._bits) * rhs._shape[0];
-    std::vector<apy_limb_t> cache_col(n_threads * limbs_per_col);
 
     // The matmul task
-    auto matmul_task = [&](std::size_t x) {
-        const std::size_t thread_i = ThisThread::get_index().value_or(0);
-        const auto current_col = std::begin(cache_col) + thread_i * limbs_per_col;
-        auto&& inner_product = inner_product_ptr[thread_i];
+    auto matmul_task = [&](std::size_t lo, std::size_t hi) {
+        ComplexFixedPointInnerProduct inner_prod(spec(), rhs.spec(), res.spec(), mode);
+        std::vector<apy_limb_t> cache_col(limbs_per_col);
+        for (std::size_t x = lo; x < hi; x++) {
+            // Copy column from `rhs` and use as the current working column. As reading
+            // columns from `rhs` is cache-inefficient, we like to do this only once for
+            // each element in the resulting matrix.
+            for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+                std::copy_n(
+                    rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
+                    rhs._itemsize,
+                    std::begin(cache_col) + row * rhs._itemsize
+                );
+            }
 
-        // Copy column from `rhs` and use as the current working column. As reading
-        // columns from `rhs` is cache-inefficient, we like to do this only once for
-        // each element in the resulting matrix.
-        for (std::size_t row = 0; row < rhs._shape[0]; row++) {
-            std::copy_n(
-                rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
-                rhs._itemsize,
-                current_col + row * rhs._itemsize
+            // dst = A x b
+            inner_prod(
+                std::begin(_data),                         // src1, A: [M x N]
+                std::begin(cache_col),                     // src2, b: [N x 1]
+                std::begin(res._data) + res._itemsize * x, // dst
+                N,                                         // N
+                M,                                         // M
+                res_cols                                   // DST_STEP
             );
         }
-
-        // dst = A x b
-        inner_product(
-            std::begin(_data),                         // src1, A: [M x N]
-            current_col,                               // src2, b: [N x 1]
-            std::begin(res._data) + res._itemsize * x, // dst
-            N,                                         // N
-            M,                                         // M
-            res_cols                                   // DST_STEP
-        );
     };
 
+    const bool use_threadpool = is_mac_with_threadpool_justified(M * N * res_cols);
+    const std::size_t n_threads = use_threadpool ? thread_pool.get_thread_count() : 1;
     if (n_threads > 1) {
-        std::vector<ComplexFixedPointInnerProduct> cache_inner_prod(
-            n_threads, inner_product
-        );
-        inner_product_ptr = cache_inner_prod.data();
-        thread_pool.detach_loop(0, res_cols, matmul_task);
+        thread_pool.detach_blocks(0, res_cols, matmul_task);
         thread_pool.wait();
     } else {
-        for (std::size_t i = 0; i < res_cols; i++) {
-            matmul_task(i);
-        }
+        matmul_task(0, res_cols);
     }
 
     return res;
