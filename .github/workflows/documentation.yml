@@ -74,7 +74,7 @@ jobs:
           git checkout -- src/apybuffer.h src/apyfloat.h src/apyfixed.h src/apytypes_common.h src/apytypes_util.h src/ieee754.h src/python_util.h src/apyfloatarray.h src/apyfixedarray.h src/apyfloat_util.h src/broadcast.h src/array_utils.h src/apyfixed_util.h src/apycfixed.h src/apycfixedarray.h src/apycfloat.h src/apycfloatarray.h src/apytypes_mp.h src/apycfixed_util.h src/apytypes_intrinsics.h src/apycfloat_util.h
       # Download previous benchmark result from cache (if exists)
       - name: Download previous benchmark data
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7  # v5.0.2
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5.0.3
         with:
           path: ./cache
           key: ${{ runner.os }}-benchmark
