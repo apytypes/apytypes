@@ -484,9 +484,17 @@ std::string APyFloat::latex() const
     if (is_nan()) {
         return "$\\textrm{NaN}$";
     } else if (is_inf()) {
-        return "$\\infty$";
+        if (get_sign()) {
+            return "$-\\infty$";
+        } else {
+            return "$\\infty$";
+        }
     } else if (is_zero()) {
-        return "$0$";
+        if (get_sign()) {
+            return "$-0$";
+        } else {
+            return "$0$";
+        }
     }
 
     return fmt::format(
@@ -499,15 +507,16 @@ std::string APyFloat::latex() const
 
 std::string APyFloat::_latex_power_of_two_normalized() const
 {
+    std::string str = (sign ? "-" : "");
+
     if (is_nan()) {
         return "\\textrm{NaN}";
     } else if (is_inf()) {
-        return "\\infty";
+        return str + "\\infty";
     } else if (is_zero()) {
-        return "0";
+        return str + "0";
     }
 
-    std::string str = (sign ? "-" : "");
     if (is_normal()) {
         str += "\\left(1 + ";
     }
@@ -527,15 +536,16 @@ std::string APyFloat::_latex_power_of_two_normalized() const
 
 std::string APyFloat::_latex_power_of_two_integer() const
 {
+    std::string str = (sign ? "-" : "");
+
     if (is_nan()) {
         return "\\textrm{NaN}";
     } else if (is_inf()) {
-        return "\\infty";
+        return str + "\\infty";
     } else if (is_zero()) {
-        return "0";
+        return str + "0";
     }
 
-    std::string str = (sign ? "-" : "");
     str += std::to_string(true_man()) + "\\times 2^{"
         + std::to_string(true_exp() - man_bits) + "}";
 

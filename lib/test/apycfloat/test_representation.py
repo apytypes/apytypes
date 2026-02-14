@@ -54,15 +54,31 @@ def test_str():
 def test_latex():
     assert (
         APyCFloat((0, 0), exp=(0, 0), man=(0, 0), exp_bits=5, man_bits=5)._repr_latex_()
-        == "$0 + 0j$"
+        == "$0 + 0 j$"
+    )
+    assert (
+        APyCFloat((0, 1), exp=(0, 0), man=(0, 0), exp_bits=5, man_bits=5)._repr_latex_()
+        == "$0 -0 j$"
     )
     assert (
         APyCFloat((0, 1), exp=(5, 0), man=(1, 4), exp_bits=5, man_bits=5)._repr_latex_()
-        == "$\\left(1 + \\frac{1}{2^{5}}\\right)2^{5-15} - \\frac{4}{2^{5}}2^{1-15}j = 33\\times 2^{-15} - 4\\times 2^{-19}j = 0.001007080078125 - 0.00000762939453125j$"
+        == "$\\left(1 + \\frac{1}{2^{5}}\\right)2^{5-15} -\\frac{4}{2^{5}}2^{1-15} j = 33\\times 2^{-15} -4\\times 2^{-19} j = 0.001007080078125 -0.00000762939453125 j$"
     )
     assert (
         APyCFloat(
             (1, 0), exp=(5, 3), man=(14, 4), exp_bits=4, man_bits=5
         )._repr_latex_()
-        == "$-\\left(1 + \\frac{14}{2^{5}}\\right)2^{5-7} + \\left(1 + \\frac{4}{2^{5}}\\right)2^{3-7}j = -46\\times 2^{-7} + 36\\times 2^{-9}j = -0.359375 + 0.0703125j$"
+        == "$-\\left(1 + \\frac{14}{2^{5}}\\right)2^{5-7} + \\left(1 + \\frac{4}{2^{5}}\\right)2^{3-7} j = -46\\times 2^{-7} + 36\\times 2^{-9} j = -0.359375 + 0.0703125 j$"
+    )
+    assert (
+        APyCFloat(
+            (1, 1), exp=(31, 31), man=(1, 0), exp_bits=5, man_bits=5
+        )._repr_latex_()
+        == "$\\textrm{NaN} -\\infty j$"
+    )
+    assert (
+        APyCFloat(
+            (0, 1), exp=(15, 31), man=(0, 1), exp_bits=5, man_bits=5
+        )._repr_latex_()
+        == "$\\left(1 + \\frac{0}{2^{5}}\\right)2^{15-15} + \\textrm{NaN} j = 32\\times 2^{-5} + \\textrm{NaN} j = 1 + \\textrm{NaN} j$"
     )

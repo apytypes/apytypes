@@ -16,13 +16,36 @@ permissions:
   contents: read
 
 on:
+  # Save CI by only running this on release branches or tags.
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - v[0-9]+.[0-9]+.x
+    tags:
+      - v*
+  # Also allow running this action on PRs if requested by applying the
+  # "Run cibuildwheel" label.
   pull_request:
-    branches: [ "main" ]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
 
 jobs:
   build:
+    name: Run tests in Valgrind memcheck (debug build)
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+      github.event_name == 'pull_request' && (
+        (
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'CI: Run memcheck'
+        ) ||
+        contains(github.event.pull_request.labels.*.name,
+                 'CI: Run memcheck')
+      )
     strategy:
       fail-fast: false
       matrix:
@@ -44,7 +67,7 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install ninja-build valgrind
         python -m pip install --upgrade pip
-        python -m pip install pytest numpy "meson<=1.9.1" meson-python setuptools_scm
+        python -m pip install pytest numpy "meson>=1.10.1" meson-python setuptools_scm
     - name: Install APyTypes (debug mode)
       run: |
         git fetch --tags

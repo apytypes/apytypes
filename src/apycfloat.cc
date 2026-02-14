@@ -594,10 +594,19 @@ std::string APyCFloat::latex() const
 
     const std::string real_normalized_str = real_val._latex_power_of_two_normalized();
     const std::string imag_normalized_str = imag_val._latex_power_of_two_normalized();
-    bool real_special = (real_val.is_inf() || real_val.is_nan() || real_val.is_zero());
-    bool imag_special = (imag_val.is_inf() || imag_val.is_nan() || imag_val.is_zero());
+    const bool real_special
+        = (real_val.is_inf() || real_val.is_nan() || real_val.is_zero());
+    const bool imag_special
+        = (imag_val.is_inf() || imag_val.is_nan() || imag_val.is_zero());
+
     if (real_special && imag_special) {
-        return fmt::format("${} + {}j$", real_normalized_str, imag_normalized_str);
+        // The space between '{} j' is important as it otherwise breaks the LaTeX code
+        // for \\infty
+        if (imag_normalized_str.substr(0, 1) == "-") {
+            // The minus sign is included in the string for the imaginary part
+            return fmt::format("${} {} j$", real_normalized_str, imag_normalized_str);
+        }
+        return fmt::format("${} + {} j$", real_normalized_str, imag_normalized_str);
     }
     const std::string real_integer_str = real_val._latex_power_of_two_integer();
     const std::string imag_integer_str = imag_val._latex_power_of_two_integer();
@@ -607,18 +616,19 @@ std::string APyCFloat::latex() const
         = (imag_special ? imag_normalized_str : imag_val.to_fixed().to_string_dec());
 
     if (imag_normalized_str.substr(0, 1) == "-") {
+        // The minus sign is included in the string for the imaginary part
         return fmt::format(
-            "${} - {}j = {} - {}j = {} - {}j$",
+            "${} {} j = {} {} j = {} {} j$",
             real_normalized_str,
-            imag_normalized_str.substr(1),
+            imag_normalized_str,
             real_integer_str,
-            imag_integer_str.substr(1),
+            imag_integer_str,
             real_dec_str,
-            imag_dec_str.substr(1)
+            imag_dec_str
         );
     }
     return fmt::format(
-        "${} + {}j = {} + {}j = {} + {}j$",
+        "${} + {} j = {} + {} j = {} + {} j$",
         real_normalized_str,
         imag_normalized_str,
         real_integer_str,

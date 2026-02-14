@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Segmentation violation in `APyCFixedArray` for division-by-zero.
 - Bug where array bit-constructors initialized from NumPy arrays resulted in
   wrong array values or downright caused a segmentation violation.
+- Bug in LaTeX rendering of special floating-point values.
 
 ### Changed
 

@@ -43,7 +43,9 @@ def test_repr():
 
 def test_latex():
     assert APyFloat.from_float(0, 2, 2)._repr_latex_() == "$0$"
+    assert APyFloat(1, 0, 0, 2, 2)._repr_latex_() == "$-0$"
     assert APyFloat.from_float(20, 2, 2)._repr_latex_() == r"$\infty$"
+    assert APyFloat.from_float(-20, 2, 2)._repr_latex_() == r"$-\infty$"
     assert (
         APyFloat.from_float(0.5, 2, 2)._repr_latex_()
         == r"$\frac{2}{2^{2}}2^{1-1} = 2\times 2^{-2} = 0.5$"
@@ -57,6 +59,7 @@ def test_latex():
         == r"$\left(1 + \frac{2}{2^{2}}\right)2^{1-1} = 6\times 2^{-2} = 1.5$"
     )
     assert APyFloat.from_float(float("NaN"), 2, 2)._repr_latex_() == r"$\textrm{NaN}$"
+    assert APyFloat.from_float(float("-NaN"), 2, 2)._repr_latex_() == r"$\textrm{NaN}$"
 
     assert (
         APyFloat.from_float(800, 6, 8)._repr_latex_()
