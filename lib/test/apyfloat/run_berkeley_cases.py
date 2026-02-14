@@ -390,10 +390,8 @@ if __name__ == "__main__":
         if args.verbose:
             print(f"Directory {TEST_DIR} already exists, don't need to create it")
 
-    seed = args.seed if args.seed else random.randint(1, 0xFFFFFFFFFFFFFFFF)
-    output_file = TEST_DIR + (
-        args.output_file if args.output_file else "failed_tests.txt"
-    )
+    seed = args.seed or random.randint(1, 0xFFFFFFFFFFFFFFFF)
+    output_file = TEST_DIR + (args.output_file or "failed_tests.txt")
     summary = {}
     any_test_failed = False
 
