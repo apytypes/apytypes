@@ -651,7 +651,7 @@ def test_to_wide_accumulator(
     a = float_array.from_float([1, 2, 3, 4, 5, 6, 7, 8], exp_bits=6, man_bits=8)
     b = float_array.from_float([9, 8, 7, 6, 5, 4, 3, 2], exp_bits=6, man_bits=8)
 
-    for q in filter(lambda q: q not in [QuantizationMode.JAM], QuantizationMode):
+    for q in filter(lambda q: q != QuantizationMode.JAM, QuantizationMode):
         for man_bits in range(8, 61):
             for man_bits_acc in range(man_bits, 61):
                 ref = float_scalar.from_float(156, exp_bits=6, man_bits=man_bits_acc)
