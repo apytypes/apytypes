@@ -717,15 +717,9 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
 #endif
 
     // General case: This always works but is slower than the special cases.
-
-    // Absolute value denominator
-    ScratchVector<apy_limb_t> abs_den(rhs._itemsize);
-
-    // Absolute value left-shifted numerator
-    ScratchVector<apy_limb_t> abs_num(result._itemsize);
+    ScratchVector<apy_limb_t, 16> scratch(result._itemsize + rhs._itemsize);
 
     for (std::size_t i = 0; i < _nitems; i++) {
-        std::fill(std::begin(abs_num), std::end(abs_num), 0);
         if (limb_vector_is_zero(
                 std::begin(rhs._data) + (i + 0) * rhs._itemsize,
                 std::begin(rhs._data) + (i + 1) * rhs._itemsize
@@ -733,37 +727,16 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
             PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
             throw nb::python_error();
         }
-        bool den_sign = limb_vector_abs(
-            std::begin(rhs._data) + (i + 0) * rhs._itemsize,
-            std::begin(rhs._data) + (i + 1) * rhs._itemsize,
-            std::begin(abs_den)
-        );
-        bool num_sign = limb_vector_abs(
+        fixed_point_division_generic(
+            std::begin(result._data) + i * result._itemsize,
             std::begin(_data) + (i + 0) * _itemsize,
             std::begin(_data) + (i + 1) * _itemsize,
-            std::begin(abs_num)
+            std::begin(rhs._data) + (i + 0) * rhs._itemsize,
+            std::begin(rhs._data) + (i + 1) * rhs._itemsize,
+            rhs.bits(),
+            result._itemsize,
+            scratch
         );
-        limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
-
-        // `apy_unsigned_division` requires the number of *significant* limbs in
-        // denominator
-        std::size_t den_significant_limbs
-            = significant_limbs(std::begin(abs_den), std::end(abs_den));
-        apy_unsigned_division(
-            result._data.begin() + i * result._itemsize, // Quotient
-            abs_num.begin(),                             // Numerator
-            abs_num.end(),                               // Numerator end
-            abs_den.begin(),                             // Denominator
-            abs_den.begin() + den_significant_limbs      // Denominator end
-        );
-
-        // Negate result if negative
-        if (num_sign ^ den_sign) {
-            limb_vector_negate_inplace(
-                std::begin(result._data) + (i + 0) * result._itemsize,
-                std::begin(result._data) + (i + 1) * result._itemsize
-            );
-        }
     }
     return result;
 }

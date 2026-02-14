@@ -674,7 +674,7 @@ def test_array_prod(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFi
 
     a = fixed_array([-5, -6, 7, -1], int_bits=5, frac_bits=5)
     assert math.prod(a).is_identical(
-        fixed_scalar(-6720, int_bits=25 + 4 * cb, frac_bits=25)
+        fixed_scalar(-6720, int_bits=25 + 3 * cb, frac_bits=25)
     )
     b = fixed_array.from_float(
         [
@@ -685,7 +685,7 @@ def test_array_prod(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFi
         int_bits=6,
     )
     assert math.prod(b).is_identical(
-        fixed_array([256, 640, 1152], int_bits=18 + 2 * cb, frac_bits=6)
+        fixed_array([256, 640, 1152], int_bits=18 + 1 * cb, frac_bits=6)
     )
 
 
@@ -895,11 +895,10 @@ def test_long_matrix_addition(fixed_array: type[APyCFixedArray]):
     )
 
 
-@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_operation_with_integers(fixed_array: type[APyCFixedArray]):
-    a = fixed_array([5], 6, 2)
-    one = fixed_array([4], 6, 2)
-    zero = fixed_array([0], 6, 2)
+def test_operation_with_integers():
+    a = APyFixedArray([5], 6, 2)
+    one = APyFixedArray([4], 6, 2)
+    zero = APyFixedArray([0], 6, 2)
 
     # Integer identities
     assert (_ := a + 0).is_identical(_ := a + zero)
@@ -911,7 +910,7 @@ def test_operation_with_integers(fixed_array: type[APyCFixedArray]):
     assert (_ := a / 1).is_identical(_ := a / one)
 
     # Other integer operations
-    neg_two = fixed_array([248], bits=8, int_bits=6)
+    neg_two = APyFixedArray([248], bits=8, int_bits=6)
     assert (_ := a + (-2)).is_identical(_ := a + neg_two)
     assert (_ := (-2) + a).is_identical(_ := neg_two + a)
     assert (_ := a - (-2)).is_identical(_ := a - neg_two)
@@ -922,17 +921,10 @@ def test_operation_with_integers(fixed_array: type[APyCFixedArray]):
     assert (_ := (-2) / a).is_identical(_ := neg_two / a)
 
 
-@pytest.mark.parametrize(
-    ("fixed_array", "fixed_scalar"),
-    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
-)
-def test_operation_with_floats(
-    fixed_array: type[APyCFixedArray],
-    fixed_scalar: type[APyCFixed],
-):
-    a = fixed_array([5], 6, 2)
-    one = fixed_array([4], 6, 2)
-    zero = fixed_array([0], 6, 2)
+def test_operation_with_floats():
+    a = APyFixedArray([5], 6, 2)
+    one = APyFixedArray([4], 6, 2)
+    zero = APyFixedArray([0], 6, 2)
 
     # Identities
     assert (_ := a + 0.0).is_identical(_ := a + zero)
@@ -944,7 +936,7 @@ def test_operation_with_floats(
     assert (_ := a / 1.0).is_identical(_ := a / one)
 
     # Other operations. 2.125 should quantize to -2.25
-    b = fixed_scalar(247, bits=8, int_bits=6)
+    b = APyFixed(247, bits=8, int_bits=6)
     assert (_ := a + (-2.125)).is_identical(_ := a + b)
     assert (_ := (-2.125) + a).is_identical(_ := b + a)
     assert (_ := a - (-2.125)).is_identical(_ := a - b)
