@@ -1,5 +1,6 @@
 #include "apycfixed.h"
 #include "apycfixedarray.h"
+#include "apyfixed.h"
 // #include "apycfixedarray_iterator.h"
 
 #include <nanobind/nanobind.h>
@@ -172,10 +173,28 @@ void bind_cfixed_array(nb::module_& m)
         .def("__radd__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
         .def("__rsub__", R_OP<&APyCFixedArray::rsub, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rmul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, APyFixed>, NB_OP(), NB_NARG())
+        .def(
+            "__mul__",
+            [](const APyCFixedArray& a, const APyFixed& b) { return a * b; },
+            nb::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyCFixedArray& a, const APyFixed& b) { return a * b; },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyCFixedArray& a, const APyFixed& b) { return a / b; },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyCFixedArray& a, const APyFixed& b) {
+                return a.rdiv_real_scalar(b);
+            },
+            nb::is_operator()
+        )
         .def("__eq__", L_OP<STD_EQ<>, APyFixed>, CMP("__eq__", "APyFixed"))
         .def("__ne__", L_OP<STD_NE<>, APyFixed>, CMP("__ne__", "APyFixed"))
 
@@ -186,9 +205,21 @@ void bind_cfixed_array(nb::module_& m)
         .def("__radd__", L_OP<STD_ADD<>, APyFixedArray>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, APyFixedArray>, NB_OP(), NB_NARG())
         .def("__rsub__", R_OP<STD_SUB<>, APyFixedArray>, NB_OP(), NB_NARG())
-        .def("__rmul__", L_OP<STD_MUL<>, APyFixedArray>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, APyFixedArray>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, APyFixedArray>, NB_OP(), NB_NARG())
+        .def(
+            "__mul__",
+            [](const APyCFixedArray& a, const APyFixedArray& b) { return a * b; },
+            nb::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyCFixedArray& a, const APyFixedArray& b) { return a * b; },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyCFixedArray& a, const APyFixedArray& b) { return a / b; },
+            nb::is_operator()
+        )
         .def("__rtruediv__", R_OP<STD_DIV<>, APyFixedArray>, NB_OP(), NB_NARG())
         .def("__eq__", L_OP<STD_EQ<>, APyFixedArray>, CMP("__eq__", "APyFixedArray"))
         .def("__ne__", L_OP<STD_NE<>, APyFixedArray>, CMP("__ne__", "APyFixedArray"))
@@ -214,10 +245,38 @@ void bind_cfixed_array(nb::module_& m)
         .def("__radd__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
         .def("__rsub__", R_OP<&APyCFixedArray::rsub, double>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, double>, NB_OP(), NB_NARG())
+        .def(
+            "__mul__",
+            [](const APyCFixedArray& a, double b) {
+                auto b_fx = APyFixed::from_double(b, a.int_bits(), a.frac_bits());
+                return a * b_fx;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyCFixedArray& a, double b) {
+                auto b_fx = APyFixed::from_double(b, a.int_bits(), a.frac_bits());
+                return a * b_fx;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyCFixedArray& a, double b) {
+                auto b_fx = APyFixed::from_double(b, a.int_bits(), a.frac_bits());
+                return a / b_fx;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyCFixedArray& a, double b) {
+                auto b_fx = APyFixed::from_double(b, a.int_bits(), a.frac_bits());
+                return a.rdiv_real_scalar(b_fx);
+            },
+            nb::is_operator()
+        )
         .def("__eq__", L_OP<STD_EQ<>, double>, CMP("__eq__", "float"))
         .def("__ne__", L_OP<STD_NE<>, double>, CMP("__ne__", "float"))
 
@@ -228,10 +287,38 @@ void bind_cfixed_array(nb::module_& m)
         .def("__radd__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__rsub__", R_OP<&APyCFixedArray::rsub, nb::int_>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
+        .def(
+            "__mul__",
+            [](const APyCFixedArray& a, const nb::int_& b) {
+                auto b_fx = APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
+                return a * b_fx;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyCFixedArray& a, const nb::int_& b) {
+                auto b_fx = APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
+                return a * b_fx;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyCFixedArray& a, const nb::int_& b) {
+                auto b_fx = APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
+                return a / b_fx;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyCFixedArray& a, const nb::int_& b) {
+                auto b_fx = APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
+                return a.rdiv_real_scalar(b_fx);
+            },
+            nb::is_operator()
+        )
         .def("__eq__", L_OP<STD_EQ<>, nb::int_>, CMP("__eq__", "int"))
         .def("__ne__", L_OP<STD_NE<>, nb::int_>, CMP("__ne__", "int"))
 

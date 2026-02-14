@@ -184,6 +184,11 @@ public:
     bool operator==(const APyCFixed& rhs) const;
     bool operator!=(const APyCFixed& rhs) const;
 
+    APyCFixed operator+(const APyFixed& rhs) const;
+    APyCFixed operator-(const APyFixed& rhs) const;
+    APyCFixed operator*(const APyFixed& rhs) const;
+    APyCFixed operator/(const APyFixed& rhs) const;
+    APyCFixed rdiv(const APyFixed& lhs) const;
     bool operator==(const APyFixed& rhs) const;
     bool operator!=(const APyFixed& rhs) const;
 

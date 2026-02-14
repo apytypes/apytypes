@@ -949,6 +949,111 @@ static APY_INLINE void fixed_point_square(
     }
 }
 
+//! Iterator-based multi-limb two's complement fixed-point division using a
+//! precomputed absolute denominator. The scratch vector must have space for at least
+//! `quotient_limbs` limbs, which are used for the absolute value of the shifted
+//! numerator. Result is negated in place if the operand signs differ.
+template <
+    typename RANDOM_ACCESS_ITERATOR_IN1,
+    typename RANDOM_ACCESS_ITERATOR_IN2,
+    typename RANDOM_ACCESS_ITERATOR_OUT>
+static APY_INLINE void fixed_point_division_precomputed_denominator(
+    RANDOM_ACCESS_ITERATOR_OUT quotient,
+    RANDOM_ACCESS_ITERATOR_IN1 numerator_begin,
+    RANDOM_ACCESS_ITERATOR_IN1 numerator_end,
+    RANDOM_ACCESS_ITERATOR_IN2 abs_den_begin,
+    std::size_t den_significant_limbs,
+    bool denominator_negative,
+    int denominator_bits,
+    std::size_t quotient_limbs,
+    ScratchVector<apy_limb_t, 16>& scratch
+)
+{
+    assert(den_significant_limbs > 0);
+    assert(quotient_limbs >= std::distance(numerator_begin, numerator_end));
+
+    // Compute absolute value of numerator
+    auto abs_num_begin = std::begin(scratch);
+    auto abs_num_end = abs_num_begin + quotient_limbs;
+    std::fill(abs_num_begin, abs_num_end, apy_limb_t(0));
+    bool sign_num = limb_vector_abs(numerator_begin, numerator_end, abs_num_begin);
+
+    // Left-shift numerator by denominator bits
+    limb_vector_lsl(abs_num_begin, abs_num_end, denominator_bits);
+
+    // Perform unsigned division using the precomputed absolute denominator
+    apy_unsigned_division(
+        quotient,
+        abs_num_begin,
+        abs_num_end,
+        abs_den_begin,
+        abs_den_begin + den_significant_limbs
+    );
+
+    // Negate result if signs differ
+    if (sign_num ^ denominator_negative) {
+        limb_vector_negate_inplace(quotient, quotient + quotient_limbs);
+    }
+}
+
+//! Iterator-based multi-limb two's complement fixed-point division. Computes the
+//! quotient of numerator by denominator using unsigned division after taking absolute
+//! values. The scratch vector must have space for at least `quotient_limbs +
+//! denominator_limbs` limbs. The arrangement is:
+//! - [0, quotient_limbs): absolute value of shifted numerator
+//! - [quotient_limbs, quotient_limbs + denominator_limbs): absolute value of
+//! denominator Result is negated in place if the operand signs differ.
+template <
+    typename RANDOM_ACCESS_ITERATOR_IN1,
+    typename RANDOM_ACCESS_ITERATOR_IN2,
+    typename RANDOM_ACCESS_ITERATOR_OUT>
+static APY_INLINE void fixed_point_division_generic(
+    RANDOM_ACCESS_ITERATOR_OUT quotient,
+    RANDOM_ACCESS_ITERATOR_IN1 numerator_begin,
+    RANDOM_ACCESS_ITERATOR_IN1 numerator_end,
+    RANDOM_ACCESS_ITERATOR_IN2 denominator_begin,
+    RANDOM_ACCESS_ITERATOR_IN2 denominator_end,
+    int denominator_bits,
+    std::size_t quotient_limbs,
+    ScratchVector<apy_limb_t, 16>& scratch
+)
+{
+    std::size_t denominator_limbs = std::distance(denominator_begin, denominator_end);
+
+    auto abs_num_begin = std::begin(scratch);
+    auto abs_num_end = abs_num_begin + quotient_limbs;
+    auto abs_den_begin = abs_num_end;
+    auto abs_den_end = abs_den_begin + denominator_limbs;
+    std::fill(abs_num_begin, abs_den_end, apy_limb_t(0));
+
+    // Compute absolute value of denominator
+    bool sign_den = limb_vector_abs(denominator_begin, denominator_end, abs_den_begin);
+
+    // Get significant limbs of denominator
+    std::size_t den_significant_limbs = significant_limbs(abs_den_begin, abs_den_end);
+
+    // Compute absolute value of numerator
+    std::fill(abs_num_begin, abs_num_end, apy_limb_t(0));
+    bool sign_num = limb_vector_abs(numerator_begin, numerator_end, abs_num_begin);
+
+    // Left-shift numerator by denominator bits
+    limb_vector_lsl(abs_num_begin, abs_num_end, denominator_bits);
+
+    // Perform unsigned division using the precomputed absolute denominator
+    apy_unsigned_division(
+        quotient,
+        abs_num_begin,
+        abs_num_end,
+        abs_den_begin,
+        abs_den_begin + den_significant_limbs
+    );
+
+    // Negate result if signs differ
+    if (sign_num ^ sign_den) {
+        limb_vector_negate_inplace(quotient, quotient + quotient_limbs);
+    }
+}
+
 //! Iterator-based multi-limb fixed-point hadamard product
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
 static void fixed_point_hadamard_product(

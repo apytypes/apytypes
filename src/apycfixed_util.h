@@ -144,6 +144,145 @@ static APY_INLINE void complex_multiplication_1_2_2(
 #endif
 }
 
+static APY_INLINE void complex_real_multiplication_1_1_2(
+    apy_limb_t* res, const apy_limb_t* src0, const apy_limb_t* src1
+)
+{
+    auto [p0_high, p0_low] = long_signed_mult(src0[0], src1[0]);
+    auto [p3_high, p3_low] = long_signed_mult(src0[1], src1[0]);
+    res[0] = p0_low;
+    res[1] = p0_high;
+    res[2] = p3_low;
+    res[3] = p3_high;
+}
+
+static APY_INLINE void complex_real_multiplication_1_2_2(
+    apy_limb_t* res, const apy_limb_t* src0, const apy_limb_t* src1
+)
+{
+#if COMPILER_LIMB_SIZE == 64
+#if defined(__GNUC__)
+    // GCC and Clang
+    __int128 re0 = (__int128)apy_limb_signed_t(src0[0]);
+    __int128 im0 = (__int128)apy_limb_signed_t(src0[1]);
+    __int128 re1 = (__int128)(src1[0])
+        | ((__int128)apy_limb_signed_t(src1[1]) << APY_LIMB_SIZE_BITS);
+    auto re_res = re0 * re1;
+    auto im_res = im0 * re1;
+    res[0] = apy_limb_t(re_res);
+    res[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+    res[2] = apy_limb_t(im_res);
+    res[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    apy_limb_signed_t src0_real = apy_limb_signed_t(src0[0]);
+    apy_limb_signed_t src0_imag = apy_limb_signed_t(src0[1]);
+    apy_limb_t src1_real_0 = src1[0];
+    apy_limb_signed_t src1_real_1 = apy_limb_signed_t(src1[1]);
+
+    auto [p0_high, p0_low] = long_signed_unsigned_mult(src0_real, src1_real_0);
+    auto p0_high_0 = src0_real * src1_real_1;
+    auto [p1_high, p1_low] = long_signed_unsigned_mult(src0_imag, src1_real_0);
+    auto p1_high_0 = src0_imag * src1_real_1;
+    p0_high += p0_high_0;
+    p1_high += p1_high_0;
+    res[0] = p0_low;
+    res[1] = p0_high;
+    res[2] = p1_low;
+    res[3] = p1_high;
+#else
+    // No 128-bit multiplication intrinsic found. We could implement this function,
+    // but fail for now so we can clearly see which systems are missing out on these
+    // intrinsics.
+    static_assert(
+        false,
+        "complex_real_multiplication_1_2_2(): No intrinsic available on your compiler. "
+        "Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with "
+        "information about the compiler and platform and we will be happy to add "
+        "support for it."
+    );
+#endif
+#else
+    // COMPILER_LIMB_SIZE = 32
+    std::int64_t re0 = (std::int64_t)apy_limb_signed_t(src0[0]);
+    std::int64_t im0 = (std::int64_t)apy_limb_signed_t(src0[1]);
+    std::int64_t re1 = (std::int64_t)(src1[0])
+        | ((std::int64_t)apy_limb_signed_t(src1[1]) << APY_LIMB_SIZE_BITS);
+    auto re_res = re0 * re1;
+    auto im_res = im0 * re1;
+    res[0] = apy_limb_t(re_res);
+    res[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+    res[2] = apy_limb_t(im_res);
+    res[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+#endif
+}
+
+static APY_INLINE void complex_real_multiplication_2_1_2(
+    apy_limb_t* res, const apy_limb_t* src0, const apy_limb_t* src1
+)
+{
+#if COMPILER_LIMB_SIZE == 64
+#if defined(__GNUC__)
+    // GCC and Clang
+    __int128 re0 = (__int128)(src0[0])
+        | ((__int128)apy_limb_signed_t(src0[1]) << APY_LIMB_SIZE_BITS);
+    __int128 im0 = (__int128)(src0[2])
+        | ((__int128)apy_limb_signed_t(src0[3]) << APY_LIMB_SIZE_BITS);
+    __int128 re1 = (__int128)apy_limb_signed_t(src1[0]);
+    auto re_res = re0 * re1;
+    auto im_res = im0 * re1;
+    res[0] = apy_limb_t(re_res);
+    res[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+    res[2] = apy_limb_t(im_res);
+    res[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    apy_limb_t src0_real_0 = src0[0];
+    apy_limb_signed_t src0_real_1 = apy_limb_signed_t(src0[1]);
+    apy_limb_t src0_imag_0 = src0[2];
+    apy_limb_signed_t src0_imag_1 = apy_limb_signed_t(src0[3]);
+    apy_limb_signed_t src1_real = apy_limb_signed_t(src1[0]);
+
+    auto [p0_high, p0_low] = long_signed_unsigned_mult(src1_real, src0_real_0);
+    auto p0_high_0 = src0_real_1 * src1_real;
+    auto [p1_high, p1_low] = long_signed_unsigned_mult(src1_real, src0_imag_0);
+    auto p1_high_0 = src0_imag_1 * src1_real;
+    p0_high += p0_high_0;
+    p1_high += p1_high_0;
+    res[0] = p0_low;
+    res[1] = p0_high;
+    res[2] = p1_low;
+    res[3] = p1_high;
+#else
+    // No 128-bit multiplication intrinsic found. We could implement this function,
+    // but fail for now so we can clearly see which systems are missing out on these
+    // intrinsics.
+    static_assert(
+        false,
+        "complex_real_multiplication_2_1_2(): No intrinsic available on your compiler. "
+        "Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with "
+        "information about the compiler and platform and we will be happy to add "
+        "support for it."
+    );
+#endif
+#else
+    // COMPILER_LIMB_SIZE = 32
+    std::int64_t re0 = (std::int64_t)(src0[0])
+        | ((std::int64_t)apy_limb_signed_t(src0[1]) << APY_LIMB_SIZE_BITS);
+    std::int64_t im0 = (std::int64_t)(src0[2])
+        | ((std::int64_t)apy_limb_signed_t(src0[3]) << APY_LIMB_SIZE_BITS);
+    std::int64_t re1 = (std::int64_t)apy_limb_signed_t(src1[0]);
+    auto re_res = re0 * re1;
+    auto im_res = im0 * re1;
+    res[0] = apy_limb_t(re_res);
+    res[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+    res[2] = apy_limb_t(im_res);
+    res[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+#endif
+}
+
 /* ********************************************************************************** *
  * *     Fixed-point iterator based arithmetic functions with multi-limb support    * *
  * ********************************************************************************** */
@@ -248,6 +387,68 @@ static APY_INLINE void complex_fixed_point_product(
         &*(prod_imm + src1_limbs + src2_limbs + 1),      // src2 (b*d)
         std::min(src1_limbs + src2_limbs + 1, dst_limbs) // limbs
     );
+}
+
+//! Iterator-based multi-limb two's complement complex-valued fixed-point
+//! multiplication. The scratch vector `prod_imm` must have space for
+//! at least `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
+//! and `op2_abs` must have space for at least `src1_limbs` and `src2_limbs`
+//! limbs, respectively. No overlap between `prod_imm` and `op[12]_abs` allowed. No
+//! overlap between `prod_imm` and `dst` allowed.
+template <
+    typename RANDOM_ACCESS_ITERATOR_IN1,
+    typename RANDOM_ACCESS_ITERATOR_IN2,
+    typename RANDOM_ACCESS_ITERATOR_OUT,
+    typename RANDOM_ACCESS_ITERATOR_INOUT>
+static APY_INLINE void complex_real_fixed_point_product(
+    RANDOM_ACCESS_ITERATOR_IN1 src1,
+    RANDOM_ACCESS_ITERATOR_IN2 src2,
+    RANDOM_ACCESS_ITERATOR_OUT dst,
+    std::size_t src1_limbs,
+    std::size_t src2_limbs,
+    std::size_t dst_limbs,
+    RANDOM_ACCESS_ITERATOR_INOUT op1_abs,
+    RANDOM_ACCESS_ITERATOR_INOUT op2_abs,
+    RANDOM_ACCESS_ITERATOR_INOUT prod_imm
+)
+{
+    /*
+     * (a + bi)c = ac+ bci
+     * Compute full-precision intermediate products into scratch space,
+     * then copy/truncate into destination.
+     */
+
+    std::size_t prod_limbs = src1_limbs + src2_limbs + 1;
+
+    // b*c
+    fixed_point_product(
+        src1 + src1_limbs,     // src1 (b)
+        src2,                  // src2 (c)
+        prod_imm + prod_limbs, // dst
+        src1_limbs,            // src1_limbs
+        src2_limbs,            // src2_limbs
+        prod_limbs,            // dst_limbs
+        op1_abs,               // op1_abs
+        op2_abs,               // op2_abs
+        prod_imm               // prod_abs
+    );
+
+    // a*c
+    fixed_point_product(
+        src1,       // src1 (a)
+        src2,       // src2 (c)
+        prod_imm,   // dst
+        src1_limbs, // src1_limbs
+        src2_limbs, // src2_limbs
+        prod_limbs, // dst limbs
+        op1_abs,    // op1_abs
+        op2_abs,    // op2_abs
+        prod_imm    // prod_abs
+    );
+
+    auto copy_limbs = std::min(prod_limbs, dst_limbs);
+    std::copy_n(prod_imm, copy_limbs, dst);
+    std::copy_n(prod_imm + prod_limbs, copy_limbs, dst + dst_limbs);
 }
 
 //! Iterator-based multi-limb two's complement complex-valued fixed-point

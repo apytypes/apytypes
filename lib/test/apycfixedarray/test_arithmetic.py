@@ -159,7 +159,7 @@ def test_arithmetic_with_apyfixed():
         APyCFixedArray.from_complex([-2 + 2j, -7, 0.5 - 2j], int_bits=8, frac_bits=3)
     )
     assert (a * b).is_identical(
-        APyCFixedArray.from_complex([3 + 6j, -12, 10.5 - 6j], int_bits=13, frac_bits=3)
+        APyCFixedArray.from_complex([3 + 6j, -12, 10.5 - 6j], int_bits=12, frac_bits=3)
     )
     assert (a / b).is_identical(
         APyCFixedArray([(85, 170), (65195, 0), (298, 65366)], int_bits=8, frac_bits=8)
@@ -188,7 +188,7 @@ def test_arithmetic_with_apyfixedarray():
         APyCFixedArray.from_complex([-2 + 2j, -3, -0.5 - 2j], int_bits=8, frac_bits=3)
     )
     assert (a * b).is_identical(
-        APyCFixedArray.from_complex([3 + 6j, 4, 14 - 8j], int_bits=13, frac_bits=3)
+        APyCFixedArray.from_complex([3 + 6j, 4, 14 - 8j], int_bits=12, frac_bits=3)
     )
     assert (a / b).is_identical(
         APyCFixedArray([(85, 170), (1024, 0), (224, 65408)], int_bits=8, frac_bits=8)
@@ -437,27 +437,27 @@ def test_array_division_with_different_bits_and_offset(offset: int, frac_bits: i
 def test_array_real_scalar_multiplication_different_wordlengths(frac_bits: int):
     a = fx([1, 2 + 1j, -3 + 5j, -1j], 7, frac_bits, force_complex=True)
     b = fx(3, 4, frac_bits)
-    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, 2 * frac_bits, force_complex=True)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 11, 2 * frac_bits, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
     b = fx(3, 4, 0)
-    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, frac_bits, force_complex=True)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 11, frac_bits, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
     b = fx(3, 4, 20)
-    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, frac_bits + 20, force_complex=True)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 11, frac_bits + 20, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
     b = fx(3, 4, 40)
-    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, frac_bits + 40, force_complex=True)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 11, frac_bits + 40, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
     b = fx(3, 4, 100)
-    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, frac_bits + 100, force_complex=True)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 11, frac_bits + 100, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
@@ -466,27 +466,27 @@ def test_array_real_scalar_multiplication_different_wordlengths(frac_bits: int):
 def test_array_real_array_multiplication_different_wordlengths(frac_bits: int):
     a = fx([[1, 2 + 1j], [-3 + 5j, -1j]], 7, frac_bits, force_complex=True)
     b = fx([3, -2], 4, frac_bits)
-    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, 2 * frac_bits, force_complex=True)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 11, 2 * frac_bits, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
     b = fx([3, -2], 4, 0)
-    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits, force_complex=True)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 11, frac_bits, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
     b = fx([3, -2], 4, 20)
-    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits + 20, force_complex=True)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 11, frac_bits + 20, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
     b = fx([3, -2], 4, 40)
-    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits + 40, force_complex=True)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 11, frac_bits + 40, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
     b = fx([3, -2], 4, 100)
-    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits + 100, force_complex=True)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 11, frac_bits + 100, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
 
@@ -585,3 +585,55 @@ def test_real_scalar_complex_array_division_different_wordlengths_different_frac
         frac_bits=real_frac_bits + complex_int_bits,
     )
     assert (a / b).is_identical(ref)
+
+
+def test_operation_with_integers():
+    a = APyCFixedArray([5], 6, 2)
+    one = APyFixedArray([4], 6, 2)
+    zero = APyFixedArray([0], 6, 2)
+
+    # Integer identities
+    assert (_ := a + 0).is_identical(_ := a + zero)
+    assert (_ := 0 + a).is_identical(_ := zero + a)
+    assert (_ := a - 0).is_identical(_ := a - zero)
+    assert (_ := 0 - a).is_identical(_ := zero - a)
+    assert (_ := a * 1).is_identical(_ := a * one)
+    assert (_ := 1 * a).is_identical(_ := one * a)
+    assert (_ := a / 1).is_identical(_ := a / one)
+
+    # Other integer operations
+    neg_two = APyFixedArray([248], bits=8, int_bits=6)
+    assert (_ := a + (-2)).is_identical(_ := a + neg_two)
+    assert (_ := (-2) + a).is_identical(_ := neg_two + a)
+    assert (_ := a - (-2)).is_identical(_ := a - neg_two)
+    assert (_ := (-2) - a).is_identical(_ := neg_two - a)
+    assert (_ := a * (-2)).is_identical(_ := a * neg_two)
+    assert (_ := (-2) * a).is_identical(_ := neg_two * a)
+    assert (_ := a / (-2)).is_identical(_ := a / neg_two)
+    assert (_ := (-2) / a).is_identical(_ := neg_two / a)
+
+
+def test_operation_with_floats():
+    a = APyCFixedArray([5], 6, 2)
+    one = APyFixedArray([4], 6, 2)
+    zero = APyFixedArray([0], 6, 2)
+
+    # Identities
+    assert (_ := a + 0.0).is_identical(_ := a + zero)
+    assert (_ := 0.0 + a).is_identical(_ := zero + a)
+    assert (_ := a - 0.0).is_identical(_ := a - zero)
+    assert (_ := 0.0 - a).is_identical(_ := zero - a)
+    assert (_ := a * 1.0).is_identical(_ := a * one)
+    assert (_ := 1.0 * a).is_identical(_ := one * a)
+    assert (_ := a / 1.0).is_identical(_ := a / one)
+
+    # Other operations. 2.125 should quantize to -2.25
+    b = APyFixed(247, bits=8, int_bits=6)
+    assert (_ := a + (-2.125)).is_identical(_ := a + b)
+    assert (_ := (-2.125) + a).is_identical(_ := b + a)
+    assert (_ := a - (-2.125)).is_identical(_ := a - b)
+    assert (_ := (-2.125) - a).is_identical(_ := b - a)
+    assert (_ := a * (-2.125)).is_identical(_ := a * b)
+    assert (_ := (-2.125) * a).is_identical(_ := b * a)
+    assert (_ := a / (-2.125)).is_identical(_ := a / b)
+    assert (_ := (-2.125) / a).is_identical(_ := b / a)
