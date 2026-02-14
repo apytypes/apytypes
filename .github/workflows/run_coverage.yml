@@ -34,7 +34,7 @@ jobs:
       run: |
         sudo apt-get install -yy lcov
         python -m pip install --upgrade pip
-        python -m pip install pytest-cov gcovr ninja "meson<=1.9.1" meson-python numpy setuptools_scm
+        python -m pip install pytest-cov gcovr ninja "meson>=1.10.1" meson-python numpy setuptools_scm
     - name: Install APyTypes
       run: |
         git fetch --tags
@@ -86,7 +86,7 @@ jobs:
       run: |
         sudo apt-get install -yy lcov
         python -m pip install --upgrade pip
-        python -m pip install pytest-cov gcovr ninja "meson<=1.9.1" meson-python numpy setuptools_scm
+        python -m pip install pytest-cov gcovr ninja "meson>=1.10.1" meson-python numpy setuptools_scm
         python -m pip install jax tensorflow
         python -m pip install torch==2.3.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
     - name: Install APyTypes
@@ -155,7 +155,7 @@ jobs:
         brew uninstall --ignore-dependencies --force pkg-config@0.29.2
         brew install ninja
         python -m pip install --upgrade pip
-        python -m pip install pytest-cov gcovr ninja "meson<=1.9.1" meson-python numpy setuptools_scm
+        python -m pip install pytest-cov gcovr ninja "meson>=1.10.1" meson-python numpy setuptools_scm
     - name: Install APyTypes
       run: |
         git fetch --tags
