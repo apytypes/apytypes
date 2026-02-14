@@ -549,11 +549,10 @@ def test_issue_224():
     assert x.leading_fractional_zeros == 6
 
 
-@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
-def test_operation_with_integers(fixed_type):
-    a = fixed_type(5, 6, 2)
-    one = fixed_type(4, 6, 2)
-    zero = fixed_type(0, 6, 2)
+def test_operation_with_integers():
+    a = APyFixed(5, 6, 2)
+    one = APyFixed(4, 6, 2)
+    zero = APyFixed(0, 6, 2)
 
     # Integer identities
     assert (_ := a + 0).is_identical(_ := a + zero)
@@ -565,7 +564,7 @@ def test_operation_with_integers(fixed_type):
     assert (_ := a / 1).is_identical(_ := a / one)
 
     # Other integer operations
-    neg_two = fixed_type(248, bits=8, int_bits=6)
+    neg_two = APyFixed(248, bits=8, int_bits=6)
     assert (_ := a + (-2)).is_identical(_ := a + neg_two)
     assert (_ := (-2) + a).is_identical(_ := neg_two + a)
     assert (_ := a - (-2)).is_identical(_ := a - neg_two)

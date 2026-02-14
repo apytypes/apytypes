@@ -4,6 +4,7 @@ from apytypes import (
     APyCFixed,
     APyCFixedArray,
     APyFixedAccumulatorContext,
+    APyFixedArray,
     QuantizationMode,
     fx,
     outer,
@@ -345,7 +346,7 @@ def test_complex_real_matrix_multiplication():
         bits=10,
         int_bits=10,
     )
-    b = APyCFixedArray.from_float(
+    b = APyFixedArray.from_float(
         [
             [1, 1, 1, 1],
             [2, -2, 2, 2],
@@ -357,8 +358,8 @@ def test_complex_real_matrix_multiplication():
     assert (a @ b).is_identical(
         APyCFixedArray.from_complex(
             [[14 + 6j, 6 - 6j, -4 + 6j, 14 + 6j], [28 - 8j, 8 - 8j, -8 + 16j, 28 - 8j]],
-            bits=23,
-            int_bits=20,
+            bits=22,
+            int_bits=19,
         )
     )
     with pytest.raises(ValueError, match=r"APyCFixedArray\.__matmul__: input shape"):

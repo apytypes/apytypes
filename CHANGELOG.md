@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--
+- Specializations for complex-real fixed-point multiplication and division.
 
 ### Fixed
 
@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
--
+- Complex-real multiplications now produce results with one less integer bit.
+  This also holds for Python integers and floats.
 
 ### Removed
 
