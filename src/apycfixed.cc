@@ -406,6 +406,109 @@ bool APyCFixed::operator==(const APyCFixed& rhs) const
 
 bool APyCFixed::operator!=(const APyCFixed& rhs) const { return !(*this == rhs); }
 
+APyCFixed APyCFixed::operator*(const APyFixed& rhs) const
+{
+    const int res_int_bits = int_bits() + rhs.int_bits();
+    const int res_bits = bits() + rhs.bits();
+
+    // Result fixed-point number
+    APyCFixed result(res_bits, res_int_bits);
+
+    // Single-limb result specialization
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        // TODO: Rewrite using SIMD MulComplex
+        result._data[0]
+            = apy_limb_signed_t(_data[0]) * apy_limb_signed_t(rhs._data[0]); // real
+        result._data[1]
+            = apy_limb_signed_t(_data[1]) * apy_limb_signed_t(rhs._data[0]); // imag
+
+        return result; // early exit
+    }
+    // Double limb result specialization
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
+            && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            complex_real_multiplication_1_1_2(
+                &result._data[0], &_data[0], &rhs._data[0]
+            );
+            return result;
+        } else {
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+            __int128 re0, im0, re1, im1;
+            if (unsigned(bits()) > APY_LIMB_SIZE_BITS) {
+                re0 = (__int128)_data[0]
+                    | ((__int128)apy_limb_signed_t(_data[1]) << APY_LIMB_SIZE_BITS);
+                im0 = (__int128)_data[2]
+                    | ((__int128)apy_limb_signed_t(_data[3]) << APY_LIMB_SIZE_BITS);
+                re1 = (__int128)apy_limb_signed_t(rhs._data[0]);
+            } else {
+                re0 = (__int128)apy_limb_signed_t(_data[0]);
+                im0 = (__int128)apy_limb_signed_t(_data[1]);
+                re1 = (__int128)rhs._data[0]
+                    | ((__int128)apy_limb_signed_t(rhs._data[1]) << APY_LIMB_SIZE_BITS);
+            }
+            auto re_res = re0 * re1;
+            auto im_res = im0 * re1;
+            result._data[0] = apy_limb_t(re_res);
+            result._data[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+            result._data[2] = apy_limb_t(im_res);
+            result._data[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+            return result;
+#endif
+#else
+            // Double limb result specialization
+            std::int64_t re0, im0, re1;
+            if (unsigned(bits()) > APY_LIMB_SIZE_BITS) {
+                re0 = (std::int64_t)_data[0]
+                    | ((std::int64_t)apy_limb_signed_t(_data[1]) << APY_LIMB_SIZE_BITS);
+                im0 = (std::int64_t)_data[2]
+                    | ((std::int64_t)apy_limb_signed_t(_data[3]) << APY_LIMB_SIZE_BITS);
+                re1 = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
+            } else {
+                re0 = (std::int64_t)apy_limb_signed_t(_data[0]);
+                im0 = (std::int64_t)apy_limb_signed_t(_data[1]);
+                re1 = (std::int64_t)rhs._data[0]
+                    | ((std::int64_t)apy_limb_signed_t(rhs._data[1])
+                       << APY_LIMB_SIZE_BITS);
+            }
+            auto re_res = re0 * re1;
+            auto im_res = im0 * re1;
+            result._data[0] = apy_limb_t(re_res);
+            result._data[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+            result._data[2] = apy_limb_t(im_res);
+            result._data[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+            return result;
+#endif
+        }
+    }
+
+    // Scratch data:
+    // * op1_abs:       _data.size() / 2
+    // * op2_abs:       rhs._data.size() / 2
+    // * prod_imm:      2 + _data.size() + rhs._data.size()
+    std::size_t scratch_size = 2 + (3 * _data.size() + 3 * rhs._data.size()) / 2;
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
+    auto op1_abs_begin = std::begin(scratch);
+    auto op2_abs_begin = op1_abs_begin + _data.size() / 2;
+    auto prod_imm_begin = op2_abs_begin + rhs._data.size() / 2;
+
+    // Perform the product
+    complex_fixed_point_product(
+        std::begin(_data),        // src1
+        std::begin(rhs._data),    // src2
+        std::begin(result._data), // dst
+        _data.size() / 2,         // src1_limbs
+        rhs._data.size() / 2,     // src2_limbs
+        bits_to_limbs(res_bits),  // dst_limbs
+        op1_abs_begin,            // op1_abs
+        op2_abs_begin,            // op2_abs
+        prod_imm_begin            // prod_abs
+    );
+
+    return result;
+}
+
 bool APyCFixed::operator==(const APyFixed& rhs) const
 {
     if (!limb_vector_is_zero(imag_begin(), imag_end())) {
