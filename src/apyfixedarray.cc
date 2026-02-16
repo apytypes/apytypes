@@ -7,6 +7,7 @@
 #include "apyfixed_util.h"
 #include "apyfixedarray.h"
 #include "apytypes_common.h"
+#include "apytypes_fwd.h"
 #include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
 #include "apytypes_simd.h"
@@ -1607,7 +1608,7 @@ APyFixedArray APyFixedArray::from_numbers(
     unsigned float_shift {};
     std::function<void(APyFixedArray&, std::size_t, double, unsigned)> from_fp;
     if (result._itemsize == 1) {
-        float_shift = 64 - (result._bits & (64 - 1));
+        float_shift = (APY_LIMB_SIZE_BITS - result.bits()) & (APY_LIMB_SIZE_BITS - 1);
         from_fp = [](APyFixedArray& res, std::size_t i, double val, unsigned shift) {
             res._data[i]
                 = fixed_point_from_double_single_limb(val, res.frac_bits(), shift);
@@ -1987,12 +1988,12 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto view = ndarray.view<__TYPE__, nb::ndim<1>>();                         \
             if (_itemsize == 1) {                                                      \
-                unsigned limb_shift_val = bits() & (64 - 1);                           \
-                unsigned twos_complement_shift = 64 - limb_shift_val;                  \
+                unsigned limb_shift_val                                                \
+                    = (APY_LIMB_SIZE_BITS - bits()) & (APY_LIMB_SIZE_BITS - 1);        \
                 int _frac_bits = frac_bits();                                          \
                 for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
                     _data[i] = fixed_point_from_double_single_limb(                    \
-                        view.data()[i], _frac_bits, twos_complement_shift              \
+                        view.data()[i], _frac_bits, limb_shift_val                     \
                     );                                                                 \
                 }                                                                      \
             } else { /* _itemsize > 1 */                                               \
