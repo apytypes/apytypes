@@ -1030,10 +1030,9 @@ APyFixed APyFixed::from_double(
 {
     APyFixed result(int_bits, frac_bits, bits);
     if (result._data.size() == 1) {
-        unsigned shift_amount = 64 - (result._bits & (64 - 1));
-        result._data[0] = fixed_point_from_double_single_limb(
-            value, result.frac_bits(), shift_amount
-        );
+        unsigned shift = (APY_LIMB_SIZE_BITS - result._bits) & (APY_LIMB_SIZE_BITS - 1);
+        result._data[0]
+            = fixed_point_from_double_single_limb(value, result.frac_bits(), shift);
     } else {
         assert(result._data.size() > 1);
         fixed_point_from_double(

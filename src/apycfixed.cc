@@ -901,7 +901,7 @@ APyCFixed APyCFixed::from_double(
 {
     APyCFixed result(int_bits, frac_bits, bits);
     if (result._data.size() == 2) {
-        unsigned shift = 64 - (result._bits & (64 - 1));
+        unsigned shift = (APY_LIMB_SIZE_BITS - result._bits) & (APY_LIMB_SIZE_BITS - 1);
         int frac_bits = result.frac_bits();
         result._data[0] = fixed_point_from_double_single_limb(value, frac_bits, shift);
     } else {
@@ -959,7 +959,7 @@ APyCFixed APyCFixed::from_complex(
     double real = value.real();
     double imag = value.imag();
     if (result._data.size() == 2) {
-        unsigned shift = 64 - (result._bits & (64 - 1));
+        unsigned shift = (APY_LIMB_SIZE_BITS - result._bits) & (APY_LIMB_SIZE_BITS - 1);
         int frac_bits = result.frac_bits();
         result._data[0] = fixed_point_from_double_single_limb(real, frac_bits, shift);
         result._data[1] = fixed_point_from_double_single_limb(imag, frac_bits, shift);

@@ -1366,7 +1366,7 @@ APyCFixedArray APyCFixedArray::from_complex(
     unsigned float_shift {};
     std::function<void(APyCFixedArray&, std::size_t, double, unsigned)> from_fp;
     if (result._itemsize == 2) {
-        float_shift = 64 - (result._bits & (64 - 1));
+        float_shift = (APY_LIMB_SIZE_BITS - result._bits) & (APY_LIMB_SIZE_BITS - 1);
         from_fp = [](APyCFixedArray& res, std::size_t i, double val, unsigned shift) {
             res._data[i]
                 = fixed_point_from_double_single_limb(val, res.frac_bits(), shift);
@@ -1635,16 +1635,16 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto view = ndarray.view<__TYPE__, nb::ndim<1>>();                         \
             if (_itemsize == 2) {                                                      \
-                unsigned limb_shift_val = bits() & (64 - 1);                           \
-                unsigned twos_complement_shift = 64 - limb_shift_val;                  \
+                unsigned limb_shift_val                                                \
+                    = (APY_LIMB_SIZE_BITS - bits()) & (APY_LIMB_SIZE_BITS - 1);        \
                 int _frac_bits = frac_bits();                                          \
                 for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
                     std::complex<double> cplx = view.data()[i];                        \
                     _data[2 * i + 0] = fixed_point_from_double_single_limb(            \
-                        cplx.real(), _frac_bits, twos_complement_shift                 \
+                        cplx.real(), _frac_bits, limb_shift_val                        \
                     );                                                                 \
                     _data[2 * i + 1] = fixed_point_from_double_single_limb(            \
-                        cplx.imag(), _frac_bits, twos_complement_shift                 \
+                        cplx.imag(), _frac_bits, limb_shift_val                        \
                     );                                                                 \
                 }                                                                      \
             } else {                                                                   \
@@ -1677,12 +1677,12 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto view = ndarray.view<__TYPE__, nb::ndim<1>>();                         \
             if (_itemsize == 2) {                                                      \
-                unsigned limb_shift_val = bits() & (64 - 1);                           \
-                unsigned twos_complement_shift = 64 - limb_shift_val;                  \
+                unsigned limb_shift_val                                                \
+                    = (APY_LIMB_SIZE_BITS - bits()) & (APY_LIMB_SIZE_BITS - 1);        \
                 int _frac_bits = frac_bits();                                          \
                 for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
                     _data[2 * i + 0] = fixed_point_from_double_single_limb(            \
-                        view.data()[i], _frac_bits, twos_complement_shift              \
+                        view.data()[i], _frac_bits, limb_shift_val                     \
                     );                                                                 \
                     _data[2 * i + 1] = 0;                                              \
                 }                                                                      \

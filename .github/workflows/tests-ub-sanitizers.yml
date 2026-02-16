@@ -1,0 +1,49 @@
+name: UB Sanitizers
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.11]
+        limb-size: [32, 64]
+    runs-on: "ubuntu-24.04"
+
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+        persist-credentials: false
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ matrix.python-version }}
+        allow-prereleases: true
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+    - name: Install NumPy
+      run: |
+        python -m pip install numpy
+    - name: Install APyTypes
+      run: |
+        git fetch --tags
+        python -m pip install .[test] -v              \
+          -Csetup-args="-Db_sanitize=undefined"       \
+          -Csetup-args="-Dlimb_size=${{ matrix.limb-size }}"
+    - name: Test with pytest
+      run: |
+        pytest --color=yes lib/test

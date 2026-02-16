@@ -1230,7 +1230,7 @@ fixed_point_from_double_single_limb(double value, int frac_bits, unsigned shift_
     }
 
     // Two's complement overflow
-    man = apy_limb_t(std::int64_t(man << shift_amount) >> shift_amount);
+    man = apy_limb_t(apy_limb_signed_t(man << shift_amount) >> shift_amount);
     return man;
 }
 
