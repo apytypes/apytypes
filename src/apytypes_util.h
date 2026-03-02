@@ -324,8 +324,7 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
         // As long as there are elements remaining in the BCD list, and we haven't
         // completed a multiple-of-four iterations
         std::any_of(bcd.data.begin(), bcd.data.end(), [](auto n) { return n != 0; })
-        || iteration % BITS_PER_NIBBLE != 0
-    ) {
+        || iteration % BITS_PER_NIBBLE != 0) {
         // Right shift the nibble binary data
         if (iteration) {
             new_limb = apy_inplace_right_shift(&nibble_data[0], nibble_data.size(), 1);

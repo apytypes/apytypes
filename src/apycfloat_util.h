@@ -396,8 +396,10 @@ private:
                     sub(yc, xd, yc_xd);
                     mul(INF, xc_yd, dst_real);
                     mul(INF, yc_xd, dst_imag);
-                } else if ((is_inf(c, dst_spec) || is_inf(d, dst_spec))
-                           && is_finite(a, dst_spec) && is_finite(b, dst_spec)) {
+                } else if (
+                    (is_inf(c, dst_spec) || is_inf(d, dst_spec))
+                    && is_finite(a, dst_spec) && is_finite(b, dst_spec)
+                ) {
                     APyFloatData ZERO = { 0, 0, 0 };
                     APyFloatData ax, ay, bx, by, ax_by, bx_ay;
                     exp_t x_exp = is_inf(c, dst_spec) ? dst_spec.bias : exp_t(0);

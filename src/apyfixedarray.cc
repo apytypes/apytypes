@@ -397,8 +397,10 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
             std::begin(result._data), // dst
             result._data.size()       // elements
         );
-    } else if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
-               && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+    } else if (
+        unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS
+    ) {
         // Special case #2: Both arguments are single limb, result two limbs
         for (std::size_t i = 0; i < _nitems; i++) {
             auto [high, low] = long_signed_mult(_data[i], rhs._data[i]);

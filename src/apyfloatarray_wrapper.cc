@@ -41,9 +41,9 @@ static auto L_OP(const APyFloatArray& lhs, const R_TYPE& rhs)
         return OP()(lhs, APyFloat::from_double(rhs, exp_bits, man_bits, bias));
     } else if constexpr (std::is_same_v<remove_cvref_t<R_TYPE>, APyFloat>) {
         return OP()(lhs, rhs);
-    } else if constexpr (std::is_same_v<
-                             remove_cvref_t<R_TYPE>,
-                             nb::ndarray<nb::c_contig>>) {
+    } else if constexpr (
+        std::is_same_v<remove_cvref_t<R_TYPE>, nb::ndarray<nb::c_contig>>
+    ) {
         return OP()(lhs, APyFloatArray::from_array(rhs, exp_bits, man_bits, bias));
     } else {
         return OP()(lhs, APyFloat::from_integer(rhs, exp_bits, man_bits, bias));
