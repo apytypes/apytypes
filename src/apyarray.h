@@ -1845,8 +1845,9 @@ public:
                 res += ", " + kw;
             }
             res += ")";
-        } else if (!is_format_multi_line
-                   && 4 + total_format_len + kw_len <= line_width) {
+        } else if (
+            !is_format_multi_line && 4 + total_format_len + kw_len <= line_width
+        ) {
             /*
              *   4               format                        kw_args
              * |--||--------------------------------||------------------------|

@@ -41,9 +41,9 @@ static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
         return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
     } else if constexpr (std::is_same_v<remove_cvref_t<R_TYPE>, APyFixed>) {
         return OP()(lhs, rhs);
-    } else if constexpr (std::is_same_v<
-                             remove_cvref_t<R_TYPE>,
-                             nb::ndarray<nb::c_contig>>) {
+    } else if constexpr (
+        std::is_same_v<remove_cvref_t<R_TYPE>, nb::ndarray<nb::c_contig>>
+    ) {
         return OP()(
             lhs, APyFixedArray::from_array(rhs, lhs.int_bits(), lhs.frac_bits())
         );
