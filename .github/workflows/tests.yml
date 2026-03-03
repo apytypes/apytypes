@@ -90,7 +90,7 @@ jobs:
       if: contains(matrix.python-version, 't')
       run: |
         export PYTHON_GIL=0
-        pytest --color=yes lib/test
+        pytest --color=yes lib/test --durations 10
     - name: Test with pytest
       run: |
-        pytest --color=yes lib/test
+        pytest --color=yes lib/test --durations 10

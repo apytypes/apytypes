@@ -53,7 +53,7 @@ def test_make_third_party_array(lib: str):
         set_array_library(lib)
         assert repr((a < b).dtype == "dtype.('bool')")
     except TypeError as e:
-        regex = re.compile(r"could not export nb::ndarray:")
+        regex = re.compile(r"could not export nanobind::ndarray:")
         assert regex.match(str(e)) is not None  # noqa: PT017
     set_array_library("numpy")
 
