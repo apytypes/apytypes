@@ -128,13 +128,13 @@ fields; a sign bit :attr:`sign`, a biased exponent :attr:`exp`, and an integral 
 with a hidden one :attr:`man`. The value of a *normal* number would thus be
 
 .. math::
-    (-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man_bits}}).
+    (-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man\_bits}}).
 
 In general, if the bias is not explicitly given for a format :class:`APyFloat` will
 default to an IEEE-like bias using the formula
 
 .. math::
-    \texttt{bias} = 2^{\texttt{exp_bits - 1}} - 1.
+    \texttt{bias} = 2^{\texttt{exp\_bits - 1}} - 1.
 
 Arithmetic can be performed similarly to the operations of the built-in type
 :class:`float` in Python. The resulting word length from operations will be the same as
@@ -168,11 +168,11 @@ support operations with biases deviating from the standard, the bias of the resu
 format is calculated as the "average" of the inputs' biases as
 
 .. math::
-    \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
+    \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp\_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp\_bits}_2} \right ) \times 2^{\texttt{exp\_bits}_3}}{2} - 1,
 
-where :math:`\texttt{exp_bits}_1` and :math:`\texttt{exp_bits}_2` are the bit widths of
+where :math:`\texttt{exp\_bits}_1` and :math:`\texttt{exp\_bits}_2` are the bit widths of
 the operands, :math:`\texttt{bias}_1` and :math:`\texttt{bias}_2` are the input biases,
-and :math:`\texttt{exp_bits}_3` is the target bit width. Note that this formula still
+and :math:`\texttt{exp\_bits}_3` is the target bit width. Note that this formula still
 results in an IEEE-like bias when the inputs use IEEE-like biases.
 """
 
