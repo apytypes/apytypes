@@ -319,13 +319,13 @@ fields; a sign bit <a class="reference internal" href="#apytypes.APyFloat.sign" 
 with a hidden one <a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-attr docutils literal notranslate"><span class="pre">man</span></code></a>. The value of a <em>normal</em> number would thus be</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[(-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man_bits}}).\]</div>
+\[(-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man\_bits}}).\]</div>
 </div>
 <p>In general, if the bias is not explicitly given for a format <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> will
 default to an IEEE-like bias using the formula</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\texttt{bias} = 2^{\texttt{exp_bits - 1}} - 1.\]</div>
+\[\texttt{bias} = 2^{\texttt{exp\_bits - 1}} - 1.\]</div>
 </div>
 <p>Arithmetic can be performed similarly to the operations of the built-in type
 <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> in Python. The resulting word length from operations will be the same as
@@ -461,11 +461,11 @@ support operations with biases deviating from the standard, the bias of the resu
 format is calculated as the “average” of the inputs’ biases as</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,\]</div>
+\[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp\_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp\_bits}_2} \right ) \times 2^{\texttt{exp\_bits}_3}}{2} - 1,\]</div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(\texttt{exp_bits}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_2\)</span> are the bit widths of
+<p>where <span class="math notranslate nohighlight">\(\texttt{exp\_bits}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{exp\_bits}_2\)</span> are the bit widths of
 the operands, <span class="math notranslate nohighlight">\(\texttt{bias}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{bias}_2\)</span> are the input biases,
-and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_3\)</span> is the target bit width. Note that this formula still
+and <span class="math notranslate nohighlight">\(\texttt{exp\_bits}_3\)</span> is the target bit width. Note that this formula still
 results in an IEEE-like bias when the inputs use IEEE-like biases.</p>
 <section id="constructor">
 <h2>Constructor<a class="headerlink" href="#constructor" title="Link to this heading">¶</a></h2>
