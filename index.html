@@ -187,7 +187,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -299,7 +299,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
@@ -309,17 +309,43 @@
 <p>APyTypes is a Python library providing algorithmic data types, both fixed- and
 floating-point in Python. The main purpose is to simplify finite word length design and
 simulation. Written in C++, the focus is on performance and flexibility.</p>
-<p>The repository can be found at <a class="reference external" href="https://github.com/apytypes/apytypes">https://github.com/apytypes/apytypes</a>.
-Please report any issues or suggestions there. Contributions are also welcome!</p>
-<p>To install APyTypes do</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>apytypes
+<p>The repository can be found at <a class="reference external" href="https://github.com/apytypes/apytypes">GitHub</a>. Please
+report any issues or suggestions there. Contributions are also welcome!</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<p>Releases of APyTypes come with pre-build wheels for Linux, Windows, and MacOS (ARM64 and
+x86-64). Release wheels are made available through <a class="reference external" href="https://pypi.org/project/apytypes/">PyPi</a>. Using a pre-built wheel is the recommended way
+of installing APyTypes.</p>
+<div class="admonition-install-apytypes admonition">
+<p class="admonition-title">Install APyTypes</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>apytypes
 </pre></div>
 </div>
-<p>To install the latest version from source, without having to set up git etc, do</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/apytypes/apytypes.git
+</div>
+<p>It is also possible to build APyTypes from source code. Unreleased content not yet
+available through a release is made available in this way.</p>
+<div class="admonition-install-apytypes-from-source admonition">
+<p class="admonition-title">Install APyTypes from source</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/apytypes/apytypes.git
 </pre></div>
 </div>
-<p>Or look at the <a class="reference internal" href="development.html#development"><span class="std std-ref">Development</span></a> instructions.</p>
+<dl class="simple">
+<dt>Installing APyTypes from source requires:</dt><dd><ul class="simple">
+<li><p>A C++17-compatible compiler</p></li>
+<li><p><a class="reference external" href="https://git-scm.com/">Git</a></p></li>
+<li><p><a class="reference external" href="https://cmake.org/">CMake</a></p></li>
+<li><p><a class="reference external" href="https://mesonbuild.com/">Meson</a></p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="development.html#development"><span class="std std-ref">Development</span></a></dt><dd><p>Detailed information on building APyTypes and its documentation from source.</p>
+</dd>
+</dl>
+</div>
 <p>Now, have a look at the examples and play around. Using an enhanced terminal, like
 Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.</p>
 <div class="toctree-wrapper compound">
@@ -337,6 +363,7 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.</p>
 </ul>
 </div>
 </section>
+</section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
 <ul class="simple">
@@ -344,7 +371,8 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.</p>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-<p>APyTypes is developed by the Division of Electronics and Computer Engineering at Linköping University, Sweden.</p>
+<p>APyTypes is developed by the Division of Electronics and Computer Engineering at
+Linköping University, Sweden.</p>
 <img alt="_images/liu-white.svg" class="only-dark" src="_images/liu-white.svg" />
 <img alt="_images/liu-black.svg" class="only-light" src="_images/liu-black.svg" />
 </section>
@@ -389,8 +417,28 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Welcome to APyTypes’ documentation!</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
