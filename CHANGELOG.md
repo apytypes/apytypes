@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- An [interactive playground](https://apytypes.org/playground.html) on the
+  APyTypes website.
 - Implemented `.to_bits()` and `.from_bits()` for `APyCFloat`.
 - LaTeX representation for `APyCFixed` and `APyCFloat`.
 - Array comparisons
