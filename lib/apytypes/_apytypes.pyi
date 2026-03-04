@@ -1894,7 +1894,7 @@ class APyCFixedArray:
         key: int
         | slice
         | types.EllipsisType
-        | Annotated[NDArray[numpy.bool], dict(order="C")]
+        | Annotated[NDArray[numpy.bool_], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyCFixedArray | APyCFixed: ...
     def __setitem__(
@@ -1902,7 +1902,7 @@ class APyCFixedArray:
         key: int
         | slice
         | types.EllipsisType
-        | Annotated[NDArray[numpy.bool], dict(order="C")]
+        | Annotated[NDArray[numpy.bool_], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
         val: APyCFixedArray | APyCFixed,
     ) -> None: ...
@@ -3543,7 +3543,7 @@ class APyCFloatArray:
         key: int
         | slice
         | types.EllipsisType
-        | Annotated[NDArray[numpy.bool], dict(order="C")]
+        | Annotated[NDArray[numpy.bool_], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyCFloatArray | APyCFloat: ...
     def __setitem__(
@@ -3551,7 +3551,7 @@ class APyCFloatArray:
         key: int
         | slice
         | types.EllipsisType
-        | Annotated[NDArray[numpy.bool], dict(order="C")]
+        | Annotated[NDArray[numpy.bool_], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
         val: APyCFloatArray | APyCFloat,
     ) -> None: ...
@@ -3575,20 +3575,22 @@ class APyFixed:
     In general, the fixed-point representation is described by
 
     .. math::
+
         \underbrace{
             \underbrace{
                 x_{n-1} \; x_{n-2} \; \ldots \; x_{k+1} \; x_{k}
-            }_{\mathrm{int\_bits}}
+            }_{\texttt{int\_bits}}
             \; . \;
             \underbrace{
                 x_{k-1} \; x_{k-2} \; \ldots \; x_{1} \; x_{0}
-            }_{\mathrm{frac\_bits}}
-        }_{\mathrm{bits}}
+            }_{\texttt{frac\_bits}}
+        }_{\texttt{bits}}
 
     The following is an example of a fixed-point number with :code:`bits=8`,
     :code:`int_bits=5`, and :code:`frac_bits=3`, that has a stored value of -6.625
 
     .. math::
+
         \begin{align*}
             1 \, 1 \, 0 \, 0 \, 1 \,.\, 0 \, 1 \, 1_{2} = \frac{-53_{10}}{2^3} = -6.625_{10}
         \end{align*}
@@ -5363,7 +5365,7 @@ class APyFixedArray:
         key: int
         | slice
         | types.EllipsisType
-        | Annotated[NDArray[numpy.bool], dict(order="C")]
+        | Annotated[NDArray[numpy.bool_], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyFixedArray | APyFixed: ...
     def __setitem__(
@@ -5371,7 +5373,7 @@ class APyFixedArray:
         key: int
         | slice
         | types.EllipsisType
-        | Annotated[NDArray[numpy.bool], dict(order="C")]
+        | Annotated[NDArray[numpy.bool_], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
         val: APyFixedArray | APyFixed,
     ) -> None: ...
@@ -5398,12 +5400,15 @@ class APyFloat:
     with a hidden one :attr:`man`. The value of a *normal* number would thus be
 
     .. math::
-        (-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man\_bits}}).
+
+        (-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 +
+        \texttt{man} \times 2^{\texttt{-man\_bits}}).
 
     In general, if the bias is not explicitly given for a format :class:`APyFloat` will
     default to an IEEE-like bias using the formula
 
     .. math::
+
         \texttt{bias} = 2^{\texttt{exp\_bits - 1}} - 1.
 
     Arithmetic can be performed similarly to the operations of the built-in type
@@ -5438,12 +5443,15 @@ class APyFloat:
     format is calculated as the "average" of the inputs' biases as
 
     .. math::
-        \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp\_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp\_bits}_2} \right ) \times 2^{\texttt{exp\_bits}_3}}{2} - 1,
 
-    where :math:`\texttt{exp\_bits}_1` and :math:`\texttt{exp\_bits}_2` are the bit widths of
-    the operands, :math:`\texttt{bias}_1` and :math:`\texttt{bias}_2` are the input biases,
-    and :math:`\texttt{exp\_bits}_3` is the target bit width. Note that this formula still
-    results in an IEEE-like bias when the inputs use IEEE-like biases.
+        \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) /
+        2^{\texttt{exp\_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) /
+        2^{\texttt{exp\_bits}_2} \right ) \times 2^{\texttt{exp\_bits}_3}}{2} - 1,
+
+    where :math:`\texttt{exp\_bits}_1` and :math:`\texttt{exp\_bits}_2` are the bit widths
+    of the operands, :math:`\texttt{bias}_1` and :math:`\texttt{bias}_2` are the input
+    biases, and :math:`\texttt{exp\_bits}_3` is the target bit width. Note that this formula
+    still results in an IEEE-like bias when the inputs use IEEE-like biases.
     """
 
     def __init__(
@@ -7529,7 +7537,7 @@ class APyFloatArray:
         key: int
         | slice
         | types.EllipsisType
-        | Annotated[NDArray[numpy.bool], dict(order="C")]
+        | Annotated[NDArray[numpy.bool_], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyFloatArray | APyFloat: ...
     def __setitem__(
@@ -7537,7 +7545,7 @@ class APyFloatArray:
         key: int
         | slice
         | types.EllipsisType
-        | Annotated[NDArray[numpy.bool], dict(order="C")]
+        | Annotated[NDArray[numpy.bool_], dict(order="C")]
         | tuple[int | slice | types.EllipsisType, ...],
         val: APyFloatArray | APyFloat,
     ) -> None: ...

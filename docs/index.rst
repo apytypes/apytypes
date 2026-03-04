@@ -7,22 +7,42 @@ APyTypes is a Python library providing algorithmic data types, both fixed- and
 floating-point in Python. The main purpose is to simplify finite word length design and
 simulation. Written in C++, the focus is on performance and flexibility.
 
-The repository can be found at `https://github.com/apytypes/apytypes <https://github.com/apytypes/apytypes>`_.
-Please report any issues or suggestions there. Contributions are also welcome!
+The repository can be found at `GitHub <https://github.com/apytypes/apytypes>`_. Please
+report any issues or suggestions there. Contributions are also welcome!
 
-To install APyTypes do
+Installation
+------------
 
-.. code-block:: bash
+Releases of APyTypes come with pre-build wheels for Linux, Windows, and MacOS (ARM64 and
+x86-64). Release wheels are made available through `PyPi
+<https://pypi.org/project/apytypes/>`_. Using a pre-built wheel is the recommended way
+of installing APyTypes.
 
-   pip install apytypes
+.. admonition:: Install APyTypes
 
-To install the latest version from source, without having to set up git etc, do
+    .. code-block:: console
 
-.. code-block:: bash
+        $ pip install apytypes
 
-   pip install git+https://github.com/apytypes/apytypes.git
+It is also possible to build APyTypes from source code. Unreleased content not yet
+available through a release is made available in this way.
 
-Or look at the :ref:`development` instructions.
+.. admonition:: Install APyTypes from source
+
+    .. code-block:: console
+
+        $ pip install git+https://github.com/apytypes/apytypes.git
+
+    Installing APyTypes from source requires:
+      * A C++17-compatible compiler
+      * `Git <https://git-scm.com/>`_
+      * `CMake <https://cmake.org/>`_
+      * `Meson <https://mesonbuild.com/>`_
+
+.. seealso::
+
+    :ref:`development`
+        Detailed information on building APyTypes and its documentation from source.
 
 Now, have a look at the examples and play around. Using an enhanced terminal, like
 Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.
@@ -48,7 +68,8 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-APyTypes is developed by the Division of Electronics and Computer Engineering at Linköping University, Sweden.
+APyTypes is developed by the Division of Electronics and Computer Engineering at
+Linköping University, Sweden.
 
 .. image:: _static/liu-white.svg
    :class: only-dark
