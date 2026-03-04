@@ -3,11 +3,11 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Development" href="development.html"><link rel="prev" title="Computational performance" href="performance.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Computational performance" href="performance.html"><link rel="prev" title="cocotb integration" href="examples/test_fp8_mul.html">
         <link rel="prefetch" href="_static/apytypeslogo.svg" as="image">
 
     <link rel="shortcut icon" href="_static/apytypes.ico"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Comparison - APyTypes documentation</title>
+        <title>APyTypes Playground - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -187,7 +187,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -260,9 +260,9 @@
 <li class="toctree-l2"><a class="reference internal" href="examples/test_fp8_mul.html">cocotb integration</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="playground.html">APyTypes Playground</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">APyTypes Playground</a></li>
 <li class="toctree-l1"><a class="reference internal" href="performance.html">Computational performance</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparison.html">Comparison</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
 <li class="toctree-l1"><a class="reference internal" href="publications.html">Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
@@ -287,7 +287,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/comparison.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/playground.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -300,277 +300,385 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="comparison">
-<h1>Comparison<a class="headerlink" href="#comparison" title="Link to this heading">¶</a></h1>
-<section id="comparison-matrix">
-<h2>Comparison matrix<a class="headerlink" href="#comparison-matrix" title="Link to this heading">¶</a></h2>
-<div class="table-wrapper docutils container" id="id36">
-<table class="docutils align-default" id="id36">
-<caption><span class="caption-text">Fixed-point libraries</span><a class="headerlink" href="#id36" title="Link to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head stub"><p>Library</p></th>
-<th class="head"><p>APyTypes</p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/enclustra/en_cl_fix/">en_cl_fix</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/Schweitzer-Engineering-Laboratories/fixedpoint">fixedpoint</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/smlgit/fpbinary">fpbinary</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/francof2a/fxpmath">fxpmath</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/ZZZZzzzzac/numfi">numfi</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/inEXASCALE/pychop">pychop</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/chipmuenk/pyfixp">pyfixp</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/rwpenney/spfpm">spfpm</a></p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><th class="stub"><p>Custom fixed-point formats</p></th>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#numfifootnote" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p>Custom floating-point formats</p></th>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><th class="stub"><p>Maximum wordlength <a class="footnote-reference brackets" href="#wlfootnote" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a></p></th>
-<td><p>None</p></td>
-<td><p>53/None <a class="footnote-reference brackets" href="#enclfixfootnote" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
-<td><p>None</p></td>
-<td><p>None</p></td>
-<td><p>None</p></td>
-<td><p>64 <a class="footnote-reference brackets" href="#numfifootnote" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></td>
-<td><p>53 <a class="footnote-reference brackets" href="#pychopfootnote" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></td>
-<td><p>53 <a class="footnote-reference brackets" href="#pyfixpfootnote" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p></td>
-<td><p>None</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p>Resizing of fixed-point results</p></th>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#numfifootnote" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pychopfootnote" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pyfixpfootnote" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><th class="stub"><p>Arrays</p></th>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No <a class="footnote-reference brackets" href="#fpbinaryfootnote" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pychopfootnote" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pyfixpfootnote" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p>Matrix multiplication (<code class="docutils literal notranslate"><span class="pre">&#64;</span></code>)</p></th>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>N/A</p></td>
-<td><p>N/A</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pychopfootnote" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pyfixpfootnote" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p></td>
-<td><p>N/A</p></td>
-</tr>
-<tr class="row-even"><th class="stub"><p>Written in</p></th>
-<td><p>C++/Python</p></td>
-<td><p>Python</p></td>
-<td><p>Python</p></td>
-<td><p>C/Python</p></td>
-<td><p>Python</p></td>
-<td><p>Python</p></td>
-<td><p>Python <a class="footnote-reference brackets" href="#pychopfootnote" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></td>
-<td><p>Python <a class="footnote-reference brackets" href="#pyfixpfootnote" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p></td>
-<td><p>Python</p></td>
-</tr>
-</tbody>
-</table>
+          <section id="apytypes-playground">
+<h1>APyTypes Playground<a class="headerlink" href="#apytypes-playground" title="Link to this heading">¶</a></h1>
+<p>Welcomde to APyTypes Playground! This is an interactive console with Python and APyTypes
+in the web browser based on the <a class="reference external" href="https://pyodide.org/">Pyodide</a> v0.28.2 terminal
+emulator 🐍.</p>
+<!--
+  -- APyTypes Interactive Console in HTML
+  --
+  -- This is an interactive Pyodide shell exposed through the Xterm.js webconsole. It
+  -- auto-magically loads the APyTypes WASM wheel so that it can be imported
+  -- immediately.
+  -->
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@6.0.0/css/xterm.css" />
+<script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@6.0.0/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.11.0/lib/addon-fit.js"></script>
+
+
+<div class=term-wrap style="padding: 12px; box-sizing: border-box; background:#111">
+    <div id="terminal"></div>
 </div>
-<p class="rubric">Footnotes</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="enclfixfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">1</a><span class="fn-bracket">]</span></span>
-<p><code class="docutils literal notranslate"><span class="pre">en_cl_fix</span></code> has two different fixed-point classes, one handles up to 53 bits, the other has no limitation. However, an operation involving the shorter format cannot produce the longer etc. In the comparison, the longer format was used for all tests.</p>
-</aside>
-<aside class="footnote brackets" id="numfifootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id4">2</a>,<a role="doc-backlink" href="#id7">3</a>)</span>
-<p><code class="docutils literal notranslate"><span class="pre">numfi</span></code> is limited to 64 total bits (including results of e.g. multiplication).</p>
-</aside>
-<aside class="footnote brackets" id="pychopfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id8">2</a>,<a role="doc-backlink" href="#id11">3</a>,<a role="doc-backlink" href="#id13">4</a>,<a role="doc-backlink" href="#id15">5</a>)</span>
-<p><code class="docutils literal notranslate"><span class="pre">pychop</span></code> is essentially a package to simply quantize floating-point NumPy, PyTorch, and JAX-arrays to a corresponding fixed-point or floating-point representation. Computation still happens at the precision of the underlying array.</p>
-</aside>
-<aside class="footnote brackets" id="pyfixpfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id6">1</a>,<a role="doc-backlink" href="#id9">2</a>,<a role="doc-backlink" href="#id12">3</a>,<a role="doc-backlink" href="#id14">4</a>,<a role="doc-backlink" href="#id16">5</a>)</span>
-<p><code class="docutils literal notranslate"><span class="pre">pyfixp</span></code> is essentially a package to simply quantize floating-point NumPy-arrays with doubles to a corresponding fixed-point representation. Computation still happens at the precision of the underlying array.</p>
-</aside>
-<aside class="footnote brackets" id="fpbinaryfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">5</a><span class="fn-bracket">]</span></span>
-<p><code class="docutils literal notranslate"><span class="pre">fpbinary</span></code> provides a helper function to convert an array to a list with fixed-point numbers.</p>
-</aside>
-<aside class="footnote brackets" id="wlfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">6</a><span class="fn-bracket">]</span></span>
-<p>Note that this holds for intermediate results as well. For example, multiplying two 27-bit numbers will create a 54-bit result which will not give bit-accurate results with <code class="docutils literal notranslate"><span class="pre">pyfixp</span></code>.</p>
-</aside>
-</aside>
-<div class="table-wrapper docutils container" id="id37">
-<table class="docutils align-default" id="id37">
-<caption><span class="caption-text">Floating-point libraries</span><a class="headerlink" href="#id37" title="Link to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head stub"><p>Library</p></th>
-<th class="head"><p>APyTypes</p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/mdickinson/bigfloat">bigfloat</a> <a class="footnote-reference brackets" href="#bigfloatfootnote" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/aleaxit/gmpy">gmpy2</a> <a class="footnote-reference brackets" href="#gmpy2footnote" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/mpmath/mpmath">mpmath</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/inEXASCALE/pychop">PyChop</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/florianschanda/PyMPF">PyMPF</a></p></th>
-<th class="head"><p><a class="reference external" href="https://github.com/graphcore-research/gfloat">gfloat</a></p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><th class="stub"><p>Custom fixed-point formats</p></th>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pychopfootnotefp" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p>Custom floating-point formats</p></th>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pychopfootnotefp" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
-<td><p>Yes</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#gfloatfootnote" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></p></td>
-</tr>
-<tr class="row-even"><th class="stub"><p>Binary representation of number <a class="footnote-reference brackets" href="#binaryfootnote" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a></p></th>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p>Maximum wordlength</p></th>
-<td><p>32 bits for exponent, 64 bits for mantissa <a class="footnote-reference brackets" href="#apytypesfootnote" id="id24" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></td>
-<td><p>None</p></td>
-<td><p>None</p></td>
-<td><p>None</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pychopfootnotefp" id="id25" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
-<td><p>18 bits for exponent, none for mantissa</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#gfloatfootnote" id="id26" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></p></td>
-</tr>
-<tr class="row-even"><th class="stub"><p>Stochastic rounding</p></th>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#gfloatfootnote" id="id27" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p>Arrays</p></th>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pychopfootnotefp" id="id28" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
-<td><p>No</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#gfloatfootnote" id="id29" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></p></td>
-</tr>
-<tr class="row-even"><th class="stub"><p>Matrix multiplication (<code class="docutils literal notranslate"><span class="pre">&#64;</span></code>)</p></th>
-<td><p>Yes</p></td>
-<td><p>N/A</p></td>
-<td><p>N/A</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#pychopfootnotefp" id="id30" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
-<td><p>N/A</p></td>
-<td><p>Yes <a class="footnote-reference brackets" href="#gfloatfootnote" id="id31" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p>Written in</p></th>
-<td><p>C++/Python</p></td>
-<td><p>C/Python</p></td>
-<td><p>C/Python</p></td>
-<td><p>Python <a class="footnote-reference brackets" href="#mpmathfootnote" id="id32" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
-<td><p>Python <a class="footnote-reference brackets" href="#pychopfootnotefp" id="id33" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
-<td><p>Python</p></td>
-<td><p>Python <a class="footnote-reference brackets" href="#gfloatfootnote" id="id34" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></p></td>
-</tr>
-</tbody>
-</table>
+
+<script type="module">
+
+    const fitAddon = new FitAddon.FitAddon();
+    const term = new Terminal({
+        cursorBlink: true,
+        cursorStyle: "block",
+        convertEol: true,
+        fontFamily: "monospace",
+        lineHeight: 1.4,
+        theme: {
+            padding: 100,
+            background: "#111",
+        },
+    });
+
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    fitAddon.fit();
+    term.focus();
+    term.write('Xterm.js v6.0.0\n');
+    term.write('Loading APyTypes in Pyodide...\n');
+
+    // The version of Pyodide has to match exactly with that of the APyTypes WASM build
+    let indexURL = "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/";
+
+    // Initialize Pyodide
+    const { loadPyodide } = await import(indexURL + "pyodide.mjs");
+    const pyodide = await loadPyodide();
+    globalThis.pyodide = pyodide;
+
+    // Load the APyTypes wheel
+    await pyodide.loadPackage("micropip")
+    const micropip = pyodide.pyimport("micropip")
+    await micropip.install("https://raw.githubusercontent.com/apytypes/WASM32-v0.5.0.dev84-g969f0dc47/main/wheels/apytypes-0.5.0.dev84+g969f0dc47-cp313-cp313-pyodide_2025_0_wasm32.whl")
+
+    const { repr_shorten, BANNER, PyodideConsole }
+        = pyodide.pyimport("pyodide.console");
+
+    term.clear();
+    term.writeln(
+        ""
+        + `Welcome to APyTypes v0.5.0 (pre-release) playground 🎉\n`
+        + `To import APyTypes use: 'import apytypes as apy'\n\n`
+        + `${BANNER}`
+    )
+
+    const pyconsole = PyodideConsole(pyodide.globals);
+    const namespace = pyodide.globals.get("dict")();
+
+    const await_fut = pyodide.runPython(
+      `
+  import builtins
+  from pyodide.ffi import to_js
+  async def await_fut(fut):
+    res = await fut
+    if res is not None:
+        builtins._ = res
+    return to_js([res], depth=1)
+  await_fut
+  `,
+      { globals: namespace }
+    );
+    namespace.destroy();
+
+    pyconsole.stdout_callback = (s) => term.write(s);
+    pyconsole.stderr_callback = (s) => term.write(`\x1b[31m${s}\x1b[0m`);
+
+    // Handle fatal errors
+    pyodide._api.on_fatal = async (e) => {
+      if (e.name === "Exit") {
+        term.write(`\x1b[31m${e}\x1b[0m\r\n`);
+        term.write(
+          "\x1b[31mPyodide exited and can no longer be used.\x1b[0m\r\n"
+        );
+      } else {
+        term.write(
+          "\x1b[31mPyodide has suffered a fatal error. Please report this to the Pyodide maintainers.\x1b[0m\r\n"
+        );
+        term.write("\x1b[31mThe cause of the fatal error was:\x1b[0m\r\n");
+        term.write(`\x1b[31m${e.message || e}\x1b[0m\r\n`);
+        term.write(
+          "\x1b[31mLook in the browser console for more details.\x1b[0m\r\n"
+        );
+      }
+    };
+
+    // REPL implementation
+    const ps1 = ">>> ";
+    const ps2 = "... ";
+    let buffer = "";
+    let cursorIndex = 0; // index within buffer for in-line editing
+    let prompt = ps1;
+    const history = [];
+    let historyIndex = null; // null means not navigating history
+
+    // Handle some custom key events
+    term.attachCustomKeyEventHandler((ev) => {
+        // Only handle when the terminal has focus
+        if (ev.type !== "keydown") return true;
+
+        // Prevent page scroll / browser navigation behavior
+        if (ev.key === "Home") {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            // Move to start of input buffer (right after the prompt)
+            cursorIndex = 0;
+            refreshLine();
+            return false; // don't let xterm do anything else with it
+        }
+
+        if (ev.key === "End") {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            cursorIndex = buffer.length;
+            refreshLine();
+            return false;
+        }
+
+        // (Optional) stop PageUp/PageDown from scrolling the whole webpage
+        if (ev.key === "PageUp" || ev.key === "PageDown") {
+            ev.preventDefault();
+            ev.stopPropagation();
+            return false;
+        }
+
+        return true;
+    });
+
+    // Load history from localStorage
+    try {
+      const savedHistory = localStorage.getItem("0_commands");
+      if (savedHistory) {
+        const parsed = JSON.parse(savedHistory);
+        if (Array.isArray(parsed)) {
+          history.push(...parsed);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load history from localStorage:", e);
+    }
+
+    term.write(prompt);
+
+    function addToHistory(command) {
+      const trimmed = command.trimEnd();
+      if (!trimmed) return;
+      const last = history[history.length - 1];
+      if (last !== trimmed) {
+        history.push(trimmed);
+        localStorage.setItem("0_commands", JSON.stringify(history));
+      }
+    }
+
+    function refreshLine() {
+      // Write left part, save cursor, write right part, clear, restore cursor.
+      const clearCommand = "\x1b[0K";
+      const leftPart = prompt + buffer.slice(0, cursorIndex);
+      const rightPart = buffer.slice(cursorIndex);
+      term.write(
+        `\x1b[0G${leftPart}\x1b[s${rightPart}${clearCommand}\x1b[u`
+      );
+    }
+
+    function setBuffer(newBuffer, newCursorIndex = null) {
+      buffer = newBuffer;
+      if (newCursorIndex === null) {
+        cursorIndex = buffer.length;
+      } else {
+        cursorIndex = Math.max(0, Math.min(newCursorIndex, buffer.length));
+      }
+      refreshLine();
+    }
+
+    async function execLine(line) {
+      // Normalize non-breaking spaces to regular spaces
+      line = line.replace(/\u00a0/g, " ");
+      // clear the terminal
+      if (line === "clear") {
+        term.clear();
+        return;
+      }
+
+      const fut = pyconsole.push(line);
+
+      switch (fut.syntax_check) {
+        case "syntax-error":
+          term.write(`\x1b[31m${fut.formatted_error.trimEnd()}\x1b[0m`);
+          term.write("\r\n");
+          prompt = ps1;
+          addToHistory(line);
+          historyIndex = null;
+          fut.destroy();
+          break;
+        case "incomplete":
+          prompt = ps2;
+          addToHistory(line);
+          historyIndex = null;
+          return;
+        case "complete":
+          prompt = ps1;
+          try {
+            const wrapped = await_fut(fut);
+            const [value] = await wrapped;
+            if (value !== undefined) {
+              const output = repr_shorten.callKwargs(value, {
+                separator: "\n<long output truncated>\n",
+              });
+              term.write(output);
+              term.write("\r\n");
+            }
+            if (value instanceof pyodide.ffi.PyProxy) value.destroy();
+            wrapped.destroy();
+          } catch (e) {
+            const msg = fut.formatted_error || e.message;
+            term.write(`\x1b[31m${String(msg).trimEnd()}\x1b[0m`);
+            term.write("\r\n");
+          } finally {
+            fut.destroy();
+          }
+          addToHistory(line);
+          historyIndex = null;
+          break;
+        default:
+          term.write(
+            `\r\nUnexpected syntax_check value: ${fut.syntax_check}`
+          );
+      }
+    }
+
+    term.onData(async (data) => {
+      switch (data) {
+        case "\r": // Enter
+          term.write("\r\n");
+          await execLine(buffer);
+          buffer = "";
+          cursorIndex = 0;
+          term.write(prompt);
+          break;
+        case "\u0003": // Ctrl-C
+          pyconsole.buffer.clear();
+          buffer = "";
+          cursorIndex = 0;
+          term.write("^C\r\nKeyboardInterrupt\r\n" + ps1);
+          prompt = ps1;
+          historyIndex = null;
+          break;
+        case "\u0016": // Ctrl-V
+          // paste from clipboard
+          const clipboard = await navigator.clipboard.readText();
+          const newBuf =
+            buffer.slice(0, cursorIndex) +
+            clipboard +
+            buffer.slice(cursorIndex);
+          setBuffer(newBuf, newBuf.length);
+          break;
+        case "\u007F": // Backspace
+          if (cursorIndex > 0) {
+            const before = buffer.slice(0, cursorIndex - 1);
+            const after = buffer.slice(cursorIndex);
+            cursorIndex -= 1;
+            setBuffer(before + after, cursorIndex);
+          }
+          break;
+        case "\x1B[A": // Up arrow
+          if (prompt === ps1) {
+            if (historyIndex === null) historyIndex = history.length;
+            if (historyIndex > 0) {
+              historyIndex -= 1;
+              const newBuf = history[historyIndex] || "";
+              setBuffer(newBuf, newBuf.length);
+            }
+          }
+          break;
+        case "\x1B[B": // Down arrow
+          if (prompt === ps1 && historyIndex !== null) {
+            if (historyIndex < history.length - 1) {
+              historyIndex += 1;
+              const newBuf = history[historyIndex] || "";
+              setBuffer(newBuf, newBuf.length);
+            } else {
+              historyIndex = null;
+              setBuffer("", 0);
+            }
+          }
+          break;
+        case "\x1B[C": // Right arrow
+          if (cursorIndex < buffer.length) {
+            cursorIndex += 1;
+            refreshLine();
+          }
+          break;
+        case "\x1B[D": // Left arrow
+          if (cursorIndex > 0) {
+            cursorIndex -= 1;
+            refreshLine();
+          }
+          break;
+        default:
+          if (data) {
+            // Normalize non-breaking spaces to regular spaces
+            data = data.replace(/\u00a0/g, " ");
+            // Insert arbitrary string at cursor position
+            const before = buffer.slice(0, cursorIndex);
+            const after = buffer.slice(cursorIndex);
+            const newBuf = before + data + after;
+            const newCursor = cursorIndex + data.length;
+            setBuffer(newBuf, newCursor);
+          }
+      }
+    });
+
+    // 4. Extra features
+    let idbkvPromise;
+    async function getIDBKV() {
+      if (!idbkvPromise) {
+        idbkvPromise = await import(
+          "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js"
+        );
+      }
+      return idbkvPromise;
+    }
+
+    async function mountDirectory(pyodideDirectory, directoryKey) {
+      if (pyodide.FS.analyzePath(pyodideDirectory).exists) {
+        return;
+      }
+      const { get, set } = await getIDBKV();
+      const opts = { id: "mountdirid", mode: "readwrite" };
+      let directoryHandle = await get(directoryKey);
+      if (!directoryHandle) {
+        directoryHandle = await showDirectoryPicker(opts);
+        await set(directoryKey, directoryHandle);
+      }
+      const permissionStatus = await directoryHandle.requestPermission(
+        opts
+      );
+      if (permissionStatus !== "granted") {
+        throw new Error("readwrite access to directory not granted");
+      }
+      await pyodide.mountNativeFS(pyodideDirectory, directoryHandle);
+    }
+    globalThis.mountDirectory = mountDirectory;
+
+</script>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The interactive Python console is non-persistent. Everything you do here will
+disappear on exit.</p>
 </div>
-<p class="rubric">Footnotes</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="bigfloatfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">7</a><span class="fn-bracket">]</span></span>
-<p><code class="docutils literal notranslate"><span class="pre">bigfloat</span></code> is a Python wrapper around the <a class="reference external" href="https://www.mpfr.org/">GNU MPFR</a> library.</p>
-</aside>
-<aside class="footnote brackets" id="gmpy2footnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">8</a><span class="fn-bracket">]</span></span>
-<p><code class="docutils literal notranslate"><span class="pre">gmpy2</span></code> is a Python wrapper around the <a class="reference external" href="https://www.mpfr.org/">GNU MPFR</a> and <a class="reference external" href="https://www.multiprecision.org/">GNU MPC</a> libraries.</p>
-</aside>
-<aside class="footnote brackets" id="pychopfootnotefp" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id20">1</a>,<a role="doc-backlink" href="#id21">2</a>,<a role="doc-backlink" href="#id25">3</a>,<a role="doc-backlink" href="#id28">4</a>,<a role="doc-backlink" href="#id30">5</a>,<a role="doc-backlink" href="#id33">6</a>)</span>
-<p><code class="docutils literal notranslate"><span class="pre">pychop</span></code> is essentially a package to simply quantize floating-point NumPy, PyTorch, and JAX-arrays to a given fixed-point or floating-point representation. Computation still happens at the precision of the underlying array.</p>
-</aside>
-<aside class="footnote brackets" id="gfloatfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id22">1</a>,<a role="doc-backlink" href="#id26">2</a>,<a role="doc-backlink" href="#id27">3</a>,<a role="doc-backlink" href="#id29">4</a>,<a role="doc-backlink" href="#id31">5</a>,<a role="doc-backlink" href="#id34">6</a>)</span>
-<p><code class="docutils literal notranslate"><span class="pre">gfloat</span></code> is a package for encoding/decoding floating-point numbers. Floating-point NumPy, PyTorch, and JAX-arrays are quantized to a given floating-point representation, and computation still happens at the precision of the underlying array.</p>
-</aside>
-<aside class="footnote brackets" id="binaryfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id23">11</a><span class="fn-bracket">]</span></span>
-<p>This means that it is possible to get a binary representation for comparison with, e.g., a hardware implementation.</p>
-</aside>
-<aside class="footnote brackets" id="apytypesfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id24">12</a><span class="fn-bracket">]</span></span>
-<p>This is a design choice since <code class="docutils literal notranslate"><span class="pre">apytypes</span></code>  is aimed at simulating shorter custom formats. However, there is unlimited word length support for fixed-point values which can, if deemed suitable at a later time, be used for floating-point as well.</p>
-</aside>
-<aside class="footnote brackets" id="mpmathfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id32">13</a><span class="fn-bracket">]</span></span>
-<p><code class="docutils literal notranslate"><span class="pre">mpmath</span></code> can use <code class="docutils literal notranslate"><span class="pre">gmpy</span></code> as a backend to do faster arithmetic, but uses Python integers by default.</p>
-</aside>
-</aside>
-</section>
-<section id="performance-comparison">
-<h2>Performance Comparison<a class="headerlink" href="#performance-comparison" title="Link to this heading">¶</a></h2>
-<p>This benchmark compares relevant fixed-point libraries from the list above.
-It is updated every documentation build and may vary over time as the code is further optimized.</p>
-<img alt="Benchmark numbers for different fixed-point libraries." src="_images/comparison.png" />
-<img alt="Benchmark relative to APyTypes for different fixed-point libraries." src="_images/comparison_relative.png" />
-</section>
-<section id="feature-comparison">
-<h2>Feature Comparison<a class="headerlink" href="#feature-comparison" title="Link to this heading">¶</a></h2>
-<img alt="Feature matrix for different fixed-point libraries." src="_images/comparison_matrix.png" />
-</section>
 </section>
 
         </article>
@@ -578,23 +686,23 @@ It is updated every documentation build and may vary over time as the code is fu
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="development.html">
+          <a class="next-page" href="performance.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Development</div>
+                <div class="title">Computational performance</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="performance.html">
+          <a class="prev-page" href="examples/test_fp8_mul.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Computational performance</div>
+                <div class="title">cocotb integration</div>
                 
               </div>
             </a>
@@ -623,29 +731,8 @@ It is updated every documentation build and may vary over time as the code is fu
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Comparison</a><ul>
-<li><a class="reference internal" href="#comparison-matrix">Comparison matrix</a></li>
-<li><a class="reference internal" href="#performance-comparison">Performance Comparison</a></li>
-<li><a class="reference internal" href="#feature-comparison">Feature Comparison</a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

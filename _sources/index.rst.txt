@@ -54,6 +54,7 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.
    api/index
    cpp_api/index
    examples/index
+   playground
    performance
    comparison
    development
