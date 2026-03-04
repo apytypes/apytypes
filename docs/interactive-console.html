@@ -1,0 +1,364 @@
+<!--
+  -- APyTypes Interactive Console in HTML
+  --
+  -- This is an interactive Pyodide shell exposed through the Xterm.js webconsole. It
+  -- auto-magically loads the APyTypes WASM wheel so that it can be imported
+  -- immediately.
+  -->
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@6.0.0/css/xterm.css" />
+<script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@6.0.0/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.11.0/lib/addon-fit.js"></script>
+
+
+<div class=term-wrap style="padding: 12px; box-sizing: border-box; background:#111">
+    <div id="terminal"></div>
+</div>
+
+<script type="module">
+
+    const fitAddon = new FitAddon.FitAddon();
+    const term = new Terminal({
+        cursorBlink: true,
+        cursorStyle: "block",
+        convertEol: true,
+        fontFamily: "monospace",
+        lineHeight: 1.4,
+        theme: {
+            padding: 100,
+            background: "#111",
+        },
+    });
+
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    fitAddon.fit();
+    term.focus();
+    term.write('Xterm.js v6.0.0\n');
+    term.write('Loading APyTypes in Pyodide...\n');
+
+    // The version of Pyodide has to match exactly with that of the APyTypes WASM build
+    let indexURL = "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/";
+
+    // Initialize Pyodide
+    const { loadPyodide } = await import(indexURL + "pyodide.mjs");
+    const pyodide = await loadPyodide();
+    globalThis.pyodide = pyodide;
+
+    // Load the APyTypes wheel
+    await pyodide.loadPackage("micropip")
+    const micropip = pyodide.pyimport("micropip")
+    await micropip.install("https://raw.githubusercontent.com/apytypes/WASM32-v0.5.0.dev84-g969f0dc47/main/wheels/apytypes-0.5.0.dev84+g969f0dc47-cp313-cp313-pyodide_2025_0_wasm32.whl")
+
+    const { repr_shorten, BANNER, PyodideConsole }
+        = pyodide.pyimport("pyodide.console");
+
+    term.clear();
+    term.writeln(
+        ""
+        + `Welcome to APyTypes v0.5.0 (pre-release) playground 🎉\n`
+        + `To import APyTypes use: 'import apytypes as apy'\n\n`
+        + `${BANNER}`
+    )
+
+    const pyconsole = PyodideConsole(pyodide.globals);
+    const namespace = pyodide.globals.get("dict")();
+
+    const await_fut = pyodide.runPython(
+      `
+  import builtins
+  from pyodide.ffi import to_js
+  async def await_fut(fut):
+    res = await fut
+    if res is not None:
+        builtins._ = res
+    return to_js([res], depth=1)
+  await_fut
+  `,
+      { globals: namespace }
+    );
+    namespace.destroy();
+
+    pyconsole.stdout_callback = (s) => term.write(s);
+    pyconsole.stderr_callback = (s) => term.write(`\x1b[31m${s}\x1b[0m`);
+
+    // Handle fatal errors
+    pyodide._api.on_fatal = async (e) => {
+      if (e.name === "Exit") {
+        term.write(`\x1b[31m${e}\x1b[0m\r\n`);
+        term.write(
+          "\x1b[31mPyodide exited and can no longer be used.\x1b[0m\r\n"
+        );
+      } else {
+        term.write(
+          "\x1b[31mPyodide has suffered a fatal error. Please report this to the Pyodide maintainers.\x1b[0m\r\n"
+        );
+        term.write("\x1b[31mThe cause of the fatal error was:\x1b[0m\r\n");
+        term.write(`\x1b[31m${e.message || e}\x1b[0m\r\n`);
+        term.write(
+          "\x1b[31mLook in the browser console for more details.\x1b[0m\r\n"
+        );
+      }
+    };
+
+    // REPL implementation
+    const ps1 = ">>> ";
+    const ps2 = "... ";
+    let buffer = "";
+    let cursorIndex = 0; // index within buffer for in-line editing
+    let prompt = ps1;
+    const history = [];
+    let historyIndex = null; // null means not navigating history
+
+    // Handle some custom key events
+    term.attachCustomKeyEventHandler((ev) => {
+        // Only handle when the terminal has focus
+        if (ev.type !== "keydown") return true;
+
+        // Prevent page scroll / browser navigation behavior
+        if (ev.key === "Home") {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            // Move to start of input buffer (right after the prompt)
+            cursorIndex = 0;
+            refreshLine();
+            return false; // don't let xterm do anything else with it
+        }
+
+        if (ev.key === "End") {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            cursorIndex = buffer.length;
+            refreshLine();
+            return false;
+        }
+
+        // (Optional) stop PageUp/PageDown from scrolling the whole webpage
+        if (ev.key === "PageUp" || ev.key === "PageDown") {
+            ev.preventDefault();
+            ev.stopPropagation();
+            return false;
+        }
+
+        return true;
+    });
+
+    // Load history from localStorage
+    try {
+      const savedHistory = localStorage.getItem("0_commands");
+      if (savedHistory) {
+        const parsed = JSON.parse(savedHistory);
+        if (Array.isArray(parsed)) {
+          history.push(...parsed);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load history from localStorage:", e);
+    }
+
+    term.write(prompt);
+
+    function addToHistory(command) {
+      const trimmed = command.trimEnd();
+      if (!trimmed) return;
+      const last = history[history.length - 1];
+      if (last !== trimmed) {
+        history.push(trimmed);
+        localStorage.setItem("0_commands", JSON.stringify(history));
+      }
+    }
+
+    function refreshLine() {
+      // Write left part, save cursor, write right part, clear, restore cursor.
+      const clearCommand = "\x1b[0K";
+      const leftPart = prompt + buffer.slice(0, cursorIndex);
+      const rightPart = buffer.slice(cursorIndex);
+      term.write(
+        `\x1b[0G${leftPart}\x1b[s${rightPart}${clearCommand}\x1b[u`
+      );
+    }
+
+    function setBuffer(newBuffer, newCursorIndex = null) {
+      buffer = newBuffer;
+      if (newCursorIndex === null) {
+        cursorIndex = buffer.length;
+      } else {
+        cursorIndex = Math.max(0, Math.min(newCursorIndex, buffer.length));
+      }
+      refreshLine();
+    }
+
+    async function execLine(line) {
+      // Normalize non-breaking spaces to regular spaces
+      line = line.replace(/\u00a0/g, " ");
+      // clear the terminal
+      if (line === "clear") {
+        term.clear();
+        return;
+      }
+
+      const fut = pyconsole.push(line);
+
+      switch (fut.syntax_check) {
+        case "syntax-error":
+          term.write(`\x1b[31m${fut.formatted_error.trimEnd()}\x1b[0m`);
+          term.write("\r\n");
+          prompt = ps1;
+          addToHistory(line);
+          historyIndex = null;
+          fut.destroy();
+          break;
+        case "incomplete":
+          prompt = ps2;
+          addToHistory(line);
+          historyIndex = null;
+          return;
+        case "complete":
+          prompt = ps1;
+          try {
+            const wrapped = await_fut(fut);
+            const [value] = await wrapped;
+            if (value !== undefined) {
+              const output = repr_shorten.callKwargs(value, {
+                separator: "\n<long output truncated>\n",
+              });
+              term.write(output);
+              term.write("\r\n");
+            }
+            if (value instanceof pyodide.ffi.PyProxy) value.destroy();
+            wrapped.destroy();
+          } catch (e) {
+            const msg = fut.formatted_error || e.message;
+            term.write(`\x1b[31m${String(msg).trimEnd()}\x1b[0m`);
+            term.write("\r\n");
+          } finally {
+            fut.destroy();
+          }
+          addToHistory(line);
+          historyIndex = null;
+          break;
+        default:
+          term.write(
+            `\r\nUnexpected syntax_check value: ${fut.syntax_check}`
+          );
+      }
+    }
+
+    term.onData(async (data) => {
+      switch (data) {
+        case "\r": // Enter
+          term.write("\r\n");
+          await execLine(buffer);
+          buffer = "";
+          cursorIndex = 0;
+          term.write(prompt);
+          break;
+        case "\u0003": // Ctrl-C
+          pyconsole.buffer.clear();
+          buffer = "";
+          cursorIndex = 0;
+          term.write("^C\r\nKeyboardInterrupt\r\n" + ps1);
+          prompt = ps1;
+          historyIndex = null;
+          break;
+        case "\u0016": // Ctrl-V
+          // paste from clipboard
+          const clipboard = await navigator.clipboard.readText();
+          const newBuf =
+            buffer.slice(0, cursorIndex) +
+            clipboard +
+            buffer.slice(cursorIndex);
+          setBuffer(newBuf, newBuf.length);
+          break;
+        case "\u007F": // Backspace
+          if (cursorIndex > 0) {
+            const before = buffer.slice(0, cursorIndex - 1);
+            const after = buffer.slice(cursorIndex);
+            cursorIndex -= 1;
+            setBuffer(before + after, cursorIndex);
+          }
+          break;
+        case "\x1B[A": // Up arrow
+          if (prompt === ps1) {
+            if (historyIndex === null) historyIndex = history.length;
+            if (historyIndex > 0) {
+              historyIndex -= 1;
+              const newBuf = history[historyIndex] || "";
+              setBuffer(newBuf, newBuf.length);
+            }
+          }
+          break;
+        case "\x1B[B": // Down arrow
+          if (prompt === ps1 && historyIndex !== null) {
+            if (historyIndex < history.length - 1) {
+              historyIndex += 1;
+              const newBuf = history[historyIndex] || "";
+              setBuffer(newBuf, newBuf.length);
+            } else {
+              historyIndex = null;
+              setBuffer("", 0);
+            }
+          }
+          break;
+        case "\x1B[C": // Right arrow
+          if (cursorIndex < buffer.length) {
+            cursorIndex += 1;
+            refreshLine();
+          }
+          break;
+        case "\x1B[D": // Left arrow
+          if (cursorIndex > 0) {
+            cursorIndex -= 1;
+            refreshLine();
+          }
+          break;
+        default:
+          if (data) {
+            // Normalize non-breaking spaces to regular spaces
+            data = data.replace(/\u00a0/g, " ");
+            // Insert arbitrary string at cursor position
+            const before = buffer.slice(0, cursorIndex);
+            const after = buffer.slice(cursorIndex);
+            const newBuf = before + data + after;
+            const newCursor = cursorIndex + data.length;
+            setBuffer(newBuf, newCursor);
+          }
+      }
+    });
+
+    // 4. Extra features
+    let idbkvPromise;
+    async function getIDBKV() {
+      if (!idbkvPromise) {
+        idbkvPromise = await import(
+          "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js"
+        );
+      }
+      return idbkvPromise;
+    }
+
+    async function mountDirectory(pyodideDirectory, directoryKey) {
+      if (pyodide.FS.analyzePath(pyodideDirectory).exists) {
+        return;
+      }
+      const { get, set } = await getIDBKV();
+      const opts = { id: "mountdirid", mode: "readwrite" };
+      let directoryHandle = await get(directoryKey);
+      if (!directoryHandle) {
+        directoryHandle = await showDirectoryPicker(opts);
+        await set(directoryKey, directoryHandle);
+      }
+      const permissionStatus = await directoryHandle.requestPermission(
+        opts
+      );
+      if (permissionStatus !== "granted") {
+        throw new Error("readwrite access to directory not granted");
+      }
+      await pyodide.mountNativeFS(pyodideDirectory, directoryHandle);
+    }
+    globalThis.mountDirectory = mountDirectory;
+
+</script>
