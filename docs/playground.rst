@@ -10,5 +10,5 @@ emulator 🐍.
 
 .. note::
 
-    The interactive Python console is non-persistent. Everything you do here will
-    disappear on exit.
+    The interactive Python console is non-persistent and runs locally in your browser.
+    Everything you do here will disappear on exit and no information is sent anywhere.

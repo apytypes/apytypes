@@ -57,13 +57,18 @@
     term.clear();
     term.writeln(
         ""
-        + `Welcome to APyTypes v0.5.0 (pre-release) playground 🎉\n`
-        + `To import APyTypes use: 'import apytypes as apy'\n\n`
+        + `Welcome to APyTypes playground 🎉\n`
+        + `This is an interactive Python console running in your browser using Pyodide.\n`
+        + `APyTypes is already imported as 'apy' and ready to use.\n`
         + `${BANNER}`
     )
 
     const pyconsole = PyodideConsole(pyodide.globals);
     const namespace = pyodide.globals.get("dict")();
+
+    for (let line of ["import apytypes as apy", "print('APyTypes version:', apy.__version__)"]) {
+      await pyconsole.push(line);
+    }
 
     const await_fut = pyodide.runPython(
       `
