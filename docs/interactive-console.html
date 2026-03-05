@@ -92,9 +92,6 @@
     const pyconsole = PyodideConsole(pyodide.globals);
     const namespace = pyodide.globals.get("dict")();
 
-    await pyconsole.push("import apytypes as apy");
-    await pyconsole.push("print('APyTypes version:', apy.__version__)");
-
     const await_fut = pyodide.runPython(
       `
         import builtins
@@ -113,6 +110,10 @@
     pyconsole.stdout_callback = (s) => term.write(s);
     pyconsole.stderr_callback = (s) => term.write(`\x1b[31m${s}\x1b[0m`);
 
+    // Import APyTypes and print the version to verify it works.
+    await pyconsole.push("import apytypes as apy");
+    await pyconsole.push("print('APyTypes version:', apy.__version__)");
+
     function longestCommonPrefix(strings) {
         if (!strings.length) return "";
         let prefix = strings[0];
@@ -123,7 +124,7 @@
             }
         }
         return prefix;
-      }
+    }
 
     function showCompletions(comps) {
         const sep = "    ";
