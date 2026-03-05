@@ -65,6 +65,57 @@ static APY_INLINE void complex_multiplication_1_1_2(
 #endif
 }
 
+static APY_INLINE void complex_real_multiplication_1_1_2(
+    apy_limb_t* res, const apy_limb_t* src0, const apy_limb_t* src1
+)
+{
+#if COMPILER_LIMB_SIZE == 64
+#if defined(__GNUC__)
+    // GCC and Clang
+    __int128 re0 = (__int128)apy_limb_signed_t(src0[0]);
+    __int128 im0 = (__int128)apy_limb_signed_t(src0[1]);
+    __int128 re1 = (__int128)apy_limb_signed_t(src1[0]);
+    auto re_res = re0 * re1;
+    auto im_res = im0 * re1;
+    res[0] = apy_limb_t(re_res);
+    res[1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
+    res[2] = apy_limb_t(im_res);
+    res[3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    auto [p0_high, p0_low] = long_signed_mult(src0[0], src1[0]);
+    auto [p3_high, p3_low] = long_signed_mult(src0[1], src1[0]);
+    res[0] = p0_low;
+    res[1] = p0_high;
+    res[2] = p3_low;
+    res[3] = p3_high;
+#else
+    // No 128-bit multiplication intrinsic found. We could implement this function,
+    // but fail for now so we can clearly see which systems are missing out on these
+    // intrinsics.
+    static_assert(
+        false,
+        "complex_multiplication_1_1_2(): No intrinsic available on your compiler. "
+        "Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with "
+        "information about the compiler and platform and we will be happy to add "
+        "support for it."
+    );
+#endif
+#else
+    // COMPILER_LIMB_SIZE = 32
+    std::int64_t re0 = (std::int64_t)apy_limb_signed_t(src0[0]);
+    std::int64_t im0 = (std::int64_t)apy_limb_signed_t(src0[1]);
+    std::int64_t re1 = (std::int64_t)apy_limb_signed_t(src1[0]);
+    auto re_res = re0 * re1;
+    auto im_res = im0 * re1;
+    res[0] = apy_limb_t(re_res);
+    res[1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
+    res[2] = apy_limb_t(im_res);
+    res[3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+#endif
+}
+
 /* ********************************************************************************** *
  * *     Fixed-point iterator based arithmetic functions with multi-limb support    * *
  * ********************************************************************************** */
@@ -167,6 +218,61 @@ static APY_INLINE void complex_fixed_point_product(
         &*(prod_imm),                                    // src1 (a*c)
         &*(prod_imm + src1_limbs + src2_limbs + 1),      // src2 (b*d)
         std::min(src1_limbs + src2_limbs + 1, dst_limbs) // limbs
+    );
+}
+
+//! Iterator-based multi-limb two's complement complex-valued fixed-point
+//! multiplication. The scratch vector `prod_imm` must have space for
+//! at least `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
+//! and `op2_abs` must have space for at least `src1_limbs` and `src2_limbs`
+//! limbs, respectively. No overlap between `prod_imm` and `op[12]_abs` allowed. No
+//! overlap between `prod_imm` and `dst` allowed.
+template <
+    typename RANDOM_ACCESS_ITERATOR_IN1,
+    typename RANDOM_ACCESS_ITERATOR_IN2,
+    typename RANDOM_ACCESS_ITERATOR_OUT,
+    typename RANDOM_ACCESS_ITERATOR_INOUT>
+static APY_INLINE void complex_real_fixed_point_product(
+    RANDOM_ACCESS_ITERATOR_IN1 src1,
+    RANDOM_ACCESS_ITERATOR_IN2 src2,
+    RANDOM_ACCESS_ITERATOR_OUT dst,
+    std::size_t src1_limbs,
+    std::size_t src2_limbs,
+    std::size_t dst_limbs,
+    RANDOM_ACCESS_ITERATOR_INOUT op1_abs,
+    RANDOM_ACCESS_ITERATOR_INOUT op2_abs,
+    RANDOM_ACCESS_ITERATOR_INOUT prod_imm
+)
+{
+    /*
+     * (a + bi)c = ac+ bci
+     * Compute the imaginary part of the result first.
+     */
+
+    // b*c
+    fixed_point_product(
+        src1 + src1_limbs,           // src1 (b)
+        src2,                        // src2 (c)
+        dst + dst_limbs,             // dst
+        src1_limbs,                  // src1_limbs
+        src2_limbs,                  // src2_limbs
+        src1_limbs + src2_limbs + 1, // dst_limbs
+        op1_abs,                     // op1_abs
+        op2_abs,                     // op2_abs
+        prod_imm                     // prod_abs
+    );
+
+    // a*c
+    fixed_point_product(
+        src1,                        // src1 (a)
+        src2,                        // src2 (c)
+        dst,                         // dst
+        src1_limbs,                  // src1_limbs
+        src2_limbs,                  // src2_limbs
+        src1_limbs + src2_limbs + 1, // dst limbs
+        op1_abs,                     // op1_abs
+        op2_abs,                     // op2_abs
+        prod_imm                     // prod_abs
     );
 }
 
