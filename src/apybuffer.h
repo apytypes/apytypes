@@ -113,15 +113,15 @@ protected:
     {
         _strides = strides_from_shape(_shape, _itemsize * sizeof(T));
         return Py_buffer {
-            (void*)&_data[0],                // void       *buf
+            (void*)_data.data(),             // void       *buf
             nullptr,                         // PyObject   *obj
             _nitems * _itemsize * sizeof(T), // Py_ssize_t len
             _itemsize * sizeof(T),           // Py_ssize_t itemsize
             0,                               // int        readonly
             _ndim,                           // int        ndim
             nullptr,                         // char       *format
-            (Py_ssize_t*)&_shape[0],         // Py_ssize_t *shape
-            (Py_ssize_t*)&_strides[0],       // Py_ssize_t *strides
+            (Py_ssize_t*)_shape.data(),      // Py_ssize_t *shape
+            (Py_ssize_t*)_strides.data(),    // Py_ssize_t *strides
             nullptr,                         // Py_ssize_t suboffsets
             nullptr                          // void       *internal
         };
@@ -168,6 +168,10 @@ public:
         }
         return nb::typed<nb::tuple, std::size_t, nb::ellipsis>(nb::tuple(result_list));
     }
+
+    //! Return a pointer to the underlying data vector
+    T* data() noexcept { return _data.data(); }
+    const T* data() const noexcept { return _data.data(); }
 };
 
 #endif // _APYBUFFER_H

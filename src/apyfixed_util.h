@@ -493,7 +493,9 @@ static APY_INLINE void _quantize_stoch_weighted(
             if (qntz_bit_idx) {
                 rnd_words.back() &= (apy_limb_t(1) << qntz_bit_idx) - 1;
             }
-            apy_inplace_addition(&*it_begin, src_nlimbs, &rnd_words[0], limbs_to_qntz);
+            apy_inplace_addition(
+                &*it_begin, src_nlimbs, rnd_words.data(), limbs_to_qntz
+            );
             limb_vector_asr(it_begin, it_end, bits_to_qntz);
         }
     }
@@ -895,11 +897,11 @@ static APY_INLINE void fixed_point_product(
     // Perform the multiplication of absolute values
     if (src1_limbs < src2_limbs) {
         apy_unsigned_multiplication(
-            &prod_abs[0], &op2_abs[0], src2_limbs, &op1_abs[0], src1_limbs
+            prod_abs.data(), &op2_abs[0], src2_limbs, &op1_abs[0], src1_limbs
         );
     } else {
         apy_unsigned_multiplication(
-            &prod_abs[0], &op1_abs[0], src1_limbs, &op2_abs[0], src2_limbs
+            prod_abs.data(), &op1_abs[0], src1_limbs, &op2_abs[0], src2_limbs
         );
     }
 
@@ -1168,7 +1170,7 @@ private:
                 }
 
                 // Accumulate the data
-                apy_inplace_addition_same_length(&*acc, &product[0], dst_limbs);
+                apy_inplace_addition_same_length(&*acc, product.data(), dst_limbs);
             }
         }
     }

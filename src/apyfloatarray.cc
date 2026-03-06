@@ -144,7 +144,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 
     // Perform addition
     auto add = FloatingPointAdder<>(spec(), rhs.spec(), res.spec(), qntz);
-    add(&_data[0], &rhs._data[0], &res._data[0], res._nitems);
+    add(_data.data(), rhs._data.data(), res._data.data(), res._nitems);
 
     return res;
 }
@@ -160,7 +160,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     // Perform addition
     const APyFloatData& rhs_data = rhs.get_data();
     auto add = FloatingPointAdder<1, 0, 1>(spec(), rhs.spec(), res.spec(), qntz);
-    add(&_data[0], &rhs_data, &res._data[0], res._nitems);
+    add(_data.data(), &rhs_data, res._data.data(), res._nitems);
 
     return res;
 }
@@ -179,7 +179,7 @@ APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
 
     // Perform subtraction
     auto sub = FloatingPointSubtractor<>(spec(), rhs.spec(), res.spec(), qntz);
-    sub(&_data[0], &rhs._data[0], &res._data[0], res._nitems);
+    sub(_data.data(), rhs._data.data(), res._data.data(), res._nitems);
 
     return res;
 }
@@ -195,7 +195,7 @@ APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
     // Perform the subtraction
     const APyFloatData& rhs_data = rhs.get_data();
     auto sub = FloatingPointSubtractor<1, 0, 1>(spec(), rhs.spec(), res.spec(), qntz);
-    sub(&_data[0], &rhs_data, &res._data[0], res._nitems);
+    sub(_data.data(), &rhs_data, res._data.data(), res._nitems);
 
     return res;
 }
@@ -232,7 +232,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 
     // Perform multiplication
     auto mul = FloatingPointMultiplier<>(spec(), rhs.spec(), res.spec(), qntz);
-    mul(&_data[0], &rhs._data[0], &res._data[0], _nitems);
+    mul(_data.data(), rhs._data.data(), res._data.data(), _nitems);
 
     return res;
 }
@@ -249,7 +249,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
     // Perform multiplication
     const APyFloatData& rhs_data = rhs.get_data();
     auto mul = FloatingPointMultiplier<1, 0, 1>(spec(), rhs.spec(), res.spec(), qntz);
-    mul(&_data[0], &rhs_data, &res._data[0], _nitems);
+    mul(_data.data(), &rhs_data, res._data.data(), _nitems);
 
     return res;
 }
@@ -268,7 +268,7 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 
     // Perform division
     FloatingPointDivider div(spec(), rhs.spec(), res.spec(), qntz);
-    div(&_data[0], &rhs._data[0], &res._data[0], _nitems);
+    div(_data.data(), rhs._data.data(), res._data.data(), _nitems);
 
     return res;
 }
@@ -285,7 +285,7 @@ APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
     // Perform division
     const APyFloatData& rhs_data = rhs.get_data();
     FloatingPointDivider<1, 0, 1> div(spec(), rhs.spec(), res.spec(), qntz);
-    div(&_data[0], &rhs_data, &res._data[0], _nitems);
+    div(_data.data(), &rhs_data, res._data.data(), _nitems);
 
     return res;
 }
@@ -301,7 +301,7 @@ APyFloatArray APyFloatArray::rdiv(const APyFloat& lhs) const
     // Perform division
     const APyFloatData& lhs_data = lhs.get_data();
     FloatingPointDivider<0, 1, 1> div(lhs.spec(), spec(), res.spec(), qntz);
-    div(&lhs_data, &_data[0], &res._data[0], _nitems);
+    div(&lhs_data, _data.data(), res._data.data(), _nitems);
 
     return res;
 }
@@ -317,7 +317,7 @@ APyFloatArray APyFloatArray::rsub(const APyFloat& lhs) const
     // Perform subtraction
     const APyFloatData& lhs_data = lhs.get_data();
     FloatingPointSubtractor<0, 1, 1> sub(lhs.spec(), spec(), res.spec(), qntz);
-    sub(&lhs_data, &_data[0], &res._data[0], _nitems);
+    sub(&lhs_data, _data.data(), res._data.data(), _nitems);
 
     return res;
 }
@@ -1191,7 +1191,9 @@ nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyFloatArray::to_bits_ndarray() const
     // Delete `result_data` when the `owner` capsule expires
     nb::capsule owner(result_data, [](void* p) noexcept { delete[] (INT_TYPE*)p; });
 
-    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(result_data, ndim(), &_shape[0], owner);
+    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(
+        result_data, ndim(), _shape.data(), owner
+    );
 }
 
 nb::list APyFloatArray::to_bits_python_recursive_descent(
@@ -1790,10 +1792,10 @@ APyFloat APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
     // dst = A x b
     APyFloatData sum {};
     inner_product(
-        &_data[0],     // src1, a: [1 x N]
-        &rhs._data[0], // src2, b: [N x 1]
-        &sum,          // dst
-        _shape[0]      // N
+        _data.data(),     // src1, a: [1 x N]
+        rhs._data.data(), // src2, b: [N x 1]
+        &sum,             // dst
+        _shape[0]         // N
     );
     result.set_data(sum);
     return result;

@@ -192,8 +192,8 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
         const apy_limb_t* src2_ptr;
         if (frac_bits() == rhs.frac_bits()) {
             // Right-hand side and left-hand side have equally many fractional bits
-            src1_ptr = &_data[0];
-            src2_ptr = &rhs._data[0];
+            src1_ptr = _data.data();
+            src2_ptr = rhs._data.data();
         } else if (frac_bits() <= rhs.frac_bits()) {
             // Right-hand side has more fractional bits. Upsize `*this`
             _cast_no_quantize_no_overflow(
@@ -204,8 +204,8 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
                 2 * _nitems,                     // n_items
                 result.frac_bits() - frac_bits() // left_shift_amount
             );
-            src1_ptr = &result._data[0];
-            src2_ptr = &rhs._data[0];
+            src1_ptr = result._data.data();
+            src2_ptr = rhs._data.data();
         } else {
             // Left-hand side has more fractional bits. Upsize `rhs`
             _cast_no_quantize_no_overflow(
@@ -216,8 +216,8 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
                 2 * rhs._nitems,                     // n_items
                 result.frac_bits() - rhs.frac_bits() // left_shift_amount
             );
-            src1_ptr = &_data[0];
-            src2_ptr = &result._data[0];
+            src1_ptr = _data.data();
+            src2_ptr = result._data.data();
         }
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize / 2) {
             ripple_carry_op {}(
@@ -322,7 +322,7 @@ APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs) const
         ripple_carry_op {}(      // real part
             &result._data[i],    // dst
             &result._data[i],    // src1
-            &imm._data[0],       // src2
+            imm._data.data(),       // src2
             result._itemsize / 2 // limb vector length
         );
         ripple_carry_op {}(                          // imaginary part
@@ -424,7 +424,7 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
         // Perform ripple-carry operation
         apy_inplace_reversed_subtraction_same_length( // real part
             &result._data[i],                         // dst/src2
-            &imm._data[0],                            // src1
+            imm._data.data(),                            // src1
             result._itemsize / 2                      // limb vector length
         );
         apy_inplace_reversed_subtraction_same_length( // imaginary part
