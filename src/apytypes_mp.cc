@@ -710,7 +710,7 @@ void apy_unsigned_division(
     if (denominator_limbs > 2 && inv.norm_shift > 0) {
         auto norm_denominator = std::vector<apy_limb_t>(denominator_limbs);
         apy_limb_t carry = apy_left_shift(
-            &norm_denominator[0], denominator, denominator_limbs, inv.norm_shift
+            norm_denominator.data(), denominator, denominator_limbs, inv.norm_shift
         );
         assert(carry == 0);
         (void)carry; // Avoid unused-warning
@@ -718,7 +718,7 @@ void apy_unsigned_division(
             quotient,
             numerator,
             numerator_limbs,
-            &norm_denominator[0],
+            norm_denominator.data(),
             denominator_limbs,
             &inv
         );

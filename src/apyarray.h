@@ -1948,7 +1948,7 @@ public:
         // Delete `data` when the owner Python capsule expires
         nb::capsule owner(data, [](void* p) noexcept { delete[] (CXX_TYPE*)p; });
 
-        return nb::ndarray<CXX_TYPE>(data, _ndim, &_shape[0], owner);
+        return nb::ndarray<CXX_TYPE>(data, _ndim, _shape.data(), owner);
     }
 
     //! Copy array

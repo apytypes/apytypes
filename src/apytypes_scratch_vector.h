@@ -61,6 +61,8 @@ public:
     bool operator<=(SVIteratorBase other) const noexcept { return _ptr <= other._ptr; }
     bool operator>=(SVIteratorBase other) const noexcept { return _ptr >= other._ptr; }
 
+    pointer data() const noexcept { return _ptr; }
+
 private:
     pointer _ptr {};
 };

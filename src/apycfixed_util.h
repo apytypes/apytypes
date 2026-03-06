@@ -223,7 +223,7 @@ static APY_INLINE void complex_fixed_point_division(
         op2_abs,           // op_abs
         prod_imm           // prod_abs
     );
-    apy_inplace_addition_same_length(&den_imm[0], &prod_imm[0], 2 * src2_limbs);
+    apy_inplace_addition_same_length(den_imm.data(), prod_imm.data(), 2 * src2_limbs);
     auto den_significant_limbs = significant_limbs(den_imm, den_imm + 2 * src2_limbs);
 
     /*                                          ac + bd
@@ -254,7 +254,9 @@ static APY_INLINE void complex_fixed_point_division(
         prod_imm + prod_len  // prod_abs
     );
 
-    apy_inplace_addition_same_length(&prod_imm[0], &prod_imm[0] + prod_len, prod_len);
+    apy_inplace_addition_same_length(
+        prod_imm.data(), prod_imm.data() + prod_len, prod_len
+    );
     bool real_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);
     if (real_negative) {
         limb_vector_negate(prod_imm, prod_imm + div_limbs, num_imm);
@@ -264,10 +266,10 @@ static APY_INLINE void complex_fixed_point_division(
     limb_vector_lsl(num_imm, num_imm + div_limbs, src2_bits);
 
     apy_unsigned_division(
-        &qte_imm[0],          // Quotient
-        &num_imm[0],          // Numerator
+        qte_imm.data(),       // Quotient
+        num_imm.data(),       // Numerator
         div_limbs,            // Numerator limbs
-        &den_imm[0],          // Denominator
+        den_imm.data(),       // Denominator
         den_significant_limbs // Denominator significant limbs
     );
 
@@ -305,7 +307,7 @@ static APY_INLINE void complex_fixed_point_division(
     );
 
     apy_inplace_subtraction_same_length(
-        &prod_imm[0], &prod_imm[0] + prod_len, prod_len
+        prod_imm.data(), prod_imm.data() + prod_len, prod_len
     );
     bool imag_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);
     if (imag_negative) {
@@ -316,10 +318,10 @@ static APY_INLINE void complex_fixed_point_division(
     limb_vector_lsl(num_imm, num_imm + div_limbs, src2_bits);
 
     apy_unsigned_division(
-        &qte_imm[0],          // Quotient
-        &num_imm[0],          // Numerator
+        qte_imm.data(),       // Quotient
+        num_imm.data(),       // Numerator
         div_limbs,            // Numerator limbs
-        &den_imm[0],          // Denominator
+        den_imm.data(),       // Denominator
         den_significant_limbs // Denominator significant limbs
     );
 
@@ -477,12 +479,12 @@ private:
                 auto&& bd = tuple_to_array(long_signed_mult(z1.imag(), z2.imag()));
                 auto&& bc = tuple_to_array(long_signed_mult(z1.imag(), z2.real()));
                 auto&& ad = tuple_to_array(long_signed_mult(z1.real(), z2.imag()));
-                apy_subtraction_same_length(&ac_bd[0], &ac[0], &bd[0], 2);
-                apy_addition_same_length(&bc_ad[0], &bc[0], &ad[0], 2);
+                apy_subtraction_same_length(ac_bd.data(), ac.data(), bd.data(), 2);
+                apy_addition_same_length(bc_ad.data(), bc.data(), ad.data(), 2);
 
                 // Perform accumulation
-                apy_inplace_addition_same_length(&acc[0], &ac_bd[0], 2);
-                apy_inplace_addition_same_length(&acc[2], &bc_ad[0], 2);
+                apy_inplace_addition_same_length(&acc[0], ac_bd.data(), 2);
+                apy_inplace_addition_same_length(&acc[2], bc_ad.data(), 2);
             }
 
 #endif

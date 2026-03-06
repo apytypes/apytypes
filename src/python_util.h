@@ -115,7 +115,7 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
 
     std::size_t limb_vec_size = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
     std::vector<apy_limb_t> limb_vec = std::vector<apy_limb_t>(limb_vec_size);
-    apy_limb_t* limb_vec_tmp_ptr = &limb_vec[0];
+    apy_limb_t* limb_vec_tmp_ptr = limb_vec.data();
     const int endian = HOST_ENDIAN;
 
     /* offset to get to the next word after processing WHOLE_BYTES and REMAINING_BITS */
@@ -169,7 +169,7 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
         *limb_vec_tmp_ptr++ = limb;
     }
 
-    assert(limb_vec_tmp_ptr == &limb_vec[0] + limb_vec_size);
+    assert(limb_vec_tmp_ptr == limb_vec.data() + limb_vec_size);
 
     /* low byte of word after most significant */
     assert(
@@ -304,7 +304,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     const std::size_t py_limb_size = sizeof(GET_OB_DIGIT(result)[0]);
     assert(py_limb_size * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
 
-    apy_limb_t* limb_vec_tmp_ptr = &limb_vec_abs[0];
+    apy_limb_t* limb_vec_tmp_ptr = limb_vec_abs.data();
 
     assert(limb_vec_tmp_ptr[limb_vec_size - 1] != 0);
 
@@ -358,7 +358,7 @@ template <class RANDOM_ACCESS_ITERATOR>
         dp += woffset;
     }
 
-    assert(limb_vec_tmp_ptr == &limb_vec_abs[0] + limb_vec_size);
+    assert(limb_vec_tmp_ptr == limb_vec_abs.data() + limb_vec_size);
 
     /* low byte of word after most significant */
     assert(

@@ -192,8 +192,8 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
         const apy_limb_t* src2_ptr;
         if (frac_bits() == rhs.frac_bits()) {
             // Right-hand side and left-hand side have equally many fractional bits
-            src1_ptr = &_data[0];
-            src2_ptr = &rhs._data[0];
+            src1_ptr = _data.data();
+            src2_ptr = rhs._data.data();
         } else if (frac_bits() <= rhs.frac_bits()) {
             // Right-hand side has more fractional bits. Upsize `*this`
             _cast_no_quantize_no_overflow(
@@ -204,8 +204,8 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
                 2 * _nitems,                     // n_items
                 result.frac_bits() - frac_bits() // left_shift_amount
             );
-            src1_ptr = &result._data[0];
-            src2_ptr = &rhs._data[0];
+            src1_ptr = result._data.data();
+            src2_ptr = rhs._data.data();
         } else {
             // Left-hand side has more fractional bits. Upsize `rhs`
             _cast_no_quantize_no_overflow(
@@ -216,15 +216,15 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
                 2 * rhs._nitems,                     // n_items
                 result.frac_bits() - rhs.frac_bits() // left_shift_amount
             );
-            src1_ptr = &_data[0];
-            src2_ptr = &result._data[0];
+            src1_ptr = _data.data();
+            src2_ptr = result._data.data();
         }
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize / 2) {
             ripple_carry_op {}(
-                &result._data[i],    // dst
-                &src1_ptr[i],        // src1
-                &src2_ptr[i],        // src2
-                result._itemsize / 2 // limb vector length
+                result._data.data() + i, // dst
+                src1_ptr + i,            // src1
+                src2_ptr + i,            // src2
+                result._itemsize / 2     // limb vector length
             );
         }
         return result; // early exit
@@ -252,10 +252,10 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
     // Perform ripple-carry operation for each element
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize / 2) {
         ripple_carry_op {}(
-            &result._data[i],    // dst
-            &result._data[i],    // src1
-            &imm._data[i],       // src2
-            result._itemsize / 2 // limb vector length
+            result._data.data() + i, // dst
+            result._data.data() + i, // src1
+            imm._data.data() + i,    // src2
+            result._itemsize / 2     // limb vector length
         );
     }
     return result;
@@ -300,8 +300,8 @@ APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs) const
 
     // Most general case: works in any situation
     APyCFixed imm(res_bits, res_int_bits);
-    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
-    auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+    unsigned rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+    unsigned lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
     _cast_no_quantize_no_overflow(
         std::begin(_data),        // src
         std::begin(result._data), // dst
@@ -319,17 +319,17 @@ APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs) const
     );
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
         // Perform ripple-carry operation
-        ripple_carry_op {}(      // real part
-            &result._data[i],    // dst
-            &result._data[i],    // src1
-            &imm._data[0],       // src2
-            result._itemsize / 2 // limb vector length
+        ripple_carry_op {}(          // real part
+            result._data.data() + i, // dst
+            result._data.data() + i, // src1
+            imm._data.data(),        // src2
+            result._itemsize / 2     // limb vector length
         );
-        ripple_carry_op {}(                          // imaginary part
-            &result._data[i + result._itemsize / 2], // dst
-            &result._data[i + result._itemsize / 2], // src1
-            &imm._data[0 + result._itemsize / 2],    // src2
-            result._itemsize / 2                     // limb vector length
+        ripple_carry_op {}(                                 // imaginary part
+            result._data.data() + i + result._itemsize / 2, // dst
+            result._data.data() + i + result._itemsize / 2, // src1
+            imm._data.data() + 0 + result._itemsize / 2,    // src2
+            result._itemsize / 2                            // limb vector length
         );
     }
 
@@ -423,14 +423,14 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
         // Perform ripple-carry operation
         apy_inplace_reversed_subtraction_same_length( // real part
-            &result._data[i],                         // dst/src2
-            &imm._data[0],                            // src1
+            result._data.data() + i,                  // dst/src2
+            imm._data.data(),                         // src1
             result._itemsize / 2                      // limb vector length
         );
-        apy_inplace_reversed_subtraction_same_length( // imaginary part
-            &result._data[i + result._itemsize / 2],  // dst(src2)
-            &imm._data[0 + result._itemsize / 2],     // src1
-            result._itemsize / 2                      // limb vector length
+        apy_inplace_reversed_subtraction_same_length(       // imaginary part
+            result._data.data() + i + result._itemsize / 2, // dst(src2)
+            imm._data.data() + result._itemsize / 2,        // src1
+            result._itemsize / 2                            // limb vector length
         );
     }
 
@@ -469,7 +469,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
         && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
             complex_multiplication_1_1_2(
-                &result._data[2 * i], &_data[i], &rhs._data[i]
+                result._data.data() + 2 * i, _data.data() + i, rhs._data.data() + i
             );
         }
         return result; // early exit
