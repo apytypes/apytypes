@@ -157,8 +157,8 @@ APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedArray& rhs) const
         const apy_limb_t* src2_ptr;
         if (frac_bits() == rhs.frac_bits()) {
             // Right-hand side and left-hand side have equally many fractional bits
-            src1_ptr = &_data[0];
-            src2_ptr = &rhs._data[0];
+            src1_ptr = _data.data();
+            src2_ptr = rhs._data.data();
         } else if (frac_bits() <= rhs.frac_bits()) {
             // Right-hand side has more fractional bits. Upsize `*this`
             _cast_no_quantize_no_overflow(
@@ -169,8 +169,8 @@ APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedArray& rhs) const
                 _nitems,                         // n_items
                 result.frac_bits() - frac_bits() // left_shift_amount
             );
-            src1_ptr = &result._data[0];
-            src2_ptr = &rhs._data[0];
+            src1_ptr = result._data.data();
+            src2_ptr = rhs._data.data();
         } else {
             // Left-hand side has more fractional bits. Upsize `rhs`
             _cast_no_quantize_no_overflow(
@@ -181,8 +181,8 @@ APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedArray& rhs) const
                 rhs._nitems,                         // n_items
                 result.frac_bits() - rhs.frac_bits() // left_shift_amount
             );
-            src1_ptr = &_data[0];
-            src2_ptr = &result._data[0];
+            src1_ptr = _data.data();
+            src2_ptr = result._data.data();
         }
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             ripple_carry_op {}(
@@ -282,7 +282,7 @@ inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) 
         ripple_carry_op {}(
             &result._data[i], // dst
             &result._data[i], // src1
-            &imm._data[0],    // src2
+            imm._data.data(), // src2
             result._itemsize  // limb vector length
         );
     }
@@ -368,7 +368,7 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             apy_inplace_reversed_subtraction_same_length(
                 &result._data[i], // dst/src2
-                &imm._data[0],    // src1
+                imm._data.data(), // src1
                 result._itemsize  // limb vector length
             );
         }
@@ -481,19 +481,19 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
         // Perform the multiplication
         if (op1_abs.size() < op2_abs.size()) {
             apy_unsigned_multiplication(
-                &res_tmp_vec[0], // dst
-                &op2_abs[0],     // src1
-                op2_abs.size(),  // src1 limb vector length
-                &op1_abs[0],     // src2
-                op1_abs.size()   // src2 limb vector length
+                res_tmp_vec.data(), // dst
+                &op2_abs[0],        // src1
+                op2_abs.size(),     // src1 limb vector length
+                &op1_abs[0],        // src2
+                op1_abs.size()      // src2 limb vector length
             );
         } else {
             apy_unsigned_multiplication(
-                &res_tmp_vec[0], // dst
-                &op1_abs[0],     // src1
-                op1_abs.size(),  // src1 limb vector length
-                &op2_abs[0],     // src2
-                op2_abs.size()   // src2 limb vector length
+                res_tmp_vec.data(), // dst
+                &op1_abs[0],        // src1
+                op1_abs.size(),     // src1 limb vector length
+                &op2_abs[0],        // src2
+                op2_abs.size()      // src2 limb vector length
             );
         }
 
@@ -574,9 +574,9 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
             = significant_limbs(std::begin(abs_den), std::end(abs_den));
         apy_unsigned_division(
             &result._data[i * result._itemsize], // Quotient
-            &abs_num[0],                         // Numerator
+            abs_num.data(),                      // Numerator
             abs_num.size(),                      // Numerator limbs
-            &abs_den[0],                         // Denominator
+            abs_den.data(),                      // Denominator
             den_significant_limbs                // Denominator significant limbs
         );
 
@@ -628,11 +628,11 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     ScratchVector<apy_limb_t> abs_num(result._itemsize);
 
     // Compute inverse
-    auto inv = APyDivInverse(&abs_den[0], den_significant_limbs);
+    auto inv = APyDivInverse(abs_den.data(), den_significant_limbs);
 
     // Normalize denominator
     apy_limb_t carry
-        = apy_inplace_left_shift(&abs_den[0], den_significant_limbs, inv.norm_shift);
+        = apy_inplace_left_shift(abs_den.data(), den_significant_limbs, inv.norm_shift);
     assert(carry == 0);
     (void)carry; // Avoid unused-warning
     for (std::size_t i = 0; i < _nitems; i++) {
@@ -647,9 +647,9 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
 
         apy_unsigned_division_preinverted(
             quotient,              // Quotient
-            &abs_num[0],           // Numerator
+            abs_num.data(),        // Numerator
             result._itemsize,      // Numerator limbs
-            &abs_den[0],           // Denominator
+            abs_den.data(),        // Denominator
             den_significant_limbs, // Denominator limbs
             &inv                   // Inverse
         );
@@ -719,9 +719,9 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
             = significant_limbs(std::begin(abs_den), std::end(abs_den));
         apy_unsigned_division(
             &result._data[i * result._itemsize], // Quotient
-            &abs_num[0],                         // Numerator
+            abs_num.data(),                      // Numerator
             result._itemsize,                    // Numerator limbs
-            &abs_den[0],                         // Denominator
+            abs_den.data(),                      // Denominator
             den_significant_limbs                // Denominator significant limbs
         );
 
@@ -1491,7 +1491,9 @@ nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyFixedArray::to_bits_ndarray() const
     // Delete `result_data` when the `owner` capsule expires
     nb::capsule owner(result_data, [](void* p) noexcept { delete[] (INT_TYPE*)p; });
 
-    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(result_data, _ndim, &_shape[0], owner);
+    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(
+        result_data, _ndim, _shape.data(), owner
+    );
 }
 
 nb::list APyFixedArray::to_signed_bits() const
