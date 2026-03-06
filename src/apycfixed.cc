@@ -235,7 +235,9 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
             && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
-            complex_multiplication_1_1_2(&result._data[0], &_data[0], &rhs._data[0]);
+            complex_multiplication_1_1_2(
+                result._data.data(), _data.data(), rhs._data.data()
+            );
             return result;
         } else {
 #if (COMPILER_LIMB_SIZE == 64)

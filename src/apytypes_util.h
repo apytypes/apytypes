@@ -218,7 +218,7 @@ struct DoubleDabbleList {
     void do_double(apy_limb_t new_bit)
     {
         // Perform a single bit left shift (double)
-        if (apy_inplace_left_shift(&data[0], data.size(), 1)) {
+        if (apy_inplace_left_shift(data.data(), data.size(), 1)) {
             data.push_back(1);
         }
         if (new_bit) {
@@ -240,7 +240,7 @@ struct DoubleDabbleList {
     //! Do one iteration of reverse double (reverse double-dabble)
     void do_reverse_double(apy_limb_t& limb_out)
     {
-        limb_out |= apy_inplace_right_shift(&data[0], data.size(), 1);
+        limb_out |= apy_inplace_right_shift(data.data(), data.size(), 1);
     }
 
     //! Do one iteration of reverse dabble (reverse double-dabble)
@@ -281,7 +281,7 @@ double_dabble(std::vector<apy_limb_t> nibble_data)
     for (std::size_t i = 0; i < BITS_PER_NIBBLE * nibbles; i++) {
         // Shift input data left once
         apy_limb_t new_bit = nibble_data.back() & new_bit_mask;
-        apy_inplace_left_shift(&nibble_data[0], nibble_data.size(), 1);
+        apy_inplace_left_shift(nibble_data.data(), nibble_data.size(), 1);
 
         // Do the double-dabble (dabble-double)
         bcd_list.do_dabble();
@@ -327,7 +327,8 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
         || iteration % BITS_PER_NIBBLE != 0) {
         // Right shift the nibble binary data
         if (iteration) {
-            new_limb = apy_inplace_right_shift(&nibble_data[0], nibble_data.size(), 1);
+            new_limb
+                = apy_inplace_right_shift(nibble_data.data(), nibble_data.size(), 1);
         }
 
         // Insert a new limb to the nibble data vector
@@ -347,7 +348,7 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
     auto shft_val
         = (APY_LIMB_SIZE_BITS - (iteration % APY_LIMB_SIZE_BITS)) % APY_LIMB_SIZE_BITS;
     if (iteration && shft_val) {
-        apy_inplace_right_shift(&nibble_data[0], nibble_data.size(), shft_val);
+        apy_inplace_right_shift(nibble_data.data(), nibble_data.size(), shft_val);
     }
 
     return nibble_data.size() ? nibble_data : std::vector<apy_limb_t> { 0 };
@@ -362,7 +363,7 @@ bcd_limb_vec_div2(std::vector<apy_limb_t>& bcd_list)
     }
 
     // Do a single vector right-shift and possibly prepend the new data
-    auto shift_out = apy_inplace_right_shift(&bcd_list[0], bcd_list.size(), 1);
+    auto shift_out = apy_inplace_right_shift(bcd_list.data(), bcd_list.size(), 1);
     if (shift_out) {
         bcd_list.insert(bcd_list.begin(), shift_out);
     }
@@ -390,7 +391,7 @@ bcd_limb_vec_mul2(std::vector<apy_limb_t>& bcd_list)
     }
 
     // Multiply by two
-    auto shift_out = apy_inplace_left_shift(&bcd_list[0], bcd_list.size(), 1);
+    auto shift_out = apy_inplace_left_shift(bcd_list.data(), bcd_list.size(), 1);
     if (shift_out) {
         bcd_list.push_back(shift_out);
     }

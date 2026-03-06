@@ -141,9 +141,9 @@ inline APyFixed APyFixed::_apyfixed_base_add_sub(const APyFixed& rhs) const
             rhs_shift_amount
         );
         ripple_carry_op {}(
-            &result._data[0],    // dst
-            &result._data[0],    // src1
-            &operand[0],         // src2
+            result._data.data(), // dst
+            result._data.data(), // src1
+            operand.data(),      // src2
             result.vector_size() // limb vector length
         );
     }
@@ -247,7 +247,7 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     // `apy_unsigned_division` requires the number of *significant* limbs in denominator
     std::size_t den_significant_limbs = significant_limbs(abs_den_begin, abs_den_end);
     apy_unsigned_division(
-        &result._data[0],                          // Quotient
+        result._data.data(),                       // Quotient
         &*abs_num_begin,                           // Numerator
         std::distance(abs_num_begin, abs_num_end), // Numerator limbs
         &*abs_den_begin,                           // Denominator
@@ -513,7 +513,7 @@ bool APyFixed::is_zero() const noexcept
 apy_limb_t APyFixed::increment_lsb() noexcept
 {
     return apy_inplace_add_one_lsb(
-        &_data[0],    // dst
+        _data.data(), // dst
         vector_size() // limb vector length
     );
 }
@@ -716,11 +716,11 @@ void APyFixed::set_from_string_dec(const std::string& str)
 
     // Round the data
     apy_inplace_add_one_lsb(
-        &data[0],   // dst
-        data.size() // limb vector length
+        data.data(), // dst
+        data.size()  // limb vector length
     );
     apy_inplace_right_shift(
-        &data[0],    // dst/src
+        data.data(), // dst/src
         data.size(), // limb vector length
         1            // shift amount
     );
