@@ -218,7 +218,7 @@ struct DoubleDabbleList {
     void do_double(apy_limb_t new_bit)
     {
         // Perform a single bit left shift (double)
-        if (apy_inplace_left_shift(data.data(), data.size(), 1)) {
+        if (apy_inplace_left_shift(data.begin(), data.end(), 1)) {
             data.push_back(1);
         }
         if (new_bit) {
@@ -240,7 +240,7 @@ struct DoubleDabbleList {
     //! Do one iteration of reverse double (reverse double-dabble)
     void do_reverse_double(apy_limb_t& limb_out)
     {
-        limb_out |= apy_inplace_right_shift(data.data(), data.size(), 1);
+        limb_out |= apy_inplace_right_shift(data.begin(), data.end(), 1);
     }
 
     //! Do one iteration of reverse dabble (reverse double-dabble)
@@ -281,7 +281,7 @@ double_dabble(std::vector<apy_limb_t> nibble_data)
     for (std::size_t i = 0; i < BITS_PER_NIBBLE * nibbles; i++) {
         // Shift input data left once
         apy_limb_t new_bit = nibble_data.back() & new_bit_mask;
-        apy_inplace_left_shift(nibble_data.data(), nibble_data.size(), 1);
+        apy_inplace_left_shift(nibble_data.begin(), nibble_data.end(), 1);
 
         // Do the double-dabble (dabble-double)
         bcd_list.do_dabble();
@@ -328,7 +328,7 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
         // Right shift the nibble binary data
         if (iteration) {
             new_limb
-                = apy_inplace_right_shift(nibble_data.data(), nibble_data.size(), 1);
+                = apy_inplace_right_shift(nibble_data.begin(), nibble_data.end(), 1);
         }
 
         // Insert a new limb to the nibble data vector
@@ -348,7 +348,7 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
     auto shft_val
         = (APY_LIMB_SIZE_BITS - (iteration % APY_LIMB_SIZE_BITS)) % APY_LIMB_SIZE_BITS;
     if (iteration && shft_val) {
-        apy_inplace_right_shift(nibble_data.data(), nibble_data.size(), shft_val);
+        apy_inplace_right_shift(nibble_data.begin(), nibble_data.end(), shft_val);
     }
 
     return nibble_data.size() ? nibble_data : std::vector<apy_limb_t> { 0 };
@@ -363,7 +363,7 @@ bcd_limb_vec_div2(std::vector<apy_limb_t>& bcd_list)
     }
 
     // Do a single vector right-shift and possibly prepend the new data
-    auto shift_out = apy_inplace_right_shift(bcd_list.data(), bcd_list.size(), 1);
+    auto shift_out = apy_inplace_right_shift(bcd_list.begin(), bcd_list.end(), 1);
     if (shift_out) {
         bcd_list.insert(bcd_list.begin(), shift_out);
     }
@@ -391,7 +391,7 @@ bcd_limb_vec_mul2(std::vector<apy_limb_t>& bcd_list)
     }
 
     // Multiply by two
-    auto shift_out = apy_inplace_left_shift(bcd_list.data(), bcd_list.size(), 1);
+    auto shift_out = apy_inplace_left_shift(bcd_list.begin(), bcd_list.end(), 1);
     if (shift_out) {
         bcd_list.push_back(shift_out);
     }
@@ -518,9 +518,9 @@ template <class RANDOM_ACCESS_ITERATOR>
     unsigned limb_shift = shift_amnt % APY_LIMB_SIZE_BITS;
     if (limb_shift) {
         apy_inplace_right_shift(
-            &*it_begin, // dst/src
-            vec_size,   // limb vector size
-            limb_shift  // shift amount
+            it_begin,  // dst/src
+            it_end,    // limb vector end
+            limb_shift // shift amount
         );
 
         // Sign extend the most significant bits
@@ -560,9 +560,9 @@ template <class RANDOM_ACCESS_ITERATOR>
     // Perform the in-limb shifting
     if (limb_shift) {
         apy_inplace_right_shift(
-            &*it_begin, // dst/src
-            vec_size,   // limb vector size
-            limb_shift  // shift amount
+            it_begin,  // dst/src
+            it_end,    // limb vector end
+            limb_shift // shift amount
         );
     }
 }
@@ -573,8 +573,7 @@ static APY_INLINE void limb_vector_lsl_inner(
     RANDOM_ACCESS_ITERATOR it_begin,
     RANDOM_ACCESS_ITERATOR it_end,
     unsigned int limb_skip,
-    unsigned int limb_shift,
-    unsigned int vec_size
+    unsigned int limb_shift
 )
 {
     if (limb_skip) {
@@ -589,9 +588,9 @@ static APY_INLINE void limb_vector_lsl_inner(
     // Perform the in-limb shifting
     if (limb_shift) {
         apy_inplace_left_shift(
-            &*it_begin, // src/dst
-            vec_size,   // limb vector size
-            limb_shift  // shift amount
+            it_begin,  // src/dst
+            it_end,    // limb vector size
+            limb_shift // shift amount
         );
     }
 }
@@ -607,14 +606,13 @@ template <class RANDOM_ACCESS_ITERATOR>
         return;
     }
 
-    std::size_t vec_size = std::distance(it_begin, it_end);
     unsigned limb_skip = shift_amnt / APY_LIMB_SIZE_BITS;
-    if (limb_skip >= vec_size) {
+    if (limb_skip >= std::distance(it_begin, it_end)) {
         std::fill(it_begin, it_end, 0);
         return; // early return
     }
     unsigned limb_shift = shift_amnt % APY_LIMB_SIZE_BITS;
-    limb_vector_lsl_inner(it_begin, it_end, limb_skip, limb_shift, vec_size);
+    limb_vector_lsl_inner(it_begin, it_end, limb_skip, limb_shift);
 }
 
 //! Test if positive integer value in limb vector is greater than or equal to a
@@ -687,25 +685,6 @@ template <class RANDOM_ACCESS_ITERATOR>
         return apy_inplace_addition_single_limb(
             &*(it_begin + limb_idx), // dst
             limbs - limb_idx,        // src1 limb length
-            term_limb                // src2
-        );
-    }
-    return 0;
-}
-
-//! Subtract a power-of-two (2 ^ `n`) from a limb vector. Return borrow.
-template <class RANDOM_ACCESS_ITERATOR>
-[[maybe_unused]] static APY_INLINE apy_limb_t limb_vector_sub_pow2(
-    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
-)
-{
-    unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
-    std::size_t limbs = std::distance(it_begin, it_end);
-    if (limb_idx < limbs) {
-        apy_limb_t term_limb = apy_limb_t(1) << (n % APY_LIMB_SIZE_BITS);
-        return apy_inplace_subtraction_single_limb(
-            &*(it_begin + limb_idx), // dst
-            limbs - limb_idx,        // dst/src1 limb length
             term_limb                // src2
         );
     }
@@ -864,7 +843,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
-    return apy_negate(&*res_it, &*cbegin_it, std::distance(cbegin_it, cend_it));
+    return apy_negate(cbegin_it, cend_it, res_it);
 }
 
 //! Take the two's complement negative value of a limb vector inplace
@@ -873,7 +852,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
 )
 {
-    return apy_inplace_negate(&*cbegin_it, std::distance(cbegin_it, cend_it));
+    return apy_inplace_negate(cbegin_it, cend_it);
 }
 
 //! Add an LSB to a limb vector inplace
@@ -882,7 +861,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
 )
 {
-    return apy_inplace_add_one_lsb(&*cbegin_it, std::distance(cbegin_it, cend_it));
+    return apy_inplace_add_one_lsb(cbegin_it, cend_it);
 }
 
 //! Take the two's complement absolute value of a limb vector and place onto `res_out`.
