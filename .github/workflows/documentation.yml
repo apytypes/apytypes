@@ -86,7 +86,7 @@ jobs:
         run: cd benchmark && pytest ci_fixed_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_array.json
         # Run `github-action-benchmark` action
       - name: Store fixed array benchmark result
-        uses: benchmark-action/github-action-benchmark@4bdcce38c94cec68da58d012ac24b7b1155efe8b  # v1.20.7
+        uses: benchmark-action/github-action-benchmark@a7bc2366eda11037936ea57d811a43b3418d3073  # v1.21.0
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Fixed-Point Array Benchmarks
@@ -104,7 +104,7 @@ jobs:
         run: cd benchmark && pytest ci_float_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_float_array.json
         # Run `github-action-benchmark` action
       - name: Store float array benchmark result
-        uses: benchmark-action/github-action-benchmark@4bdcce38c94cec68da58d012ac24b7b1155efe8b  # v1.20.7
+        uses: benchmark-action/github-action-benchmark@a7bc2366eda11037936ea57d811a43b3418d3073  # v1.21.0
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Floating-Point Array Benchmarks
@@ -122,7 +122,7 @@ jobs:
         run: cd benchmark && pytest ci_fixed_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_scalar.json
         # Run `github-action-benchmark` action
       - name: Store fixed scalar benchmark result
-        uses: benchmark-action/github-action-benchmark@4bdcce38c94cec68da58d012ac24b7b1155efe8b  # v1.20.7
+        uses: benchmark-action/github-action-benchmark@a7bc2366eda11037936ea57d811a43b3418d3073  # v1.21.0
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Fixed-Point Scalar Benchmarks
@@ -140,7 +140,7 @@ jobs:
         run: cd benchmark && pytest ci_float_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_float_scalar.json
         # Run `github-action-benchmark` action
       - name: Store float scalar benchmark result
-        uses: benchmark-action/github-action-benchmark@4bdcce38c94cec68da58d012ac24b7b1155efe8b  # v1.20.7
+        uses: benchmark-action/github-action-benchmark@a7bc2366eda11037936ea57d811a43b3418d3073  # v1.21.0
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Floating-Point Scalar Benchmarks
@@ -158,7 +158,7 @@ jobs:
         run: cd benchmark && pytest ci_cfixed_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_cfixed_scalar.json
         # Run `github-action-benchmark` action
       - name: Store float scalar benchmark result
-        uses: benchmark-action/github-action-benchmark@4bdcce38c94cec68da58d012ac24b7b1155efe8b  # v1.20.7
+        uses: benchmark-action/github-action-benchmark@a7bc2366eda11037936ea57d811a43b3418d3073  # v1.21.0
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Complex Fixed-Point Scalar Benchmarks
