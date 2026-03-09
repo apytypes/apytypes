@@ -119,6 +119,80 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  windows_msvc:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+        os: ["windows-latest"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+        persist-credentials: false
+    - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1.13.0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pytest-cov ninja "meson>=1.10.1" meson-python numpy setuptools_scm
+        choco install opencppcoverage --no-progress -y
+    - name: Install APyTypes
+      shell: pwsh
+      run: |
+        git fetch --tags
+        python -m pip install --no-deps --no-build-isolation -v --editable . -Csetup-args=-Dbuildtype=release -Csetup-args=-Ddebug=true -Csetup-args=-Db_lto=false
+    - name: Test with pytest and collect C++ coverage
+      shell: pwsh
+      run: |
+        $openCppCoverage = $null
+        $cmd = Get-Command OpenCppCoverage -ErrorAction SilentlyContinue
+        if ($cmd) {
+          $openCppCoverage = $cmd.Source
+        }
+        if (-not $openCppCoverage) {
+          $chocoRoot = if ($env:ChocolateyInstall) { $env:ChocolateyInstall } else { 'C:\\ProgramData\\chocolatey' }
+          $candidates = @(
+            (Join-Path $chocoRoot 'bin\\OpenCppCoverage.exe'),
+            (Join-Path $chocoRoot 'lib\\opencppcoverage\\tools\\OpenCppCoverage.exe'),
+            (Join-Path $chocoRoot 'lib\\OpenCppCoverage\\tools\\OpenCppCoverage.exe'),
+            (Join-Path ${env:ProgramFiles} 'OpenCppCoverage\\OpenCppCoverage.exe'),
+            (Join-Path ${env:ProgramFiles(x86)} 'OpenCppCoverage\\OpenCppCoverage.exe')
+          )
+          foreach ($candidate in $candidates) {
+            if ($candidate -and (Test-Path $candidate)) {
+              $openCppCoverage = $candidate
+              break
+            }
+          }
+        }
+        if (-not $openCppCoverage) {
+          throw 'OpenCppCoverage executable not found in expected Chocolatey/Program Files locations.'
+        }
+        & $openCppCoverage --quiet --cover_children --sources "${{ github.workspace }}" --modules "*_apytypes*.pyd" --export_type cobertura:coverage-windows-msvc.xml -- python -m pytest lib/test --log-level=DEBUG --color=yes
+        if (!(Test-Path 'coverage-windows-msvc.xml')) {
+          throw 'OpenCppCoverage did not produce coverage-windows-msvc.xml'
+        }
+        if ((Get-Item 'coverage-windows-msvc.xml').Length -lt 200) {
+          throw 'coverage-windows-msvc.xml was generated but appears empty'
+        }
+    - name: Upload coverage reports to Codecov
+      if: ${{ !cancelled()}}
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de  # v5.5.2
+      with:
+        files: coverage-windows-msvc.xml
+        flags: windows
+        disable_search: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   macos:
     strategy:
       fail-fast: false
