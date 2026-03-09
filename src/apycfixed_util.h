@@ -255,7 +255,7 @@ static APY_INLINE void complex_fixed_point_division(
     );
 
     apy_inplace_addition_same_length(
-        prod_imm.data(), prod_imm.data() + prod_len, prod_len
+        prod_imm, prod_imm + prod_len, prod_imm + prod_len
     );
     bool real_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);
     if (real_negative) {
@@ -307,7 +307,7 @@ static APY_INLINE void complex_fixed_point_division(
     );
 
     apy_inplace_subtraction_same_length(
-        prod_imm.data(), prod_imm.data() + prod_len, prod_len
+        prod_imm, prod_imm + prod_len, prod_imm + prod_len
     );
     bool imag_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);
     if (imag_negative) {
@@ -479,12 +479,12 @@ private:
                 auto&& bd = tuple_to_array(long_signed_mult(z1.imag(), z2.imag()));
                 auto&& bc = tuple_to_array(long_signed_mult(z1.imag(), z2.real()));
                 auto&& ad = tuple_to_array(long_signed_mult(z1.real(), z2.imag()));
-                apy_subtraction_same_length(ac_bd.data(), ac.data(), bd.data(), 2);
-                apy_addition_same_length(bc_ad.data(), bc.data(), ad.data(), 2);
+                apy_subtraction_length_two(ac_bd.data(), ac.data(), bd.data());
+                apy_addition_length_two(bc_ad.data(), bc.data(), ad.data());
 
                 // Perform accumulation
-                apy_inplace_addition_same_length(&acc[0], ac_bd.data(), 2);
-                apy_inplace_addition_same_length(&acc[2], bc_ad.data(), 2);
+                apy_inplace_addition_length_two(&acc[0], ac_bd.data());
+                apy_inplace_addition_length_two(&acc[2], bc_ad.data());
             }
 
 #endif

@@ -513,8 +513,8 @@ bool APyFixed::is_zero() const noexcept
 apy_limb_t APyFixed::increment_lsb() noexcept
 {
     return apy_inplace_add_one_lsb(
-        _data.data(), // dst
-        vector_size() // limb vector length
+        _data.begin(), // dst begin
+        _data.end()    // dst end
     );
 }
 
@@ -716,13 +716,13 @@ void APyFixed::set_from_string_dec(const std::string& str)
 
     // Round the data
     apy_inplace_add_one_lsb(
-        data.data(), // dst
-        data.size()  // limb vector length
+        data.begin(), // dst begin
+        data.end()    // dst end
     );
     apy_inplace_right_shift(
-        data.data(), // dst/src
-        data.size(), // limb vector length
-        1            // shift amount
+        data.begin(), // dst/src
+        data.end(),   // dst/src end
+        1             // shift amount
     );
 
     // Adjust limb vector if negative fractional bits are present

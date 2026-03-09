@@ -631,8 +631,9 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     auto inv = APyDivInverse(abs_den.data(), den_significant_limbs);
 
     // Normalize denominator
-    apy_limb_t carry
-        = apy_inplace_left_shift(abs_den.data(), den_significant_limbs, inv.norm_shift);
+    apy_limb_t carry = apy_inplace_left_shift(
+        abs_den.begin(), abs_den.begin() + den_significant_limbs, inv.norm_shift
+    );
     assert(carry == 0);
     (void)carry; // Avoid unused-warning
     for (std::size_t i = 0; i < _nitems; i++) {

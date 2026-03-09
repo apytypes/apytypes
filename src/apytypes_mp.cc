@@ -679,15 +679,18 @@ void apy_unsigned_division_preinverted(
     assert(denominator_limbs > 0);
     assert(numerator_limbs >= denominator_limbs);
 
-    if (denominator_limbs == 1)
+    switch (denominator_limbs) {
+    case 1:
         numerator[0] = apy_division_single_limb_preinverted(
             quotient, numerator, numerator_limbs, inv
         );
-    else if (denominator_limbs == 2)
+        break;
+    case 2:
         apy_division_double_limbs_preinverted(
             quotient, numerator, numerator_limbs, inv
         );
-    else {
+        break;
+    default:
         apy_division_multiple_limbs_preinverted(
             quotient, numerator, numerator_limbs, denominator, denominator_limbs, inv
         );
@@ -714,7 +717,7 @@ void apy_unsigned_division(
         );
         assert(carry == 0);
         (void)carry; // Avoid unused-warning
-        apy_unsigned_division_preinverted(
+        apy_division_multiple_limbs_preinverted(
             quotient,
             numerator,
             numerator_limbs,

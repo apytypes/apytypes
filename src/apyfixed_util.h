@@ -471,7 +471,6 @@ static APY_INLINE void _quantize_stoch_weighted(
     if (left_shift_amnt >= 0) {
         limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        std::size_t src_nlimbs = std::distance(it_begin, it_end);
         unsigned bits_to_qntz = unsigned(-left_shift_amnt);
         unsigned limbs_to_qntz = (bits_to_qntz - 1) / APY_LIMB_SIZE_BITS + 1;
         unsigned qntz_bit_idx = bits_to_qntz % APY_LIMB_SIZE_BITS;
@@ -481,7 +480,7 @@ static APY_INLINE void _quantize_stoch_weighted(
             if (qntz_bit_idx) {
                 rnd_word &= (apy_limb_t(1) << qntz_bit_idx) - 1;
             }
-            apy_inplace_addition_single_limb(&*it_begin, src_nlimbs, rnd_word);
+            apy_inplace_addition_single_limb(it_begin, it_end, rnd_word);
             limb_vector_asr(it_begin, it_end, bits_to_qntz);
         } else {
             // General path, can quantize infinitely many limbs
@@ -493,6 +492,7 @@ static APY_INLINE void _quantize_stoch_weighted(
             if (qntz_bit_idx) {
                 rnd_words.back() &= (apy_limb_t(1) << qntz_bit_idx) - 1;
             }
+            std::size_t src_nlimbs = std::distance(it_begin, it_end);
             apy_inplace_addition(
                 &*it_begin, src_nlimbs, rnd_words.data(), limbs_to_qntz
             );
@@ -825,8 +825,7 @@ static APY_INLINE void _cast_no_quantize_no_overflow(
                         dst + (i + 0) * dst_limbs,
                         dst + (i + 1) * dst_limbs,
                         limb_skip,
-                        limb_shift,
-                        dst_limbs
+                        limb_shift
                     );
                 }
             }

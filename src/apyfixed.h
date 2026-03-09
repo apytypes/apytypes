@@ -396,9 +396,11 @@ public:
     {
         APyFixed init_max(bits, int_bits);
         std::size_t limbs = init_max._data.size();
+        auto begin_it = std::begin(init_max._data);
+        auto end_it = std::end(init_max._data);
         init_max._data[limbs - 1]
             |= (apy_limb_t(1) << ((bits - 1) % APY_LIMB_SIZE_BITS));
-        apy_inplace_subtraction_single_limb(init_max._data.data(), limbs, 1);
+        apy_inplace_subtraction_single_limb(begin_it, end_it, 1);
         return init_max;
     }
 
