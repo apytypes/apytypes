@@ -492,10 +492,7 @@ static APY_INLINE void _quantize_stoch_weighted(
             if (qntz_bit_idx) {
                 rnd_words.back() &= (apy_limb_t(1) << qntz_bit_idx) - 1;
             }
-            std::size_t src_nlimbs = std::distance(it_begin, it_end);
-            apy_inplace_addition(
-                &*it_begin, src_nlimbs, rnd_words.data(), limbs_to_qntz
-            );
+            apy_inplace_addition(it_begin, it_end, rnd_words.begin(), rnd_words.end());
             limb_vector_asr(it_begin, it_end, bits_to_qntz);
         }
     }
@@ -1169,7 +1166,9 @@ private:
                 }
 
                 // Accumulate the data
-                apy_inplace_addition_same_length(&*acc, product.data(), dst_limbs);
+                apy_inplace_iterator_addition_same_length(
+                    acc, acc + dst_limbs, std::begin(product)
+                );
             }
         }
     }
@@ -1587,12 +1586,16 @@ fold_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
         /* single limb specialization */
         return [](auto acc_it, auto src_it) { *acc_it += *src_it; };
     } else if (src_limbs == acc_limbs) {
-        return [src_limbs](auto acc_it, auto src_it) {
-            apy_inplace_addition_same_length(&acc_it[0], &src_it[0], src_limbs);
+        return [acc_limbs](auto acc_it, auto src_it) {
+            apy_inplace_iterator_addition_same_length(
+                acc_it, acc_it + acc_limbs, src_it
+            );
         };
     } else { /* acc_limbs > src_limbs */
         return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
-            apy_inplace_addition(&acc_it[0], acc_limbs, &src_it[0], src_limbs);
+            apy_inplace_addition(
+                acc_it, acc_it + acc_limbs, src_it, src_it + src_limbs
+            );
             if (limb_vector_is_negative(src_it, src_it + src_limbs)) {
                 apy_limb_t carry = 0;
                 for (std::size_t i = 0; i < acc_limbs - src_limbs; i++) {
@@ -1652,15 +1655,22 @@ fold_complex_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
     } else if (src_limbs == acc_limbs) {
         return [acc_limbs](auto acc_it, auto src_it) {
             std::size_t limbs = acc_limbs;
-            apy_inplace_addition_same_length(&acc_it[0], &src_it[0], limbs);
-            apy_inplace_addition_same_length(&acc_it[limbs], &src_it[limbs], limbs);
+            apy_inplace_iterator_addition_same_length(acc_it, acc_it + limbs, src_it);
+            apy_inplace_iterator_addition_same_length(
+                acc_it + limbs, acc_it + 2 * limbs, src_it + limbs
+            );
         };
     } else { /* acc_limbs > src_limbs */
         return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
-            std::size_t src_j = src_limbs;
-            std::size_t acc_j = acc_limbs;
-            apy_inplace_addition(&acc_it[0], acc_limbs, &src_it[0], src_limbs);
-            apy_inplace_addition(&acc_it[acc_j], acc_j, &src_it[src_j], src_j);
+            apy_inplace_addition(
+                acc_it, acc_it + acc_limbs, src_it, src_it + src_limbs
+            );
+            apy_inplace_addition(
+                acc_it + acc_limbs,
+                acc_it + 2 * acc_limbs,
+                src_it + src_limbs,
+                src_it + 2 * src_limbs
+            );
 
             // Real part
             if (limb_vector_is_negative(src_it, src_it + src_limbs)) {

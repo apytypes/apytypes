@@ -21,6 +21,34 @@ apy_limb_t apy_inplace_addition(
     apy_limb_t*, const std::size_t, const apy_limb_t*, const std::size_t
 );
 
+template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
+[[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition(
+    RANDOM_ACCESS_ITERATOR_INOUT dest_begin,
+    RANDOM_ACCESS_ITERATOR_INOUT dest_end,
+    RANDOM_ACCESS_ITERATOR_IN src_begin,
+    RANDOM_ACCESS_ITERATOR_IN src_end
+)
+{
+    assert(dest_begin != dest_end);
+    assert(src_begin != src_end);
+    assert(std::distance(dest_begin, dest_end) >= std::distance(src_begin, src_end));
+
+    apy_limb_t carry = 0;
+
+    auto dest_it = dest_begin;
+    auto src_it = src_begin;
+
+    for (; src_it != src_end; ++dest_it, ++src_it) {
+        add_single_limbs_with_carry(*src_it, *dest_it, &*dest_it, carry, &carry);
+    }
+    if (carry) {
+        for (; dest_it != dest_end; ++dest_it) {
+            *dest_it += carry;
+            carry = (*dest_it < carry);
+        }
+    }
+    return carry;
+}
 //! Add two limb vectors: dest = src0 + src1, where len(dest) == len(src0) ==
 //! len(src1)
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_addition_same_length(
@@ -111,10 +139,10 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
 
 //! Add two limb vectors of the same length in place: dest += src, where len(dest)
 //! == len(src)
-template <class RANDOM_ACCESS_ITERATOR_IN>
-[[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition_same_length(
-    RANDOM_ACCESS_ITERATOR_IN dest_begin,
-    RANDOM_ACCESS_ITERATOR_IN dest_end,
+template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
+[[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_iterator_addition_same_length(
+    RANDOM_ACCESS_ITERATOR_INOUT dest_begin,
+    RANDOM_ACCESS_ITERATOR_INOUT dest_end,
     RANDOM_ACCESS_ITERATOR_IN src_begin
 )
 {
