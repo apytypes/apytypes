@@ -254,7 +254,7 @@ static APY_INLINE void complex_fixed_point_division(
         prod_imm + prod_len  // prod_abs
     );
 
-    apy_inplace_addition_same_length(
+    apy_inplace_iterator_addition_same_length(
         prod_imm, prod_imm + prod_len, prod_imm + prod_len
     );
     bool real_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);

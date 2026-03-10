@@ -683,9 +683,9 @@ template <class RANDOM_ACCESS_ITERATOR>
     if (limb_idx < limbs) {
         apy_limb_t term_limb = apy_limb_t(1) << (n % APY_LIMB_SIZE_BITS);
         return apy_inplace_addition_single_limb(
-            &*(it_begin + limb_idx), // dst
-            limbs - limb_idx,        // src1 limb length
-            term_limb                // src2
+            it_begin + limb_idx, // dst
+            it_end,              // dst end
+            term_limb            // src2
         );
     }
     return 0;
