@@ -94,5 +94,17 @@ fs.readFile('pyodide-lock.json', 'utf8', function(err: any, data: string) {
     )
 
     // Run the APyTypes test harness on the first matching candidate wheel name
-    run_apytypes_test_harness(candidates[0])
+    if (candidates.length == 0) {
+        console.log(`[ HARNESS ]: error finding PEP 427-compatible APyTypes wheel`);
+        throw 1;
+    } else if (candidates.length == 1) {
+        run_apytypes_test_harness(candidates[0])
+    } else { /* candidates.length > 1 */
+        console.log(`[ HARNESS ]: WARNING, multiple PEP 427-compatible wheels found:`);
+        console.log(`[ HARNESS ]: APyTypes wheel candidate list is: [ ${candidates} ]`);
+
+        const wheel_name = candidates[candidates.length - 1];
+        console.log(`[ HARNESS ]: using last candidate: ${wheel_name}`);
+        run_apytypes_test_harness(wheel_name)
+    }
 });
