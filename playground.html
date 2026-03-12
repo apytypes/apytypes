@@ -756,7 +756,13 @@ emulator 🐍.</p>
     globalThis.mountDirectory = mountDirectory;
 
 </script>
-<div class="admonition note">
+<div style="padding: 12px; box-sizing: border-box; background:#222">
+    <div align="center">
+        <img src="../../_static/matplotlib-logo2.svg" width="200" alt="matplotlib">
+        <div align="center" id="MPLcanvas"></div>
+    </div>
+</div>
+<script>document.pyodideMplTarget = document.getElementById('MPLcanvas');</script><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The interactive Python console is non-persistent and runs locally in your browser.
 Everything you do here will disappear on exit and no information is sent anywhere.</p>
