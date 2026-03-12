@@ -365,11 +365,12 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
         );
 
         // Perform subtraction
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        auto result_it = result._data.begin();
+        for (; result_it != result._data.end(); result_it += result._itemsize) {
             apy_inplace_reversed_subtraction_same_length(
-                result._data.data() + i, // dst/src2
-                imm._data.data(),        // src1
-                result._itemsize         // limb vector length
+                result_it,                    // dst/src2
+                result_it + result._itemsize, // dst/src2
+                std::begin(imm._data)         // src1
             );
         }
     }

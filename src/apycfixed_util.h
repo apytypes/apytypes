@@ -128,11 +128,12 @@ static APY_INLINE void complex_fixed_point_product(
     std::copy_n(src1 + src1_limbs, src1_limbs, op1_abs);
 
     // bc + ad
-    apy_addition_same_length(
-        &*(dst + dst_limbs),                             // dst (imag part)
-        &*(prod_imm),                                    // src1 (b*c)
-        &*(prod_imm + src1_limbs + src2_limbs + 1),      // src2 (a*d)
-        std::min(src1_limbs + src2_limbs + 1, dst_limbs) // limbs
+    apy_addition_iterator_same_length(
+        dst + dst_limbs, // dst begin (imag part)
+        dst + dst_limbs
+            + std::min(src1_limbs + src2_limbs + 1, dst_limbs), // dst end (imag part)
+        prod_imm,                                               // src1 (b*c)
+        prod_imm + src1_limbs + src2_limbs + 1                  // src2 (a*d)
     );
 
     // b*d
@@ -223,7 +224,9 @@ static APY_INLINE void complex_fixed_point_division(
         op2_abs,           // op_abs
         prod_imm           // prod_abs
     );
-    apy_inplace_addition_same_length(den_imm.data(), prod_imm.data(), 2 * src2_limbs);
+    apy_inplace_iterator_addition_same_length(
+        den_imm, den_imm + 2 * src2_limbs, prod_imm
+    );
     auto den_significant_limbs = significant_limbs(den_imm, den_imm + 2 * src2_limbs);
 
     /*                                          ac + bd
