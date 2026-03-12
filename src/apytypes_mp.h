@@ -5,9 +5,10 @@
 #ifndef __APYTYPES_MP_H__
 #define __APYTYPES_MP_H__
 
-#include <cassert> // assert
-#include <cstddef> // std::size_t
-#include <cstdint> // std::int64_t, std::uint64_t, std::int32_t, std::uint32_t
+#include <cassert>  // assert
+#include <cstddef>  // std::size_t
+#include <cstdint>  // std::int64_t, std::uint64_t, std::int32_t, std::uint32_t
+#include <iterator> // std::distance
 
 #include "apytypes_fwd.h"
 #include "apytypes_intrinsics.h"

@@ -1,10 +1,10 @@
 /* For std::size_t */
 #include <cassert>
 #include <cstddef>
+#include <vector>
 
 #include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
-#include "apytypes_util.h"
 
 //! Multi-limb addition in-place
 apy_limb_t apy_inplace_addition(
@@ -27,7 +27,6 @@ apy_limb_t apy_inplace_addition(
 }
 
 // Shift
-
 apy_limb_t apy_inplace_left_shift(
     apy_limb_t* dest, const std::size_t limbs, const unsigned int shift_amount
 )
