@@ -6,26 +6,6 @@
 #include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
 
-//! Multi-limb addition in-place
-apy_limb_t apy_inplace_addition(
-    apy_limb_t* dest,
-    const std::size_t dest_limbs,
-    const apy_limb_t* src,
-    const std::size_t src_limbs
-)
-{
-    assert(dest_limbs >= src_limbs);
-    assert(src_limbs > 0);
-
-    apy_limb_t carry = apy_inplace_addition_same_length(dest, src, src_limbs);
-    if (dest_limbs > src_limbs && carry != 0) {
-        carry = apy_inplace_addition_single_limb(
-            dest + src_limbs, dest_limbs - src_limbs, carry
-        );
-    }
-    return carry;
-}
-
 // Shift
 apy_limb_t apy_inplace_left_shift(
     apy_limb_t* dest, const std::size_t limbs, const unsigned int shift_amount
@@ -400,12 +380,14 @@ APyDivInverse::APyDivInverse(
 )
 {
     assert(denominator_limbs > 0);
-    if (denominator_limbs == 1) {
+    switch (denominator_limbs) {
+    case 1:
         assert(denominator[0] > 0);
         norm_shift = leading_zeros(denominator[0]);
         norm_denominator_1 = denominator[0] << norm_shift;
         norm_denominator_0 = 0;
-    } else if (denominator_limbs == 2) {
+        break;
+    case 2:
         norm_denominator_1 = denominator[1];
         norm_denominator_0 = denominator[0];
         assert(norm_denominator_1 > 0);
@@ -415,7 +397,8 @@ APyDivInverse::APyDivInverse(
                 | (norm_denominator_0 >> (APY_LIMB_SIZE_BITS - norm_shift));
             norm_denominator_0 <<= norm_shift;
         }
-    } else {
+        break;
+    default:
         norm_denominator_1 = denominator[denominator_limbs - 1];
         norm_denominator_0 = denominator[denominator_limbs - 2];
         assert(norm_denominator_1 > 0);

@@ -18,10 +18,6 @@
 // Addition
 
 //! Add two limb vectors in place: dest += src, where len(dest) >= len(src)
-apy_limb_t apy_inplace_addition(
-    apy_limb_t*, const std::size_t, const apy_limb_t*, const std::size_t
-);
-
 template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition(
     RANDOM_ACCESS_ITERATOR_INOUT dest_begin,
@@ -50,6 +46,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     }
     return carry;
 }
+
 //! Add two limb vectors: dest = src0 + src1, where len(dest) == len(src0) ==
 //! len(src1)
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_addition_same_length(
@@ -71,6 +68,35 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     return carry;
 }
 
+//! Add two limb vectors: dest = src0 + src1, where len(dest) == len(src0) ==
+//! len(src1)
+template <
+    class RANDOM_ACCESS_ITERATOR_OUT,
+    class RANDOM_ACCESS_ITERATOR_IN1,
+    class RANDOM_ACCESS_ITERATOR_IN2>
+[[maybe_unused]] static APY_INLINE apy_limb_t apy_addition_iterator_same_length(
+    RANDOM_ACCESS_ITERATOR_OUT dest_begin,
+    RANDOM_ACCESS_ITERATOR_OUT dest_end,
+    RANDOM_ACCESS_ITERATOR_IN1 src0,
+    RANDOM_ACCESS_ITERATOR_IN2 src1
+)
+{
+    assert(dest_begin != dest_end);
+
+    // Specialized first iteration
+    *dest_begin = *src0 + *src1;
+    apy_limb_t carry = (*dest_begin < *src1);
+
+    auto dest_it = dest_begin + 1;
+    auto src0_it = src0 + 1;
+    auto src1_it = src1 + 1;
+
+    for (; dest_it != dest_end; ++dest_it, ++src0_it, ++src1_it) {
+        add_single_limbs_with_carry(*src0_it, *src1_it, &*dest_it, carry, &carry);
+    }
+    return carry;
+}
+
 //! Add two limb vectors of length two: dest = src0 + src1, where len(dest) == len(src0)
 //! == len(src1) == 2
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_addition_length_two(
@@ -81,23 +107,6 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     apy_limb_t carry = (dest[0] < src1[0]);
 
     add_single_limbs_with_carry(src0[1], src1[1], &dest[1], carry, &carry);
-    return carry;
-}
-
-//! Add a single limb to a limb vector in place: dest += src
-[[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition_single_limb(
-    apy_limb_t* dest, const std::size_t limbs, const apy_limb_t src
-)
-{
-    assert(limbs > 0);
-
-    /* src is initial "carry" */
-    apy_limb_t carry = src;
-    for (std::size_t i = 0; i < limbs; i++) {
-        dest[i] += carry;
-        carry = (dest[i] < carry);
-    }
-
     return carry;
 }
 
@@ -254,23 +263,6 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
 }
 
 //! Subtract two limb vectors in place: dest -= src, where len(dest) == len(src)
-[[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_subtraction_same_length(
-    apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs
-)
-{
-    assert(limbs > 0);
-
-    // Specialized first iteration
-    apy_limb_t carry = (dest[0] < src[0]);
-    dest[0] -= src[0];
-
-    for (std::size_t i = 1; i < limbs; i++) {
-        sub_single_limbs_with_carry(dest[i], src[i], &dest[i], carry, &carry);
-    }
-    return carry;
-}
-
-//! Subtract two limb vectors in place: dest -= src, where len(dest) == len(src)
 template <class RANDOM_ACCESS_ITERATOR_IN>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_subtraction_same_length(
     RANDOM_ACCESS_ITERATOR_IN dest_begin,
@@ -292,19 +284,23 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
 
 //! Subtract two limb vectors in place: dest = src - dest, where len(dest) ==
 //! len(src)
+template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
 [[maybe_unused]] static APY_INLINE apy_limb_t
 apy_inplace_reversed_subtraction_same_length(
-    apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs
+    RANDOM_ACCESS_ITERATOR_INOUT dest_begin,
+    RANDOM_ACCESS_ITERATOR_INOUT dest_end,
+    RANDOM_ACCESS_ITERATOR_IN src_begin
 )
 {
-    assert(limbs > 0);
+    assert(dest_begin != dest_end);
 
     // Specialized first iteration
-    apy_limb_t carry = (src[0] < dest[0]);
-    dest[0] = src[0] - dest[0];
+    apy_limb_t carry = 1;
+    auto dest_it = dest_begin;
+    auto src_it = src_begin;
 
-    for (std::size_t i = 1; i < limbs; i++) {
-        sub_single_limbs_with_carry(src[i], dest[i], &dest[i], carry, &carry);
+    for (; dest_it != dest_end; ++dest_it, ++src_it) {
+        sub_single_limbs_with_carry(*src_it, *dest_it, &*dest_it, carry, &carry);
     }
     return carry;
 }
