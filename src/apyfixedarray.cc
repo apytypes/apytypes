@@ -574,11 +574,11 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
         std::size_t den_significant_limbs
             = significant_limbs(std::begin(abs_den), std::end(abs_den));
         apy_unsigned_division(
-            result._data.data() + i * result._itemsize, // Quotient
-            abs_num.data(),                             // Numerator
-            abs_num.size(),                             // Numerator limbs
-            abs_den.data(),                             // Denominator
-            den_significant_limbs                       // Denominator significant limbs
+            result._data.begin() + i * result._itemsize, // Quotient
+            abs_num.begin(),                             // Numerator
+            abs_num.end(),                               // Numerator end
+            abs_den.begin(),                             // Denominator
+            abs_den.begin() + den_significant_limbs      // Denominator end
         );
 
         // Negate result if negative
@@ -645,22 +645,22 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
             std::begin(abs_num)
         );
         limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
-        auto quotient = result._data.data() + i * result._itemsize;
+        auto quotient = result._data.begin() + i * result._itemsize;
 
         apy_unsigned_division_preinverted(
-            quotient,              // Quotient
-            abs_num.data(),        // Numerator
-            result._itemsize,      // Numerator limbs
-            abs_den.data(),        // Denominator
-            den_significant_limbs, // Denominator limbs
-            &inv                   // Inverse
+            quotient,                                // Quotient
+            abs_num.begin(),                         // Numerator
+            abs_num.begin() + result._itemsize,      // Numerator end
+            abs_den.begin(),                         // Denominator
+            abs_den.begin() + den_significant_limbs, // Denominator end
+            &inv                                     // Inverse
         );
 
         // Negate result if negative
         if (num_sign ^ den_sign) {
             limb_vector_negate_inplace(
-                result._data.data() + i * result._itemsize,
-                result._data.data() + (i + 1) * result._itemsize
+                result._data.begin() + i * result._itemsize,
+                result._data.begin() + (i + 1) * result._itemsize
             );
         }
     }
@@ -720,18 +720,18 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
         std::size_t den_significant_limbs
             = significant_limbs(std::begin(abs_den), std::end(abs_den));
         apy_unsigned_division(
-            result._data.data() + i * result._itemsize, // Quotient
-            abs_num.data(),                             // Numerator
-            result._itemsize,                           // Numerator limbs
-            abs_den.data(),                             // Denominator
-            den_significant_limbs                       // Denominator significant limbs
+            result._data.begin() + i * result._itemsize, // Quotient
+            abs_num.begin(),                             // Numerator
+            abs_num.begin() + result._itemsize,          // Numerator end
+            abs_den.begin(),                             // Denominator
+            abs_den.begin() + den_significant_limbs      // Denominator end
         );
 
         // Negate result if negative
         if (num_sign ^ den_sign) {
             limb_vector_negate_inplace(
-                result._data.data() + i * result._itemsize,
-                result._data.data() + (i + 1) * result._itemsize
+                result._data.begin() + i * result._itemsize,
+                result._data.begin() + (i + 1) * result._itemsize
             );
         }
     }

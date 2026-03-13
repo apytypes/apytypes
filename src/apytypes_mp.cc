@@ -532,42 +532,6 @@ apy_limb_t apy_division_3by2(
     return quotient_high;
 }
 
-void apy_division_double_limbs_preinverted(
-    apy_limb_t* quotient,
-    apy_limb_t* numerator,
-    const std::size_t numerator_limbs,
-    const APyDivInverse* inv
-)
-{
-    assert(numerator_limbs >= 2);
-    assert(quotient != NULL);
-
-    // Normalize numerator
-    apy_limb_t numerator_1
-        = (inv->norm_shift > 0
-               ? apy_inplace_left_shift(numerator, numerator_limbs, inv->norm_shift)
-               : 0);
-    apy_limb_t numerator_0 = numerator[numerator_limbs - 1];
-
-    for (apy_size_t i = numerator_limbs - 2; i >= 0; i--) {
-        quotient[i] = apy_division_3by2(&numerator_1, &numerator_0, numerator[i], inv);
-    };
-
-    // Denormalize numerator back
-    if (inv->norm_shift > 0) {
-        assert(
-            (numerator_0 & (APY_NUMBER_MASK >> (APY_LIMB_SIZE_BITS - inv->norm_shift)))
-            == 0
-        );
-        numerator_0 = (numerator_0 >> inv->norm_shift)
-            | (numerator_1 << (APY_LIMB_SIZE_BITS - inv->norm_shift));
-        numerator_1 >>= inv->norm_shift;
-    }
-
-    numerator[1] = numerator_1;
-    numerator[0] = numerator_0;
-}
-
 void apy_division_multiple_limbs_preinverted(
     apy_limb_t* quotient,
     apy_limb_t* numerator,
@@ -646,70 +610,5 @@ void apy_division_multiple_limbs_preinverted(
             = apy_inplace_right_shift(numerator, denominator_limbs, inv->norm_shift);
         assert(carry == 0);
         (void)carry; // Avoid unused-warning
-    }
-}
-
-void apy_unsigned_division_preinverted(
-    apy_limb_t* quotient,
-    apy_limb_t* numerator,
-    const std::size_t numerator_limbs,
-    const apy_limb_t* denominator,
-    const std::size_t denominator_limbs,
-    const APyDivInverse* inv
-)
-{
-    assert(denominator_limbs > 0);
-    assert(numerator_limbs >= denominator_limbs);
-
-    switch (denominator_limbs) {
-    case 1:
-        numerator[0] = apy_division_single_limb_preinverted(
-            quotient, numerator, numerator_limbs, inv
-        );
-        break;
-    case 2:
-        apy_division_double_limbs_preinverted(
-            quotient, numerator, numerator_limbs, inv
-        );
-        break;
-    default:
-        apy_division_multiple_limbs_preinverted(
-            quotient, numerator, numerator_limbs, denominator, denominator_limbs, inv
-        );
-    }
-}
-
-void apy_unsigned_division(
-    apy_limb_t* quotient,
-    apy_limb_t* numerator,
-    const std::size_t numerator_limbs,
-    const apy_limb_t* denominator,
-    const std::size_t denominator_limbs
-)
-{
-    assert(denominator_limbs > 0);
-    assert(numerator_limbs >= denominator_limbs);
-    assert(quotient != NULL);
-
-    auto inv = APyDivInverse(denominator, denominator_limbs);
-    if (denominator_limbs > 2 && inv.norm_shift > 0) {
-        auto norm_denominator = std::vector<apy_limb_t>(denominator_limbs);
-        apy_limb_t carry = apy_left_shift(
-            norm_denominator.data(), denominator, denominator_limbs, inv.norm_shift
-        );
-        assert(carry == 0);
-        (void)carry; // Avoid unused-warning
-        apy_division_multiple_limbs_preinverted(
-            quotient,
-            numerator,
-            numerator_limbs,
-            norm_denominator.data(),
-            denominator_limbs,
-            &inv
-        );
-    } else {
-        apy_unsigned_division_preinverted(
-            quotient, numerator, numerator_limbs, denominator, denominator_limbs, &inv
-        );
     }
 }

@@ -380,6 +380,7 @@ apy_limb_t apy_left_shift(
 
 //! Right-shift limb vector in place
 apy_limb_t apy_inplace_right_shift(apy_limb_t*, const std::size_t, unsigned int);
+
 //! Right-shift limb vector in place
 template <class RANDOM_ACCESS_ITERATOR_IN>
 apy_limb_t apy_inplace_right_shift(
@@ -446,12 +447,91 @@ private:
 };
 
 //! Divide two unsigned limb vectors
+template <class RANDOM_ACCESS_ITERATOR_OUT, class RANDOM_ACCESS_ITERATOR_IN>
 void apy_unsigned_division(
-    apy_limb_t*, apy_limb_t*, const std::size_t, const apy_limb_t*, const std::size_t
-);
+    RANDOM_ACCESS_ITERATOR_OUT quotient,
+    RANDOM_ACCESS_ITERATOR_IN numerator_begin,
+    RANDOM_ACCESS_ITERATOR_IN numerator_end,
+    RANDOM_ACCESS_ITERATOR_IN denominator_begin,
+    RANDOM_ACCESS_ITERATOR_IN denominator_end
+)
+{
+    auto denominator_limbs = std::distance(denominator_begin, denominator_end);
+    auto numerator_limbs = std::distance(numerator_begin, numerator_end);
+    assert(denominator_begin != denominator_end);
+    assert(numerator_limbs >= denominator_limbs);
+
+    auto inv = APyDivInverse(denominator_begin.data(), denominator_limbs);
+    if (denominator_limbs > 2 && inv.norm_shift > 0) {
+        auto norm_denominator = std::vector<apy_limb_t>(denominator_limbs);
+        apy_limb_t carry = apy_left_shift(
+            norm_denominator.data(),
+            denominator_begin.data(),
+            denominator_limbs,
+            inv.norm_shift
+        );
+        assert(carry == 0);
+        (void)carry; // Avoid unused-warning
+        apy_division_multiple_limbs_preinverted(
+            &*quotient,
+            numerator_begin.data(),
+            numerator_limbs,
+            norm_denominator.data(),
+            denominator_limbs,
+            &inv
+        );
+    } else {
+        apy_unsigned_division_preinverted(
+            quotient,
+            numerator_begin,
+            numerator_end,
+            denominator_begin,
+            denominator_end,
+            &inv
+        );
+    }
+}
 
 //! Divide two unsigned limb vectors where the APyDivInverse is pre-computed
+template <class RANDOM_ACCESS_ITERATOR_OUT, class RANDOM_ACCESS_ITERATOR_IN>
 void apy_unsigned_division_preinverted(
+    RANDOM_ACCESS_ITERATOR_OUT quotient,
+    RANDOM_ACCESS_ITERATOR_IN numerator_begin,
+    RANDOM_ACCESS_ITERATOR_IN numerator_end,
+    RANDOM_ACCESS_ITERATOR_IN denominator_begin,
+    RANDOM_ACCESS_ITERATOR_IN denominator_end,
+    const APyDivInverse* inv
+)
+{
+    auto denominator_limbs = std::distance(denominator_begin, denominator_end);
+    auto numerator_limbs = std::distance(numerator_begin, numerator_end);
+    assert(denominator_limbs > 0);
+    assert(numerator_limbs >= denominator_limbs);
+
+    switch (denominator_limbs) {
+    case 1:
+        *numerator_begin = apy_division_single_limb_preinverted(
+            &*quotient, numerator_begin.data(), numerator_limbs, inv
+        );
+        break;
+    case 2:
+        apy_division_double_limbs_preinverted(
+            quotient, numerator_begin, numerator_end, inv
+        );
+        break;
+    default:
+        apy_division_multiple_limbs_preinverted(
+            &*quotient,
+            numerator_begin.data(),
+            numerator_limbs,
+            denominator_begin.data(),
+            denominator_limbs,
+            inv
+        );
+    }
+}
+
+void apy_division_multiple_limbs_preinverted(
     apy_limb_t* quotient,
     apy_limb_t* numerator,
     const std::size_t numerator_limbs,
@@ -460,4 +540,61 @@ void apy_unsigned_division_preinverted(
     const APyDivInverse* inv
 );
 
+template <class RANDOM_ACCESS_ITERATOR_OUT, class RANDOM_ACCESS_ITERATOR_INOUT>
+void apy_division_double_limbs_preinverted(
+    RANDOM_ACCESS_ITERATOR_OUT quotient,
+    RANDOM_ACCESS_ITERATOR_INOUT numerator_begin,
+    RANDOM_ACCESS_ITERATOR_INOUT numerator_end,
+    const APyDivInverse* inv
+)
+{
+    assert(std::distance(numerator_begin, numerator_end) >= 2);
+
+    // Normalize numerator
+    apy_limb_t numerator_1
+        = (inv->norm_shift > 0
+               ? apy_inplace_left_shift(numerator_begin, numerator_end, inv->norm_shift)
+               : 0);
+    apy_limb_t numerator_0 = *(numerator_end - 1);
+
+    auto num_it = numerator_end - 2;
+    auto quot_it = quotient + std::distance(numerator_begin, numerator_end) - 2;
+
+    for (;;) {
+        *quot_it = apy_division_3by2(&numerator_1, &numerator_0, *num_it, inv);
+        if (num_it == numerator_begin) {
+            break;
+        }
+        --num_it;
+        --quot_it;
+    }
+
+    // Denormalize numerator back
+    if (inv->norm_shift > 0) {
+        assert(
+            (numerator_0 & (APY_NUMBER_MASK >> (APY_LIMB_SIZE_BITS - inv->norm_shift)))
+            == 0
+        );
+        numerator_0 = (numerator_0 >> inv->norm_shift)
+            | (numerator_1 << (APY_LIMB_SIZE_BITS - inv->norm_shift));
+        numerator_1 >>= inv->norm_shift;
+    }
+
+    *(numerator_begin + 1) = numerator_1;
+    *(numerator_begin) = numerator_0;
+}
+
+apy_limb_t apy_division_single_limb_preinverted(
+    apy_limb_t* quotient,
+    const apy_limb_t* numerator,
+    const std::size_t numerator_limbs,
+    const APyDivInverse* inv
+);
+
+apy_limb_t apy_division_3by2(
+    apy_limb_t* remainder_1,
+    apy_limb_t* remainder_0,
+    const apy_limb_t numerator_tmp,
+    const APyDivInverse* inv
+);
 #endif

@@ -247,11 +247,11 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     // `apy_unsigned_division` requires the number of *significant* limbs in denominator
     std::size_t den_significant_limbs = significant_limbs(abs_den_begin, abs_den_end);
     apy_unsigned_division(
-        result._data.data(),                       // Quotient
-        &*abs_num_begin,                           // Numerator
-        std::distance(abs_num_begin, abs_num_end), // Numerator limbs
-        &*abs_den_begin,                           // Denominator
-        den_significant_limbs                      // Denominator significant limbs
+        std::begin(result._data),                                  // Quotient
+        abs_num_begin,                                             // Numerator
+        abs_num_begin + std::distance(abs_num_begin, abs_num_end), // Numerator end
+        abs_den_begin,                                             // Denominator
+        abs_den_begin + den_significant_limbs                      // Denominator end
     );
 
     // Negate result if negative

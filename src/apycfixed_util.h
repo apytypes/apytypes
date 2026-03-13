@@ -269,11 +269,11 @@ static APY_INLINE void complex_fixed_point_division(
     limb_vector_lsl(num_imm, num_imm + div_limbs, src2_bits);
 
     apy_unsigned_division(
-        qte_imm.data(),       // Quotient
-        num_imm.data(),       // Numerator
-        div_limbs,            // Numerator limbs
-        den_imm.data(),       // Denominator
-        den_significant_limbs // Denominator significant limbs
+        qte_imm,                        // Quotient
+        num_imm,                        // Numerator
+        num_imm + div_limbs,            // Numerator end
+        den_imm,                        // Denominator
+        den_imm + den_significant_limbs // Denominator end
     );
 
     if (real_negative) {
@@ -321,11 +321,11 @@ static APY_INLINE void complex_fixed_point_division(
     limb_vector_lsl(num_imm, num_imm + div_limbs, src2_bits);
 
     apy_unsigned_division(
-        qte_imm.data(),       // Quotient
-        num_imm.data(),       // Numerator
-        div_limbs,            // Numerator limbs
-        den_imm.data(),       // Denominator
-        den_significant_limbs // Denominator significant limbs
+        qte_imm,                        // Quotient
+        num_imm,                        // Numerator
+        num_imm + div_limbs,            // Numerator end
+        den_imm,                        // Denominator
+        den_imm + den_significant_limbs // Denominator end
     );
 
     if (imag_negative) {
