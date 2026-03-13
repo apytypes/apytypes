@@ -675,3 +675,37 @@ def test_trailing_zeros():
 def test_trailing_zeros_zero(bits: int):
     a = APyFixed(0, bits=bits, int_bits=bits // 2)
     assert a.trailing_zeros == bits
+
+
+def test_signed_division_two_limb_result():
+    # 64-bit
+    a = APyFixed(1576259869579674, bits=53, int_bits=3)
+    b = APyFixed(8556839292003942, bits=53, int_bits=3)
+    assert (a / b).is_identical(
+        APyFixed(162259276829213331866380618694676, bits=107, int_bits=54)
+    )
+    assert (b / a).is_identical(
+        APyFixed(162259276829213360818092508933558, bits=107, int_bits=54)
+    )
+
+    a = APyFixed(52890504608140023037952, bits=78, int_bits=3)
+    b = APyFixed(31876710, bits=25, int_bits=3)
+    assert (a / b).is_identical(
+        APyFixed(20282408545841830462665793746928, bits=104, int_bits=26)
+    )
+    assert (b / a).is_identical(
+        APyFixed(20282409603651670423947241699034, bits=104, int_bits=79)
+    )
+
+    # 32-bit
+    a = APyFixed(1468006, bits=23, int_bits=3)
+    b = APyFixed(31876710, bits=25, int_bits=3)
+
+    assert (a / b).is_identical(APyFixed(562949924061199, bits=49, int_bits=26))
+    assert (b / a).is_identical(APyFixed(562949943834327, bits=49, int_bits=24))
+
+    a = APyFixed(48103633715, bits=38, int_bits=3)
+    b = APyFixed(996147, bits=20, int_bits=3)
+
+    assert (a / b).is_identical(APyFixed(576459790234419191, bits=59, int_bits=21))
+    assert (b / a).is_identical(APyFixed(576460752303123894, bits=59, int_bits=39))
