@@ -1034,3 +1034,261 @@ def test_min_max_msb(limbs: int, limb_size: int):
             min = APyFixed(b_bits, int_bits=int_bits, frac_bits=0)
             assert arr.max().is_identical(max)
             assert arr.min().is_identical(min)
+
+
+def test_two_limb_division_result_64():
+    a = APyFixedArray(
+        [329853488333, 3958241859994, 659706976666, 3628388371661],
+        int_bits=2,
+        frac_bits=40,
+    )
+
+    b = APyFixedArray(
+        [439804651110, 923589767332, 4178144185549, 3793315115827],
+        int_bits=2,
+        frac_bits=40,
+    )
+    assert (a / b).is_identical(
+        APyFixedArray(
+            [
+                3298534883333,
+                38685626227666039282735204,
+                38685626227654939451064300,
+                5597513741401,
+            ],
+            int_bits=43,
+            frac_bits=42,
+        )
+    )
+
+    assert (b / a).is_identical(
+        APyFixedArray(
+            [
+                5864062014796,
+                38685626227658897692924304,
+                38685626227666667575093933,
+                3455607973012,
+            ],
+            int_bits=43,
+            frac_bits=42,
+        )
+    )
+
+    c = APyFixed(3779571220, bits=35, int_bits=0)
+
+    assert (a / c).is_identical(
+        APyFixedArray(
+            [
+                2998668076135,
+                302231454899659069575037,
+                5997336152270,
+                302231454896660401498901,
+            ],
+            int_bits=38,
+            frac_bits=40,
+        )
+    )
+
+    assert (c / b).is_identical(
+        APyFixedArray(
+            [
+                37795712200,
+                17997958190,
+                302231454903581702252144,
+                302231454903629805885854,
+            ],
+            int_bits=41,
+            frac_bits=37,
+        )
+    )
+
+
+def test_two_limb_division_result_64_one_long():
+    a = APyFixedArray(
+        [329853488333, 3958241859994, 659706976666, 3628388371661],
+        int_bits=2,
+        frac_bits=40,
+    )
+    b = APyFixedArray(
+        [
+            472236648286964547584,
+            991696961402625458176,
+            4486248158726162939904,
+            4073041091475068944384,
+        ],
+        int_bits=2,
+        frac_bits=70,
+    )
+
+    assert (a / b).is_identical(
+        APyFixedArray(
+            [
+                3298534883329,
+                41538374868278621028241876325898340,
+                41538374868278621028230776494227449,
+                5597513741403,
+            ],
+            int_bits=73,
+            frac_bits=42,
+        )
+    )
+    assert (b / a).is_identical(
+        APyFixedArray(
+            [
+                6296488643822376219079,
+                41538374868268704058629935359747687,
+                41538374868277046906083015039705999,
+                3710430807969971429543,
+            ],
+            int_bits=43,
+            frac_bits=72,
+        )
+    )
+
+    c = APyFixed(3779571220, bits=35, int_bits=0)
+
+    assert (c / b).is_identical(
+        APyFixedArray(
+            [
+                37795712199,
+                17997958190,
+                324518553658426726783080429151857,
+                324518553658426726783128532785566,
+            ],
+            int_bits=71,
+            frac_bits=37,
+        )
+    )
+
+    assert (b / c).is_identical(
+        APyFixedArray(
+            [
+                4293060439517617355515,
+                9015426922986995612487,
+                324518553656280196563397211898499,
+                324518553652523768678819296563478,
+            ],
+            int_bits=38,
+            frac_bits=70,
+        )
+    )
+
+    d = APyFixed(150511264542021331714048, bits=79, int_bits=-1)
+
+    assert (a / d).is_identical(
+        APyFixedArray(
+            [
+                1324712804550,
+                5316911983139663491615226474837638907,
+                2649425609100,
+                5316911983139663491615225150124834357,
+            ],
+            int_bits=83,
+            frac_bits=39,
+        )
+    )
+
+    assert (d / a).is_identical(
+        APyFixedArray(
+            [
+                2006816860559067629985901,
+                5316911983138158378969806658912261242,
+                1003408430279533814992950,
+                5316911983138803427246416467161873282,
+            ],
+            int_bits=40,
+            frac_bits=82,
+        )
+    )
+
+
+def test_two_limb_division_result_32():
+    a = APyFixedArray([314573, 3774874, 629146, 3460301], int_bits=2, frac_bits=20)
+    b = APyFixedArray([104858, 220201, 996147, 904397], int_bits=2, frac_bits=18)
+
+    assert (a / b).is_identical(
+        APyFixedArray(
+            [3145718, 8796091024923, 8796080439336, 5338211], int_bits=21, frac_bits=22
+        )
+    )
+
+    assert (b / a).is_identical(
+        APyFixedArray(
+            [1398105, 8796090820196, 8796092672682, 823880], int_bits=23, frac_bits=20
+        )
+    )
+
+    c = APyFixed(210721833, bits=28, int_bits=1)
+
+    assert (a / c).is_identical(
+        APyFixedArray(
+            [2251799812222118, 1950837, 2251799810758988, 3413967],
+            int_bits=30,
+            frac_bits=21,
+        )
+    )
+
+    assert (b / a).is_identical(
+        APyFixedArray(
+            [1398105, 8796090820196, 8796092672682, 823880], int_bits=23, frac_bits=20
+        )
+    )
+
+
+def test_two_limb_division_result_32_one_long():
+    a = APyFixedArray([314573, 3774874, 629146, 3460301], int_bits=2, frac_bits=20)
+    b = APyFixedArray(
+        [3435973837, 7215545057, 32641751450, 29635274342], int_bits=2, frac_bits=33
+    )
+
+    assert (a / b).is_identical(
+        APyFixedArray(
+            [3145729, 288230376149714459, 288230376139128824, 5338203],
+            int_bits=36,
+            frac_bits=22,
+        )
+    )
+
+    assert (b / a).is_identical(
+        APyFixedArray(
+            [45812955366, 288230303996192362, 288230364698472906, 26996944647],
+            int_bits=23,
+            frac_bits=35,
+        )
+    )
+
+    c = APyFixed(210721833, bits=28, int_bits=1)
+
+    assert (c / b).is_identical(
+        APyFixedArray(
+            [18446744073132415387, 18446744073434724840, 1154272460, 419735439],
+            int_bits=35,
+            frac_bits=29,
+        )
+    )
+
+    assert (b / c).is_identical(
+        APyFixedArray(
+            [18446744057728277945, 18446744040148876910, 7990636833, 21974251298],
+            int_bits=30,
+            frac_bits=34,
+        )
+    )
+
+    d = APyFixedArray([14087492731], int_bits=2, frac_bits=35)
+
+    assert (a / d).is_identical(
+        APyFixedArray(
+            [3069004, 1152921504602754977, 6138009, 1152921504599685972],
+            int_bits=38,
+            frac_bits=22,
+        )
+    )
+
+    assert (d / a).is_identical(
+        APyFixedArray(
+            [187833116992, 1152921363731785318, 93916558496, 1152921424106866579],
+            int_bits=23,
+            frac_bits=37,
+        )
+    )
