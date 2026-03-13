@@ -226,6 +226,62 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
         return result; // early exit
     }
 
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    // Specialization when __int128 is available
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        __int128 denominator;
+        if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            denominator = (__int128)(apy_limb_signed_t)rhs._data[0];
+        } else {
+            denominator = (__int128)rhs._data[0];
+            denominator |= (__int128)(apy_limb_signed_t)rhs._data[1]
+                << APY_LIMB_SIZE_BITS;
+        }
+        __int128 numerator;
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            numerator = (__int128)(apy_limb_signed_t)_data[0];
+        } else {
+            numerator = (__int128)_data[0];
+            numerator |= (__int128)(apy_limb_signed_t)_data[1] << APY_LIMB_SIZE_BITS;
+        }
+
+        numerator <<= rhs.bits();
+        auto tmp_res = numerator / denominator;
+        result._data[0] = apy_limb_t(tmp_res);
+        result._data[1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
+        return result;
+    }
+#endif
+#endif
+#if (COMPILER_LIMB_SIZE == 32)
+    // Specialization using 64-bit division
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        std::int64_t denominator;
+        if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[0];
+        } else {
+            denominator = (std::int64_t)rhs._data[0];
+            denominator |= (std::int64_t)(apy_limb_signed_t)rhs._data[1]
+                << APY_LIMB_SIZE_BITS;
+        }
+        std::int64_t numerator;
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            numerator = (std::int64_t)(apy_limb_signed_t)_data[0];
+        } else {
+            numerator = (std::int64_t)_data[0];
+            numerator |= (std::int64_t)(apy_limb_signed_t)_data[1]
+                << APY_LIMB_SIZE_BITS;
+        }
+
+        numerator <<= rhs.bits();
+        auto tmp_res = numerator / denominator;
+        result._data[0] = apy_limb_t(tmp_res);
+        result._data[1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
+        return result;
+    }
+#endif
+
     // Scratch data (size):
     // * abs_num:   bits_to_limbs(res_bits)
     // * abs_den:   rhs._data.size()
