@@ -541,7 +541,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
         return result; // early exit
     }
 
-    // Special case #2: Result fits in two limbs and inputs are one limb. Plus correct
+    // Special case #2: Result fits in two limbs. Plus correct
     // compiler/limb size
 #if (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__)
@@ -702,7 +702,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
         return result; // early exit
     }
 
-    // Special case #2: Result fits in two limbs and inputs are one limb. Plus correct
+    // Special case #2: Result fits in two limbs. Plus correct
     // compiler/limb size
 #if (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__)
@@ -846,6 +846,76 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
         );
         return result;
     }
+
+    // Special case #2: Result fits in two limbs. Plus correct
+    // compiler/limb size
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    // Specialization when __int128 is available
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        __int128 numerator;
+        if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            numerator = (__int128)(apy_limb_signed_t)lhs._data[0];
+        } else {
+            numerator = (__int128)lhs._data[0];
+            numerator |= (__int128)(apy_limb_signed_t)lhs._data[1]
+                << APY_LIMB_SIZE_BITS;
+        }
+        numerator <<= bits();
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            for (std::size_t i = 0; i < _nitems; i++) {
+                __int128 denominator = (__int128)(apy_limb_signed_t)_data[i];
+
+                auto tmp_res = numerator / denominator;
+                result._data[2 * i + 0] = apy_limb_t(tmp_res);
+                result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
+            }
+        } else {
+            for (std::size_t i = 0; i < _nitems; i++) {
+                __int128 denominator = (__int128)_data[2 * i];
+                denominator |= ((__int128)(apy_limb_signed_t)_data[2 * i + 1])
+                    << APY_LIMB_SIZE_BITS;
+                auto tmp_res = numerator / denominator;
+                result._data[2 * i + 0] = apy_limb_t(tmp_res);
+                result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
+            }
+        }
+        return result;
+    }
+#endif
+#endif
+#if (COMPILER_LIMB_SIZE == 32)
+    // Specialization using 64-bit division
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        std::int64_t numerator;
+        if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            numerator = (std::int64_t)(apy_limb_signed_t)lhs._data[0];
+        } else {
+            numerator = (std::int64_t)lhs._data[0];
+            numerator |= (std::int64_t)(apy_limb_signed_t)lhs._data[1]
+                << APY_LIMB_SIZE_BITS;
+        }
+        numerator <<= bits();
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            for (std::size_t i = 0; i < _nitems; i++) {
+                std::int64_t denominator = (std::int64_t)(apy_limb_signed_t)(_data[i]);
+                auto tmp_res = numerator / denominator;
+                result._data[2 * i + 0] = apy_limb_t(tmp_res);
+                result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
+            }
+        } else {
+            for (std::size_t i = 0; i < _nitems; i++) {
+                std::int64_t denominator = std::int64_t(_data[2 * i]);
+                denominator |= (std::int64_t)(apy_limb_signed_t)_data[2 * i + 1]
+                    << APY_LIMB_SIZE_BITS;
+                auto tmp_res = numerator / denominator;
+                result._data[2 * i + 0] = apy_limb_t(tmp_res);
+                result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
+            }
+        }
+        return result;
+    }
+#endif
 
     // General case: This always works but is slower than the special cases.
 
