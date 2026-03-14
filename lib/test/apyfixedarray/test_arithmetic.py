@@ -1275,7 +1275,7 @@ def test_two_limb_division_result_32_one_long():
         )
     )
 
-    d = APyFixedArray([14087492731], int_bits=2, frac_bits=35)
+    d = APyFixed(14087492731, int_bits=2, frac_bits=35)
 
     assert (a / d).is_identical(
         APyFixedArray(
