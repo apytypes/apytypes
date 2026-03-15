@@ -1,6 +1,6 @@
 import numpy as np
 
-from apytypes import APyCFixed
+from apytypes import APyCFixed, APyFixed
 
 
 def test_cfixed_scalar_multiplication_short(benchmark) -> None:
@@ -11,6 +11,21 @@ def test_cfixed_scalar_multiplication_short(benchmark) -> None:
     )
     b = APyCFixed.from_float(
         np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=20,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
+def test_cfixed_fixed_scalar_multiplication_short(benchmark) -> None:
+    a = APyCFixed.from_float(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=20,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(
+        np.random.rand(1)[0] - 0.5,
         bits=20,
         int_bits=1,
     )
@@ -33,6 +48,21 @@ def test_cfixed_scalar_multiplication_medium(benchmark) -> None:
     benchmark(lambda x, y: x * y, a, b)
 
 
+def test_cfixed_fixed_scalar_multiplication_medium(benchmark) -> None:
+    a = APyCFixed.from_float(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(
+        np.random.rand(1)[0] - 0.5,
+        bits=40,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
 def test_cfixed_scalar_multiplication_long(benchmark) -> None:
     a = APyCFixed.from_float(
         np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
@@ -48,9 +78,54 @@ def test_cfixed_scalar_multiplication_long(benchmark) -> None:
     benchmark(lambda x, y: x * y, a, b)
 
 
+def test_cfixed_fixed_scalar_multiplication_long(benchmark) -> None:
+    a = APyCFixed.from_float(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=200,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(
+        np.random.rand(1)[0] - 0.5,
+        bits=200,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
 def test_cfixed_scalar_multiplication_mixed(benchmark) -> None:
     a = APyCFixed.from_complex(
         np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=20,
+        int_bits=1,
+    )
+    b = APyCFixed.from_complex(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=200,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
+def test_cfixed_fixed_scalar_multiplication_mixed(benchmark) -> None:
+    a = APyCFixed.from_complex(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=20,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(
+        np.random.rand(1)[0] - 0.5,
+        bits=200,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
+def test_fixed_cfixed_scalar_multiplication_mixed(benchmark) -> None:
+    a = APyFixed.from_float(
+        np.random.rand(1)[0],
         bits=20,
         int_bits=1,
     )
@@ -78,6 +153,21 @@ def test_cfixed_scalar_division_short(benchmark) -> None:
     benchmark(lambda x, y: x / y, a, b)
 
 
+def test_cfixed_fixed_scalar_division_short(benchmark) -> None:
+    a = APyCFixed.from_complex(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=20,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(
+        np.random.rand(1)[0] - 0.5,
+        bits=20,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
 def test_cfixed_scalar_division_medium(benchmark) -> None:
     a = APyCFixed.from_complex(
         np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
@@ -86,6 +176,21 @@ def test_cfixed_scalar_division_medium(benchmark) -> None:
     )
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_cfixed_fixed_scalar_division_medium(benchmark) -> None:
+    a = APyCFixed.from_complex(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(
+        np.random.rand(1)[0] - 0.5,
         bits=40,
         int_bits=1,
     )
@@ -108,6 +213,21 @@ def test_cfixed_scalar_division_long(benchmark) -> None:
     benchmark(lambda x, y: x / y, a, b)
 
 
+def test_cfixed_fixed_scalar_division_long(benchmark) -> None:
+    a = APyCFixed.from_complex(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=200,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(
+        np.random.rand(1)[0] - 0.5,
+        bits=200,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
 def test_cfixed_scalar_division_mixed(benchmark) -> None:
     a = APyCFixed.from_complex(
         np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
@@ -116,6 +236,21 @@ def test_cfixed_scalar_division_mixed(benchmark) -> None:
     )
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=200,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_cfixed_fixed_scalar_division_mixed(benchmark) -> None:
+    a = APyCFixed.from_complex(
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=20,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(
+        np.random.rand(1)[0] - 0.5,
         bits=200,
         int_bits=1,
     )
