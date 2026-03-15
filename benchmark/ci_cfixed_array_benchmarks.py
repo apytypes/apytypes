@@ -576,36 +576,98 @@ def test_cfixed_matrix_to_numpy_200(benchmark) -> None:
     benchmark(lambda x: x.to_numpy(), a)
 
 
+def test_cfixed_conjugate_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+
+    benchmark(lambda x: x.conj(), a)
+
+
+def test_cfixed_conjugate_200(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+
+    benchmark(lambda x: x.conj(), a)
+
+
+def test_cfixed_conjugate_long_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=119,
+        int_bits=1,
+    )
+
+    benchmark(lambda x: x.conj(), a)
+
+
+def test_cfixed_conjugate_long_200(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=119,
+        int_bits=1,
+    )
+
+    benchmark(lambda x: x.conj(), a)
+
+
 def test_cfixed_vector_sum_20(benchmark) -> None:
-    a = APyCFixedArray.from_complex(np.random.rand(20) - 0.5, bits=19, int_bits=1)
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20) - 0.5 + 1j * (np.random.rand(20) - 0.5), bits=19, int_bits=1
+    )
 
     benchmark(sum, a)
 
 
 def test_cfixed_convolve_20(benchmark) -> None:
-    a = APyCFixedArray.from_complex(np.random.rand(20) - 0.5, bits=19, int_bits=1)
-    b = APyCFixedArray.from_complex(np.random.rand(20) - 0.5, bits=19, int_bits=1)
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20) - 0.5 + 1j * (np.random.rand(20) - 0.5), bits=19, int_bits=1
+    )
+    b = APyCFixedArray.from_complex(
+        np.random.rand(20) - 0.5 + 1j * (np.random.rand(20) - 0.5), bits=19, int_bits=1
+    )
 
     benchmark(lambda x, y: x.convolve(y), a, b)
 
 
 def test_cfixed_convolve_200(benchmark) -> None:
-    a = APyCFixedArray.from_complex(np.random.rand(200) - 0.5, bits=19, int_bits=1)
-    b = APyCFixedArray.from_complex(np.random.rand(200) - 0.5, bits=19, int_bits=1)
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200) - 0.5 + 1j * (np.random.rand(200) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+    b = APyCFixedArray.from_complex(
+        np.random.rand(200) - 0.5 + 1j * (np.random.rand(200) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
 
     benchmark(lambda x, y: x.convolve(y), a, b)
 
 
 def test_cfixed_convolve_medium_20(benchmark) -> None:
-    a = APyCFixedArray.from_complex(np.random.rand(20) - 0.5, bits=39, int_bits=1)
-    b = APyCFixedArray.from_complex(np.random.rand(20) - 0.5, bits=39, int_bits=1)
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20) - 0.5 + 1j * (np.random.rand(20) - 0.5), bits=39, int_bits=1
+    )
+    b = APyCFixedArray.from_complex(
+        np.random.rand(20) - 0.5 + 1j * (np.random.rand(20) - 0.5), bits=39, int_bits=1
+    )
 
     benchmark(lambda x, y: x.convolve(y), a, b)
 
 
 def test_cfixed_convolve_long_20(benchmark) -> None:
-    a = APyCFixedArray.from_complex(np.random.rand(20) - 0.5, bits=119, int_bits=1)
-    b = APyCFixedArray.from_complex(np.random.rand(20) - 0.5, bits=119, int_bits=1)
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20) - 0.5 + 1j * (np.random.rand(20) - 0.5), bits=119, int_bits=1
+    )
+    b = APyCFixedArray.from_complex(
+        np.random.rand(20) - 0.5 + 1j * (np.random.rand(20) - 0.5), bits=119, int_bits=1
+    )
 
     benchmark(lambda x, y: x.convolve(y), a, b)
 
