@@ -9,6 +9,7 @@
 #include <cstddef>  // std::size_t
 #include <cstdint>  // std::int64_t, std::uint64_t, std::int32_t, std::uint32_t
 #include <iterator> // std::distance
+#include <vector>   // std::vector
 
 #include "apytypes_fwd.h"
 #include "apytypes_intrinsics.h"
@@ -26,8 +27,8 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN src_end
 )
 {
-    assert(dest_begin != dest_end);
-    assert(src_begin != src_end);
+    assert(dest_begin < dest_end);
+    assert(src_begin < src_end);
     assert(std::distance(dest_begin, dest_end) >= std::distance(src_begin, src_end));
 
     apy_limb_t carry = 0;
@@ -81,7 +82,7 @@ template <
     RANDOM_ACCESS_ITERATOR_IN2 src1
 )
 {
-    assert(dest_begin != dest_end);
+    assert(dest_begin < dest_end);
 
     // Specialized first iteration
     *dest_begin = *src0 + *src1;
@@ -111,18 +112,18 @@ template <
 }
 
 //! Add a single limb to a limb vector in place: dest += src
-template <class RANDOM_ACCESS_ITERATOR_IN>
+template <class RANDOM_ACCESS_ITERATOR_INOUT>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition_single_limb(
-    RANDOM_ACCESS_ITERATOR_IN cbegin_it,
-    RANDOM_ACCESS_ITERATOR_IN cend_it,
+    RANDOM_ACCESS_ITERATOR_INOUT begin_it,
+    RANDOM_ACCESS_ITERATOR_INOUT end_it,
     const apy_limb_t src
 )
 {
-    assert(cbegin_it != cend_it);
+    assert(begin_it < end_it);
 
     /* src is initial "carry" */
     apy_limb_t carry = src;
-    for (auto it = cbegin_it; it != cend_it; ++it) {
+    for (auto it = begin_it; it != end_it; ++it) {
         *it += carry;
         carry = (*it < carry);
     }
@@ -131,15 +132,15 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
 }
 
 //! Add a single one to a limb vector in place: dest++
-template <class RANDOM_ACCESS_ITERATOR_IN>
+template <class RANDOM_ACCESS_ITERATOR_INOUT>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_add_one_lsb(
-    RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
+    RANDOM_ACCESS_ITERATOR_INOUT begin_it, RANDOM_ACCESS_ITERATOR_INOUT end_it
 )
 {
-    assert(cbegin_it != cend_it);
+    assert(begin_it < end_it);
 
     apy_limb_t carry = 1;
-    for (auto it = cbegin_it; it != cend_it; ++it) {
+    for (auto it = begin_it; it != end_it; ++it) {
         *it += carry;
         carry = (*it < carry);
     }
@@ -156,7 +157,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN src_begin
 )
 {
-    assert(dest_begin != dest_end);
+    assert(dest_begin < dest_end);
 
     apy_limb_t carry = 0;
 
@@ -202,15 +203,15 @@ apy_inplace_addition_length_two(apy_limb_t* dest, const apy_limb_t* src)
 // Subtraction
 
 //! Negate a limb vector in place: dest = -dest
-template <class RANDOM_ACCESS_ITERATOR_IN>
+template <class RANDOM_ACCESS_ITERATOR_INOUT>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_negate(
-    RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
+    RANDOM_ACCESS_ITERATOR_INOUT begin_it, RANDOM_ACCESS_ITERATOR_INOUT end_it
 )
 {
-    assert(cbegin_it != cend_it);
+    assert(begin_it < end_it);
 
     apy_limb_t carry = 1;
-    for (auto it = cbegin_it; it != cend_it; ++it) {
+    for (auto it = begin_it; it != end_it; ++it) {
         *it = ~(*it) + carry;
         carry = (*it < carry);
     }
@@ -225,7 +226,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT dest_begin
 )
 {
-    assert(src_begin != src_end);
+    assert(src_begin < src_end);
 
     apy_limb_t carry = 1;
     auto dest_it = dest_begin;
@@ -240,19 +241,19 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 }
 
 //! Subtract a single limb from a limb vectors in place: dest -= src
-template <class RANDOM_ACCESS_ITERATOR_IN>
+template <class RANDOM_ACCESS_ITERATOR_INOUT>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_subtraction_single_limb(
-    RANDOM_ACCESS_ITERATOR_IN cbegin_it,
-    RANDOM_ACCESS_ITERATOR_IN cend_it,
+    RANDOM_ACCESS_ITERATOR_INOUT begin_it,
+    RANDOM_ACCESS_ITERATOR_INOUT end_it,
     const apy_limb_t src
 )
 {
-    assert(cbegin_it != cend_it);
+    assert(begin_it < end_it);
 
     /* src is initial "carry" */
     apy_limb_t carry = src;
 
-    for (auto it = cbegin_it; it != cend_it; ++it) {
+    for (auto it = begin_it; it != end_it; ++it) {
         /* Determine carry to next limb */
         apy_limb_t carry_tmp = *it < carry;
         *it -= carry;
@@ -263,14 +264,14 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
 }
 
 //! Subtract two limb vectors in place: dest -= src, where len(dest) == len(src)
-template <class RANDOM_ACCESS_ITERATOR_IN>
+template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_subtraction_same_length(
-    RANDOM_ACCESS_ITERATOR_IN dest_begin,
-    RANDOM_ACCESS_ITERATOR_IN dest_end,
+    RANDOM_ACCESS_ITERATOR_INOUT dest_begin,
+    RANDOM_ACCESS_ITERATOR_INOUT dest_end,
     RANDOM_ACCESS_ITERATOR_IN src_begin
 )
 {
-    assert(dest_begin != dest_end);
+    assert(dest_begin < dest_end);
 
     apy_limb_t carry = 0;
     auto dest_it = dest_begin;
@@ -292,7 +293,7 @@ apy_inplace_reversed_subtraction_same_length(
     RANDOM_ACCESS_ITERATOR_IN src_begin
 )
 {
-    assert(dest_begin != dest_end);
+    assert(dest_begin < dest_end);
 
     // Specialized first iteration
     apy_limb_t carry = 1;
@@ -344,29 +345,29 @@ apy_inplace_reversed_subtraction_same_length(
 //! Left-shift limb vector in place
 apy_limb_t apy_inplace_left_shift(apy_limb_t*, const std::size_t, unsigned int);
 //! Left-shift limb vector in place
-template <class RANDOM_ACCESS_ITERATOR_IN>
+template <class RANDOM_ACCESS_ITERATOR_INOUT>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_left_shift(
-    RANDOM_ACCESS_ITERATOR_IN cbegin_it,
-    RANDOM_ACCESS_ITERATOR_IN cend_it,
+    RANDOM_ACCESS_ITERATOR_INOUT begin_it,
+    RANDOM_ACCESS_ITERATOR_INOUT end_it,
     const unsigned int shift_amount
 )
 {
-    assert(cbegin_it != cend_it);
+    assert(begin_it < end_it);
     assert(shift_amount > 0);
     assert(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
-    auto it = cend_it;
+    auto it = end_it;
     --it;
     apy_limb_t high_limb = *it;
     const apy_limb_t retval = high_limb >> overlap;
     apy_limb_t low_limb = (high_limb << shift_amount);
-    for (; it != cbegin_it; --it) {
+    for (; it != begin_it; --it) {
         high_limb = *(it - 1);
         *it = low_limb | (high_limb >> overlap);
         low_limb = (high_limb << shift_amount);
     }
-    *cbegin_it = low_limb;
+    *begin_it = low_limb;
 
     return retval;
 }
@@ -382,27 +383,27 @@ apy_limb_t apy_left_shift(
 apy_limb_t apy_inplace_right_shift(apy_limb_t*, const std::size_t, unsigned int);
 
 //! Right-shift limb vector in place
-template <class RANDOM_ACCESS_ITERATOR_IN>
+template <class RANDOM_ACCESS_ITERATOR_INOUT>
 apy_limb_t apy_inplace_right_shift(
-    RANDOM_ACCESS_ITERATOR_IN cbegin_it,
-    RANDOM_ACCESS_ITERATOR_IN cend_it,
+    RANDOM_ACCESS_ITERATOR_INOUT begin_it,
+    RANDOM_ACCESS_ITERATOR_INOUT end_it,
     unsigned int shift_amount
 )
 {
-    assert(cbegin_it != cend_it);
+    assert(begin_it < end_it);
     assert(shift_amount > 0);
     assert(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
-    apy_limb_t low_limb = *cbegin_it;
+    apy_limb_t low_limb = *begin_it;
     const apy_limb_t retval = (low_limb << overlap);
     apy_limb_t high_limb = low_limb >> shift_amount;
-    for (auto it = cbegin_it + 1; it != cend_it; ++it) {
+    for (auto it = begin_it + 1; it != end_it; ++it) {
         low_limb = *it;
         *(it - 1) = high_limb | (low_limb << overlap);
         high_limb = low_limb >> shift_amount;
     }
-    *(cend_it - 1) = high_limb;
+    *(end_it - 1) = high_limb;
 
     return retval;
 }
@@ -458,7 +459,8 @@ void apy_unsigned_division(
 {
     auto denominator_limbs = std::distance(denominator_begin, denominator_end);
     auto numerator_limbs = std::distance(numerator_begin, numerator_end);
-    assert(denominator_begin != denominator_end);
+    assert(denominator_begin < denominator_end);
+    assert(numerator_begin < numerator_end);
     assert(numerator_limbs >= denominator_limbs);
 
     auto inv = APyDivInverse(denominator_begin.data(), denominator_limbs);
@@ -505,6 +507,8 @@ void apy_unsigned_division_preinverted(
 {
     auto denominator_limbs = std::distance(denominator_begin, denominator_end);
     auto numerator_limbs = std::distance(numerator_begin, numerator_end);
+    assert(numerator_begin < numerator_end);
+    assert(denominator_begin < denominator_end);
     assert(denominator_limbs > 0);
     assert(numerator_limbs >= denominator_limbs);
 

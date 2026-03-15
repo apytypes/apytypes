@@ -179,7 +179,7 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
     );
 
     // Normalize
-    while (!limb_vec.empty() > 0 && (limb_vec.back() == 0)) {
+    while (!limb_vec.empty() && (limb_vec.back() == 0)) {
         limb_vec.pop_back();
     }
     return limb_vec;
@@ -276,7 +276,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     // Normalize
-    while (!limb_vec_abs.empty() > 0 && (limb_vec_abs.back() == 0)) {
+    while (!limb_vec_abs.empty() && (limb_vec_abs.back() == 0)) {
         limb_vec_abs.pop_back();
     }
     if (limb_vec_abs.size() == 0) {

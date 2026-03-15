@@ -1225,13 +1225,13 @@ fixed_point_from_double_single_limb(double value, int frac_bits, unsigned shift_
         }
     }
 
+    apy_limb_signed_t sman = apy_limb_signed_t(man);
     if (sign_of_double(value)) {
-        man = -man;
+        sman = -sman;
     }
 
     // Two's complement overflow
-    man = apy_limb_t(apy_limb_signed_t(man << shift_amount) >> shift_amount);
-    return man;
+    return apy_limb_t((sman << shift_amount) >> shift_amount);
 }
 
 template <typename RANDOM_ACCESS_IT>
