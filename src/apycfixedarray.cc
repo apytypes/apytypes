@@ -577,8 +577,8 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
                 result._data[i + 2] = apy_limb_t(im_res);
                 result._data[i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
             }
-            return result; // early exit
         }
+        return result; // early exit
     }
 #endif
 #else
