@@ -20,9 +20,9 @@ static APY_INLINE void complex_multiplication_1_1_2(
     auto re_res = re0 * re1 - im0 * im1;
     auto im_res = re0 * im1 + im0 * re1;
     res[0] = apy_limb_t(re_res);
-    res[1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
+    res[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
     res[2] = apy_limb_t(im_res);
-    res[3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+    res[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
 #elif defined(_MSC_VER)
     // Microsoft Visual C/C++ compiler
     auto [p0_high, p0_low] = long_signed_mult(src0[0], src1[0]);
@@ -59,9 +59,88 @@ static APY_INLINE void complex_multiplication_1_1_2(
     auto re_res = re0 * re1 - im0 * im1;
     auto im_res = re0 * im1 + im0 * re1;
     res[0] = apy_limb_t(re_res);
-    res[1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
+    res[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
     res[2] = apy_limb_t(im_res);
-    res[3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+    res[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+#endif
+}
+
+static APY_INLINE void complex_multiplication_1_2_2(
+    apy_limb_t* res, const apy_limb_t* src0, const apy_limb_t* src1
+)
+{
+#if COMPILER_LIMB_SIZE == 64
+#if defined(__GNUC__)
+    // GCC and Clang
+    __int128 re0 = (__int128)apy_limb_signed_t(src0[0]);
+    __int128 im0 = (__int128)apy_limb_signed_t(src0[1]);
+    __int128 re1 = (__int128)(src1[0])
+        | ((__int128)apy_limb_signed_t(src1[1]) << APY_LIMB_SIZE_BITS);
+    __int128 im1 = (__int128)(src1[2])
+        | ((__int128)apy_limb_signed_t(src1[3]) << APY_LIMB_SIZE_BITS);
+    auto re_res = re0 * re1 - im0 * im1;
+    auto im_res = re0 * im1 + im0 * re1;
+    res[0] = apy_limb_t(re_res);
+    res[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+    res[2] = apy_limb_t(im_res);
+    res[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    // (src0_real + src0_imag * i) * (src1_real_0 + 2^<APY_LIMB_SIZE_BITS> * src1_real_1
+    // + src1_imag_0 + 2^<APY_LIMB_SIZE_BITS> * src1_imag_1 * i) = (src0_real *
+    // src1_real_0 - src0_imag * src1_imag_0) + 2^<APY_LIMB_SIZE_BITS> * (src0_real *
+    // src1_real_1 - src0_imag * src1_imag_1)
+    // + (src0_real * src1_imag_0 + src0_imag * src1_real_0) * i +
+    // 2^<APY_LIMB_SIZE_BITS> * (src0_real * src1_imag_1 + src0_imag * src1_real_1) * i
+    apy_limb_signed_t src0_real = apy_limb_signed_t(src0[0]);
+    apy_limb_signed_t src0_imag = apy_limb_signed_t(src0[1]);
+    apy_limb_t src1_real_0 = src1[0];
+    apy_limb_signed_t src1_real_1 = apy_limb_signed_t(src1[1]);
+    apy_limb_t src1_imag_0 = src1[2];
+    apy_limb_signed_t src1_imag_1 = apy_limb_signed_t(src1[3]);
+    auto [p0_high, p0_low] = long_signed_unsigned_mult(src0_real, src1_real_0);
+    auto [p1_high, p1_low] = long_signed_unsigned_mult(src0_imag, src1_imag_0);
+    auto p0_high_0 = src0_real * src1_real_1;
+    auto p0_high_1 = src0_imag * src1_imag_1;
+    auto [p2_high, p2_low] = long_signed_unsigned_mult(src0_real, src1_imag_0);
+    auto [p3_high, p3_low] = long_signed_unsigned_mult(src0_imag, src1_real_0);
+    auto p2_high_0 = src0_real * src1_imag_1;
+    auto p2_high_1 = src0_imag * src1_real_1;
+    apy_limb_t p0_low_tmp = p0_low - p1_low;
+    p0_high -= (p0_low < p0_low_tmp) + p1_high - p0_high_0 + p0_high_1;
+    p2_low += p3_low;
+    p2_high += (p2_low < p3_low) + p3_high + p2_high_0 + p2_high_1;
+    res[0] = p0_low_tmp;
+    res[1] = p0_high;
+    res[2] = p2_low;
+    res[3] = p2_high;
+#else
+    // No 128-bit multiplication intrinsic found. We could implement this function,
+    // but fail for now so we can clearly see which systems are missing out on these
+    // intrinsics.
+    static_assert(
+        false,
+        "complex_multiplication_1_2_2(): No intrinsic available on your compiler. "
+        "Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with "
+        "information about the compiler and platform and we will be happy to add "
+        "support for it."
+    );
+#endif
+#else
+    // COMPILER_LIMB_SIZE = 32
+    std::int64_t re0 = (std::int64_t)apy_limb_signed_t(src0[0]);
+    std::int64_t im0 = (std::int64_t)apy_limb_signed_t(src0[1]);
+    std::int64_t re1 = (std::int64_t)(src1[0])
+        | ((std::int64_t)apy_limb_signed_t(src1[1]) << APY_LIMB_SIZE_BITS);
+    std::int64_t im1 = (std::int64_t)(src1[2])
+        | ((std::int64_t)apy_limb_signed_t(src1[3]) << APY_LIMB_SIZE_BITS);
+    auto re_res = re0 * re1 - im0 * im1;
+    auto im_res = re0 * im1 + im0 * re1;
+    res[0] = apy_limb_t(re_res);
+    res[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+    res[2] = apy_limb_t(im_res);
+    res[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
 #endif
 }
 

@@ -465,13 +465,36 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
     }
 
     // Double limb result specialization
-    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS
-        && unsigned(bits()) <= APY_LIMB_SIZE_BITS
-        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            complex_multiplication_1_1_2(
-                result._data.data() + 2 * i, _data.data() + i, rhs._data.data() + i
-            );
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    complex_multiplication_1_1_2(
+                        result._data.data() + 2 * i,
+                        _data.data() + i,
+                        rhs._data.data() + i
+                    );
+                }
+            } else {
+                // Right-hand side does not fit in single limb, but left-hand side does.
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    complex_multiplication_1_2_2(
+                        result._data.data() + 2 * i,
+                        _data.data() + i,
+                        rhs._data.data() + 2 * i
+                    );
+                }
+            }
+        } else {
+            assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            // Left-hand side does not fit in single limb, but right-hand side does.
+            for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                complex_multiplication_1_2_2(
+                    result._data.data() + 2 * i,
+                    rhs._data.data() + i,
+                    _data.data() + 2 * i
+                );
+            }
         }
         return result; // early exit
     }

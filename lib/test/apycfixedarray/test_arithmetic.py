@@ -87,6 +87,12 @@ def test_array_multiplication_with_different_frac_bits_and_int_bit_offset(
     assert res[2].is_identical(c * bl)
     assert res[3].is_identical(d * cl)
 
+    res = bv * av
+    assert res[0].is_identical(a * dl)
+    assert res[1].is_identical(b * al)
+    assert res[2].is_identical(c * bl)
+    assert res[3].is_identical(d * cl)
+
 
 @pytest.mark.parametrize("frac_bits", range(10, 68))
 def test_scalar_array_multiplication_with_different_frac_bits(frac_bits: int):
@@ -236,9 +242,17 @@ def test_array_scalar_multiplication_with_different_bits(bits: int):
         APyCFixedArray([(-2, 0), (0, 4), (-2, -8)], bits=bits + 9, frac_bits=4)
     )
 
+    assert (b * a).is_identical(
+        APyCFixedArray([(-2, 0), (0, 4), (-2, -8)], bits=bits + 9, frac_bits=4)
+    )
+
     a = APyCFixedArray([(1, 1), (2, -2), (-3, 5)], bits=bits, frac_bits=2)
     b = APyCFixed((-1, 1), bits=8, frac_bits=2)
 
     assert (a * b).is_identical(
+        APyCFixedArray([(-2, 0), (0, 4), (-2, -8)], bits=bits + 9, frac_bits=4)
+    )
+
+    assert (b * a).is_identical(
         APyCFixedArray([(-2, 0), (0, 4), (-2, -8)], bits=bits + 9, frac_bits=4)
     )
