@@ -333,7 +333,8 @@ APyCFixed APyCFixed::operator/(const APyCFixed& rhs) const
     // Divider bits (denominator known to be positive)
     const int num_int_bits = 1 + int_bits() + rhs.int_bits();
     const int num_frac_bits = frac_bits() + rhs.frac_bits();
-    const int div_bits = num_int_bits + num_frac_bits + rhs.bits();
+    const int div_bits
+        = num_int_bits + num_frac_bits + rhs.bits(); // bits() + 2 * rhs.bits() + 1
 
     // Result bits
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
@@ -358,6 +359,80 @@ APyCFixed APyCFixed::operator/(const APyCFixed& rhs) const
         result._data[1] = (apy_limb_signed_t(imag << (rhs.bits())) / den);
         return result; // early exit
     }
+
+    // Double-limb divider specialization
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        __int128 rhs_real, rhs_imag;
+        // div_bits = bits() + 2 * rhs.bits() + 1, so rhs.bits() is guaranteed to be <=
+        // APY_LIMB_SIZE_BITS
+        assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+        rhs_real = (__int128)apy_limb_signed_t(rhs._data[0]);
+        rhs_imag = (__int128)apy_limb_signed_t(rhs._data[1]);
+        __int128 lhs_real, lhs_imag;
+        if (unsigned(bits()) > APY_LIMB_SIZE_BITS) {
+            lhs_real = (__int128)_data[0]
+                | ((__int128)apy_limb_signed_t(_data[1]) << APY_LIMB_SIZE_BITS);
+            lhs_imag = (__int128)_data[2]
+                | ((__int128)apy_limb_signed_t(_data[3]) << APY_LIMB_SIZE_BITS);
+        } else {
+            lhs_real = (__int128)apy_limb_signed_t(_data[0]);
+            lhs_imag = (__int128)apy_limb_signed_t(_data[1]);
+        }
+        __int128 den = rhs_real * rhs_real + rhs_imag * rhs_imag;
+        __int128 num_real = lhs_real * rhs_real + lhs_imag * rhs_imag;
+        __int128 num_imag = lhs_imag * rhs_real - lhs_real * rhs_imag;
+        __int128 real = (num_real << (rhs.bits())) / den;
+        __int128 imag = (num_imag << (rhs.bits())) / den;
+        if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+            result._data[0] = apy_limb_t(real);
+            result._data[1] = apy_limb_t(imag);
+        } else {
+            result._data[0] = apy_limb_t(real);
+            result._data[1] = apy_limb_t(real >> APY_LIMB_SIZE_BITS);
+            result._data[2] = apy_limb_t(imag);
+            result._data[3] = apy_limb_t(imag >> APY_LIMB_SIZE_BITS);
+        }
+        return result; // early exit
+    }
+#endif
+#endif
+#if (COMPILER_LIMB_SIZE == 32)
+    if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        std::int64_t rhs_real, rhs_imag;
+        // div_bits = bits() + 2 * rhs.bits() + 1, so rhs.bits() is guaranteed to be <=
+        // APY_LIMB_SIZE_BITS
+        assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+        rhs_real = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
+        rhs_imag = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
+        std::int64_t lhs_real, lhs_imag;
+        if (unsigned(bits()) > APY_LIMB_SIZE_BITS) {
+            lhs_real = (std::int64_t)_data[0]
+                | ((std::int64_t)apy_limb_signed_t(_data[1]) << APY_LIMB_SIZE_BITS);
+            lhs_imag = (std::int64_t)_data[2]
+                | ((std::int64_t)apy_limb_signed_t(_data[3]) << APY_LIMB_SIZE_BITS);
+        } else {
+            lhs_real = (std::int64_t)apy_limb_signed_t(_data[0]);
+            lhs_imag = (std::int64_t)apy_limb_signed_t(_data[1]);
+        }
+        std::int64_t den = rhs_real * rhs_real + rhs_imag * rhs_imag;
+        std::int64_t num_real = (lhs_real * rhs_real + lhs_imag * rhs_imag);
+        std::int64_t num_imag = lhs_imag * rhs_real - lhs_real * rhs_imag;
+        std::int64_t real = (num_real << (rhs.bits())) / den;
+        std::int64_t imag = (num_imag << (rhs.bits())) / den;
+        if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+            result._data[0] = apy_limb_t(real);
+            result._data[1] = apy_limb_t(imag);
+        } else {
+            result._data[0] = apy_limb_t(real);
+            result._data[1] = apy_limb_t(real >> APY_LIMB_SIZE_BITS);
+            result._data[2] = apy_limb_t(imag);
+            result._data[3] = apy_limb_t(imag >> APY_LIMB_SIZE_BITS);
+        }
+        return result; // early exit
+    }
+#endif
 
     std::size_t src1_limbs = _data.size() / 2;
     std::size_t src2_limbs = rhs._data.size() / 2;
