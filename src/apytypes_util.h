@@ -12,7 +12,7 @@
 #include <fmt/format.h>
 
 #include <algorithm>        // std::find, std::unique, etc...
-#include <cstddef>          // std::size_t
+#include <cstddef>          // std::size_t, std::ptrdiff_t
 #include <cstdint>          // std::int64_t
 #include <functional>       // std::bit_not
 #include <initializer_list> // std::initializer_list
@@ -80,6 +80,8 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
+    assert(begin <= end);
+
     auto is_non_zero = [](auto n) { return n != 0; };
     auto back_non_zero_it = std::find_if(
         std::reverse_iterator(end), std::reverse_iterator(begin), is_non_zero
@@ -92,6 +94,8 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
+    assert(begin <= end);
+
     auto is_non_zero = [](auto n) { return n != 0; };
     auto rev_non_zero_it = std::find_if(
         std::reverse_iterator(end), std::reverse_iterator(begin), is_non_zero
@@ -106,11 +110,13 @@ limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR e
     }
 }
 
-//! Return the number of leading zeros of a limb vector
+//! Return the number of trailing zeros of a limb vector
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_trailing_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
+    assert(begin <= end);
+
     auto is_non_zero = [](auto n) { return n != 0; };
     auto non_zero_it = std::find_if(begin, end, is_non_zero);
     std::size_t zero_limbs = std::distance(begin, non_zero_it);
@@ -128,6 +134,8 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_ones(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
+    assert(begin <= end);
+
     auto is_not_all_ones = [](auto n) { return n != apy_limb_t(-1); };
     auto rev_not_all_ones_it = std::find_if(
         std::reverse_iterator(end), std::reverse_iterator(begin), is_not_all_ones
@@ -494,6 +502,8 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
+    assert(it_begin < it_end);
+
     // Return early if no shift or no vector
     if (!shift_amnt) {
         return;
@@ -537,6 +547,9 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
+    assert(it_begin < it_end);
+    assert(std::distance(it_begin, it_end) < shift_amnt / APY_LIMB_SIZE_BITS);
+
     // Return early if no shift or no vector
     if (!shift_amnt) {
         return;
@@ -576,6 +589,8 @@ static APY_INLINE void limb_vector_lsl_inner(
     unsigned int limb_shift
 )
 {
+    assert(it_begin < it_end);
+
     if (limb_skip) {
         for (auto it = it_end - 1; it != it_begin + limb_skip - 1; --it) {
             *it = *(it - limb_skip);
@@ -601,13 +616,15 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
+    assert(it_begin < it_end);
+
     // Return early if no shift or no vector
     if (!shift_amnt) {
         return;
     }
 
-    unsigned limb_skip = shift_amnt / APY_LIMB_SIZE_BITS;
-    if (limb_skip >= std::distance(it_begin, it_end)) {
+    unsigned int limb_skip = shift_amnt / APY_LIMB_SIZE_BITS;
+    if (std::ptrdiff_t(limb_skip) >= std::distance(it_begin, it_end)) {
         std::fill(it_begin, it_end, 0);
         return; // early return
     }
@@ -622,6 +639,8 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
+    assert(it_begin <= it_end);
+
     unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
     std::size_t n_limbs = std::distance(it_begin, it_end);
@@ -678,6 +697,8 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
+    assert(it_begin < it_end);
+
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
     std::size_t limbs = std::distance(it_begin, it_end);
     if (limb_idx < limbs) {
@@ -762,6 +783,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cbegin_it;
+    assert(cbegin_it < cend_it);
     return apy_limb_signed_t(*std::prev(cend_it)) < 0;
 }
 
@@ -770,6 +792,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool
 limb_vector_is_zero(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
 {
+    assert(cbegin_it <= cend_it);
     return std::all_of(cbegin_it, cend_it, [](auto n) { return n == 0; });
 }
 
@@ -782,9 +805,11 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cend_it;
-    const unsigned full_limbs = n / APY_LIMB_SIZE_BITS;
+    assert(cbegin_it < cend_it);
+    assert(std::distance(cbegin_it, cend_it) >= bits_to_limbs(n));
 
     // The full limbs can be reduced as full integers
+    const unsigned full_limbs = n / APY_LIMB_SIZE_BITS;
     for (auto limb_it = cbegin_it; limb_it != cbegin_it + full_limbs; ++limb_it) {
         if (*limb_it != 0) {
             return true;
@@ -812,6 +837,9 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cend_it;
+    assert(cbegin_it < cend_it);
+    assert(std::distance(cbegin_it, cend_it) >= bits_to_limbs(n));
+
     unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
     apy_limb_t mask = apy_limb_t(1) << bit_idx;
@@ -827,6 +855,8 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)end_it;
+    assert(begin_it < end_it);
+
     unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
     apy_limb_t bit_mask = apy_limb_t(1) << bit_idx;
@@ -843,6 +873,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
+    assert(cbegin_it < cend_it);
     return apy_negate(cbegin_it, cend_it, res_it);
 }
 
@@ -852,6 +883,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
 )
 {
+    assert(cbegin_it < cend_it);
     return apy_inplace_negate(cbegin_it, cend_it);
 }
 
@@ -861,6 +893,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
 )
 {
+    assert(cbegin_it < cend_it);
     return apy_inplace_add_one_lsb(cbegin_it, cend_it);
 }
 
@@ -951,6 +984,8 @@ template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OU
     RANDOM_ACCESS_ITERATOR_OUT dst_end
 )
 {
+    assert(src_begin <= src_end);
+    assert(dst_begin <= dst_end);
     std::size_t src_n = std::distance(src_begin, src_end);
     std::size_t dst_n = std::distance(dst_begin, dst_end);
     limb_vector_copy_n_sign_extend(src_begin, src_n, dst_begin, dst_n);
@@ -984,6 +1019,7 @@ template <typename RANDOM_ACCESS_IT>
 limb_vector_to_u64_vec(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it)
 {
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
+    assert(begin_it <= end_it);
 
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
         return std::vector<uint64_t>(begin_it, end_it);
@@ -1008,6 +1044,8 @@ template <typename VEC_RETURN_TYPE, typename RANDOM_ACCESS_IT>
 limb_vector_from_u64_vec(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it)
 {
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
+    assert(begin_it <= end_it);
+
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
         return VEC_RETURN_TYPE(begin_it, end_it);
     } else {
@@ -1096,6 +1134,7 @@ template <typename RANDOM_ACCESS_ITERATOR_INOUT>
     std::size_t itemsize
 )
 {
+    assert(begin_it <= end_it);
     auto n_items = std::distance(begin_it, end_it) / itemsize;
     for (std::size_t i = 0; i < (n_items + 1) / 2; i++) {
         auto it1 = begin_it + (i * itemsize);
@@ -1148,13 +1187,13 @@ CREATE_FUNCTOR_FROM_FUNC(apy_sub_n_functor, apy_subtraction_same_length);
 
 //! Mark nanobind Python-exposed parameter that does not support implicit conversions
 //! from other types.
-#define NB_NARG(name) nb::arg(name).noconvert()
+#define NB_NARG(...) nb::arg(__VA_ARGS__).noconvert()
 
 //! Mark a special double-underscore nanobind operator (e.g., `__add__`) the implements
 //! an arithmetic operation. In Python, when a bound function with this annotation is
 //! called with incompatible arguments, it will return `NotImplemented` rather than
 //! raising a `TypeError` as is default.
-#define NB_OP(args) nb::is_operator(args)
+#define NB_OP(...) nb::is_operator(__VA_ARGS__)
 
 //! Short-hand C++ arithmetic functors
 #define STD_ADD std::plus

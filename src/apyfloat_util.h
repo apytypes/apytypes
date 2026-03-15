@@ -1374,7 +1374,7 @@ template <
         my_aligned = (my != 0);
     } else {
         bool round_bit = ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
-        my_aligned = (my >> exp_delta) | round_bit;
+        my_aligned = (my >> exp_delta) | (unsigned int)round_bit;
     }
 
     // Perform addition / subtraction
@@ -1483,7 +1483,7 @@ template <
 
     const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
     const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
-    const unsigned exp_delta = x_true_exp - y_true_exp;
+    const std::uint64_t exp_delta = x_true_exp - y_true_exp;
 
     if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
         man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
@@ -2271,10 +2271,6 @@ public:
         BIAS_TERM = dst_spec.bias - std::int64_t(src1_spec.bias)
             - std::int64_t(src2_spec.bias);
     }
-
-    // Copy assign a new functor in the place of this one
-    _FloatingPointMultiplierShort& operator=(const _FloatingPointMultiplierShort&)
-        = default;
 
     void operator()(
         const APyFloatData* src1, const APyFloatData* src2, APyFloatData* dst
