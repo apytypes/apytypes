@@ -127,6 +127,54 @@ long_signed_mult(apy_limb_t src0, apy_limb_t src1)
 #endif
 }
 
+//! Compute signed product of one signed and one unsigned `apy_limb_t`, obtaining
+//! two-limb product
+[[maybe_unused, nodiscard]] static APY_INLINE std::tuple<apy_limb_t, apy_limb_t>
+long_signed_unsigned_mult(apy_limb_signed_t src0, apy_limb_t src1)
+{
+#if (COMPILER_LIMB_SIZE == 32)
+    std::int64_t res = (std::int64_t)(src0) * (std::int64_t)(src1);
+    apy_limb_t high_limb = apy_limb_t(res >> COMPILER_LIMB_SIZE);
+    return { high_limb, apy_limb_t(res) };
+#elif (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    /*
+     * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
+     * (ICC).
+     */
+    __int128 res = (__int128)(src0) * (__int128)(src1);
+    apy_limb_signed_t high_limb = apy_limb_signed_t(res >> COMPILER_LIMB_SIZE);
+    return { apy_limb_t(high_limb), apy_limb_t(res) };
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    apy_limb_signed_t high_limb_signed;
+    apy_limb_signed_t low_limb_signed
+        = apy_limb_signed_t(_mul128(src0, apy_limb_signed_t(src1), &high_limb_signed));
+    apy_limb_t high_limb = apy_limb_t(high_limb_signed);
+    if (src1 >> (COMPILER_LIMB_SIZE - 1)) {
+        // _mul128 performs signed * signed multiplication. If src1 has its top bit
+        // set, compensate by adding src0 to the high limb.
+        high_limb += apy_limb_t(src0);
+    }
+    return { high_limb, apy_limb_t(low_limb_signed) };
+#else
+    // No 128-bit multiplication intrinsic found. We could implement this function,
+    // but fail for now so we can clearly see which systems are missing out on these
+    // intrinsics.
+    static_assert(
+        false,
+        "long_signed_mult(): No intrinsic available on your compiler. Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with "
+        "information about the compiler and platform and we will be happy to add "
+        "support for it."
+    );
+#endif
+#else
+    static_assert(false, "COMPILER_LIMB_SIZE must be 32 or 64");
+    return 0;
+#endif
+}
+
 //! Compute addition between two apy_limb_t and a carry in, return carry out
 static APY_INLINE void add_single_limbs_with_carry(
     apy_limb_t src0,
