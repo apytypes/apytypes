@@ -13,7 +13,7 @@ report any issues or suggestions there. Contributions are also welcome!
 Installation
 ------------
 
-Releases of APyTypes come with pre-build wheels for Linux, Windows, and MacOS (ARM64 and
+Releases of APyTypes come with pre-built wheels for Linux, Windows, and MacOS (ARM64 and
 x86-64). Release wheels are made available through `PyPi
 <https://pypi.org/project/apytypes/>`_. Using a pre-built wheel is the recommended way
 of installing APyTypes.
