@@ -151,6 +151,16 @@ def test_division_two_limb_result_one_longer_64():
         )
     )
 
+    a = APyCFixed(
+        (362677745884388738990080, 241785163922925848363008), bits=80, int_bits=0
+    )
+    b = APyCFixed((307, 819), bits=10, int_bits=0)
+    assert (a / b).is_identical(
+        APyCFixed(
+            (464202533186689500641874, 1116447971206343375750177), bits=91, int_bits=11
+        )
+    )
+
 
 def test_division_two_limb_result_32():
     a = APyCFixed((3, 7), frac_bits=20, int_bits=7)
@@ -171,3 +181,7 @@ def test_division_two_limb_result_one_longer_32():
     assert (b / a).is_identical(
         APyCFixed((4625531675471, 9326891739065), bits=60, int_bits=43)
     )
+
+    a = APyCFixed((3, -7), frac_bits=30, int_bits=4)
+    b = APyCFixed((18, -1), frac_bits=7, int_bits=1)
+    assert (a / b).is_identical(APyCFixed((48, 8796093022112), bits=43, int_bits=12))

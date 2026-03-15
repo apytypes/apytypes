@@ -225,3 +225,20 @@ def test_arrays_dont_crash_on_zero_div():
     b = APyFixed.from_float(0.0, int_bits=10, frac_bits=0)
     _ = a / b
     _ = b / a
+
+
+@pytest.mark.parametrize("bits", range(10, 200, 10))
+def test_array_scalar_multiplication_with_different_bits(bits: int):
+    a = APyCFixedArray([(1, 1), (2, -2), (-3, 5)], bits=8, frac_bits=2)
+    b = APyCFixed((-1, 1), bits=bits, frac_bits=2)
+
+    assert (a * b).is_identical(
+        APyCFixedArray([(-2, 0), (0, 4), (-2, -8)], bits=bits + 9, frac_bits=4)
+    )
+
+    a = APyCFixedArray([(1, 1), (2, -2), (-3, 5)], bits=bits, frac_bits=2)
+    b = APyCFixed((-1, 1), bits=8, frac_bits=2)
+
+    assert (a * b).is_identical(
+        APyCFixedArray([(-2, 0), (0, 4), (-2, -8)], bits=bits + 9, frac_bits=4)
+    )

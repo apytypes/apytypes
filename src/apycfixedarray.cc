@@ -423,15 +423,15 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
     auto result_it = result._data.begin();
     for (; result_it != result._data.end(); result_it += result._itemsize) {
         // Perform ripple-carry operation
-        apy_inplace_reversed_subtraction_same_length(      // real part
-            result_it,                                     // dst/src2
-            result_it + result._itemsize / 2,              // dst/src2 end
-            std::begin(imm._data)                          // src1
+        apy_inplace_reversed_subtraction_same_length( // real part
+            result_it,                                // dst/src2
+            result_it + result._itemsize / 2,         // dst/src2 end
+            std::begin(imm._data)                     // src1
         );
-        apy_inplace_reversed_subtraction_same_length(      // imaginary part
-            result_it + result._itemsize / 2,              // dst(src2)
-            result_it + result._itemsize,                  // dst/src2 end
-            std::begin(imm._data) + result._itemsize / 2   // src1
+        apy_inplace_reversed_subtraction_same_length(    // imaginary part
+            result_it + result._itemsize / 2,            // dst(src2)
+            result_it + result._itemsize,                // dst/src2 end
+            std::begin(imm._data) + result._itemsize / 2 // src1
         );
     }
 
@@ -528,41 +528,115 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
 #if (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__)
     // Double limb result specialization
-    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS
-        && unsigned(bits()) <= APY_LIMB_SIZE_BITS
-        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
-        __int128 re1 = (__int128)apy_limb_signed_t(rhs._data[0]);
-        __int128 im1 = (__int128)apy_limb_signed_t(rhs._data[1]);
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            __int128 re0 = (__int128)apy_limb_signed_t(_data[i]);
-            __int128 im0 = (__int128)apy_limb_signed_t(_data[i + 1]);
-            auto re_res = re0 * re1 - im0 * im1;
-            auto im_res = re0 * im1 + im0 * re1;
-            result._data[2 * i + 0] = apy_limb_t(re_res);
-            result._data[2 * i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
-            result._data[2 * i + 2] = apy_limb_t(im_res);
-            result._data[2 * i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+                __int128 re1 = (__int128)apy_limb_signed_t(rhs._data[0]);
+                __int128 im1 = (__int128)apy_limb_signed_t(rhs._data[1]);
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    __int128 re0 = (__int128)apy_limb_signed_t(_data[i]);
+                    __int128 im0 = (__int128)apy_limb_signed_t(_data[i + 1]);
+                    auto re_res = re0 * re1 - im0 * im1;
+                    auto im_res = re0 * im1 + im0 * re1;
+                    result._data[2 * i + 0] = apy_limb_t(re_res);
+                    result._data[2 * i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+                    result._data[2 * i + 2] = apy_limb_t(im_res);
+                    result._data[2 * i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+                }
+            } else {
+                // Right-hand side does not fit in single limb, but left-hand side does.
+                __int128 re1 = (__int128)(rhs._data[0])
+                    | ((__int128)apy_limb_signed_t(rhs._data[1]) << APY_LIMB_SIZE_BITS);
+                __int128 im1 = (__int128)(rhs._data[2])
+                    | ((__int128)apy_limb_signed_t(rhs._data[3]) << APY_LIMB_SIZE_BITS);
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    __int128 re0 = (__int128)apy_limb_signed_t(_data[i]);
+                    __int128 im0 = (__int128)apy_limb_signed_t(_data[i + 1]);
+                    auto re_res = re0 * re1 - im0 * im1;
+                    auto im_res = re0 * im1 + im0 * re1;
+                    result._data[2 * i + 0] = apy_limb_t(re_res);
+                    result._data[2 * i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+                    result._data[2 * i + 2] = apy_limb_t(im_res);
+                    result._data[2 * i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+                }
+            }
+        } else {
+            assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            // Left-hand side does not fit in single limb, but right-hand side does.
+            __int128 re1 = (__int128)apy_limb_signed_t(rhs._data[0]);
+            __int128 im1 = (__int128)apy_limb_signed_t(rhs._data[1]);
+            for (std::size_t i = 0; i < result._nitems * 4; i += 4) {
+                __int128 re0 = (__int128)(_data[i])
+                    | ((__int128)apy_limb_signed_t(_data[i + 1]) << APY_LIMB_SIZE_BITS);
+                __int128 im0 = (__int128)(_data[i + 2])
+                    | ((__int128)apy_limb_signed_t(_data[i + 3]) << APY_LIMB_SIZE_BITS);
+                auto re_res = re0 * re1 - im0 * im1;
+                auto im_res = re0 * im1 + im0 * re1;
+                result._data[i + 0] = apy_limb_t(re_res);
+                result._data[i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+                result._data[i + 2] = apy_limb_t(im_res);
+                result._data[i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+            }
+            return result; // early exit
         }
-        return result; // early exit
     }
 #endif
 #else
     // COMPILER_LIMB_SIZE == 32
     // Double limb result specialization
-    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS
-        && unsigned(bits()) <= APY_LIMB_SIZE_BITS
-        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
-        std::int64_t re1 = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
-        std::int64_t im1 = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            std::int64_t re0 = (std::int64_t)apy_limb_signed_t(_data[i]);
-            std::int64_t im0 = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
-            auto re_res = re0 * re1 - im0 * im1;
-            auto im_res = re0 * im1 + im0 * re1;
-            result._data[2 * i + 0] = apy_limb_t(re_res);
-            result._data[2 * i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
-            result._data[2 * i + 2] = apy_limb_t(im_res);
-            result._data[2 * i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+                std::int64_t re1 = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
+                std::int64_t im1 = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    std::int64_t re0 = (std::int64_t)apy_limb_signed_t(_data[i]);
+                    std::int64_t im0 = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
+                    auto re_res = re0 * re1 - im0 * im1;
+                    auto im_res = re0 * im1 + im0 * re1;
+                    result._data[2 * i + 0] = apy_limb_t(re_res);
+                    result._data[2 * i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+                    result._data[2 * i + 2] = apy_limb_t(im_res);
+                    result._data[2 * i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+                }
+            } else {
+                // Right-hand side does not fit in single limb, but left-hand side does.
+                std::int64_t re1 = (std::int64_t)(rhs._data[0])
+                    | ((std::int64_t)apy_limb_signed_t(rhs._data[1])
+                       << APY_LIMB_SIZE_BITS);
+                std::int64_t im1 = (std::int64_t)(rhs._data[2])
+                    | ((std::int64_t)apy_limb_signed_t(rhs._data[3])
+                       << APY_LIMB_SIZE_BITS);
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    std::int64_t re0 = (std::int64_t)apy_limb_signed_t(_data[i]);
+                    std::int64_t im0 = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
+                    auto re_res = re0 * re1 - im0 * im1;
+                    auto im_res = re0 * im1 + im0 * re1;
+                    result._data[2 * i + 0] = apy_limb_t(re_res);
+                    result._data[2 * i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+                    result._data[2 * i + 2] = apy_limb_t(im_res);
+                    result._data[2 * i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+                }
+            }
+        } else {
+            assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            // Left-hand side does not fit in single limb, but right-hand side does.
+            std::int64_t re1 = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
+            std::int64_t im1 = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
+            for (std::size_t i = 0; i < result._nitems * 4; i += 4) {
+                std::int64_t re0 = (std::int64_t)(_data[i])
+                    | ((std::int64_t)apy_limb_signed_t(_data[i + 1])
+                       << APY_LIMB_SIZE_BITS);
+                std::int64_t im0 = (std::int64_t)(_data[i + 2])
+                    | ((std::int64_t)apy_limb_signed_t(_data[i + 3])
+                       << APY_LIMB_SIZE_BITS);
+                auto re_res = re0 * re1 - im0 * im1;
+                auto im_res = re0 * im1 + im0 * re1;
+                result._data[i + 0] = apy_limb_t(re_res);
+                result._data[i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
+                result._data[i + 2] = apy_limb_t(im_res);
+                result._data[i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+            }
         }
         return result; // early exit
     }
@@ -979,9 +1053,9 @@ template ComparissonArray APyCFixedArray::operator==(const APyCFixed& rhs) const
 template ComparissonArray APyCFixedArray::operator!=(const APyCFixedArray& rhs) const;
 template ComparissonArray APyCFixedArray::operator!=(const APyCFixed& rhs) const;
 
-/* ********************************************************************************** *
- * *                            Public member functions                             * *
- * ********************************************************************************** */
+/* ******************************************************************************** *
+ * *                            Public member functions                           * *
+ * ******************************************************************************** */
 
 std::string APyCFixedArray::repr() const
 {
@@ -1282,7 +1356,7 @@ APyFixedArray APyCFixedArray::get_imag() const
 
 /* ********************************************************************************** *
  * *                            Static array creation                               * *
- * ********************************************************************************** */
+ * * ******************************************************************************** */
 
 APyCFixedArray APyCFixedArray::zeros(
     const PyShapeParam_t& shape,
@@ -1780,8 +1854,8 @@ APyCFixedArray::matmul(const APyCFixedArray& rhs) const
         }
     } else if (ndim() == 1 && rhs.ndim() == 2) {
         if (_shape[0] == rhs._shape[0]) {
-            // Dimensionality for a vector-matrix multiplication checks out. Perform the
-            // checked 2D matrix
+            // Dimensionality for a vector-matrix multiplication checks out. Perform
+            // the checked 2D matrix
             return RESULT_TYPE(
                 std::in_place_type<APyCFixedArray>,
                 checked_2d_matmul(rhs, get_accumulator_mode_fixed())
