@@ -1,6 +1,6 @@
 import numpy as np
 
-from apytypes import APyCFixed, APyCFixedArray
+from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFixedArray
 
 
 def test_cfixed_matrix_multiplication_20(benchmark) -> None:
@@ -145,6 +145,21 @@ def test_cfixed_matrix_elementwise_multiplication_20(benchmark) -> None:
     benchmark(lambda x, y: x * y, a, b)
 
 
+def test_cfixed_fixed_matrix_elementwise_multiplication_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(20, 20) - 0.5,
+        bits=19,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
 def test_cfixed_matrix_elementwise_multiplication_200(benchmark) -> None:
     a = APyCFixedArray.from_complex(
         np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
@@ -153,6 +168,21 @@ def test_cfixed_matrix_elementwise_multiplication_200(benchmark) -> None:
     )
     b = APyCFixedArray.from_complex(
         np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
+def test_cfixed_fixed_matrix_elementwise_multiplication_200(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(200, 200) - 0.5,
         bits=19,
         int_bits=1,
     )
@@ -175,6 +205,21 @@ def test_cfixed_matrix_elementwise_division_20(benchmark) -> None:
     benchmark(lambda x, y: x / y, a, b)
 
 
+def test_cfixed_fixed_matrix_elementwise_division_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(20, 20) - 0.5,
+        bits=19,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
 def test_cfixed_matrix_elementwise_division_200(benchmark) -> None:
     a = APyCFixedArray.from_complex(
         np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
@@ -183,6 +228,21 @@ def test_cfixed_matrix_elementwise_division_200(benchmark) -> None:
     )
     b = APyCFixedArray.from_complex(
         np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_cfixed_fixed_matrix_elementwise_division_200(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(200, 200) - 0.5,
         bits=19,
         int_bits=1,
     )
@@ -205,6 +265,21 @@ def test_cfixed_matrix_elementwise_division_medium_20(benchmark) -> None:
     benchmark(lambda x, y: x / y, a, b)
 
 
+def test_cfixed_fixed_matrix_elementwise_division_medium_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(20, 20) - 0.5,
+        bits=40,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
 def test_cfixed_matrix_elementwise_division_medium_200(benchmark) -> None:
     a = APyCFixedArray.from_complex(
         np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
@@ -213,6 +288,21 @@ def test_cfixed_matrix_elementwise_division_medium_200(benchmark) -> None:
     )
     b = APyCFixedArray.from_complex(
         np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_cfixed_fixed_matrix_elementwise_division_medium_200(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(200, 200) - 0.5,
         bits=40,
         int_bits=1,
     )
@@ -235,6 +325,21 @@ def test_cfixed_matrix_elementwise_division_long_20(benchmark) -> None:
     benchmark(lambda x, y: x / y, a, b)
 
 
+def test_cfixed_fixed_matrix_elementwise_division_long_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
+        bits=200,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(20, 20) - 0.5,
+        bits=200,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
 def test_cfixed_matrix_elementwise_multiplication_medium_20(benchmark) -> None:
     a = APyCFixedArray.from_complex(
         np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
@@ -250,6 +355,21 @@ def test_cfixed_matrix_elementwise_multiplication_medium_20(benchmark) -> None:
     benchmark(lambda x, y: x * y, a, b)
 
 
+def test_cfixed_fixed_matrix_elementwise_multiplication_medium_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(20, 20) - 0.5,
+        bits=40,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
 def test_cfixed_matrix_elementwise_multiplication_medium_200(benchmark) -> None:
     a = APyCFixedArray.from_complex(
         np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
@@ -258,6 +378,21 @@ def test_cfixed_matrix_elementwise_multiplication_medium_200(benchmark) -> None:
     )
     b = APyCFixedArray.from_complex(
         np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
+def test_cfixed_fixed_matrix_elementwise_multiplication_medium_200(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+    b = APyFixedArray.from_float(
+        np.random.rand(200, 200) - 0.5,
         bits=40,
         int_bits=1,
     )
@@ -338,8 +473,21 @@ def test_cfixed_scalar_matrix_multiplication_20(benchmark) -> None:
         int_bits=1,
     )
     b = APyCFixed.from_complex(
-        np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=19, int_bits=1
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=19,
+        int_bits=1,
     )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
+def test_cfixed_fixed_scalar_matrix_multiplication_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
+        bits=19,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=19, int_bits=1)
 
     benchmark(lambda x, y: x * y, a, b)
 
@@ -351,7 +499,9 @@ def test_cfixed_scalar_matrix_multiplication_200(benchmark) -> None:
         int_bits=1,
     )
     b = APyCFixed.from_complex(
-        np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=19, int_bits=1
+        np.random.rand(1)[0] - 0.5 + 1j * (np.random.rand(1)[0] - 0.5),
+        bits=19,
+        int_bits=1,
     )
 
     benchmark(lambda x, y: x * y, a, b)
@@ -366,6 +516,17 @@ def test_cfixed_scalar_matrix_multiplication_medium_20(benchmark) -> None:
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=40, int_bits=1
     )
+
+    benchmark(lambda x, y: x * y, a, b)
+
+
+def test_cfixed_fixed_scalar_matrix_multiplication_medium_20(benchmark) -> None:
+    a = APyCFixedArray.from_complex(
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
+        bits=40,
+        int_bits=1,
+    )
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=40, int_bits=1)
 
     benchmark(lambda x, y: x * y, a, b)
 
