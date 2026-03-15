@@ -119,3 +119,55 @@ def test_multiplicatio_different_wordlengths_different_fracbits(bits):
     a = APyCFixed((3, 7), bits=bits, int_bits=8)
     b = APyCFixed((18, 1), bits=bits, int_bits=6)
     assert (a * b).is_identical(APyCFixed((47, 129), bits=2 * bits + 1, int_bits=15))
+
+
+def test_division_two_limb_result_64():
+    a = APyCFixed((3, 7), frac_bits=50, int_bits=7)
+    b = APyCFixed((18, -1), frac_bits=40, int_bits=7)
+    assert (a / b).is_identical(
+        APyCFixed((20352806008308, 55861956916422), bits=105, int_bits=48)
+    )
+    assert (b / a).is_identical(
+        APyCFixed(
+            (116782997233883206, 40564819207303020315838264892593),
+            bits=105,
+            int_bits=58,
+        )
+    )
+
+
+def test_division_two_limb_result_one_longer_64():
+    a = APyCFixed((3, -7), frac_bits=70, int_bits=7)
+    b = APyCFixed((18, -1), frac_bits=30, int_bits=7)
+    assert (a / b).is_identical(
+        APyCFixed(
+            (25796234343, 41538374868278621028243918618402993), bits=115, int_bits=38
+        )
+    )
+
+    assert (b / a).is_identical(
+        APyCFixed(
+            (158932058182095645812665, 320469559940946957950128), bits=115, int_bits=78
+        )
+    )
+
+
+def test_division_two_limb_result_32():
+    a = APyCFixed((3, 7), frac_bits=20, int_bits=7)
+    b = APyCFixed((18, -1), frac_bits=10, int_bits=7)
+    assert (a / b).is_identical(APyCFixed((18955, 52025), bits=45, int_bits=18))
+    assert (b / a).is_identical(
+        APyCFixed((108762641, 35184073570093), bits=45, int_bits=28)
+    )
+
+
+def test_division_two_limb_result_one_longer_32():
+    a = APyCFixed((3, -7), frac_bits=35, int_bits=7)
+    b = APyCFixed((18, -1), frac_bits=10, int_bits=7)
+    assert (a / b).is_identical(
+        APyCFixed((24601, 1152921504606797371), bits=60, int_bits=18)
+    )
+
+    assert (b / a).is_identical(
+        APyCFixed((4625531675471, 9326891739065), bits=60, int_bits=43)
+    )
