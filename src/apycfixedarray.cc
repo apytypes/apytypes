@@ -1171,6 +1171,15 @@ APyCFixedArray APyCFixedArray::conj() const
     const std::size_t SRC_N = _itemsize / 2;
     const std::size_t DST_N = res._itemsize / 2;
 
+    if (res._itemsize == 2) {
+        // Single limb specialization (move to SIMD, OddEven(Neg(a), a)
+        for (std::size_t i = 0; i < res._nitems; i++) {
+            res._data[2 * i + 0] = _data[2 * i + 0];
+            res._data[2 * i + 1] = -_data[2 * i + 1];
+        }
+        return res; // early return specialization #1
+    }
+
     if (res._itemsize > _itemsize) {
         // One additional limb required because of extra integer bit
         for (std::size_t i = 0; i < res._nitems; i++) {
