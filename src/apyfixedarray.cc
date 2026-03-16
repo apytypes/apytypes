@@ -114,7 +114,7 @@ APyFixedArray::APyFixedArray(
  * *                          Binary arithmetic operators                           * *
  * ********************************************************************************** */
 
-template <class ripple_carry_op, class simd_op, class simd_shift_op>
+template <class ripple_carry_op, class two_limb_op, class simd_op, class simd_shift_op>
 inline APyFixedArray
 APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedArray& rhs) const
 {
@@ -184,13 +184,24 @@ APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedArray& rhs) const
             src1_ptr = _data.data();
             src2_ptr = result._data.data();
         }
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            ripple_carry_op {}(
-                result._data.data() + i, // dst
-                src1_ptr + i,            // src1
-                src2_ptr + i,            // src2
-                result._itemsize         // limb vector length
-            );
+        // Two-limb specialization
+        if (result._itemsize == 2) {
+            for (std::size_t i = 0; i < result._data.size(); i += 2) {
+                two_limb_op {}(
+                    result._data.data() + i, // dst
+                    src1_ptr + i,            // src1
+                    src2_ptr + i             // src2
+                );
+            }
+        } else {
+            for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+                ripple_carry_op {}(
+                    result._data.data() + i, // dst
+                    src1_ptr + i,            // src1
+                    src2_ptr + i,            // src2
+                    result._itemsize         // limb vector length
+                );
+            }
         }
         return result; // early exit
     }
@@ -226,7 +237,11 @@ APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedArray& rhs) const
     return result;
 }
 
-template <class ripple_carry_op, class simd_op_const, class simd_shift_op_const>
+template <
+    class ripple_carry_op,
+    class two_limb_op,
+    class simd_op_const,
+    class simd_shift_op_const>
 inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) const
 {
     // Increase word length of result by one
@@ -258,6 +273,21 @@ inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) 
         return result; // early exit
     }
 
+    // Special case #2: Result and operands have two limbs and same number of fractional
+    // bits.
+    if (result._itemsize == 2 && result._itemsize == _itemsize
+        && unsigned(rhs.bits()) > APY_LIMB_SIZE_BITS
+        && frac_bits() == rhs.frac_bits()) {
+        for (std::size_t i = 0; i < _nitems; i++) {
+            two_limb_op {}(
+                result._data.data() + i * 2, // dst
+                _data.data() + i * 2,        // src1
+                rhs._data.data()             // src2 (pointer to constant)
+            );
+        }
+        return result; // early exit
+    }
+
     // Most general case: Works in any situation, but is slowest
     APyFixed imm(res_bits, res_int_bits);
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
@@ -277,6 +307,7 @@ inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) 
         std::end(imm._data),
         rhs_shift_amount
     );
+
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
         // Perform ripple-carry operation
         ripple_carry_op {}(
@@ -298,6 +329,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
 
     return _apyfixedarray_base_add_sub<
         apy_add_n_functor<>,
+        apy_add_2_functor<>,
         simd::add_functor<>,
         simd::shift_add_functor<>>(rhs);
 }
@@ -306,6 +338,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
 {
     return _apyfixed_base_add_sub<
         apy_add_n_functor<>,
+        apy_add_2_functor<>,
         simd::add_const_functor<>,
         simd::shift_add_const_functor<>>(rhs);
 }
@@ -318,6 +351,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 
     return _apyfixedarray_base_add_sub<
         apy_sub_n_functor<>,
+        apy_sub_2_functor<>,
         simd::sub_functor<>,
         simd::shift_sub_functor<>>(rhs);
 }
@@ -326,6 +360,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
 {
     return _apyfixed_base_add_sub<
         apy_sub_n_functor<>,
+        apy_sub_2_functor<>,
         simd::sub_const_functor<>,
         simd::shift_sub_const_functor<>>(rhs);
 }
@@ -416,7 +451,8 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
             for (std::size_t i = 0; i < _nitems; i++) {
                 auto [high, low]
                     = long_signed_unsigned_mult(_data[i], rhs._data[i * 2]);
-                auto high2 = _data[i] * rhs._data[i * 2 + 1];
+                auto high2 = (apy_limb_signed_t)_data[i]
+                    * (apy_limb_signed_t)rhs._data[i * 2 + 1];
                 result._data[i * 2 + 0] = low;
                 result._data[i * 2 + 1] = high + high2;
             }
@@ -425,8 +461,9 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
             // Left-hand side is two limbs, right-hand side is single limb
             for (std::size_t i = 0; i < _nitems; i++) {
                 auto [high, low]
-                    = long_signed_unsigned_mult(_data[i * 2], rhs._data[i]);
-                auto high2 = _data[i * 2 + 1] * rhs._data[i];
+                    = long_signed_unsigned_mult(rhs._data[i], _data[i * 2]);
+                auto high2 = (apy_limb_signed_t)_data[i * 2 + 1]
+                    * (apy_limb_signed_t)rhs._data[i];
                 result._data[i * 2 + 0] = low;
                 result._data[i * 2 + 1] = high + high2;
             }

@@ -989,6 +989,67 @@ def test_array_multiplication_with_different_frac_bits(frac_bits: int):
 
 
 @pytest.mark.parametrize("frac_bits", range(10, 68))
+def test_array_addition_with_different_frac_bits(frac_bits: int):
+    a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
+    b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
+    c = fx(-math.pi, int_bits=3, frac_bits=frac_bits)
+    d = fx(-23 / 11, int_bits=3, frac_bits=frac_bits)
+
+    av = fx([1 / 3, math.pi, -math.pi, -23 / 11], int_bits=3, frac_bits=frac_bits)
+    bv = fx([math.pi, -23 / 11, 1 / 3, -math.pi], int_bits=3, frac_bits=frac_bits)
+    res = av + bv
+    assert res[0].is_identical(a + b)
+    assert res[1].is_identical(b + d)
+    assert res[2].is_identical(c + a)
+    assert res[3].is_identical(d + c)
+
+    assert res.is_identical(bv + av)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 68))
+def test_array_subtraction_with_different_frac_bits(frac_bits: int):
+    a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
+    b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
+    c = fx(-math.pi, int_bits=3, frac_bits=frac_bits)
+    d = fx(-23 / 11, int_bits=3, frac_bits=frac_bits)
+
+    av = fx([1 / 3, math.pi, -math.pi, -23 / 11], int_bits=3, frac_bits=frac_bits)
+    bv = fx([math.pi, -23 / 11, 1 / 3, -math.pi], int_bits=3, frac_bits=frac_bits)
+    res = av - bv
+    assert res[0].is_identical(a - b)
+    assert res[1].is_identical(b - d)
+    assert res[2].is_identical(c - a)
+    assert res[3].is_identical(d - c)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 68))
+def test_array_multiplication_with_different_frac_bits_offset(frac_bits: int):
+    a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
+    b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
+    c = fx(-math.pi, int_bits=3, frac_bits=frac_bits)
+    d = fx(-23 / 11, int_bits=3, frac_bits=frac_bits)
+
+    al = fx(1 / 3, int_bits=3, frac_bits=frac_bits + 10)
+    bl = fx(math.pi, int_bits=3, frac_bits=frac_bits + 10)
+    cl = fx(-math.pi, int_bits=3, frac_bits=frac_bits + 10)
+    dl = fx(-23 / 11, int_bits=3, frac_bits=frac_bits + 10)
+
+    av = fx([1 / 3, math.pi, -math.pi, -23 / 11], int_bits=3, frac_bits=frac_bits)
+    bv = fx([math.pi, -23 / 11, 1 / 3, -math.pi], int_bits=3, frac_bits=frac_bits + 10)
+    res = av * bv
+    assert res[0].is_identical(a * bl)
+    assert res[1].is_identical(b * dl)
+    assert res[2].is_identical(c * al)
+    assert res[3].is_identical(d * cl)
+
+    res = bv * av
+    assert res[0].is_identical(a * bl)
+    assert res[1].is_identical(b * dl)
+    assert res[2].is_identical(c * al)
+    assert res[3].is_identical(d * cl)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 68))
 def test_scalar_array_multiplication_with_different_frac_bits(frac_bits: int):
     a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
     b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
@@ -1002,6 +1063,34 @@ def test_scalar_array_multiplication_with_different_frac_bits(frac_bits: int):
     assert res[1].is_identical(b * b)
     assert res[2].is_identical(b * c)
     assert res[3].is_identical(b * d)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 68))
+def test_scalar_array_multiplication_with_different_frac_bits_offset(frac_bits: int):
+    a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
+    b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
+    c = fx(-math.pi, int_bits=3, frac_bits=frac_bits)
+    d = fx(-23 / 11, int_bits=3, frac_bits=frac_bits)
+
+    al = fx(1 / 3, int_bits=3, frac_bits=frac_bits + 10)
+    bl = fx(math.pi, int_bits=3, frac_bits=frac_bits + 10)
+    cl = fx(-math.pi, int_bits=3, frac_bits=frac_bits + 10)
+    dl = fx(-23 / 11, int_bits=3, frac_bits=frac_bits + 10)
+
+    av = fx([1 / 3, math.pi, -math.pi, -23 / 11], int_bits=3, frac_bits=frac_bits)
+    avl = fx([1 / 3, math.pi, -math.pi, -23 / 11], int_bits=3, frac_bits=frac_bits + 10)
+    res = b * avl
+
+    assert res[0].is_identical(b * al)
+    assert res[1].is_identical(b * bl)
+    assert res[2].is_identical(b * cl)
+    assert res[3].is_identical(b * dl)
+
+    res = bl * av
+    assert res[0].is_identical(bl * a)
+    assert res[1].is_identical(bl * b)
+    assert res[2].is_identical(bl * c)
+    assert res[3].is_identical(bl * d)
 
 
 def test_unary_arith():

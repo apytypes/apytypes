@@ -104,11 +104,21 @@ template <
     apy_limb_t* dest, const apy_limb_t* src0, const apy_limb_t* src1
 )
 {
+#if COMPILER_LIMB_SIZE == 64
     dest[0] = src0[0] + src1[0];
     apy_limb_t carry = (dest[0] < src1[0]);
 
     add_single_limbs_with_carry(src0[1], src1[1], &dest[1], carry, &carry);
     return carry;
+#elif COMPILER_LIMB_SIZE == 32
+    // Specialized implementation using 64-bit addition with carry
+    uint64_t src0_64 = (uint64_t(src0[1]) << 32) | src0[0];
+    uint64_t src1_64 = (uint64_t(src1[1]) << 32) | src1[0];
+    uint64_t dest_64 = src0_64 + src1_64;
+    dest[0] = apy_limb_t(dest_64);
+    dest[1] = apy_limb_t(dest_64 >> 32);
+    return (dest_64 < src1_64) ? 1 : 0;
+#endif
 }
 
 //! Add a single limb to a limb vector in place: dest += src
@@ -333,11 +343,21 @@ apy_inplace_reversed_subtraction_same_length(
     apy_limb_t* dest, const apy_limb_t* src0, const apy_limb_t* src1
 )
 {
+#if COMPILER_LIMB_SIZE == 64
     apy_limb_t carry = (src0[0] < src1[0]);
     dest[0] = src0[0] - src1[0];
 
     sub_single_limbs_with_carry(src0[1], src1[1], &dest[1], carry, &carry);
     return carry;
+#elif COMPILER_LIMB_SIZE == 32
+    // Specialized implementation using 64-bit subtraction with borrow
+    uint64_t src0_64 = (uint64_t(src0[1]) << 32) | src0[0];
+    uint64_t src1_64 = (uint64_t(src1[1]) << 32) | src1[0];
+    uint64_t dest_64 = src0_64 - src1_64;
+    dest[0] = apy_limb_t(dest_64);
+    dest[1] = apy_limb_t(dest_64 >> 32);
+    return (src0_64 < src1_64) ? 1 : 0;
+#endif
 }
 
 // Shift
