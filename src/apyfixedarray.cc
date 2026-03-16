@@ -409,6 +409,28 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
             result._data[i * 2 + 1] = high;
             result._data[i * 2 + 0] = low;
         }
+    } else if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        // Special case #3: The resulting number of bits fit in two limbs.
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            // Left-hand side is single limb, right-hand side is two limbs
+            for (std::size_t i = 0; i < _nitems; i++) {
+                auto [high, low]
+                    = long_signed_unsigned_mult(_data[i], rhs._data[i * 2]);
+                auto high2 = _data[i] * rhs._data[i * 2 + 1];
+                result._data[i * 2 + 0] = low;
+                result._data[i * 2 + 1] = high + high2;
+            }
+        } else {
+            assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            // Left-hand side is two limbs, right-hand side is single limb
+            for (std::size_t i = 0; i < _nitems; i++) {
+                auto [high, low]
+                    = long_signed_unsigned_mult(_data[i * 2], rhs._data[i]);
+                auto high2 = _data[i * 2 + 1] * rhs._data[i];
+                result._data[i * 2 + 0] = low;
+                result._data[i * 2 + 1] = high + high2;
+            }
+        }
     } else {
         // General case: This always works but is slower than the special cases.
         fixed_point_hadamard_product(
