@@ -60,8 +60,9 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     assert(limbs > 0);
 
     // Specialized first iteration
-    dest[0] = src0[0] + src1[0];
-    apy_limb_t carry = (dest[0] < src1[0]);
+    apy_limb_t src1_0 = src1[0];
+    dest[0] = src0[0] + src1_0;
+    apy_limb_t carry = (dest[0] < src1_0);
 
     for (std::size_t i = 1; i < limbs; i++) {
         add_single_limbs_with_carry(src0[i], src1[i], &dest[i], carry, &carry);
@@ -85,8 +86,9 @@ template <
     assert(dest_begin < dest_end);
 
     // Specialized first iteration
-    *dest_begin = *src0 + *src1;
-    apy_limb_t carry = (*dest_begin < *src1);
+    apy_limb_t src1_0 = *src1;
+    *dest_begin = *src0 + src1_0;
+    apy_limb_t carry = (*dest_begin < src1_0);
 
     auto dest_it = dest_begin + 1;
     auto src0_it = src0 + 1;
@@ -105,8 +107,9 @@ template <
 )
 {
 #if COMPILER_LIMB_SIZE == 64
-    dest[0] = src0[0] + src1[0];
-    apy_limb_t carry = (dest[0] < src1[0]);
+    apy_limb_t src1_0 = src1[0];
+    dest[0] = src0[0] + src1_0;
+    apy_limb_t carry = (dest[0] < src1_0);
 
     add_single_limbs_with_carry(src0[1], src1[1], &dest[1], carry, &carry);
     return carry;
