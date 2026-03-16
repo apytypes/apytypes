@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Vector outer products (`apytypes.outer`).
 - Support for interaction with PyTorch, TensorFlow, JAX, and CuPy (in addition
   to NumPy).
+- Optimizations for double-limb operations, in particular fixed-point division.
 
 ### Fixed
 
