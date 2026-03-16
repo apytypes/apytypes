@@ -142,11 +142,19 @@ public:
 
 private:
     //! Base addition/subtraction routine for `APyFixedArray`
-    template <class ripple_carry_op, class simd_op, class simd_shift_op>
+    template <
+        class ripple_carry_op,
+        class two_limb_op,
+        class simd_op,
+        class simd_shift_op>
     inline APyFixedArray _apyfixedarray_base_add_sub(const APyFixedArray& rhs) const;
 
     //! Base addition/subtraction routine for `APyFixedArray` with `APyFixed`
-    template <class ripple_carry_op, class simd_op_const, class simd_shift_op_const>
+    template <
+        class ripple_carry_op,
+        class two_limb_op,
+        class simd_op_const,
+        class simd_shift_op_const>
     inline APyFixedArray _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
 public:

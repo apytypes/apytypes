@@ -950,7 +950,7 @@ template <class RANDOM_ACCESS_ITERATOR>
         // One or more bits in the masked first limb are non-ones
         return false;
     } else {
-        // Test if remaining limbs are all full zero limbs
+        // Test if remaining limbs are all full one limbs
         for (auto it = cbegin_it + 1; it != cend_it; ++it) {
             if (*it != apy_limb_t(-1)) {
                 return false;
@@ -1185,6 +1185,9 @@ get_conv_lengths(const std::string& mode, const APY_ARRAY& a, const APY_ARRAY& b
 
 CREATE_FUNCTOR_FROM_FUNC(apy_add_n_functor, apy_addition_same_length);
 CREATE_FUNCTOR_FROM_FUNC(apy_sub_n_functor, apy_subtraction_same_length);
+
+CREATE_FUNCTOR_FROM_FUNC(apy_add_2_functor, apy_addition_length_two);
+CREATE_FUNCTOR_FROM_FUNC(apy_sub_2_functor, apy_subtraction_length_two);
 
 //! Mark nanobind Python-exposed parameter that does not support implicit conversions
 //! from other types.
