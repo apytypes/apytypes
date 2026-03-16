@@ -68,6 +68,8 @@ public:
 bits_to_limbs(std::size_t bits)
 {
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
+    assert(bits > 0);
+
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
         return ((bits - 1) >> 6) + 1;
     } else { /* APY_LIMB_SIZE_BITS == 32 */
@@ -548,7 +550,6 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     assert(it_begin < it_end);
-    assert(std::distance(it_begin, it_end) < shift_amnt / APY_LIMB_SIZE_BITS);
 
     // Return early if no shift or no vector
     if (!shift_amnt) {
@@ -806,7 +807,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 {
     (void)cend_it;
     assert(cbegin_it < cend_it);
-    assert(std::distance(cbegin_it, cend_it) >= bits_to_limbs(n));
+    assert(std::distance(cbegin_it, cend_it) >= (n ? bits_to_limbs(n) : 0));
 
     // The full limbs can be reduced as full integers
     const unsigned full_limbs = n / APY_LIMB_SIZE_BITS;
@@ -838,7 +839,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 {
     (void)cend_it;
     assert(cbegin_it < cend_it);
-    assert(std::distance(cbegin_it, cend_it) >= bits_to_limbs(n));
+    assert(std::distance(cbegin_it, cend_it) >= (n ? bits_to_limbs(n) : 0));
 
     unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
