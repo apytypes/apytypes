@@ -264,9 +264,9 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
     } else if constexpr (QNTZ == QuantizationMode::RND_ZERO) {
         B = G & T;
     } else if constexpr (QNTZ == QuantizationMode::RND) {
-        B = G & (T | !sign);
+        B = G & (T | (man_t)!sign);
     } else if constexpr (QNTZ == QuantizationMode::RND_MIN_INF) {
-        B = G & (T | sign);
+        B = G & (T | (man_t)sign);
     } else if constexpr (QNTZ == QuantizationMode::JAM) {
         B = 0;
         res_man |= 1;
@@ -1367,7 +1367,7 @@ template <
 
     // Align mantissa based on difference in exponent
     man_t my_aligned;
-    const unsigned exp_delta = x_true_exp - true_exp(y_wide, y_spec);
+    const std::uint64_t exp_delta = x_true_exp - true_exp(y_wide, y_spec);
     if (exp_delta <= 3) {
         my_aligned = my >> exp_delta;
     } else if (exp_delta >= _MAN_T_SIZE_BITS) {

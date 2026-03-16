@@ -323,13 +323,13 @@ template <class RANDOM_ACCESS_ITERATOR>
     for (std::size_t i = 0; i < python_digits; i++) {
         for (j = 0; j < WHOLE_BYTES; j++) {
             if (lbits >= POSIX_CHAR_BITS) {
-                *dp = limb;
+                *dp = (unsigned char)limb;
                 limb >>= POSIX_CHAR_BITS;
                 lbits -= POSIX_CHAR_BITS;
             } else {
                 apy_limb_t newlimb
                     = (limb_vec_tmp_ptr == zend ? 0 : *limb_vec_tmp_ptr++);
-                *dp = (limb | (newlimb << lbits));
+                *dp = (unsigned char)(limb | (newlimb << lbits));
                 limb = newlimb >> (POSIX_CHAR_BITS - lbits);
                 lbits += APY_LIMB_SIZE_BITS - POSIX_CHAR_BITS;
             }
@@ -338,12 +338,12 @@ template <class RANDOM_ACCESS_ITERATOR>
         // Process remaining bits
         assert(REMAINING_BITS != 0);
         if (lbits >= REMAINING_BITS) {
-            *dp = limb & REMAINING_BITS_MASK;
+            *dp = (unsigned char)(limb & REMAINING_BITS_MASK);
             limb >>= REMAINING_BITS;
             lbits -= REMAINING_BITS;
         } else {
             apy_limb_t newlimb = (limb_vec_tmp_ptr == zend ? 0 : *limb_vec_tmp_ptr++);
-            *dp = (limb | (newlimb << lbits)) & REMAINING_BITS_MASK;
+            *dp = (unsigned char)((limb | (newlimb << lbits)) & REMAINING_BITS_MASK);
             limb = newlimb >> (REMAINING_BITS - lbits);
             lbits += APY_LIMB_SIZE_BITS - REMAINING_BITS;
         }

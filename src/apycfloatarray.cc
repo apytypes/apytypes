@@ -507,7 +507,7 @@ bool APyCFloatArray::_check_and_set_exp_bits_from_ndarray(
     if (ndarray_exp.dtype() == nb::dtype<DTYPE>()) {
         auto&& ndarray_view = ndarray_exp.view<DTYPE, nb::ndim<1>>();
         for (std::size_t i = 0; i < ndarray_exp.size(); i++) {
-            std::uint64_t bits = std::uint64_t(ndarray_view.data()[i]);
+            exp_t bits = exp_t(ndarray_view.data()[i]);
             bits &= ((1ULL) << exp_bits) - 1;
             _data[i * data_offset].exp = bits;
         }
