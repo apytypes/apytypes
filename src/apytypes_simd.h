@@ -168,6 +168,15 @@ void vector_neg(
 );
 
 /*!
+ * Perform conjugate of the elements in `src_begin`, for `size` number of elements.
+ */
+void vector_conj(
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    std::size_t size
+);
+
+/*!
  * Perform logic not of the elements in `src_begin`, for `size` number of elements.
  */
 void vector_not(

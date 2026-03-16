@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mixed real-complex array arithmetic.
 - Thread pool for matrix multiplication.
 - Vector outer products (`apytypes.outer`).
+- SIMD fixed-point array conjugate.
 - Support for interaction with PyTorch, TensorFlow, JAX, and CuPy (in addition
   to NumPy).
 

@@ -578,7 +578,7 @@ def test_cfixed_matrix_to_numpy_200(benchmark) -> None:
 
 def test_cfixed_conjugate_20(benchmark) -> None:
     a = APyCFixedArray.from_complex(
-        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
         bits=19,
         int_bits=1,
     )
@@ -598,7 +598,7 @@ def test_cfixed_conjugate_200(benchmark) -> None:
 
 def test_cfixed_conjugate_long_20(benchmark) -> None:
     a = APyCFixedArray.from_complex(
-        np.random.rand(200, 200) - 0.5 + 1j * (np.random.rand(200, 200) - 0.5),
+        np.random.rand(20, 20) - 0.5 + 1j * (np.random.rand(20, 20) - 0.5),
         bits=119,
         int_bits=1,
     )
