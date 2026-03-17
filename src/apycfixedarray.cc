@@ -643,7 +643,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
         return result; // early exit
     }
 
-#if COMPILER_LIMB_SIZE == 64
+#if (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__) || defined(__clang__)
     // Double limb result specialization
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
@@ -896,7 +896,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
         return result; // early exit
     }
 
-#if COMPILER_LIMB_SIZE == 64
+#if (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__) || defined(__clang__)
     // Double limb result specialization
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
@@ -1153,6 +1153,157 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
         }
         return result; // early exit
     }
+
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__) || defined(__clang__)
+    // Double limb result specialization
+    if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        // div_bits = num_int_bits + num_frac_bits + rhs.bits()
+        //          = (1 + int_bits() + rhs.int_bits()) + (frac_bits() +
+        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) + 2 *
+        //          rhs.bits()
+        // Denominator is always single limb, so we can use 128-bit integer for
+        // intermediate result without overflow
+        assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+        if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            __int128 num_real = (__int128)apy_limb_signed_t(lhs._data[0]);
+            __int128 num_imag = (__int128)apy_limb_signed_t(lhs._data[1]);
+            if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+                // Left-hand side and result fit in single limb, but right-hand side
+                // does not.
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    __int128 den_real = (__int128)apy_limb_signed_t(_data[i + 0]);
+                    __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
+                    __int128 den = den_real * den_real + den_imag * den_imag;
+                    __int128 real = num_real * den_real + num_imag * den_imag;
+                    __int128 imag = num_imag * den_real - num_real * den_imag;
+                    result._data[i + 0] = apy_limb_signed_t((real << bits()) / den);
+                    result._data[i + 1] = apy_limb_signed_t((imag << bits()) / den);
+                }
+            } else {
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    __int128 den_real = (__int128)apy_limb_signed_t(_data[i + 0]);
+                    __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
+                    __int128 den = den_real * den_real + den_imag * den_imag;
+
+                    __int128 real = num_real * den_real + num_imag * den_imag;
+                    __int128 imag = num_imag * den_real - num_real * den_imag;
+                    __int128 res_real = (real << bits()) / den;
+                    __int128 res_imag = (imag << bits()) / den;
+                    result._data[2 * i + 0] = apy_limb_signed_t(res_real);
+                    result._data[2 * i + 1]
+                        = apy_limb_signed_t(res_real >> APY_LIMB_SIZE_BITS);
+                    result._data[2 * i + 2] = apy_limb_signed_t(res_imag);
+                    result._data[2 * i + 3]
+                        = apy_limb_signed_t(res_imag >> APY_LIMB_SIZE_BITS);
+                }
+            }
+        } else {
+            // If left-hand side does not fit in single limb, then result also cannot
+            // fit in single limb.
+            assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
+            __int128 num_real = (__int128)(lhs._data[0])
+                | (__int128)apy_limb_signed_t(lhs._data[1]) << APY_LIMB_SIZE_BITS;
+            __int128 num_imag = (__int128)(lhs._data[2])
+                | (__int128)apy_limb_signed_t(lhs._data[3]) << APY_LIMB_SIZE_BITS;
+
+            for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                __int128 den_real = (__int128)apy_limb_signed_t(_data[i + 0]);
+                __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
+                __int128 den = den_real * den_real + den_imag * den_imag;
+                __int128 real = num_real * den_real + num_imag * den_imag;
+                __int128 imag = num_imag * den_real - num_real * den_imag;
+                __int128 res_real = (real << bits()) / den;
+                __int128 res_imag = (imag << bits()) / den;
+                result._data[2 * i + 0] = apy_limb_signed_t(res_real);
+                result._data[2 * i + 1]
+                    = apy_limb_signed_t(res_real >> APY_LIMB_SIZE_BITS);
+                result._data[2 * i + 2] = apy_limb_signed_t(res_imag);
+                result._data[2 * i + 3]
+                    = apy_limb_signed_t(res_imag >> APY_LIMB_SIZE_BITS);
+            }
+        }
+        // Early exit for double limb result specialization
+        return result;
+    }
+
+#endif
+#elif (COMPILER_LIMB_SIZE == 32)
+    // Double limb result specialization
+    if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        // div_bits = num_int_bits + num_frac_bits + rhs.bits()
+        //          = (1 + int_bits() + rhs.int_bits()) + (frac_bits() +
+        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) + 2 *
+        //          rhs.bits()
+        // Denominator is always single limb, so we can use 128-bit integer for
+        // intermediate result without overflow
+        assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+        if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            std::int64_t num_real = (std::int64_t)apy_limb_signed_t(lhs._data[0]);
+            std::int64_t num_imag = (std::int64_t)apy_limb_signed_t(lhs._data[1]);
+            if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+                // Left-hand side and result fit in single limb, but right-hand side
+                // does not.
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    std::int64_t den_real
+                        = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
+                    std::int64_t den_imag
+                        = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
+                    std::int64_t den = den_real * den_real + den_imag * den_imag;
+                    std::int64_t real = num_real * den_real + num_imag * den_imag;
+                    std::int64_t imag = num_imag * den_real - num_real * den_imag;
+                    result._data[i + 0] = apy_limb_signed_t((real << bits()) / den);
+                    result._data[i + 1] = apy_limb_signed_t((imag << bits()) / den);
+                }
+            } else {
+                for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                    std::int64_t den_real
+                        = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
+                    std::int64_t den_imag
+                        = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
+                    std::int64_t den = den_real * den_real + den_imag * den_imag;
+
+                    std::int64_t real = num_real * den_real + num_imag * den_imag;
+                    std::int64_t imag = num_imag * den_real - num_real * den_imag;
+                    std::int64_t res_real = (real << bits()) / den;
+                    std::int64_t res_imag = (imag << bits()) / den;
+                    result._data[2 * i + 0] = apy_limb_signed_t(res_real);
+                    result._data[2 * i + 1]
+                        = apy_limb_signed_t(res_real >> APY_LIMB_SIZE_BITS);
+                    result._data[2 * i + 2] = apy_limb_signed_t(res_imag);
+                    result._data[2 * i + 3]
+                        = apy_limb_signed_t(res_imag >> APY_LIMB_SIZE_BITS);
+                }
+            }
+        } else {
+            // If left-hand side does not fit in single limb, then result also cannot
+            // fit in single limb.
+            assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
+            std::int64_t num_real = (std::int64_t)(lhs._data[0])
+                | (std::int64_t)apy_limb_signed_t(lhs._data[1]) << APY_LIMB_SIZE_BITS;
+            std::int64_t num_imag = (std::int64_t)(lhs._data[2])
+                | (std::int64_t)apy_limb_signed_t(lhs._data[3]) << APY_LIMB_SIZE_BITS;
+
+            for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
+                std::int64_t den_real = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
+                std::int64_t den_imag = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
+                std::int64_t den = den_real * den_real + den_imag * den_imag;
+                std::int64_t real = num_real * den_real + num_imag * den_imag;
+                std::int64_t imag = num_imag * den_real - num_real * den_imag;
+                std::int64_t res_real = (real << bits()) / den;
+                std::int64_t res_imag = (imag << bits()) / den;
+                result._data[2 * i + 0] = apy_limb_signed_t(res_real);
+                result._data[2 * i + 1]
+                    = apy_limb_signed_t(res_real >> APY_LIMB_SIZE_BITS);
+                result._data[2 * i + 2] = apy_limb_signed_t(res_imag);
+                result._data[2 * i + 3]
+                    = apy_limb_signed_t(res_imag >> APY_LIMB_SIZE_BITS);
+            }
+        }
+        // Early exit for double limb result specialization
+        return result;
+    }
+#endif
 
     // General case: This always works but is slower than the special cases.
     std::size_t src1_limbs = lhs._data.size() / 2;
