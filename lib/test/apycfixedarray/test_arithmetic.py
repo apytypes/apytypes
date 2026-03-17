@@ -270,8 +270,13 @@ def test_array_scalar_division_with_different_bits(frac_bits: int):
     assert (res[1]).is_identical(a2 / b)
     assert (res[2]).is_identical(a3 / b)
 
+    res = b / a
+    assert (res[0]).is_identical(b / a1)
+    assert (res[1]).is_identical(b / a2)
+    assert (res[2]).is_identical(b / a3)
 
-@pytest.mark.parametrize("frac_bits", range(10, 200, 5))
+
+@pytest.mark.parametrize("frac_bits", range(5, 200, 5))
 def test_array_scalar_division_with_different_bits_in_numerator(frac_bits: int):
     a1 = fx(math.pi, 4, frac_bits, force_complex=True)
     a2 = fx(1j * math.sqrt(2), 4, frac_bits, force_complex=True)
@@ -282,6 +287,44 @@ def test_array_scalar_division_with_different_bits_in_numerator(frac_bits: int):
     assert (res[0]).is_identical(a1 / b)
     assert (res[1]).is_identical(a2 / b)
     assert (res[2]).is_identical(a3 / b)
+
+    res = b / a
+    assert (res[0]).is_identical(b / a1)
+    assert (res[1]).is_identical(b / a2)
+    assert (res[2]).is_identical(b / a3)
+
+    b = fx(3 + 1j * 4 / 7, 4, 10)
+    res = a / b
+    assert (res[0]).is_identical(a1 / b)
+    assert (res[1]).is_identical(a2 / b)
+    assert (res[2]).is_identical(a3 / b)
+
+    res = b / a
+    assert (res[0]).is_identical(b / a1)
+    assert (res[1]).is_identical(b / a2)
+    assert (res[2]).is_identical(b / a3)
+
+    b = fx(3 + 1j * 4 / 7, 4, 29)
+    res = a / b
+    assert (res[0]).is_identical(a1 / b)
+    assert (res[1]).is_identical(a2 / b)
+    assert (res[2]).is_identical(a3 / b)
+
+    res = b / a
+    assert (res[0]).is_identical(b / a1)
+    assert (res[1]).is_identical(b / a2)
+    assert (res[2]).is_identical(b / a3)
+
+    b = fx(3 + 1j * 4 / 7, 4, 63)
+    res = a / b
+    assert (res[0]).is_identical(a1 / b)
+    assert (res[1]).is_identical(a2 / b)
+    assert (res[2]).is_identical(a3 / b)
+
+    res = b / a
+    assert (res[0]).is_identical(b / a1)
+    assert (res[1]).is_identical(b / a2)
+    assert (res[2]).is_identical(b / a3)
 
 
 @pytest.mark.parametrize("frac_bits", range(10, 200, 10))
@@ -350,6 +393,11 @@ def test_array_scalar_division_with_different_bits_and_offset(
     assert (res[0]).is_identical(a1 / b)
     assert (res[1]).is_identical(a2 / b)
     assert (res[2]).is_identical(a3 / b)
+
+    res = b / a
+    assert (res[0]).is_identical(b / a1)
+    assert (res[1]).is_identical(b / a2)
+    assert (res[2]).is_identical(b / a3)
 
 
 @pytest.mark.parametrize("offset", range(-9, 10, 2))
