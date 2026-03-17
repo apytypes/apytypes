@@ -256,3 +256,111 @@ def test_array_scalar_multiplication_with_different_bits(bits: int):
     assert (b * a).is_identical(
         APyCFixedArray([(-2, 0), (0, 4), (-2, -8)], bits=bits + 9, frac_bits=4)
     )
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 200, 10))
+def test_array_scalar_division_with_different_bits(frac_bits: int):
+    a1 = fx(math.pi, 4, frac_bits, force_complex=True)
+    a2 = fx(1j * math.sqrt(2), 4, frac_bits, force_complex=True)
+    a3 = fx(5 - 1j * 5, 4, frac_bits, force_complex=True)
+    a = fx([math.pi, 1j * math.sqrt(2), 5 - 1j * 5], 4, frac_bits, force_complex=True)
+    b = fx(3 + 1j * 4 / 7, 4, frac_bits)
+    res = a / b
+    assert (res[0]).is_identical(a1 / b)
+    assert (res[1]).is_identical(a2 / b)
+    assert (res[2]).is_identical(a3 / b)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 200, 10))
+def test_array_division_with_different_bits(frac_bits: int):
+    a1 = fx(math.pi, 4, frac_bits, force_complex=True)
+    a2 = fx(1j * math.sqrt(2), 4, frac_bits, force_complex=True)
+    a3 = fx(5 - 1j * 5, 4, frac_bits, force_complex=True)
+    a = fx([math.pi, 1j * math.sqrt(2), 5 - 1j * 5], 4, frac_bits, force_complex=True)
+    b1 = fx(3 + 1j * 4 / 7, 4, frac_bits, force_complex=True)
+    b2 = fx(-3 - 1j * 4 / 9, 4, frac_bits, force_complex=True)
+    b3 = fx(3 / 7 - 1j * 4 / 13, 4, frac_bits, force_complex=True)
+    b = fx(
+        [3 + 1j * 4 / 7, -3 - 1j * 4 / 9, 3 / 7 - 1j * 4 / 13],
+        4,
+        frac_bits,
+        force_complex=True,
+    )
+    res = a / b
+    assert (res[0]).is_identical(a1 / b1)
+    assert (res[1]).is_identical(a2 / b2)
+    assert (res[2]).is_identical(a3 / b3)
+
+    res = b / a
+    assert (res[0]).is_identical(b1 / a1)
+    assert (res[1]).is_identical(b2 / a2)
+    assert (res[2]).is_identical(b3 / a3)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 200, 5))
+def test_array_division_with_different_bits_in_numerator(frac_bits: int):
+    a1 = fx(math.pi, 4, frac_bits, force_complex=True)
+    a2 = fx(1j * math.sqrt(2), 4, frac_bits, force_complex=True)
+    a3 = fx(5 - 1j * 5, 4, frac_bits, force_complex=True)
+    a = fx([math.pi, 1j * math.sqrt(2), 5 - 1j * 5], 4, frac_bits, force_complex=True)
+    b1 = fx(3 + 1j * 4 / 7, 4, 10, force_complex=True)
+    b2 = fx(-3 - 1j * 4 / 9, 4, 10, force_complex=True)
+    b3 = fx(3 / 7 - 1j * 4 / 13, 4, 10, force_complex=True)
+    b = fx(
+        [3 + 1j * 4 / 7, -3 - 1j * 4 / 9, 3 / 7 - 1j * 4 / 13],
+        4,
+        10,
+        force_complex=True,
+    )
+    res = a / b
+    assert (res[0]).is_identical(a1 / b1)
+    assert (res[1]).is_identical(a2 / b2)
+    assert (res[2]).is_identical(a3 / b3)
+
+    res = b / a
+    assert (res[0]).is_identical(b1 / a1)
+    assert (res[1]).is_identical(b2 / a2)
+    assert (res[2]).is_identical(b3 / a3)
+
+
+@pytest.mark.parametrize("offset", range(-9, 9, 2))
+@pytest.mark.parametrize("frac_bits", range(10, 200, 5))
+def test_array_scalar_division_with_different_bits_and_offset(
+    offset: int, frac_bits: int
+):
+    a1 = fx(math.pi, 4, frac_bits, force_complex=True)
+    a2 = fx(1j * math.sqrt(2), 4, frac_bits, force_complex=True)
+    a3 = fx(5 - 1j * 5, 4, frac_bits, force_complex=True)
+    a = fx([math.pi, 1j * math.sqrt(2), 5 - 1j * 5], 4, frac_bits, force_complex=True)
+    b = fx(3 + 1j * 4 / 7, 4, frac_bits + offset)
+    res = a / b
+    assert (res[0]).is_identical(a1 / b)
+    assert (res[1]).is_identical(a2 / b)
+    assert (res[2]).is_identical(a3 / b)
+
+
+@pytest.mark.parametrize("offset", range(-9, 9, 2))
+@pytest.mark.parametrize("frac_bits", range(10, 200, 5))
+def test_array_division_with_different_bits_and_offset(offset: int, frac_bits: int):
+    a1 = fx(math.pi, 4, frac_bits, force_complex=True)
+    a2 = fx(1j * math.sqrt(2), 4, frac_bits, force_complex=True)
+    a3 = fx(5 - 1j * 5, 4, frac_bits, force_complex=True)
+    a = fx([math.pi, 1j * math.sqrt(2), 5 - 1j * 5], 4, frac_bits, force_complex=True)
+    b1 = fx(3 + 1j * 4 / 7, 4, frac_bits + offset, force_complex=True)
+    b2 = fx(-3 - 1j * 4 / 9, 4, frac_bits + offset, force_complex=True)
+    b3 = fx(3 / 7 - 1j * 4 / 13, 4, frac_bits + offset, force_complex=True)
+    b = fx(
+        [3 + 1j * 4 / 7, -3 - 1j * 4 / 9, 3 / 7 - 1j * 4 / 13],
+        4,
+        frac_bits + offset,
+        force_complex=True,
+    )
+    res = a / b
+    assert (res[0]).is_identical(a1 / b1)
+    assert (res[1]).is_identical(a2 / b2)
+    assert (res[2]).is_identical(a3 / b3)
+
+    res = b / a
+    assert (res[0]).is_identical(b1 / a1)
+    assert (res[1]).is_identical(b2 / a2)
+    assert (res[2]).is_identical(b3 / a3)
