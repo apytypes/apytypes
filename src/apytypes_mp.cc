@@ -515,19 +515,18 @@ apy_limb_t apy_division_3by2(
         *remainder_1, mask & inv->norm_denominator_1, remainder_1, carry, &carry
     );
 
-    if (*remainder_1 >= inv->norm_denominator_1) {
-        if (*remainder_1 > inv->norm_denominator_1
-            || *remainder_0 >= inv->norm_denominator_0) {
-            // TODO: This can be rewritten to avoid carry if we know *remainder_0 >=
-            // inv->norm_denominator_0 But better to get code coverage first...
-            /* Compute [remainder_1, remainder_0] -= [inv->norm_denominator_1,
-             * inv->norm_denominator_0] */
-            apy_limb_t carry = (apy_limb_t)(*remainder_0 < inv->norm_denominator_0);
-            *remainder_0 -= inv->norm_denominator_0;
-            *remainder_1 -= inv->norm_denominator_1 + carry;
+    if (*remainder_1 >= inv->norm_denominator_1
+        && *remainder_0 >= inv->norm_denominator_0) {
+        *remainder_0 -= inv->norm_denominator_0;
+        *remainder_1 -= inv->norm_denominator_1 + 1;
 
-            (quotient_high)++;
-        }
+        (quotient_high)++;
+
+    } else if (*remainder_1 > inv->norm_denominator_1) {
+        *remainder_0 -= inv->norm_denominator_0;
+        *remainder_1 -= inv->norm_denominator_1;
+
+        (quotient_high)++;
     }
     return quotient_high;
 }
