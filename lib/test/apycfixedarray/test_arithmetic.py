@@ -425,3 +425,61 @@ def test_array_division_with_different_bits_and_offset(offset: int, frac_bits: i
     assert (res[0]).is_identical(b1 / a1)
     assert (res[1]).is_identical(b2 / a2)
     assert (res[2]).is_identical(b3 / a3)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 200, 5))
+def test_array_real_scalar_multiplication_different_wordlengths(frac_bits: int):
+    a = fx([1, 2 + 1j, -3 + 5j, -1j], 7, frac_bits, force_complex=True)
+    b = fx(3, 4, frac_bits)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, 2 * frac_bits, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+    b = fx(3, 4, 0)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, frac_bits, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+    b = fx(3, 4, 20)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, frac_bits + 20, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+    b = fx(3, 4, 40)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, frac_bits + 40, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+    b = fx(3, 4, 100)
+    ref = fx([3, 6 + 3j, -9 + 15j, -3j], 12, frac_bits + 100, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 200, 5))
+def test_array_real_array_multiplication_different_wordlengths(frac_bits: int):
+    a = fx([[1, 2 + 1j], [-3 + 5j, -1j]], 7, frac_bits, force_complex=True)
+    b = fx([3, -2], 4, frac_bits)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, 2 * frac_bits, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+    b = fx([3, -2], 4, 0)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+    b = fx([3, -2], 4, 20)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits + 20, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+    b = fx([3, -2], 4, 40)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits + 40, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)
+
+    b = fx([3, -2], 4, 100)
+    ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits + 100, force_complex=True)
+    assert (a * b).is_identical(ref)
+    assert (b * a).is_identical(ref)

@@ -40,6 +40,50 @@ def test_arith_apyfixed(int_bits: int, frac_bits: int):
     assert b * a == 2 + 2j
     assert b / a == 1 - 1j
 
+    b = APyFixed.from_float(2, int_bits=5, frac_bits=20)
+    assert a + b == 3 + 1j
+    assert a - b == -1 + 1j
+    assert a * b == 2 + 2j
+    assert a / b == 0.5 + 0.5j
+
+    assert b + a == 3 + 1j
+    assert b - a == 1 - 1j
+    assert b * a == 2 + 2j
+    assert b / a == 1 - 1j
+
+    b = APyFixed.from_float(2, int_bits=5, frac_bits=40)
+    assert a + b == 3 + 1j
+    assert a - b == -1 + 1j
+    assert a * b == 2 + 2j
+    assert a / b == 0.5 + 0.5j
+
+    assert b + a == 3 + 1j
+    assert b - a == 1 - 1j
+    assert b * a == 2 + 2j
+    assert b / a == 1 - 1j
+
+    b = APyFixed.from_float(2, int_bits=5, frac_bits=100)
+    assert a + b == 3 + 1j
+    assert a - b == -1 + 1j
+    assert a * b == 2 + 2j
+    assert a / b == 0.5 + 0.5j
+
+    assert b + a == 3 + 1j
+    assert b - a == 1 - 1j
+    assert b * a == 2 + 2j
+    assert b / a == 1 - 1j
+
+    b = APyFixed.from_float(2, int_bits=5, frac_bits=1000)
+    assert a + b == 3 + 1j
+    assert a - b == -1 + 1j
+    assert a * b == 2 + 2j
+    assert a / b == 0.5 + 0.5j
+
+    assert b + a == 3 + 1j
+    assert b - a == 1 - 1j
+    assert b * a == 2 + 2j
+    assert b / a == 1 - 1j
+
 
 @pytest.mark.parametrize("int_bits", [*range(3, 10), 100, 10000])
 @pytest.mark.parametrize("frac_bits", [*range(0, 10), 100, 10000])
