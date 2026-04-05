@@ -1331,16 +1331,57 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
     std::uint64_t man {};
     int exp {};
     bool sign = limb_vector_is_negative(begin_it, end_it);
+    std::size_t n_limbs = std::distance(begin_it, end_it);
+    constexpr std::size_t max_direct_limbs = APY_LIMB_SIZE_BITS == 32 ? 2 : 1;
 
-    if constexpr (APY_LIMB_SIZE_BITS == 64) {
+    if (n_limbs <= max_direct_limbs) {
+        // Specialization using the 64-bit mantissa directly
+        if constexpr (APY_LIMB_SIZE_BITS == 32) {
+            man = std::uint64_t(*begin_it);
+            man |= std::uint64_t(
+                       (n_limbs == 1) ? (-std::int64_t(sign)) : (*(begin_it + 1))
+                   )
+                << 32;
+        } else {
+            man = *begin_it;
+        }
+        man = std::uint64_t(std::abs(std::int64_t(man)));
 
-        ScratchVector<apy_limb_t, 8> man_vec(std::distance(begin_it, end_it));
+        unsigned man_leading_zeros = leading_zeros(man);
+
+        // Compute the shift amount and exponent value
+        int left_shift_n = 53 - 64 + man_leading_zeros;
+        exp = 1023 + 52 - left_shift_n - frac_bits;
+        if (exp < 1) {
+            // Handle IEEE subnormals
+            left_shift_n += exp - 1;
+            exp = 0;
+        }
+
+        // Shift the mantissa into position and set the mantissa and exponent part
+        if (left_shift_n >= 0) {
+            man <<= left_shift_n;
+        } else {
+            int right_shift_n = -left_shift_n;
+            int rnd_pow2 = right_shift_n - 1;
+            man += std::uint64_t(1) << rnd_pow2;
+            int pow2 = right_shift_n + 53;
+
+            if (man >= (std::uint64_t(1) << pow2)) {
+                exp++;
+                man >>= rnd_pow2;
+            } else {
+                man >>= right_shift_n;
+            }
+        }
+    } else {
+        ScratchVector<apy_limb_t, 8> man_vec(n_limbs);
         limb_vector_abs(begin_it, end_it, std::begin(man_vec));
         unsigned man_leading_zeros
             = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
 
         // Compute the shift amount and exponent value
-        int left_shift_n = 53 - APY_LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
+        int left_shift_n = 53 - APY_LIMB_SIZE_BITS * n_limbs + man_leading_zeros;
         exp = 1023 + 52 - left_shift_n - frac_bits;
         if (exp < 1) {
             // Handle IEEE subnormals
@@ -1364,50 +1405,12 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
                 limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
             }
         }
-        man = man_vec[0];
-
-    } else { /* APY_LIMB_SIZE_BITS == 32 */
-
-        std::size_t n_limbs = std::distance(begin_it, end_it);
-        ScratchVector<apy_limb_t, 8> man_vec(std::max(n_limbs, std::size_t(2)));
-        if (n_limbs == 1) {
-            man_vec[0] = *begin_it;
-            man_vec[1] = apy_limb_signed_t(*begin_it) < 0 ? -1 : 0;
+        if constexpr (APY_LIMB_SIZE_BITS == 32) {
+            man = std::uint64_t(man_vec[0]);
+            man |= std::uint64_t(man_vec[1]) << 32;
         } else {
-            std::copy(begin_it, end_it, man_vec.begin());
+            man = man_vec[0];
         }
-        limb_vector_abs(man_vec.cbegin(), man_vec.cend(), man_vec.begin());
-        unsigned man_leading_zeros
-            = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
-
-        // Compute the shift amount and exponent value
-        int left_shift_n = 53 - APY_LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
-        exp = 1023 + 52 - left_shift_n - frac_bits;
-        if (exp < 1) {
-            // Handle IEEE subnormals
-            left_shift_n += exp - 1;
-            exp = 0;
-        }
-
-        // Shift the mantissa into position and set the mantissa and exponent part
-        if (left_shift_n >= 0) {
-            limb_vector_lsl(std::begin(man_vec), std::end(man_vec), left_shift_n);
-        } else {
-            int right_shift_n = -left_shift_n;
-            int rnd_pow2 = right_shift_n - 1;
-            limb_vector_add_pow2(std::begin(man_vec), std::end(man_vec), rnd_pow2);
-
-            int pow2 = right_shift_n + 53;
-            if (limb_vector_gte_pow2(std::begin(man_vec), std::end(man_vec), pow2)) {
-                exp++;
-                limb_vector_lsr(std::begin(man_vec), std::end(man_vec), rnd_pow2);
-            } else {
-                limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
-            }
-        }
-
-        man = std::uint64_t(man_vec[0]);
-        man |= std::uint64_t(man_vec[1]) << 32;
     }
 
     // Check for overflow to infinity
