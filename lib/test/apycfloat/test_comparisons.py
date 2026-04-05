@@ -43,7 +43,7 @@ def test_comparisons_with_apyfixed():
     "flp",
     [
         APyCFloat.from_complex(complex(0), exp_bits=15, man_bits=20),
-        APyCFloat.from_complex(complex(-1j), exp_bits=4, man_bits=19),
+        APyCFloat.from_complex((-1j), exp_bits=4, man_bits=19),
         APyCFloat.from_complex(complex(-3.25), exp_bits=7, man_bits=17),
         APyCFloat.from_complex(complex(3.25 - 5.125j), exp_bits=20, man_bits=50),
         APyCFloat.from_complex(float("inf") + 0j, exp_bits=15, man_bits=51),
@@ -54,7 +54,7 @@ def test_comparisons_with_apyfixed():
     "fxp",
     [
         APyCFixed.from_complex(complex(0), int_bits=15, frac_bits=15),
-        APyCFixed.from_complex(complex(-1j), int_bits=10, frac_bits=0),
+        APyCFixed.from_complex((-1j), int_bits=10, frac_bits=0),
         APyCFixed.from_complex(complex(-3.25), int_bits=7, frac_bits=250),
         APyCFixed.from_complex(complex(3.25 - 5.125j), int_bits=19, frac_bits=5000),
     ],
@@ -71,7 +71,7 @@ def test_comparisons_with_apycfixed(flp: APyCFloat, fxp: APyCFixed):
     "cflp",
     [
         APyCFloat.from_complex(complex(0), exp_bits=15, man_bits=20),
-        APyCFloat.from_complex(complex(-1j), exp_bits=4, man_bits=19),
+        APyCFloat.from_complex((-1j), exp_bits=4, man_bits=19),
         APyCFloat.from_complex(complex(-3.25), exp_bits=7, man_bits=17),
         APyCFloat.from_complex(complex(3.25 - 5.125j), exp_bits=20, man_bits=50),
         APyCFloat.from_complex(float("inf") + 0j, exp_bits=15, man_bits=51),
