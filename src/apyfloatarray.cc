@@ -673,7 +673,7 @@ APyFloatArray APyFloatArray::fullrange(
 
 //! Perform a linear convolution with `other` using `mode`
 APyFloatArray
-APyFloatArray::convolve(const APyFloatArray& rhs, const std::string& conv_mode) const
+APyFloatArray::convolve(const APyFloatArray& rhs, const ConvolutionMode conv_mode) const
 {
     if (ndim() != 1 || rhs.ndim() != 1) {
         auto msg = fmt::format(

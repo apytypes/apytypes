@@ -2472,7 +2472,7 @@ APyCFixedArray APyCFixedArray::checked_2d_matmul(
 
 //! Perform a linear convolution with `other` using `mode`
 APyCFixedArray APyCFixedArray::convolve(
-    const APyCFixedArray& other, const std::string& conv_mode
+    const APyCFixedArray& other, const ConvolutionMode conv_mode
 ) const
 {
     if (ndim() != 1 || other.ndim() != 1) {

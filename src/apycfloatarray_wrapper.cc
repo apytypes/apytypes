@@ -1311,7 +1311,7 @@ void bind_cfloat_array(nb::module_& m)
             "convolve",
             &APyCFloatArray::convolve,
             nb::arg("other"),
-            nb::arg("mode") = "full",
+            nb::arg("mode") = ConvolutionMode::FULL,
             R"pbdoc(
             Return the discrete linear convolution with another one-dimensional array.
 
@@ -1322,16 +1322,16 @@ void bind_cfloat_array(nb::module_& m)
             other : :class:`APyCFloatArray`
                 The one-dimensional array of length :code:`N` to convolve with.
 
-            mode : {'full', 'same', 'valid'}, default: 'full'
-                'full':
+            mode : :class:`ConvolutionMode` or {'full', 'same', 'valid'}, default: :class:`~ConvolutionMode.FULL`
+                :class:`~ConvolutionMode.FULL`, 'full':
                     Return the full convolution for each point of overlap. The
                     resulting single-dimensional shape will have length :code:`N + M -
                     1`. Boundary effects occurs for points where the `a` and `v` do not
                     overlap completely.
-                'same':
+                :class:`~ConvolutionMode.SAME`, 'same':
                     Return a convolution of length :code:`max(M, N)`. Boundary effects
                     still occur around the edges of the result.
-                'valid':
+                :class:`~ConvolutionMode.VALID`, 'valid':
                     Return the convolution for each point of full overlap. The
                     resulting single-dimensional shape will have length :code:`max(M, N)
                     - min(M, N) + 1`
@@ -1341,6 +1341,16 @@ void bind_cfloat_array(nb::module_& m)
             convolved : :class:`APyCFloatArray`
                 The convolved array.
             )pbdoc"
+        )
+        .def(
+            "convolve",
+            [](const APyCFloatArray& self,
+               const APyCFloatArray& other,
+               const std::string& mode) {
+                return self.convolve(other, get_conv_mode(mode));
+            },
+            nb::arg("other"),
+            nb::arg("mode") = "full"
         )
         .def(
             "conj",

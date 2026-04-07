@@ -215,7 +215,7 @@ public:
      * ****************************************************************************** */
 
     //! Perform a linear convolution with `other` using `mode`
-    APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
+    APyFixedArray convolve(const APyFixedArray& other, ConvolutionMode mode) const;
 
     //! Sum over one or more axes.
     std::variant<APyFixedArray, APyFixed>

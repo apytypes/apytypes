@@ -1439,8 +1439,9 @@ APyFixedArray APyFixedArray::cumprod(std::optional<nb::int_> py_axis) const
     return array_fold_cumulative(axis, fold_func, post_proc, init_one, bits, int_bits);
 }
 
-APyFixedArray
-APyFixedArray::convolve(const APyFixedArray& other, const std::string& conv_mode) const
+APyFixedArray APyFixedArray::convolve(
+    const APyFixedArray& other, const ConvolutionMode conv_mode
+) const
 {
     if (ndim() != 1 || other.ndim() != 1) {
         auto msg = fmt::format(

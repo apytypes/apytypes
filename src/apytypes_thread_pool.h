@@ -7,7 +7,7 @@
 
 #ifdef __EMSCRIPTEN__
 
-#include "apytypes_util.h"
+#include "apytypes_fwd.h"
 
 #include <fmt/format.h>
 

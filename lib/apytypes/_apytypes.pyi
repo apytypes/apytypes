@@ -1,7 +1,7 @@
 import enum
 import types
 from collections.abc import Iterable, Sequence
-from typing import Annotated, Any, overload
+from typing import Annotated, Any, Literal, overload
 
 import numpy
 from numpy.typing import NDArray
@@ -119,6 +119,29 @@ class ThirdPartyArrayLibrary(enum.Enum):
 
     CUPY = 4
     """CuPy array."""
+
+class ConvolutionMode(enum.Enum):
+    FULL = 0
+    """
+    Full convolution for each point of overlap.
+
+    The resulting single-dimensional shape will have length :code:`N + M - 1`. Boundary
+    effects occurs for points where the sequences do not overlap completely.
+    """
+
+    SAME = 1
+    """
+    Convolution of length :code:`max(M, N)`.
+
+    Boundary effects still occur around the edges of the result.
+    """
+
+    VALID = 2
+    """
+    Convolution for each point of full overlap.
+
+    The resulting single-dimensional shape will have length :code:`max(M, N) - min(M, N) + 1`.
+    """
 
 def set_float_quantization_mode(mode: QuantizationMode) -> None:
     """
@@ -1262,7 +1285,10 @@ class APyCFixedArray:
         :class:`APyCFixedArray`
         """
 
-    def convolve(self, other: APyCFixedArray, mode: str = "full") -> APyCFixedArray:
+    @overload
+    def convolve(
+        self, other: APyCFixedArray, mode: ConvolutionMode = ConvolutionMode.FULL
+    ) -> APyCFixedArray:
         """
         Return the discrete linear convolution with another one-dimensional array.
 
@@ -1273,16 +1299,16 @@ class APyCFixedArray:
         other : :class:`APyCFixedArray`
             The one-dimensional array of length :code:`N` to convolve with.
 
-        mode : {'full', 'same', 'valid'}, default: 'full'
-            'full':
+        mode : :class:`ConvolutionMode` or {'full', 'same', 'valid'}, default: :class:`~ConvolutionMode.FULL`
+            :class:`~ConvolutionMode.FULL`, 'full':
                 Return the full convolution for each point of overlap. The
                 resulting single-dimensional shape will have length :code:`N + M -
                 1`. Boundary effects occurs for points where the `a` and `v` do not
                 overlap completely.
-            'same':
+            :class:`~ConvolutionMode.SAME`, 'same':
                 Return a convolution of length :code:`max(M, N)`. Boundary effects
                 still occur around the edges of the result.
-            'valid':
+            :class:`~ConvolutionMode.VALID`, 'valid':
                 Return the convolution for each point of full overlap. The
                 resulting single-dimensional shape will have length :code:`max(M, N)
                 - min(M, N) + 1`
@@ -1293,6 +1319,10 @@ class APyCFixedArray:
             The convolved array.
         """
 
+    @overload
+    def convolve(
+        self, other: APyCFixedArray, mode: Literal["full", "same", "valid"] = "full"
+    ) -> APyCFixedArray: ...
     def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyCFixedArray:
         """
         Remove axes of size one at the specified axis/axes.
@@ -3454,7 +3484,10 @@ class APyCFloatArray:
             the array.
         """
 
-    def convolve(self, other: APyCFloatArray, mode: str = "full") -> APyCFloatArray:
+    @overload
+    def convolve(
+        self, other: APyCFloatArray, mode: ConvolutionMode = ConvolutionMode.FULL
+    ) -> APyCFloatArray:
         """
         Return the discrete linear convolution with another one-dimensional array.
 
@@ -3465,16 +3498,16 @@ class APyCFloatArray:
         other : :class:`APyCFloatArray`
             The one-dimensional array of length :code:`N` to convolve with.
 
-        mode : {'full', 'same', 'valid'}, default: 'full'
-            'full':
+        mode : :class:`ConvolutionMode` or {'full', 'same', 'valid'}, default: :class:`~ConvolutionMode.FULL`
+            :class:`~ConvolutionMode.FULL`, 'full':
                 Return the full convolution for each point of overlap. The
                 resulting single-dimensional shape will have length :code:`N + M -
                 1`. Boundary effects occurs for points where the `a` and `v` do not
                 overlap completely.
-            'same':
+            :class:`~ConvolutionMode.SAME`, 'same':
                 Return a convolution of length :code:`max(M, N)`. Boundary effects
                 still occur around the edges of the result.
-            'valid':
+            :class:`~ConvolutionMode.VALID`, 'valid':
                 Return the convolution for each point of full overlap. The
                 resulting single-dimensional shape will have length :code:`max(M, N)
                 - min(M, N) + 1`
@@ -3485,6 +3518,10 @@ class APyCFloatArray:
             The convolved array.
         """
 
+    @overload
+    def convolve(
+        self, other: APyCFloatArray, mode: Literal["full", "same", "valid"] = "full"
+    ) -> APyCFloatArray: ...
     def conj(self) -> APyCFloatArray:
         """
         Return complex conjugate.
@@ -4674,7 +4711,10 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
-    def convolve(self, other: APyFixedArray, mode: str = "full") -> APyFixedArray:
+    @overload
+    def convolve(
+        self, other: APyFixedArray, mode: ConvolutionMode = ConvolutionMode.FULL
+    ) -> APyFixedArray:
         """
         Return the discrete linear convolution with another one-dimensional array.
 
@@ -4685,16 +4725,16 @@ class APyFixedArray:
         other : :class:`APyFixedArray`
             The one-dimensional array of length :code:`N` to convolve with.
 
-        mode : {'full', 'same', 'valid'}, default: 'full'
-            'full':
+        mode : :class:`ConvolutionMode` or {'full', 'same', 'valid'}, default: :class:`~ConvolutionMode.FULL`
+            :class:`~ConvolutionMode.FULL`, 'full':
                 Return the full convolution for each point of overlap. The
                 resulting single-dimensional shape will have length :code:`N + M -
                 1`. Boundary effects occurs for points where the `a` and `v` do not
                 overlap completely.
-            'same':
+            :class:`~ConvolutionMode.SAME`, 'same':
                 Return a convolution of length :code:`max(M, N)`. Boundary effects
                 still occur around the edges of the result.
-            'valid':
+            :class:`~ConvolutionMode.VALID`, 'valid':
                 Return the convolution for each point of full overlap. The
                 resulting single-dimensional shape will have length :code:`max(M, N)
                 - min(M, N) + 1`
@@ -4705,6 +4745,10 @@ class APyFixedArray:
             The convolved array.
         """
 
+    @overload
+    def convolve(
+        self, other: APyFixedArray, mode: Literal["full", "same", "valid"] = "full"
+    ) -> APyFixedArray: ...
     def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyFixedArray:
         """
         Remove axes of size one at the specified axis/axes.
@@ -7059,7 +7103,10 @@ class APyFloatArray:
         :class:`APyFloatArray`
         """
 
-    def convolve(self, other: APyFloatArray, mode: str = "full") -> APyFloatArray:
+    @overload
+    def convolve(
+        self, other: APyFloatArray, mode: ConvolutionMode = ConvolutionMode.FULL
+    ) -> APyFloatArray:
         """
         Return the discrete linear convolution with another one-dimensional array.
 
@@ -7070,16 +7117,16 @@ class APyFloatArray:
         other : :class:`APyFloatArray`
             The one-dimensional array of length :code:`N` to convolve with.
 
-        mode : {'full', 'same', 'valid'}, default: 'full'
-            'full':
+        mode : :class:`ConvolutionMode` or {'full', 'same', 'valid'}, default: :class:`~ConvolutionMode.FULL`
+            :class:`~ConvolutionMode.FULL`, 'full':
                 Return the full convolution for each point of overlap. The
                 resulting single-dimensional shape will have length :code:`N + M -
                 1`. Boundary effects occurs for points where the `a` and `v` do not
                 overlap completely.
-            'same':
+            :class:`~ConvolutionMode.SAME`, 'same':
                 Return a convolution of length :code:`max(M, N)`. Boundary effects
                 still occur around the edges of the result.
-            'valid':
+            :class:`~ConvolutionMode.VALID`, 'valid':
                 Return the convolution for each point of full overlap. The
                 resulting single-dimensional shape will have length :code:`max(M, N)
                 - min(M, N) + 1`
@@ -7090,6 +7137,10 @@ class APyFloatArray:
             The convolved array.
         """
 
+    @overload
+    def convolve(
+        self, other: APyFloatArray, mode: Literal["full", "same", "valid"] = "full"
+    ) -> APyFloatArray: ...
     def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyFloatArray:
         """
         Remove axes of size one at the specified axis/axes.
