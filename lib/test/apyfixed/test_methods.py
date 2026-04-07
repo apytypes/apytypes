@@ -83,6 +83,8 @@ def test_to_float():
     #
     assert float(APyFixed(2**1030, int_bits=1100, frac_bits=5)) == float("inf")
     assert float(APyFixed(2**1035, int_bits=1031, frac_bits=5)) == float("-inf")
+    assert float(APyFixed(1, int_bits=2000, frac_bits=-1998)) == float("inf")
+    assert float(APyFixed(-1, int_bits=2000, frac_bits=-1998)) == float("-inf")
 
     from sys import float_info
 
