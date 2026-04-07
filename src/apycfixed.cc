@@ -680,8 +680,9 @@ std::string APyCFixed::to_string(int base) const
 
 std::string APyCFixed::to_string_dec() const
 {
-    double re = fixed_point_to_double(real_begin(), real_end(), frac_bits());
-    double im = fixed_point_to_double(imag_begin(), imag_end(), frac_bits());
+    FixedPointToDouble<vector_t::const_iterator> converter(spec());
+    double re = converter(real_begin(), real_end());
+    double im = converter(imag_begin(), imag_end());
     if (im < 0) {
         return fmt::format("({}{}j)", re, im);
     } else {
@@ -857,9 +858,9 @@ APyCFixed APyCFixed::cast(
 
 std::complex<double> APyCFixed::to_complex() const
 {
+    FixedPointToDouble<vector_t::const_iterator> converter(spec());
     return std::complex<double>(
-        fixed_point_to_double(real_begin(), real_end(), frac_bits()),
-        fixed_point_to_double(imag_begin(), imag_end(), frac_bits())
+        converter(real_begin(), real_end()), converter(imag_begin(), imag_end())
     );
 }
 

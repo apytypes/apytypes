@@ -1954,12 +1954,11 @@ APyCFixedArray APyCFixedArray::from_array(
 
 std::string APyCFixedArray::to_string_dec() const
 {
-    const auto formatter
-        = [itemsize = _itemsize,
-           frac_bits = _bits - _int_bits](auto cbegin_it, auto cend_it) -> std::string {
-        auto imag_begin = cbegin_it + itemsize / 2;
-        double real_as_double = fixed_point_to_double(cbegin_it, imag_begin, frac_bits);
-        double imag_as_double = fixed_point_to_double(imag_begin, cend_it, frac_bits);
+    FixedPointToDouble<vector_const_iterator> converter(spec());
+    const auto formatter = [&](auto cbegin_it, auto cend_it) -> std::string {
+        auto imag_begin = cbegin_it + _itemsize / 2;
+        double real_as_double = converter(cbegin_it, imag_begin);
+        double imag_as_double = converter(imag_begin, cend_it);
         if (imag_as_double < 0) {
             return fmt::format("{}{}j", real_as_double, imag_as_double);
         } else {
@@ -1967,7 +1966,7 @@ std::string APyCFixedArray::to_string_dec() const
         }
     };
 
-    return array_format(formatter, 88, false);
+    return array_format(formatter, /*line_width=*/88, /*is_summary_allow=*/false);
 }
 
 std::string APyCFixedArray::to_string(int base) const
