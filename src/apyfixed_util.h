@@ -1324,26 +1324,44 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
                   std::remove_const_t<typename RANDOM_ACCESS_IT::value_type>>);
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
 
-    if (limb_vector_is_zero(begin_it, end_it)) {
-        return 0.0;
-    }
-
-    std::uint64_t man {};
-    int exp {};
-    bool sign = limb_vector_is_negative(begin_it, end_it);
     std::size_t n_limbs = std::distance(begin_it, end_it);
     constexpr std::size_t max_direct_limbs = APY_LIMB_SIZE_BITS == 32 ? 2 : 1;
 
     if (n_limbs <= max_direct_limbs) {
-        // Specialization using the 64-bit mantissa directly
+        // Specialization where the limb vector can be stored in a single 64-bit
+        // unsigned integer, so that we can directly manipulate the mantissa bits
+        // without needing to use the limb vector functions. This optimization is for
+        // the common case where the total number of bits is less than or equal to 64.
+        std::uint64_t man {};
+        int exp {};
+        bool sign;
+
         if constexpr (APY_LIMB_SIZE_BITS == 32) {
             man = std::uint64_t(*begin_it);
-            man |= std::uint64_t(
-                       (n_limbs == 1) ? (-std::int64_t(sign)) : (*(begin_it + 1))
-                   )
-                << 32;
+            if (n_limbs == 1) {
+                // Single limb case, need to determine the sign from the single limb and
+                // set the upper bits of the mantissa accordingly
+                if (man == 0) {
+                    return 0.0;
+                }
+                sign = apy_limb_signed_t(*begin_it) < 0;
+                man |= std::uint64_t((-std::int64_t(sign))) << 32;
+            } else {
+                // Double limb case, concatenate the second limb to the upper bits of
+                // the mantissa and determine the sign from the full 64-bit value
+
+                man |= std::uint64_t((*(begin_it + 1))) << 32;
+                if (man == 0) {
+                    return 0.0;
+                }
+                sign = std::int64_t(man) < 0;
+            }
         } else {
             man = *begin_it;
+            if (man == 0) {
+                return 0.0;
+            }
+            sign = std::int64_t(man) < 0;
         }
         man = std::uint64_t(std::abs(std::int64_t(man)));
 
@@ -1374,7 +1392,27 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
                 man >>= right_shift_n;
             }
         }
+
+        // Check for overflow to infinity
+        if (exp >= 2047) {
+            exp = 2047;
+            man = 0;
+        }
+
+        // Return the result
+        double result {};
+        set_sign_of_double(result, sign);
+        set_exp_of_double(result, exp);
+        set_man_of_double(result, man);
+        return result;
     } else {
+        // General case using the full limb vector.
+        if (limb_vector_is_zero(begin_it, end_it)) {
+            return 0.0;
+        }
+
+        bool sign = limb_vector_is_negative(begin_it, end_it);
+
         ScratchVector<apy_limb_t, 8> man_vec(n_limbs);
         limb_vector_abs(begin_it, end_it, std::begin(man_vec));
         unsigned man_leading_zeros
@@ -1382,7 +1420,7 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
 
         // Compute the shift amount and exponent value
         int left_shift_n = 53 - APY_LIMB_SIZE_BITS * n_limbs + man_leading_zeros;
-        exp = 1023 + 52 - left_shift_n - frac_bits;
+        int exp = 1023 + 52 - left_shift_n - frac_bits;
         if (exp < 1) {
             // Handle IEEE subnormals
             left_shift_n += exp - 1;
@@ -1405,26 +1443,27 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
                 limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
             }
         }
+        std::uint64_t man {};
         if constexpr (APY_LIMB_SIZE_BITS == 32) {
             man = std::uint64_t(man_vec[0]);
             man |= std::uint64_t(man_vec[1]) << 32;
         } else {
             man = man_vec[0];
         }
-    }
 
-    // Check for overflow to infinity
-    if (exp >= 2047) {
-        exp = 2047;
-        man = 0;
-    }
+        // Check for overflow to infinity
+        if (exp >= 2047) {
+            exp = 2047;
+            man = 0;
+        }
 
-    // Return the result
-    double result {};
-    set_sign_of_double(result, sign);
-    set_exp_of_double(result, exp);
-    set_man_of_double(result, man);
-    return result;
+        // Return the result
+        double result {};
+        set_sign_of_double(result, sign);
+        set_exp_of_double(result, exp);
+        set_man_of_double(result, man);
+        return result;
+    }
 }
 
 template <typename RANDOM_ACCESS_IT> struct FixedPointToDouble {
