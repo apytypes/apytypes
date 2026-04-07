@@ -20,7 +20,7 @@ input_values = apy.fullrange(1, 2, exp_bits=EXP_BITS, man_bits=MAN_BITS)
 xx, yy = apy.meshgrid(input_values, input_values)
 
 # Calculate the reference using a format wide enough to capture the exact result
-ref = xx.cast(EXP_BITS, 2 * MAN_BITS) * yy
+ref = xx.cast(EXP_BITS, 2 * MAN_BITS + 1) * yy
 
 
 def approx_mul(x, y):
