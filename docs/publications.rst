@@ -27,4 +27,4 @@ publication and would like to have it listed here.
 
 * T. Lindberg and O. Gustafsson, "Exact Eight-Bit Floating-Point Multiplication Using Integer Arithmetic", in *Proc. Asilomar Conf. Signals Syst. Comput.*, 2025, `DOI <https://doi.org/10.1109/IEEECONF67917.2025.11443802>`_.
 
-* O. Hansson and O. Gustafsson, "Finite Word-Length Effects for Symmetric Matrix Inversion with Vector-Based Algorithms", in *Proc. Asilomar Conf. Signals Syst. Comput.*, 2025, `DOI <https://doi.org/10.1109/IEEECONF67917.2025.11443719>`_.
+* O. Hansson, J. Nunez-Yanez, and O. Gustafsson, "Finite Word-Length Effects for Symmetric Matrix Inversion with Vector-Based Algorithms", in *Proc. Asilomar Conf. Signals Syst. Comput.*, 2025, `DOI <https://doi.org/10.1109/IEEECONF67917.2025.11443719>`_.
