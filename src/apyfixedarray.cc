@@ -1584,9 +1584,9 @@ std::string APyFixedArray::repr() const
 
 std::string APyFixedArray::to_string_dec() const
 {
-    const auto formatter
-        = [frac_bits = _bits - _int_bits](auto cbegin_it, auto cend_it) -> std::string {
-        double fixed_as_double = fixed_point_to_double(cbegin_it, cend_it, frac_bits);
+    FixedPointToDouble<vector_const_iterator> converter(spec());
+    const auto formatter = [&](auto cbegin_it, auto cend_it) -> std::string {
+        double fixed_as_double = converter(cbegin_it, cend_it);
         return fmt::format("{}", fixed_as_double);
     };
 

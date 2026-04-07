@@ -1314,31 +1314,61 @@ void fixed_point_from_double(
     _overflow_twos_complement(begin_it, end_it, bits, int_bits);
 }
 
-template <typename RANDOM_ACCESS_IT>
-double
-fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int frac_bits)
-{
-    // RANDOM_ACCESS_ITERATOR is `apy_limb_t` iterator (32-bit or 64-bit)
-    static_assert(std::is_same_v<
-                  apy_limb_t,
-                  std::remove_const_t<typename RANDOM_ACCESS_IT::value_type>>);
-    static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
+template <typename RANDOM_ACCESS_IT> struct FixedPointToDouble {
 
-    std::size_t n_limbs = std::distance(begin_it, end_it);
-    constexpr std::size_t max_direct_limbs = APY_LIMB_SIZE_BITS == 32 ? 2 : 1;
+    FixedPointToDouble(const APyFixedSpec& spec)
+        : frac_bits { spec.bits - spec.int_bits }
+        , n_limbs { bits_to_limbs(spec.bits) }
+    {
+        if (n_limbs == 1) {
+            // Direct single limb specialization
+            f = &FixedPointToDouble::template to_double_direct</*CONSTEXPR_N_LIMBS=*/1>;
+#if (COMPILER_LIMB_SIZE == 32)
+        } else if (n_limbs == 2) {
+            // 32-bit double-limb specialization
+            static_assert(APY_LIMB_SIZE_BITS == 32);
+            f = &FixedPointToDouble::template to_double_direct</*CONSTEXPR_N_LIMBS=*/2>;
+#endif
+        } else {
+            // General case: initialization of scratch vector is required
+            man_vec = ScratchVector<apy_limb_t, 8>(n_limbs);
+            f = &FixedPointToDouble::to_double_general;
+        }
+    }
 
-    if (n_limbs <= max_direct_limbs) {
-        // Specialization where the limb vector can be stored in a single 64-bit
-        // unsigned integer, so that we can directly manipulate the mantissa bits
-        // without needing to use the limb vector functions. This optimization is for
-        // the common case where the total number of bits is less than or equal to 64.
+    double operator()(RANDOM_ACCESS_IT begin, RANDOM_ACCESS_IT end) const
+    {
+        // Invoke function through pointer to correct variation
+        return std::invoke(f, this, begin, end);
+    }
+
+private:
+    int frac_bits;
+    std::size_t n_limbs;
+    mutable ScratchVector<apy_limb_t, 8> man_vec;
+
+    // Pointer `f` to the correct function based on the limb lengths
+    double (FixedPointToDouble::*f)(RANDOM_ACCESS_IT src1, RANDOM_ACCESS_IT src2) const;
+
+    // Specialization #1: The limb vector can be stored in a single 64-bit unsigned
+    // integer, so that we can directly manipulate the mantissa bits without needing to
+    // use the limb vector functions. This optimization is for the common case where the
+    // total number of bits is less than or equal to 64.
+    template <std::size_t CONSTEXPR_N_LIMBS>
+    double to_double_direct(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it) const
+    {
+        assert(std::distance(begin_it, end_it) == CONSTEXPR_N_LIMBS);
+
+        // Unused argument...
+        (void)end_it;
+
         std::uint64_t man {};
         int exp {};
         bool sign;
 
         if constexpr (APY_LIMB_SIZE_BITS == 32) {
             man = std::uint64_t(*begin_it);
-            if (n_limbs == 1) {
+            if constexpr (CONSTEXPR_N_LIMBS == 1) {
                 // Single limb case, need to determine the sign from the single limb and
                 // set the upper bits of the mantissa accordingly
                 if (man == 0) {
@@ -1349,7 +1379,7 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
             } else {
                 // Double limb case, concatenate the second limb to the upper bits of
                 // the mantissa and determine the sign from the full 64-bit value
-
+                static_assert(CONSTEXPR_N_LIMBS == 2);
                 man |= std::uint64_t((*(begin_it + 1))) << 32;
                 if (man == 0) {
                     return 0.0;
@@ -1364,7 +1394,6 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
             sign = std::int64_t(man) < 0;
         }
         man = std::uint64_t(std::abs(std::int64_t(man)));
-
         unsigned man_leading_zeros = leading_zeros(man);
 
         // Compute the shift amount and exponent value
@@ -1405,7 +1434,12 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
         set_exp_of_double(result, exp);
         set_man_of_double(result, man);
         return result;
-    } else {
+    }
+
+    // General case: This to_double conversion function works for any length fixed-point
+    // number, but is significantly slower compared to the special cases.
+    double to_double_general(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it) const
+    {
         // General case using the full limb vector.
         if (limb_vector_is_zero(begin_it, end_it)) {
             return 0.0;
@@ -1413,7 +1447,6 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
 
         bool sign = limb_vector_is_negative(begin_it, end_it);
 
-        ScratchVector<apy_limb_t, 8> man_vec(n_limbs);
         limb_vector_abs(begin_it, end_it, std::begin(man_vec));
         unsigned man_leading_zeros
             = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
@@ -1463,18 +1496,6 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
         set_exp_of_double(result, exp);
         set_man_of_double(result, man);
         return result;
-    }
-}
-
-template <typename RANDOM_ACCESS_IT> struct FixedPointToDouble {
-    FixedPointToDouble(const APyFixedSpec& spec)
-        : frac_bits { spec.bits - spec.int_bits }
-    {
-    }
-    int frac_bits;
-    double operator()(RANDOM_ACCESS_IT begin, RANDOM_ACCESS_IT end) const
-    {
-        return fixed_point_to_double(begin, end, frac_bits);
     }
 };
 
