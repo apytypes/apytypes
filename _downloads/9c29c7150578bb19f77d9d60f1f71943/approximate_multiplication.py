@@ -5,7 +5,7 @@ Approximate floating-point multiplication
 This example compares an approximate floating-point multiplication to the mathematically correct result.
 The approximation is based on Mitchell's logarithm approximation and the reference is the unquantized result.
 
-(Example inspired from T. Lindberg and O. Gustafsson, "Exact Eight-Bit Floating-Point Multiplication Using Integer Arithmetic", in *Proc. Asilomar Conf. Signals Syst. Comput.*, 2025.)
+(Example inspired from T. Lindberg and O. Gustafsson, "Exact Eight-Bit Floating-Point Multiplication Using Integer Arithmetic", in *Proc. Asilomar Conf. Signals Syst. Comput.*, 2025, `DOI <https://doi.org/10.1109/IEEECONF67917.2025.11443802>`_.)
 """
 
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ input_values = apy.fullrange(1, 2, exp_bits=EXP_BITS, man_bits=MAN_BITS)
 xx, yy = apy.meshgrid(input_values, input_values)
 
 # Calculate the reference using a format wide enough to capture the exact result
-ref = xx.cast(EXP_BITS, 2 * MAN_BITS) * yy
+ref = xx.cast(EXP_BITS, 2 * MAN_BITS + 1) * yy
 
 
 def approx_mul(x, y):
