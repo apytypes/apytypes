@@ -43,6 +43,8 @@ enum class OverflowMode {
     NUMERIC_STD, // !< Drop bits left of the MSB, but keep the most significant bit
 };
 
+enum class ConvolutionMode { FULL, SAME, VALID };
+
 /* ********************************************************************************** *
  * *            Random number engines for APyTypes stochastic quantization          * *
  * ********************************************************************************** */
@@ -53,7 +55,7 @@ using Rnd64Func_t = std::uint64_t();
 //! Uniform 64-bit random number generator function pointer type
 using Rnd64FuncPtr_t = Rnd64Func_t*;
 
-//! 64-bit uniform random number generator for fixed-point stachastic quantization
+//! 64-bit uniform random number generator for fixed-point stochastic quantization
 std::uint64_t rnd64_fx();
 std::uint64_t rnd64_fp();
 

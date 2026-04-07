@@ -204,7 +204,7 @@ public:
     ) const;
 
     //! Perform a linear convolution with `other` using `mode`
-    APyCFixedArray convolve(const APyCFixedArray& other, const std::string& mode) const;
+    APyCFixedArray convolve(const APyCFixedArray& other, ConvolutionMode mode) const;
 
     /* ****************************************************************************** *
      * *                          Public member functions                           * *

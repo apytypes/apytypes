@@ -7,6 +7,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
+#include <stdexcept>
+#include <string>
 #include <tuple>
 
 /*
@@ -17,6 +20,15 @@
 #else
 #define APY_INLINE inline
 #endif
+
+/*
+ * Not implemented exception
+ */
+class NotImplementedException : public std::domain_error {
+public:
+    NotImplementedException(std::optional<std::string> msg = std::nullopt)
+        : std::domain_error(msg.value_or("Not implemented yet")) { };
+};
 
 /* ********************************************************************************** *
  * *                     The fundamental APyTypes limb type                         * *

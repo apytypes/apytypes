@@ -26,6 +26,7 @@
 #include <type_traits>      // std::is_same_v
 #include <vector>           // std::vector
 
+#include "apytypes_common.h"
 #include "apytypes_fwd.h"
 #include "apytypes_mp.h"
 
@@ -52,15 +53,6 @@ template <typename T> using remove_cvref_t = typename remove_cvref<T>::type;
 #define UINT64_TO_LIMB(x)                                                              \
     apy_limb_t(std::uint64_t(x)), apy_limb_t(std::uint64_t(x) >> 32)
 #endif
-
-/*
- * Not implemented exception
- */
-class NotImplementedException : public std::domain_error {
-public:
-    NotImplementedException(std::optional<std::string> msg = std::nullopt)
-        : std::domain_error(msg.value_or("Not implemented yet")) { };
-};
 
 //! Quickly evaluate how many limbs are required to store a `bits` bit word.
 //! Undefined behaviour when `bits` is equal to zero.
@@ -1149,26 +1141,46 @@ template <typename RANDOM_ACCESS_ITERATOR_INOUT>
 //! the string is anything else.
 template <typename APY_ARRAY>
 [[maybe_unused]] static APY_INLINE std::tuple<std::size_t, std::size_t, std::size_t>
-get_conv_lengths(const std::string& mode, const APY_ARRAY& a, const APY_ARRAY& b)
+get_conv_lengths(const ConvolutionMode mode, const APY_ARRAY& a, const APY_ARRAY& b)
 {
     std::size_t len, n_left, n_right;
-    if (mode == "full") {
+    switch (mode) {
+    case ConvolutionMode::FULL:
         len = a->shape()[0] + b->shape()[0] - 1;
         n_left = b->shape()[0] - 1;
         n_right = b->shape()[0] - 1;
-    } else if (mode == "same") {
+        break;
+    case ConvolutionMode::SAME:
         len = a->shape()[0];
         n_left = b->shape()[0] / 2;
         n_right = b->shape()[0] - n_left - 1;
-    } else if (mode == "valid") {
+        break;
+    case ConvolutionMode::VALID:
         len = a->shape()[0] - b->shape()[0] + 1;
         n_left = 0;
         n_right = 0;
+        break;
+    default:
+        throw nanobind::value_error("Unknown convolution mode. Did you pass an 'int'?");
+    }
+    return { len, n_left, n_right };
+}
+
+//! Get the convolutional mode from a string of either "full", "same", or "valid".
+//! Throws a `nanobind::value_error` if the string is anything else.
+[[maybe_unused]] static APY_INLINE ConvolutionMode
+get_conv_mode(const std::string& mode)
+{
+    if (mode == "full") {
+        return ConvolutionMode::FULL;
+    } else if (mode == "same") {
+        return ConvolutionMode::SAME;
+    } else if (mode == "valid") {
+        return ConvolutionMode::VALID;
     } else {
         auto msg = fmt::format("mode='{}' not in 'full', 'same', or 'valid'", mode);
         throw nanobind::value_error(msg.c_str());
     }
-    return { len, n_left, n_right };
 }
 
 //! Macro for creating a void-specialization state-less functor `FUNCTOR_NAME` from a

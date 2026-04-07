@@ -187,7 +187,7 @@ public:
     APyCFloatArray checked_2d_matmul(const APyCFloatArray& rhs) const;
 
     //! Perform a linear convolution with `other` using `mode`
-    APyCFloatArray convolve(const APyCFloatArray& other, const std::string& mode) const;
+    APyCFloatArray convolve(const APyCFloatArray& other, ConvolutionMode mode) const;
 
     /* ****************************************************************************** *
      * *                          Public member functions                           * *

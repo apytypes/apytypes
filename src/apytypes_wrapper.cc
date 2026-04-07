@@ -231,6 +231,36 @@ void bind_common(nb::module_& m)
         .value("JAX", ThirdPartyArrayLibrary::JAX, R"pbdoc(JAX array.)pbdoc")
         .value("CUPY", ThirdPartyArrayLibrary::CUPY, R"pbdoc(CuPy array.)pbdoc");
 
+    nb::enum_<ConvolutionMode>(m, "ConvolutionMode")
+        .value(
+            "FULL",
+            ConvolutionMode::FULL,
+            R"pbdoc(
+        Full convolution for each point of overlap.
+
+        The resulting single-dimensional shape will have length :code:`N + M - 1`. Boundary
+        effects occurs for points where the sequences do not overlap completely.
+        )pbdoc"
+        )
+        .value(
+            "SAME",
+            ConvolutionMode::SAME,
+            R"pbdoc(
+        Convolution of length :code:`max(M, N)`.
+
+        Boundary effects still occur around the edges of the result.
+        )pbdoc"
+        )
+        .value(
+            "VALID",
+            ConvolutionMode::VALID,
+            R"pbdoc(
+        Convolution for each point of full overlap.
+
+        The resulting single-dimensional shape will have length :code:`max(M, N) - min(M, N) + 1`.
+            )pbdoc"
+        );
+
     m.def(
          "set_float_quantization_mode",
          &set_float_quantization_mode,

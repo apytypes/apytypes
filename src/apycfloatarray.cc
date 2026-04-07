@@ -1443,8 +1443,9 @@ APyCFloatArray APyCFloatArray::checked_2d_matmul(const APyCFloatArray& rhs) cons
 }
 
 //! Perform a linear convolution with `other` using `mode`
-APyCFloatArray
-APyCFloatArray::convolve(const APyCFloatArray& rhs, const std::string& conv_mode) const
+APyCFloatArray APyCFloatArray::convolve(
+    const APyCFloatArray& rhs, const ConvolutionMode conv_mode
+) const
 {
     if (ndim() != 1 || rhs.ndim() != 1) {
         auto msg = fmt::format(

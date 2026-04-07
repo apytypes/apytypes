@@ -314,7 +314,7 @@ public:
      * ****************************************************************************** */
 
     //! Perform a linear convolution with `other` using `mode`
-    APyFloatArray convolve(const APyFloatArray& other, const std::string& mode) const;
+    APyFloatArray convolve(const APyFloatArray& other, ConvolutionMode mode) const;
 
     //! Sum over one or more axes.
     std::variant<APyFloatArray, APyFloat>

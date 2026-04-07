@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to NumPy).
 - Optimizations for double-limb operations, in particular fixed-point division.
 - Optimizations for conversion of fixed-point numbers with at most 64 bits to floating-point.
+- `ConvolutionMode` enum that can be used instead of a string.
 
 ### Fixed
 
