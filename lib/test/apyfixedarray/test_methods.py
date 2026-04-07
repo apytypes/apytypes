@@ -674,6 +674,20 @@ def test_to_numpy(fixed_array: type[APyCFixedArray]):
     assert np.array_equal(fx_arr.to_numpy(), np.array(float_seq))
 
 
+def test_to_numpy_infinity():
+    np = pytest.importorskip("numpy")
+    assert np.array_equal(
+        APyFixedArray([1, -1], int_bits=2000, frac_bits=-1998).to_numpy(),
+        np.array([float("inf"), float("-inf")]),
+    )
+    assert np.array_equal(
+        APyFixedArray.from_float(
+            [1 << 1998, -1 << 1998], int_bits=2000, frac_bits=0
+        ).to_numpy(),
+        np.array([float("inf"), float("-inf")]),
+    )
+
+
 @pytest.mark.parametrize(
     "dt",
     [
