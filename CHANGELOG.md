@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+-
+
+### Fixed
+
+-
+
+### Changed
+
+-
+
+### Removed
+
+-
+
+## [0.5.0] - 2026-04-09
+
+### Added
+
 - A domain: <https://apytypes.org/>
 - An [interactive playground](https://apytypes.org/playground.html) on the
   APyTypes website.
@@ -66,8 +84,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The earlier private module `_typing` is now made public as `typing`.
   This contains the type aliases `APyArray` and `APyScalar` which correspond to
   all array and scalar classes, respectively.
-
-### Removed
 
 ## [0.4.0] - 2025-09-09
 
