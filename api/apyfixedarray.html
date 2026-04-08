@@ -352,8 +352,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.cast" title="apytypes.APyFixedArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a>(self[, int_bits, frac_bits, ...])</p></td>
 <td><p>Change format of the fixed-point array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.convolve" title="apytypes.APyFixedArray.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a>(self, other[, mode])</p></td>
-<td><p>Return the discrete linear convolution with another one-dimensional array.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.convolve" title="apytypes.APyFixedArray.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a>(-&gt; APyFixedArray)</p></td>
+<td><p>Overloaded function.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.copy" title="apytypes.APyFixedArray.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>(self)</p></td>
 <td><p>Create a copy of the object.</p></td>
@@ -814,24 +814,33 @@ be set.</p>
 <h2>Convolution<a class="headerlink" href="#convolution" title="Link to this heading">¶</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.convolve">
-<span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.convolve" title="Link to this definition">¶</a></dt>
-<dd><p>Return the discrete linear convolution with another one-dimensional array.</p>
+<span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConvolutionMode</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ConvolutionMode.FULL</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.convolve" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">convolve(self,</span> <span class="pre">other:</span> <span class="pre">APyFixedArray,</span> <span class="pre">mode:</span> <span class="pre">ConvolutionMode</span> <span class="pre">=</span> <span class="pre">ConvolutionMode.FULL)</span> <span class="pre">-&gt;</span> <span class="pre">APyFixedArray</span></code></p>
+<blockquote>
+<div><p>Return the discrete linear convolution with another one-dimensional array.</p>
 <p>Requires that <code class="docutils literal notranslate"><span class="pre">ndim</span> <span class="pre">=</span> <span class="pre">1</span></code> for both <cite>self</cite> and <cite>other</cite>.</p>
+</div></blockquote>
+</li>
+</ol>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>other</strong><span class="classifier"><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The one-dimensional array of length <code class="code docutils literal notranslate"><span class="pre">N</span></code> to convolve with.</p>
 </dd>
-<dt><strong>mode</strong><span class="classifier">{‘full’, ‘same’, ‘valid’}, default: ‘full’</span></dt><dd><dl class="simple">
-<dt>‘full’:</dt><dd><p>Return the full convolution for each point of overlap. The
+<dt><strong>mode</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvolutionMode</span></code> or {‘full’, ‘same’, ‘valid’}, default: <code class="xref py py-class docutils literal notranslate"><span class="pre">FULL</span></code></span></dt><dd><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">FULL</span></code>, ‘full’:</dt><dd><p>Return the full convolution for each point of overlap. The
 resulting single-dimensional shape will have length <code class="code docutils literal notranslate"><span class="pre">N</span> <span class="pre">+</span> <span class="pre">M</span> <span class="pre">-</span>
 <span class="pre">1</span></code>. Boundary effects occurs for points where the <cite>a</cite> and <cite>v</cite> do not
 overlap completely.</p>
 </dd>
-<dt>‘same’:</dt><dd><p>Return a convolution of length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span></code>. Boundary effects
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">SAME</span></code>, ‘same’:</dt><dd><p>Return a convolution of length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span></code>. Boundary effects
 still occur around the edges of the result.</p>
 </dd>
-<dt>‘valid’:</dt><dd><p>Return the convolution for each point of full overlap. The
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">VALID</span></code>, ‘valid’:</dt><dd><p>Return the convolution for each point of full overlap. The
 resulting single-dimensional shape will have length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span>
 <span class="pre">-</span> <span class="pre">min(M,</span> <span class="pre">N)</span> <span class="pre">+</span> <span class="pre">1</span></code></p>
 </dd>
@@ -844,6 +853,12 @@ resulting single-dimensional shape will have length <code class="code docutils l
 <dt><strong>convolved</strong><span class="classifier"><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The convolved array.</p>
 </dd>
 </dl>
+<ol class="arabic simple" start="2">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">convolve(self,</span> <span class="pre">other:</span> <span class="pre">APyFixedArray,</span> <span class="pre">mode:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'full')</span> <span class="pre">-&gt;</span> <span class="pre">APyFixedArray</span></code></dt><dd></dd>
+</dl>
+</li>
+</ol>
 </dd>
 </dl>
 </dd></dl>

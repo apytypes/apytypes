@@ -774,7 +774,7 @@
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray4conjEv">APyCFixedArray::conj (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray8convolveERK14APyCFixedArrayRKNSt6stringE">APyCFixedArray::convolve (C++ function)</a>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray8convolveERK14APyCFixedArray15ConvolutionMode">APyCFixedArray::convolve (C++ function)</a>
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray12create_arrayERKNSt6vectorINSt6size_tEEE">APyCFixedArray::create_array (C++ function)</a>
 </li>
@@ -1078,7 +1078,7 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalIiEE">APyFixedArray::cast (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8convolveERK13APyFixedArrayRKNSt6stringE">APyFixedArray::convolve (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8convolveERK13APyFixedArray15ConvolutionMode">APyFixedArray::convolve (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray12create_arrayERKNSt6vectorINSt6size_tEEE">APyFixedArray::create_array (C++ function)</a>
 </li>
@@ -1492,7 +1492,7 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray21checked_inner_productERK13APyFloatArray">APyFloatArray::checked_inner_product (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8convolveERK13APyFloatArrayRKNSt6stringE">APyFloatArray::convolve (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8convolveERK13APyFloatArray15ConvolutionMode">APyFloatArray::convolve (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray12create_arrayERKNSt6vectorINSt6size_tEEE">APyFloatArray::create_array (C++ function)</a>
 </li>
@@ -1820,12 +1820,12 @@
 </li>
         <li><a href="cpp_api/apycfixed_util.html#_CPPv4N29ComplexFixedPointInnerProduct13product_limbsE">ComplexFixedPointInnerProduct::product_limbs (C++ member)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apycfixed_util.html#_CPPv4N29ComplexFixedPointInnerProduct10src1_limbsE">ComplexFixedPointInnerProduct::src1_limbs (C++ member)</a>
 </li>
         <li><a href="cpp_api/apycfixed_util.html#_CPPv4N29ComplexFixedPointInnerProduct10src2_limbsE">ComplexFixedPointInnerProduct::src2_limbs (C++ member)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apycfixed_util.html#_CPPv4I0E25ComplexFixedPointToDouble">ComplexFixedPointToDouble (C++ struct)</a>
 </li>
         <li><a href="cpp_api/apycfixed_util.html#_CPPv4N25ComplexFixedPointToDouble25ComplexFixedPointToDoubleERK12APyFixedSpec">ComplexFixedPointToDouble::ComplexFixedPointToDouble (C++ function)</a>
@@ -1853,6 +1853,14 @@
         <li><a href="cpp_api/apytypes_common.html#_CPPv4N14ContextManager12exit_contextEv">ContextManager::exit_context (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv4N14ContextManagerD0Ev">ContextManager::~ContextManager (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv415ConvolutionMode">ConvolutionMode (C++ enum)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N15ConvolutionMode4FULLE">ConvolutionMode::FULL (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N15ConvolutionMode4SAMEE">ConvolutionMode::SAME (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N15ConvolutionMode5VALIDE">ConvolutionMode::VALID (C++ enumerator)</a>
 </li>
         <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.convolve">convolve() (apytypes.APyCFixedArray method)</a>
 
@@ -2284,7 +2292,9 @@
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv424get_array_library_as_strv">get_array_library_as_str (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E16get_conv_lengthsNSt5tupleINSt6size_tENSt6size_tENSt6size_tEEERKNSt6stringERK9APY_ARRAYRK9APY_ARRAY">get_conv_lengths (C++ function)</a>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E16get_conv_lengthsNSt5tupleINSt6size_tENSt6size_tENSt6size_tEEEK15ConvolutionModeRK9APY_ARRAYRK9APY_ARRAY">get_conv_lengths (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv413get_conv_modeRKNSt6stringE">get_conv_mode (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv419get_fixed_cast_modev">get_fixed_cast_mode (C++ function)</a>
 </li>
@@ -2662,10 +2672,10 @@
         </ul></li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.next_down">next_down() (apytypes.APyFloat method)</a>
 </li>
-        <li><a href="api/apyfloat.html#apytypes.APyFloat.next_up">next_up() (apytypes.APyFloat method)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.next_up">next_up() (apytypes.APyFloat method)</a>
+</li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E12nibble_widthNSt6size_tE8INT_TYPE">nibble_width (C++ function)</a>
 </li>
         <li><a href="cpp_api/apybuffer.html#_CPPv4I0E27NoDefaultConstructAllocator">NoDefaultConstructAllocator (C++ struct)</a>
@@ -2697,10 +2707,6 @@
         <li><a href="cpp_api/apybuffer.html#_CPPv4N27NoDefaultConstructAllocatorD0Ev">NoDefaultConstructAllocator::~NoDefaultConstructAllocator (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv49normalizeRK12APyFloatDataNSt7uint8_tENSt7uint8_tE5exp_t">normalize (C++ function)</a>, <a href="cpp_api/apyfloat_util.html#_CPPv49normalizeRK12APyFloatDataRK12APyFloatSpec">[1]</a>
-</li>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv423NotImplementedException">NotImplementedException (C++ class)</a>
-</li>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv4N23NotImplementedException23NotImplementedExceptionENSt8optionalINSt6stringEEE">NotImplementedException::NotImplementedException (C++ function)</a>
 </li>
         <li><a href="api/quantizationoverflow.html#apytypes.OverflowMode.NUMERIC_STD">NUMERIC_STD (apytypes.OverflowMode attribute)</a>
 </li>
