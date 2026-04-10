@@ -239,6 +239,20 @@ apy_limb_t vector_multiply_accumulate(
     std::size_t size
 );
 
+/*!
+ * For each of `M` rows in `src1` (row stride = `N`), compute the signed dot product
+ * with the `N`-element vector `src2` and write into `dst[m * DST_STEP]`.
+ * A single Highway dynamic dispatch covers all `M` rows.
+ */
+void matrix_vector_multiply_accumulate(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst,
+    std::size_t N,
+    std::size_t M,
+    std::size_t DST_STEP
+);
+
 /*
  * Functor export from functions
  */

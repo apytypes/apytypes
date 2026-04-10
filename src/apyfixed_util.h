@@ -1059,9 +1059,7 @@ private:
         assert(src1_limbs == 1);
         assert(src2_limbs == 1);
         assert(dst_limbs == 1);
-        for (std::size_t m = 0; m < M; m++) {
-            dst[m * DST_STEP] = simd::vector_multiply_accumulate(src1 + m * N, src2, N);
-        }
+        simd::matrix_vector_multiply_accumulate(src1, src2, dst, N, M, DST_STEP);
     }
 
     void inner_product_one_limb_src_two_limb_dst(

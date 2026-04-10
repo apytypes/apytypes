@@ -445,6 +445,36 @@ namespace HWY_NAMESPACE { // required: unique per target
         return sum;
     }
 
+    HWY_ATTR void _hwy_vector_multiply_accumulate_rows(
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        apy_limb_t* HWY_RESTRICT dst,
+        const std::size_t N,
+        const std::size_t M,
+        const std::size_t DST_STEP
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = N - N % lanes;
+
+        for (std::size_t m = 0; m < M; m++) {
+            const apy_limb_t* HWY_RESTRICT row = src1 + m * N;
+            auto simd_sum = hn::Zero(d);
+            std::size_t i = 0;
+            for (; i < size_simd; i += lanes) {
+                simd_sum = hn::MulAdd(
+                    hn::LoadU(d, row + i), hn::LoadU(d, src2 + i), simd_sum
+                );
+            }
+            apy_limb_t sum = hn::ReduceSum(d, simd_sum);
+            for (; i < N; i++) {
+                sum += apy_limb_signed_t(row[i]) * apy_limb_signed_t(src2[i]);
+            }
+            dst[m * DST_STEP] = sum;
+        }
+    }
+
     HWY_ATTR std::string _hwy_simd_version_str()
     {
         constexpr const hn::ScalableTag<apy_limb_t> d;
@@ -489,6 +519,7 @@ HWY_EXPORT(_hwy_vector_sub_const);
 HWY_EXPORT(_hwy_vector_rsub_const);
 HWY_EXPORT(_hwy_vector_rdiv_const_signed);
 HWY_EXPORT(_hwy_vector_multiply_accumulate);
+HWY_EXPORT(_hwy_vector_multiply_accumulate_rows);
 
 std::string get_simd_version_str()
 {
@@ -752,6 +783,20 @@ apy_limb_t vector_multiply_accumulate(
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_multiply_accumulate)(
         &*src1_begin, &*src2_begin, size
+    );
+}
+
+void matrix_vector_multiply_accumulate(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst,
+    std::size_t N,
+    std::size_t M,
+    std::size_t DST_STEP
+)
+{
+    HWY_DYNAMIC_DISPATCH(_hwy_vector_multiply_accumulate_rows)(
+        &*src1, &*src2, &*dst, N, M, DST_STEP
     );
 }
 
