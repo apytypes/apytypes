@@ -452,35 +452,57 @@ namespace HWY_NAMESPACE { // required: unique per target
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<apy_limb_t> du;
-        const std::size_t lanes = hn::Lanes(du);
-        const std::size_t size_simd = size - size % lanes;
+#if COMPILER_LIMB_SIZE == 32
+        constexpr const hn::ScalableTag<apy_limb_signed_t> ds32;
+        const hn::RepartitionToWide<decltype(ds32)> ds64;
+        const std::size_t lanes32 = hn::Lanes(ds32);
+        const std::size_t size_simd = size - size % lanes32;
 
-        auto sum_lo = hn::Zero(du);
-        auto sum_hi = hn::Zero(du);
+        auto sum64_lo = hn::Zero(ds64);
+        auto sum64_hi = hn::Zero(ds64);
 
         std::size_t i = 0;
+        for (; i < size_simd; i += lanes32) {
+            const auto va
+                = hn::LoadU(ds32, reinterpret_cast<const apy_limb_signed_t*>(src1 + i));
+            const auto vb
+                = hn::LoadU(ds32, reinterpret_cast<const apy_limb_signed_t*>(src2 + i));
+
+            sum64_lo = hn::Add(sum64_lo, hn::MulEven(va, vb));
+            sum64_hi = hn::Add(sum64_hi, hn::MulOdd(va, vb));
+        }
+
+        const auto sum64 = hn::Add(sum64_lo, sum64_hi);
+        const hn::RebindToUnsigned<decltype(ds64)> du64;
+        std::uint64_t acc64 = hn::ReduceSum(du64, hn::BitCast(du64, sum64));
+
+        for (; i < size; i++) {
+            const auto a = static_cast<std::int64_t>(apy_limb_signed_t(src1[i]));
+            const auto b = static_cast<std::int64_t>(apy_limb_signed_t(src2[i]));
+            acc64 += static_cast<std::uint64_t>(a * b);
+        }
+
+        dst[0] = static_cast<apy_limb_t>(acc64);
+        dst[1] = static_cast<apy_limb_t>(acc64 >> 32);
+
+#elif COMPILER_LIMB_SIZE == 64
+        constexpr const hn::ScalableTag<apy_limb_t> du;
+        const std::size_t lanes = hn::Lanes(du);
+        std::size_t i = 0;
+
+        const std::size_t size_simd = size - size % lanes;
+        auto sum_lo = hn::Zero(du);
+        auto sum_hi = hn::Zero(du);
         for (; i < size_simd; i += lanes) {
             const auto va_u = hn::LoadU(du, src1 + i);
             const auto vb_u = hn::LoadU(du, src2 + i);
-
             const auto prod_lo = hn::Mul(va_u, vb_u);
             const auto prod_hi_unsigned = hn::MulHigh(va_u, vb_u);
-
-#if COMPILER_LIMB_SIZE == 32
-            const auto sign_a = hn::ShiftRightSame(va_u, 31);
-            const auto sign_b = hn::ShiftRightSame(vb_u, 31);
-#elif COMPILER_LIMB_SIZE == 64
             const auto sign_a = hn::ShiftRightSame(va_u, 63);
             const auto sign_b = hn::ShiftRightSame(vb_u, 63);
-#else
-            static_assert(false, "COMPILER_LIMB_SIZE must be 32 or 64");
-#endif
-            // signed_high = unsigned_high - sign(a)*b - sign(b)*a
             const auto prod_hi = hn::Sub(
                 hn::Sub(prod_hi_unsigned, hn::Mul(sign_a, vb_u)), hn::Mul(sign_b, va_u)
             );
-
             const auto new_lo = hn::Add(sum_lo, prod_lo);
             const auto carry = hn::VecFromMask(du, hn::Lt(new_lo, sum_lo));
             sum_lo = new_lo;
@@ -515,6 +537,10 @@ namespace HWY_NAMESPACE { // required: unique per target
 
         dst[0] = acc_lo;
         dst[1] = acc_hi;
+
+#else
+        static_assert(false, "COMPILER_LIMB_SIZE must be 32 or 64");
+#endif
     }
 
     HWY_ATTR std::string _hwy_simd_version_str()
