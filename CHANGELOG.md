@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--
+- SIMD inner products for single limb operands resulting in two-limb result.
 
 ### Fixed
 

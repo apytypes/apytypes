@@ -445,6 +445,78 @@ namespace HWY_NAMESPACE { // required: unique per target
         return sum;
     }
 
+    HWY_ATTR void _hwy_vector_multiply_accumulate_1_1_2(
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        apy_limb_t* HWY_RESTRICT dst,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> du;
+        const std::size_t lanes = hn::Lanes(du);
+        const std::size_t size_simd = size - size % lanes;
+
+        auto sum_lo = hn::Zero(du);
+        auto sum_hi = hn::Zero(du);
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += lanes) {
+            const auto va_u = hn::LoadU(du, src1 + i);
+            const auto vb_u = hn::LoadU(du, src2 + i);
+
+            const auto prod_lo = hn::Mul(va_u, vb_u);
+            const auto prod_hi_unsigned = hn::MulHigh(va_u, vb_u);
+
+#if COMPILER_LIMB_SIZE == 32
+            const auto sign_a = hn::ShiftRightSame(va_u, 31);
+            const auto sign_b = hn::ShiftRightSame(vb_u, 31);
+#elif COMPILER_LIMB_SIZE == 64
+            const auto sign_a = hn::ShiftRightSame(va_u, 63);
+            const auto sign_b = hn::ShiftRightSame(vb_u, 63);
+#else
+            static_assert(false, "COMPILER_LIMB_SIZE must be 32 or 64");
+#endif
+            // signed_high = unsigned_high - sign(a)*b - sign(b)*a
+            const auto prod_hi = hn::Sub(
+                hn::Sub(prod_hi_unsigned, hn::Mul(sign_a, vb_u)), hn::Mul(sign_b, va_u)
+            );
+
+            const auto new_lo = hn::Add(sum_lo, prod_lo);
+            const auto carry = hn::VecFromMask(du, hn::Lt(new_lo, sum_lo));
+            sum_lo = new_lo;
+            sum_hi = hn::Sub(hn::Add(sum_hi, prod_hi), carry);
+        }
+
+        // Fold lane-wise accumulators with scalar carry propagation.
+        // Reuse thread-local buffers to avoid repeated heap allocations.
+        thread_local std::vector<apy_limb_t> lane_lo;
+        thread_local std::vector<apy_limb_t> lane_hi;
+        lane_lo.resize(lanes);
+        lane_hi.resize(lanes);
+        hn::StoreU(sum_lo, du, lane_lo.data());
+        hn::StoreU(sum_hi, du, lane_hi.data());
+
+        apy_limb_t acc_lo = 0;
+        apy_limb_t acc_hi = 0;
+        for (std::size_t lane = 0; lane < lanes; lane++) {
+            const apy_limb_t new_lo = acc_lo + lane_lo[lane];
+            const apy_limb_t carry = new_lo < acc_lo;
+            acc_lo = new_lo;
+            acc_hi = acc_hi + lane_hi[lane] + carry;
+        }
+
+        for (; i < size; i++) {
+            auto [prod_hi, prod_lo] = long_signed_mult(src1[i], src2[i]);
+            const apy_limb_t new_lo = acc_lo + prod_lo;
+            const apy_limb_t carry = new_lo < acc_lo;
+            acc_lo = new_lo;
+            acc_hi = acc_hi + prod_hi + carry;
+        }
+
+        dst[0] = acc_lo;
+        dst[1] = acc_hi;
+    }
+
     HWY_ATTR std::string _hwy_simd_version_str()
     {
         constexpr const hn::ScalableTag<apy_limb_t> d;
@@ -489,6 +561,7 @@ HWY_EXPORT(_hwy_vector_sub_const);
 HWY_EXPORT(_hwy_vector_rsub_const);
 HWY_EXPORT(_hwy_vector_rdiv_const_signed);
 HWY_EXPORT(_hwy_vector_multiply_accumulate);
+HWY_EXPORT(_hwy_vector_multiply_accumulate_1_1_2);
 
 std::string get_simd_version_str()
 {
@@ -752,6 +825,18 @@ apy_limb_t vector_multiply_accumulate(
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_multiply_accumulate)(
         &*src1_begin, &*src2_begin, size
+    );
+}
+
+void vector_multiply_accumulate_1_1_2(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_multiply_accumulate_1_1_2)(
+        &*src1_begin, &*src2_begin, &*dst_begin, size
     );
 }
 
