@@ -240,6 +240,19 @@ apy_limb_t vector_multiply_accumulate(
 );
 
 /*!
+ * Multiply and accumulate all complex-valued elements from `src1_begin` with
+ * `src2_begin` for `size` number of complex elements. Each complex element is
+ * stored as interleaved real and imaginary limbs. Store the accumulated real and
+ * imaginary parts into `dst_begin[0]` and `dst_begin[1]`.
+ */
+void complex_vector_multiply_accumulate(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
  * For each of `M` rows in `src1` (row stride = `N`), compute the signed dot product
  * with the `N`-element vector `src2` and write into `dst[m * DST_STEP]`.
  * A single Highway dynamic dispatch covers all `M` rows.

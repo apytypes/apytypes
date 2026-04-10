@@ -487,24 +487,13 @@ private:
         assert(src1_limbs == 1);
         assert(src2_limbs == 1);
         assert(dst_limbs == 1);
-        auto accumulate_row = [&](auto A_it, auto acc) {
-            std::fill_n(acc, 2, 0);
-            for (std::size_t n = 0; n < N; n++) {
-                std::complex<apy_limb_signed_t> a(A_it[2 * n + 0], A_it[2 * n + 1]);
-                std::complex<apy_limb_signed_t> b(src2[2 * n + 0], src2[2 * n + 1]);
-                auto&& prod = a * b;
-                acc[0] += prod.real();
-                acc[1] += prod.imag();
-            }
-        };
-
         if constexpr (M_AND_DST_STEP_ARE_ONE) {
-            accumulate_row(src1, dst);
+            simd::complex_vector_multiply_accumulate(src1, src2, dst, N);
         } else {
             for (std::size_t m = 0; m < M; m++) {
                 auto A_it = src1 + 2 * N * m;
                 auto acc = dst + m * 2 * DST_STEP;
-                accumulate_row(A_it, acc);
+                simd::complex_vector_multiply_accumulate(A_it, src2, acc, N);
             }
         }
     }

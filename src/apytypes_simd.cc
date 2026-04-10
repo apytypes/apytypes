@@ -445,6 +445,48 @@ namespace HWY_NAMESPACE { // required: unique per target
         return sum;
     }
 
+    HWY_ATTR void _hwy_complex_vector_multiply_accumulate(
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
+        apy_limb_t* HWY_RESTRICT dst,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
+
+        auto real_sum = hn::Zero(d);
+        auto imag_sum = hn::Zero(d);
+        std::size_t i = 0;
+        for (; i < size_simd; i += lanes) {
+            decltype(real_sum) a_re;
+            decltype(real_sum) a_im;
+            decltype(real_sum) b_re;
+            decltype(real_sum) b_im;
+            hn::LoadInterleaved2(d, src1 + 2 * i, a_re, a_im);
+            hn::LoadInterleaved2(d, src2 + 2 * i, b_re, b_im);
+            real_sum = hn::Add(real_sum, hn::Mul(a_re, b_re));
+            real_sum = hn::Sub(real_sum, hn::Mul(a_im, b_im));
+            imag_sum = hn::Add(imag_sum, hn::Mul(a_re, b_im));
+            imag_sum = hn::Add(imag_sum, hn::Mul(a_im, b_re));
+        }
+
+        apy_limb_t real = hn::ReduceSum(d, real_sum);
+        apy_limb_t imag = hn::ReduceSum(d, imag_sum);
+        for (; i < size; i++) {
+            const apy_limb_signed_t a_re = apy_limb_signed_t(src1[2 * i + 0]);
+            const apy_limb_signed_t a_im = apy_limb_signed_t(src1[2 * i + 1]);
+            const apy_limb_signed_t b_re = apy_limb_signed_t(src2[2 * i + 0]);
+            const apy_limb_signed_t b_im = apy_limb_signed_t(src2[2 * i + 1]);
+            real += a_re * b_re - a_im * b_im;
+            imag += a_re * b_im + a_im * b_re;
+        }
+
+        dst[0] = real;
+        dst[1] = imag;
+    }
+
     HWY_ATTR void _hwy_vector_multiply_accumulate_rows(
         const apy_limb_t* HWY_RESTRICT src1,
         const apy_limb_t* HWY_RESTRICT src2,
@@ -519,6 +561,7 @@ HWY_EXPORT(_hwy_vector_sub_const);
 HWY_EXPORT(_hwy_vector_rsub_const);
 HWY_EXPORT(_hwy_vector_rdiv_const_signed);
 HWY_EXPORT(_hwy_vector_multiply_accumulate);
+HWY_EXPORT(_hwy_complex_vector_multiply_accumulate);
 HWY_EXPORT(_hwy_vector_multiply_accumulate_rows);
 
 std::string get_simd_version_str()
@@ -783,6 +826,18 @@ apy_limb_t vector_multiply_accumulate(
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_multiply_accumulate)(
         &*src1_begin, &*src2_begin, size
+    );
+}
+
+void complex_vector_multiply_accumulate(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    HWY_DYNAMIC_DISPATCH(_hwy_complex_vector_multiply_accumulate)(
+        &*src1_begin, &*src2_begin, &*dst_begin, size
     );
 }
 
