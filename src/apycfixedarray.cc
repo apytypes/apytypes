@@ -2370,7 +2370,7 @@ APyCFixed APyCFixedArray::checked_inner_product(
     APyCFixedArray res_arr({ 1 }, res_bits, res_int_bits);
 
     auto inner_product
-        = ComplexFixedPointInnerProduct(spec(), rhs.spec(), res_arr.spec(), mode);
+        = ComplexFixedPointInnerProduct<true>(spec(), rhs.spec(), res_arr.spec(), mode);
 
     inner_product(
         std::begin(_data),         // src1
@@ -2418,8 +2418,8 @@ APyCFixedArray APyCFixedArray::checked_2d_matmul(
     APyCFixedArray res(res_shape, res_bits, res_int_bits);
 
     // Specialized inner product functor
-    ComplexFixedPointInnerProduct inner_product(spec(), rhs.spec(), res.spec(), mode);
-    ComplexFixedPointInnerProduct* inner_product_ptr = &inner_product;
+    ComplexFixedPointInnerProduct<> inner_product(spec(), rhs.spec(), res.spec(), mode);
+    ComplexFixedPointInnerProduct<>* inner_product_ptr = &inner_product;
 
     // RHS column cache
     const std::size_t limbs_per_col = 2 * bits_to_limbs(rhs._bits) * rhs._shape[0];
@@ -2454,7 +2454,7 @@ APyCFixedArray APyCFixedArray::checked_2d_matmul(
     };
 
     if (n_threads > 1) {
-        std::vector<ComplexFixedPointInnerProduct> cache_inner_prod(
+        std::vector<ComplexFixedPointInnerProduct<>> cache_inner_prod(
             n_threads, inner_product
         );
         inner_product_ptr = cache_inner_prod.data();
@@ -2511,7 +2511,7 @@ APyCFixedArray APyCFixedArray::convolve(
     APyCFixedArray res({ len }, res_bits, res_int_bits);
 
     auto inner_product
-        = ComplexFixedPointInnerProduct(a->spec(), b->spec(), res.spec(), acc);
+        = ComplexFixedPointInnerProduct<true>(a->spec(), b->spec(), res.spec(), acc);
 
     // Loop working variables
     std::size_t n = b->_shape[0] - n_left;

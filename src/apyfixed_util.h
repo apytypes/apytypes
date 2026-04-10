@@ -979,7 +979,7 @@ static void fixed_point_hadamard_product(
     }
 }
 
-struct FixedPointInnerProduct {
+template <bool M_AND_DST_STEP_ARE_ONE = false> struct FixedPointInnerProduct {
     explicit FixedPointInnerProduct(
         const APyFixedSpec& src1_spec,
         const APyFixedSpec& src2_spec,
@@ -991,18 +991,20 @@ struct FixedPointInnerProduct {
         , dst_limbs { bits_to_limbs(dst_spec.bits) }
         , acc_mode { acc_mode }
     {
+        using F = FixedPointInnerProduct;
+
         if (!acc_mode.has_value()) {
             if (dst_limbs == 1) {
                 // Specialization #1: the resulting number of limbs is exactly one and
                 // no accumulator mode has been set. Use the SIMD inner product.
                 assert(src1_limbs == 1);
                 assert(src2_limbs == 1);
-                f = &FixedPointInnerProduct::inner_product_simd;
+                f = &F::inner_product_simd;
                 return;
             } else if (dst_limbs == 2 && src1_limbs == 1 && src2_limbs == 1) {
                 // Special case #2: resulting elements fit into two limbs, and
                 // each argument element fits into a single limb.
-                f = &FixedPointInnerProduct::inner_product_one_limb_src_two_limb_dst;
+                f = &F::inner_product_one_limb_src_two_limb_dst;
                 return;
             }
         }
@@ -1020,15 +1022,15 @@ struct FixedPointInnerProduct {
             product_bits = src1_spec.bits + src2_spec.bits;
             product_int_bits = src1_spec.int_bits + src2_spec.int_bits;
             if (dst_limbs <= src1_limbs + src2_limbs) {
-                f = &FixedPointInnerProduct::inner_product<true, false>;
+                f = &F::inner_product<true, false>;
             } else {
-                f = &FixedPointInnerProduct::inner_product<true, true>;
+                f = &F::inner_product<true, true>;
             }
         } else {
             if (dst_limbs <= product_limbs) {
-                f = &FixedPointInnerProduct::inner_product<false, false>;
+                f = &F::inner_product<false, false>;
             } else {
-                f = &FixedPointInnerProduct::inner_product<false, true>;
+                f = &F::inner_product<false, true>;
             }
         }
     }
@@ -1037,18 +1039,18 @@ struct FixedPointInnerProduct {
     using CIt = APyBuffer<apy_limb_t>::vector_type::const_iterator;
 
     void operator()(
-        CIt src1,
-        CIt src2,
-        It dst,
-        std::size_t N,
-        std::size_t M = 1,
-        std::size_t DST_STEP = 1
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
         // Matrix-vector multiplication $`A \times b`$, where
         // * A (src1): [ `M` x `N` ]
         // * b (src2): [ `N` x `1` ]
         std::invoke(f, this, src1, src2, dst, N, M, DST_STEP);
+    }
+
+    void operator()(CIt src1, CIt src2, It dst, std::size_t N) const
+    {
+        std::invoke(f, this, src1, src2, dst, N, 1, 1);
     }
 
 private:
@@ -1059,7 +1061,11 @@ private:
         assert(src1_limbs == 1);
         assert(src2_limbs == 1);
         assert(dst_limbs == 1);
-        simd::matrix_vector_multiply_accumulate(src1, src2, dst, N, M, DST_STEP);
+        if constexpr (M_AND_DST_STEP_ARE_ONE) {
+            dst[0] = simd::vector_multiply_accumulate(src1, src2, N);
+        } else {
+            simd::matrix_vector_multiply_accumulate(src1, src2, dst, N, M, DST_STEP);
+        }
     }
 
     void inner_product_one_limb_src_two_limb_dst(
@@ -1069,8 +1075,7 @@ private:
         assert(src1_limbs == 1);
         assert(src2_limbs == 1);
         assert(dst_limbs == 2);
-        for (std::size_t m = 0; m < M; m++) {
-            auto A_it = src1 + src1_limbs * N * m;
+        auto accumulate_row = [&](auto A_it, auto dst_it) {
 #if (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__)
             /*
@@ -1083,13 +1088,13 @@ private:
                 __int128 b = apy_limb_signed_t(src2[n]);
                 acc += a * b;
             }
-            dst[2 * m * DST_STEP + 0] = apy_limb_t(acc >> 0);
-            dst[2 * m * DST_STEP + 1] = apy_limb_t(acc >> 64);
+            dst_it[0] = apy_limb_t(acc >> 0);
+            dst_it[1] = apy_limb_t(acc >> 64);
 #else
             /*
              * Microsoft Visual C/C++ compiler (or other unknown compiler)
              */
-            auto acc = dst + 2 * m * DST_STEP;
+            auto acc = dst_it;
             std::fill_n(acc, 2, 0);
             for (std::size_t n = 0; n < N; n++) {
                 auto&& [prod_hi, prod_lo] = long_signed_mult(A_it[n], src2[n]);
@@ -1104,9 +1109,19 @@ private:
                 std::int64_t b = apy_limb_signed_t(src2[n]);
                 acc += a * b;
             }
-            dst[2 * m * DST_STEP + 0] = apy_limb_t(acc >> 0);
-            dst[2 * m * DST_STEP + 1] = apy_limb_t(acc >> 32);
+            dst_it[0] = apy_limb_t(acc >> 0);
+            dst_it[1] = apy_limb_t(acc >> 32);
 #endif
+        };
+
+        if constexpr (M_AND_DST_STEP_ARE_ONE) {
+            accumulate_row(src1, dst);
+        } else {
+            for (std::size_t m = 0; m < M; m++) {
+                auto A_it = src1 + src1_limbs * N * m;
+                auto dst_it = dst + 2 * m * DST_STEP;
+                accumulate_row(A_it, dst_it);
+            }
         }
     }
 
@@ -1115,9 +1130,7 @@ private:
         CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
-        for (std::size_t m = 0; m < M; m++) {
-            auto A_it = src1 + src1_limbs * N * m;
-            auto acc = dst + m * dst_limbs * DST_STEP;
+        auto accumulate_row = [&](auto A_it, auto acc) {
             std::fill_n(acc, dst_limbs, 0);
             for (std::size_t n = 0; n < N; n++) {
                 fixed_point_product(
@@ -1167,6 +1180,16 @@ private:
                 apy_inplace_iterator_addition_same_length(
                     acc, acc + dst_limbs, std::begin(product)
                 );
+            }
+        };
+
+        if constexpr (M_AND_DST_STEP_ARE_ONE) {
+            accumulate_row(src1, dst);
+        } else {
+            for (std::size_t m = 0; m < M; m++) {
+                auto A_it = src1 + src1_limbs * N * m;
+                auto acc = dst + m * dst_limbs * DST_STEP;
+                accumulate_row(A_it, acc);
             }
         }
     }

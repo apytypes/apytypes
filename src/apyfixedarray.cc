@@ -1478,7 +1478,8 @@ APyFixedArray APyFixedArray::convolve(
 
     APyFixedArray res({ len }, res_bits, res_int_bits);
 
-    auto inner_product = FixedPointInnerProduct(a->spec(), b->spec(), res.spec(), acc);
+    auto inner_product
+        = FixedPointInnerProduct<true>(a->spec(), b->spec(), res.spec(), acc);
 
     // Loop working variables
     std::size_t n = b->_shape[0] - n_left;
@@ -2132,7 +2133,7 @@ APyFixed APyFixedArray::_checked_inner_product(
     APyFixedArray res_arr({ 1 }, res_bits, res_int_bits);
 
     auto inner_product
-        = FixedPointInnerProduct(spec(), rhs.spec(), res_arr.spec(), mode);
+        = FixedPointInnerProduct<true>(spec(), rhs.spec(), res_arr.spec(), mode);
 
     inner_product(
         std::begin(_data),         // src1
@@ -2180,8 +2181,8 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     APyFixedArray res(res_shape, res_bits, res_int_bits);
 
     // Specialized inner product functor
-    FixedPointInnerProduct inner_product(spec(), rhs.spec(), res.spec(), mode);
-    FixedPointInnerProduct* inner_product_ptr = &inner_product;
+    FixedPointInnerProduct<> inner_product(spec(), rhs.spec(), res.spec(), mode);
+    FixedPointInnerProduct<>* inner_product_ptr = &inner_product;
 
     // RHS column cache
     const std::size_t limbs_per_col = rhs._shape[0] * bits_to_limbs(rhs._bits);
@@ -2216,7 +2217,9 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     };
 
     if (n_threads > 1) {
-        std::vector<FixedPointInnerProduct> cache_inner_prod(n_threads, inner_product);
+        std::vector<FixedPointInnerProduct<>> cache_inner_prod(
+            n_threads, inner_product
+        );
         inner_product_ptr = cache_inner_prod.data();
         thread_pool.detach_loop(0, res_cols, matmul_task);
         thread_pool.wait();
