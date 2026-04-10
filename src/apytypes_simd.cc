@@ -267,6 +267,70 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
+    HWY_ATTR void _hwy_vector_complex_mul(
+        apy_limb_signed_t* HWY_RESTRICT dst,
+        const apy_limb_signed_t* HWY_RESTRICT src1,
+        const apy_limb_signed_t* HWY_RESTRICT src2,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_signed_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += lanes) {
+            decltype(hn::Zero(d)) a_re;
+            decltype(hn::Zero(d)) a_im;
+            decltype(hn::Zero(d)) b_re;
+            decltype(hn::Zero(d)) b_im;
+            hn::LoadInterleaved2(d, src1 + 2 * i, a_re, a_im);
+            hn::LoadInterleaved2(d, src2 + 2 * i, b_re, b_im);
+            const auto res_re = hn::Sub(hn::Mul(a_re, b_re), hn::Mul(a_im, b_im));
+            const auto res_im = hn::Add(hn::Mul(a_im, b_re), hn::Mul(a_re, b_im));
+            hn::StoreInterleaved2(res_re, res_im, d, dst + 2 * i);
+        }
+
+        for (; i < size; i++) {
+            dst[2 * i + 0]
+                = src1[2 * i + 0] * src2[2 * i + 0] - src1[2 * i + 1] * src2[2 * i + 1];
+            dst[2 * i + 1]
+                = src1[2 * i + 1] * src2[2 * i + 0] + src1[2 * i + 0] * src2[2 * i + 1];
+        }
+    }
+
+    HWY_ATTR void _hwy_vector_complex_mul_const(
+        apy_limb_signed_t* HWY_RESTRICT dst,
+        const apy_limb_signed_t* HWY_RESTRICT src1,
+        const apy_limb_signed_t constant_real,
+        const apy_limb_signed_t constant_imag,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_signed_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
+
+        const auto c_re = hn::Set(d, constant_real);
+        const auto c_im = hn::Set(d, constant_imag);
+        std::size_t i = 0;
+        for (; i < size_simd; i += lanes) {
+            decltype(hn::Zero(d)) a_re;
+            decltype(hn::Zero(d)) a_im;
+            hn::LoadInterleaved2(d, src1 + 2 * i, a_re, a_im);
+            const auto res_re = hn::Sub(hn::Mul(a_re, c_re), hn::Mul(a_im, c_im));
+            const auto res_im = hn::Add(hn::Mul(a_im, c_re), hn::Mul(a_re, c_im));
+            hn::StoreInterleaved2(res_re, res_im, d, dst + 2 * i);
+        }
+
+        for (; i < size; i++) {
+            dst[2 * i + 0]
+                = src1[2 * i + 0] * constant_real - src1[2 * i + 1] * constant_imag;
+            dst[2 * i + 1]
+                = src1[2 * i + 1] * constant_real + src1[2 * i + 0] * constant_imag;
+        }
+    }
+
     HWY_ATTR void _hwy_vector_mul_const(
         apy_limb_t* HWY_RESTRICT dst,
         const apy_limb_t* HWY_RESTRICT src1,
@@ -549,6 +613,8 @@ HWY_EXPORT(_hwy_vector_shift_sub_const);
 HWY_EXPORT(_hwy_vector_shift_div_signed);
 HWY_EXPORT(_hwy_vector_shift_div_const_signed);
 HWY_EXPORT(_hwy_vector_mul);
+HWY_EXPORT(_hwy_vector_complex_mul);
+HWY_EXPORT(_hwy_vector_complex_mul_const);
 HWY_EXPORT(_hwy_vector_mul_const);
 HWY_EXPORT(_hwy_vector_add);
 HWY_EXPORT(_hwy_vector_sub);
@@ -728,6 +794,38 @@ void vector_mul(
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_mul)(
         &*dst_begin, &*src1_begin, &*src2_begin, size
+    );
+}
+
+void vector_complex_mul(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_complex_mul)(
+        reinterpret_cast<apy_limb_signed_t*>(&*dst_begin),
+        reinterpret_cast<const apy_limb_signed_t*>(&*src1_begin),
+        reinterpret_cast<const apy_limb_signed_t*>(&*src2_begin),
+        size
+    );
+}
+
+void vector_complex_mul_const(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant_real,
+    apy_limb_t constant_imag,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_complex_mul_const)(
+        reinterpret_cast<apy_limb_signed_t*>(&*dst_begin),
+        reinterpret_cast<const apy_limb_signed_t*>(&*src1_begin),
+        apy_limb_signed_t(constant_real),
+        apy_limb_signed_t(constant_imag),
+        size
     );
 }
 

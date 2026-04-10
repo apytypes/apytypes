@@ -453,14 +453,9 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            result._data[i + 0]
-                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 0])
-                - apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 1]);
-            result._data[i + 1]
-                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 0])
-                + apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 1]);
-        }
+        simd::vector_complex_mul(
+            _data.begin(), rhs._data.begin(), result._data.begin(), _nitems
+        );
         return result; // early exit
     }
 
@@ -537,14 +532,9 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            result._data[i + 0]
-                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[0])
-                - apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[1]);
-            result._data[i + 1]
-                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[0])
-                + apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[1]);
-        }
+        simd::vector_complex_mul_const(
+            _data.begin(), rhs._data[0], rhs._data[1], result._data.begin(), _nitems
+        );
         return result; // early exit
     }
 

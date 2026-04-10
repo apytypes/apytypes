@@ -115,6 +115,32 @@ void vector_mul(
 );
 
 /*!
+ * Perform elementwise complex multiplication of interleaved single-limb complex
+ * values in `src1_begin` and `src2_begin` and store the interleaved single-limb
+ * result in `dst_begin`, for `size` number of complex elements.
+ */
+void vector_complex_mul(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * Perform elementwise complex multiplication of interleaved single-limb complex
+ * values in `src1_begin` with the constant complex value
+ * (`constant_real`, `constant_imag`) and store the interleaved single-limb
+ * result in `dst_begin`, for `size` number of complex elements.
+ */
+void vector_complex_mul_const(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant_real,
+    apy_limb_t constant_imag,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
  * Perform addition of the elements in `src1_begin` with `src2_begin`
  * and store the result in `dst_begin`, for `size` number of elements.
  */
