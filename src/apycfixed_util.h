@@ -451,6 +451,208 @@ static APY_INLINE void complex_real_fixed_point_product(
     std::copy_n(prod_imm + prod_limbs, copy_limbs, dst + dst_limbs);
 }
 
+struct ComplexRealFixedPointInnerProduct {
+    explicit ComplexRealFixedPointInnerProduct(
+        const APyFixedSpec& src1_spec,
+        const APyFixedSpec& src2_spec,
+        const APyFixedSpec& dst_spec,
+        const std::optional<APyFixedAccumulatorOption> acc_mode
+    )
+        : src1_limbs { bits_to_limbs(src1_spec.bits) }
+        , src2_limbs { bits_to_limbs(src2_spec.bits) }
+        , dst_limbs { bits_to_limbs(dst_spec.bits) }
+        , acc_mode { acc_mode }
+    {
+        using F = ComplexRealFixedPointInnerProduct;
+
+        if (!acc_mode.has_value()) {
+            if (dst_limbs == 1) {
+                f = &F::inner_product_one_limb_src_one_limb_dst;
+                return;
+            } else if (dst_limbs == 2 && src1_limbs == 1 && src2_limbs == 1) {
+                f = &F::inner_product_one_limb_src_two_limb_dst;
+                return;
+            }
+        }
+
+        product_limbs = 1 + src1_limbs + src2_limbs;
+        prod_imm = ScratchVector<apy_limb_t, 16>(2 * product_limbs);
+        product = ScratchVector<apy_limb_t, 16>(2 * product_limbs);
+        op1_abs = ScratchVector<apy_limb_t, 8>(src1_limbs);
+        op2_abs = ScratchVector<apy_limb_t, 8>(src2_limbs);
+
+        if (acc_mode.has_value()) {
+            assert(acc_mode->bits == dst_spec.bits);
+            assert(acc_mode->int_bits == dst_spec.int_bits);
+            product_bits = src1_spec.bits + src2_spec.bits;
+            product_int_bits = src1_spec.int_bits + src2_spec.int_bits;
+            f = &F::inner_product</*is_acc_context=*/true>;
+        } else {
+            f = &F::inner_product</*is_acc_context=*/false>;
+        }
+    }
+
+    using It = APyBuffer<apy_limb_t>::vector_type::iterator;
+    using CIt = APyBuffer<apy_limb_t>::vector_type::const_iterator;
+
+    void operator()(
+        CIt src1,
+        CIt src2,
+        It dst,
+        std::size_t N,
+        std::size_t M = 1,
+        std::size_t DST_STEP = 1
+    ) const
+    {
+        std::invoke(f, this, src1, src2, dst, N, M, DST_STEP);
+    }
+
+private:
+    void inner_product_one_limb_src_one_limb_dst(
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
+    ) const
+    {
+        assert(src1_limbs == 1);
+        assert(src2_limbs == 1);
+        assert(dst_limbs == 1);
+        for (std::size_t m = 0; m < M; m++) {
+            auto A_it = src1 + 2 * N * m;
+            auto b_it = src2;
+            auto acc = dst + m * 2 * DST_STEP;
+            std::fill_n(acc, 2, 0);
+            for (std::size_t n = 0; n < N; n++) {
+                apy_limb_signed_t b = apy_limb_signed_t(b_it[n]);
+                acc[0] += apy_limb_signed_t(A_it[2 * n + 0]) * b;
+                acc[1] += apy_limb_signed_t(A_it[2 * n + 1]) * b;
+            }
+        }
+    }
+
+    void inner_product_one_limb_src_two_limb_dst(
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
+    ) const
+    {
+        assert(src1_limbs == 1);
+        assert(src2_limbs == 1);
+        assert(dst_limbs == 2);
+
+        for (std::size_t m = 0; m < M; m++) {
+            auto A_it = src1 + 2 * N * m;
+            auto b_it = src2;
+#if (COMPILER_LIMB_SIZE == 64)
+            // Use the specialized complex-real helper for 64-bit limbs.
+            std::array<apy_limb_t, 4> prod;
+            auto acc = dst + m * 4 * DST_STEP;
+            std::fill_n(acc, 4, 0);
+            for (std::size_t n = 0; n < N; n++) {
+                complex_real_multiplication_1_1_2(prod.data(), &A_it[2 * n], &b_it[n]);
+                apy_inplace_addition_length_two(&acc[0], &prod[0]);
+                apy_inplace_addition_length_two(&acc[2], &prod[2]);
+            }
+#elif (COMPILER_LIMB_SIZE == 32)
+            // Use 64-bit accumulation for 32-bit limbs.
+            std::int64_t acc_re = 0;
+            std::int64_t acc_im = 0;
+            for (std::size_t n = 0; n < N; n++) {
+                std::int64_t a_re = apy_limb_signed_t(A_it[2 * n + 0]);
+                std::int64_t a_im = apy_limb_signed_t(A_it[2 * n + 1]);
+                std::int64_t b = apy_limb_signed_t(b_it[n]);
+                acc_re += a_re * b;
+                acc_im += a_im * b;
+            }
+            dst[4 * m * DST_STEP + 0] = apy_limb_t(acc_re >> 0);
+            dst[4 * m * DST_STEP + 1] = apy_limb_t(acc_re >> 32);
+            dst[4 * m * DST_STEP + 2] = apy_limb_t(acc_im >> 0);
+            dst[4 * m * DST_STEP + 3] = apy_limb_t(acc_im >> 32);
+#endif
+        }
+    }
+
+    template <bool is_acc_context = false>
+    void inner_product(
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
+    ) const
+    {
+        for (std::size_t m = 0; m < M; m++) {
+            auto A_it = src1 + 2 * src1_limbs * N * m;
+            auto b_it = src2;
+            auto acc = dst + m * 2 * dst_limbs * DST_STEP;
+            std::fill_n(acc, 2 * dst_limbs, 0);
+            for (std::size_t n = 0; n < N; n++) {
+                complex_real_fixed_point_product(
+                    A_it + n * 2 * src1_limbs, // src1
+                    b_it + n * src2_limbs,     // src2
+                    std::begin(product),       // dst
+                    src1_limbs,                // src1_limbs
+                    src2_limbs,                // src2_limbs
+                    product_limbs,             // dst_limbs
+                    std::begin(op1_abs),       // op1_abs
+                    std::begin(op2_abs),       // op2_abs
+                    std::begin(prod_imm)       // prod_imm
+                );
+
+                if constexpr (is_acc_context) {
+                    quantize(
+                        std::begin(product) + 0 * product_limbs,
+                        std::begin(product) + 1 * product_limbs,
+                        product_bits,
+                        product_int_bits,
+                        acc_mode->bits,
+                        acc_mode->int_bits,
+                        acc_mode->quantization
+                    );
+                    quantize(
+                        std::begin(product) + 1 * product_limbs,
+                        std::begin(product) + 2 * product_limbs,
+                        product_bits,
+                        product_int_bits,
+                        acc_mode->bits,
+                        acc_mode->int_bits,
+                        acc_mode->quantization
+                    );
+                    overflow(
+                        std::begin(product) + 0 * product_limbs,
+                        std::begin(product) + 1 * product_limbs,
+                        acc_mode->bits,
+                        acc_mode->int_bits,
+                        acc_mode->overflow
+                    );
+                    overflow(
+                        std::begin(product) + 1 * product_limbs,
+                        std::begin(product) + 2 * product_limbs,
+                        acc_mode->bits,
+                        acc_mode->int_bits,
+                        acc_mode->overflow
+                    );
+                }
+
+                apy_inplace_addition_same_length(
+                    &acc[0 * dst_limbs],
+                    &product[0 * product_limbs],
+                    std::min(dst_limbs, product_limbs)
+                );
+                apy_inplace_addition_same_length(
+                    &acc[1 * dst_limbs],
+                    &product[1 * product_limbs],
+                    std::min(dst_limbs, product_limbs)
+                );
+            }
+        }
+    }
+
+    void (ComplexRealFixedPointInnerProduct::*f)(
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
+    ) const;
+
+    std::size_t src1_limbs, src2_limbs, dst_limbs, product_limbs;
+    std::optional<APyFixedAccumulatorOption> acc_mode;
+    int product_bits, product_int_bits;
+    mutable ScratchVector<apy_limb_t, 8> op1_abs;
+    mutable ScratchVector<apy_limb_t, 8> op2_abs;
+    mutable ScratchVector<apy_limb_t, 16> product;
+    mutable ScratchVector<apy_limb_t, 16> prod_imm;
+};
+
 //! Iterator-based multi-limb two's complement complex-valued fixed-point
 //! division. The scratch vector `prod_imm` must have space for
 //! at least `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
@@ -713,65 +915,23 @@ private:
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + 2 * N * m;
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
-            /*
-             * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++
-             * compiler (ICC).
-             */
-            __int128_t acc_re = 0;
-            __int128_t acc_im = 0;
-            for (std::size_t n = 0; n < N; n++) {
-                __int128 z1_re = apy_limb_signed_t(A_it[2 * n + 0]);
-                __int128 z1_im = apy_limb_signed_t(A_it[2 * n + 1]);
-                __int128 z2_re = apy_limb_signed_t(src2[2 * n + 0]);
-                __int128 z2_im = apy_limb_signed_t(src2[2 * n + 1]);
-                __int128 ac = z1_re * z2_re;
-                __int128 bd = z1_im * z2_im;
-                __int128 bc = z1_im * z2_re;
-                __int128 ad = z1_re * z2_im;
-                acc_re += ac - bd;
-                acc_im += bc + ad;
-            }
-            dst[4 * m * DST_STEP + 0] = apy_limb_t(acc_re >> 0);
-            dst[4 * m * DST_STEP + 1] = apy_limb_t(acc_re >> 64);
-            dst[4 * m * DST_STEP + 2] = apy_limb_t(acc_im >> 0);
-            dst[4 * m * DST_STEP + 3] = apy_limb_t(acc_im >> 64);
-#else
-            /*
-             * Microsoft Visual C/C++ compiler (or other unknown compiler)
-             */
-            constexpr auto tuple_to_array = [](auto&& t) {
-                return std::array<apy_limb_t, 2> { std::get<1>(t), std::get<0>(t) };
-            };
-            std::array<apy_limb_t, 2> ac_bd;
-            std::array<apy_limb_t, 2> bc_ad;
+            // Use optimized complex_multiplication_1_1_2 for 64-bit limbs
+            std::array<apy_limb_t, 4> prod;
             auto acc = dst + m * 4 * DST_STEP;
             std::fill_n(acc, 4, 0);
             for (std::size_t n = 0; n < N; n++) {
-                const std::complex<apy_limb_signed_t> z1(
-                    A_it[2 * n + 0], A_it[2 * n + 1]
+                // Multiply two 1-limb complex numbers using optimized helper
+                complex_multiplication_1_1_2(
+                    prod.data(),
+                    &A_it[2 * n], // src0: A[n] = A_it[2*n] + A_it[2*n+1]*i
+                    &src2[2 * n]  // src1: src2[n] = src2[2*n] + src2[2*n+1]*i
                 );
-                const std::complex<apy_limb_signed_t> z2(
-                    src2[2 * n + 0], src2[2 * n + 1]
-                );
-
-                // Perform complex-valued multiplication:
-                // * Re = ac - bd
-                // * Im = bc + ad
-                auto&& ac = tuple_to_array(long_signed_mult(z1.real(), z2.real()));
-                auto&& bd = tuple_to_array(long_signed_mult(z1.imag(), z2.imag()));
-                auto&& bc = tuple_to_array(long_signed_mult(z1.imag(), z2.real()));
-                auto&& ad = tuple_to_array(long_signed_mult(z1.real(), z2.imag()));
-                apy_subtraction_length_two(ac_bd.data(), ac.data(), bd.data());
-                apy_addition_length_two(bc_ad.data(), bc.data(), ad.data());
-
-                // Perform accumulation
-                apy_inplace_addition_length_two(&acc[0], ac_bd.data());
-                apy_inplace_addition_length_two(&acc[2], bc_ad.data());
+                // Accumulate the 2-limb complex result
+                apy_inplace_addition_length_two(&acc[0], &prod[0]); // real part
+                apy_inplace_addition_length_two(&acc[2], &prod[2]); // imag part
             }
-
-#endif
 #elif (COMPILER_LIMB_SIZE == 32)
+            // Use 64-bit accumulation for 32-bit limbs
             std::int64_t acc_re = 0;
             std::int64_t acc_im = 0;
             for (std::size_t n = 0; n < N; n++) {
