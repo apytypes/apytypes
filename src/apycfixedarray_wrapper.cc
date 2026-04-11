@@ -1465,7 +1465,16 @@ void bind_cfixed_array(nb::module_& m)
         /*
          * Dunder methods
          */
-        .def("__matmul__", &APyCFixedArray::matmul, nb::arg("rhs"))
+        .def(
+            "__matmul__",
+            [](const APyCFixedArray& self,
+               const std::variant<APyCFixedArray, APyFixedArray>& rhs) {
+                return std::visit(
+                    [&](const auto& rhs_array) { return self.matmul(rhs_array); }, rhs
+                );
+            },
+            nb::arg("rhs")
+        )
         .def("__repr__", &APyCFixedArray::repr)
         .def("__str__", &APyCFixedArray::to_string, nb::arg("base") = 10)
         .def("__getitem__", &APyCFixedArray::get_item, nb::arg("key"))
