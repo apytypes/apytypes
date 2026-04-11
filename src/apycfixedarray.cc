@@ -2823,6 +2823,184 @@ APyCFixedArray::matmul(const APyCFixedArray& rhs) const
     );
 }
 
+std::variant<APyCFixedArray, APyCFixed>
+APyCFixedArray::matmul(const APyFixedArray& rhs) const
+{
+    using RESULT_TYPE = std::variant<APyCFixedArray, APyCFixed>;
+
+    assert(ndim() >= 1);
+    assert(rhs.ndim() >= 1);
+
+    if (ndim() == 1 && rhs.ndim() == 1) {
+        if (_shape[0] == rhs._shape[0]) {
+            return RESULT_TYPE(
+                std::in_place_type<APyCFixed>,
+                checked_inner_product(rhs, get_accumulator_mode_fixed())
+            );
+        }
+    } else if (ndim() == 2 && (rhs.ndim() == 1 || rhs.ndim() == 2)) {
+        if (_shape[1] == rhs._shape[0]) {
+            return RESULT_TYPE(
+                std::in_place_type<APyCFixedArray>,
+                checked_2d_matmul(rhs, get_accumulator_mode_fixed())
+            );
+        }
+    } else if (ndim() == 1 && rhs.ndim() == 2) {
+        if (_shape[0] == rhs._shape[0]) {
+            return RESULT_TYPE(
+                std::in_place_type<APyCFixedArray>,
+                checked_2d_matmul(rhs, get_accumulator_mode_fixed())
+            );
+        }
+    }
+
+    throw std::length_error(
+        fmt::format(
+            "APyCFixedArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
+            tuple_string_from_vec(_shape),
+            tuple_string_from_vec(rhs._shape)
+        )
+    );
+}
+
+std::variant<APyCFixedArray, APyCFixed>
+APyCFixedArray::rmatmul(const APyFixedArray& lhs) const
+{
+    using RESULT_TYPE = std::variant<APyCFixedArray, APyCFixed>;
+
+    assert(lhs.ndim() >= 1);
+    assert(ndim() >= 1);
+
+    if (lhs.ndim() == 1 && ndim() == 1) {
+        if (lhs._shape[0] == _shape[0]) {
+            return RESULT_TYPE(
+                std::in_place_type<APyCFixed>,
+                checked_inner_product(lhs, get_accumulator_mode_fixed())
+            );
+        }
+    } else if (lhs.ndim() == 2 && (ndim() == 1 || ndim() == 2)) {
+        if (lhs._shape[1] == _shape[0]) {
+            const std::size_t M = lhs._shape[0];
+            const std::size_t N = lhs._shape[1];
+            const std::size_t res_cols = _ndim > 1 ? _shape[1] : 1;
+            const std::vector<std::size_t> res_shape = ndim() > 1
+                ? std::vector<std::size_t> { lhs._shape[0], _shape[1] }
+                : std::vector<std::size_t> { lhs._shape[0] };
+
+            std::size_t pad_bits = N ? bit_width(N - 1) : 0;
+            std::size_t res_bits = bits() + lhs.bits() + pad_bits;
+            std::size_t res_int_bits = int_bits() + lhs.int_bits() + pad_bits;
+            auto mode = get_accumulator_mode_fixed();
+            if (mode.has_value()) {
+                res_bits = mode->bits;
+                res_int_bits = mode->int_bits;
+            }
+
+            const bool use_threadpool
+                = is_mac_with_threadpool_justified(M * N * res_cols);
+            const std::size_t n_threads
+                = use_threadpool ? thread_pool.get_thread_count() : 1;
+
+            APyCFixedArray res(res_shape, res_bits, res_int_bits);
+            ComplexRealFixedPointInnerProduct inner_product(
+                spec(), lhs.spec(), res.spec(), mode
+            );
+            ComplexRealFixedPointInnerProduct* inner_product_ptr = &inner_product;
+
+            const std::size_t limbs_per_col = 2 * bits_to_limbs(_bits) * _shape[0];
+            std::vector<apy_limb_t> cache_col(n_threads * limbs_per_col);
+
+            auto matmul_task = [&](std::size_t x) {
+                const std::size_t thread_i = ThisThread::get_index().value_or(0);
+                const auto current_col
+                    = std::begin(cache_col) + thread_i * limbs_per_col;
+                auto&& current_inner_product = inner_product_ptr[thread_i];
+
+                if (_ndim > 1) {
+                    for (std::size_t row = 0; row < _shape[0]; row++) {
+                        std::copy_n(
+                            _data.begin() + (x + row * res_cols) * _itemsize,
+                            _itemsize,
+                            current_col + row * _itemsize
+                        );
+                    }
+                } else {
+                    std::copy_n(_data.begin(), _data.size(), current_col);
+                }
+
+                for (std::size_t row = 0; row < M; row++) {
+                    current_inner_product(
+                        current_col,
+                        lhs._data.begin() + row * N * lhs._itemsize,
+                        res._data.begin() + (row * res_cols + x) * res._itemsize,
+                        N
+                    );
+                }
+            };
+
+            if (n_threads > 1) {
+                std::vector<ComplexRealFixedPointInnerProduct> cache_inner_prod(
+                    n_threads, inner_product
+                );
+                inner_product_ptr = cache_inner_prod.data();
+                thread_pool.detach_loop(0, res_cols, matmul_task);
+                thread_pool.wait();
+            } else {
+                for (std::size_t i = 0; i < res_cols; i++) {
+                    matmul_task(i);
+                }
+            }
+
+            return RESULT_TYPE(std::in_place_type<APyCFixedArray>, std::move(res));
+        }
+    } else if (lhs.ndim() == 1 && ndim() == 2) {
+        if (lhs._shape[0] == _shape[0]) {
+            const std::size_t N = lhs._shape[0];
+            const std::size_t res_cols = _shape[1];
+            std::size_t pad_bits = N ? bit_width(N - 1) : 0;
+            std::size_t res_bits = bits() + lhs.bits() + pad_bits;
+            std::size_t res_int_bits = int_bits() + lhs.int_bits() + pad_bits;
+            auto mode = get_accumulator_mode_fixed();
+            if (mode.has_value()) {
+                res_bits = mode->bits;
+                res_int_bits = mode->int_bits;
+            }
+
+            APyCFixedArray res({ res_cols }, res_bits, res_int_bits);
+            ComplexRealFixedPointInnerProduct inner_product(
+                spec(), lhs.spec(), res.spec(), mode
+            );
+            std::vector<apy_limb_t> current_col(2 * bits_to_limbs(_bits) * _shape[0]);
+
+            for (std::size_t x = 0; x < res_cols; x++) {
+                for (std::size_t row = 0; row < _shape[0]; row++) {
+                    std::copy_n(
+                        _data.begin() + (x + row * res_cols) * _itemsize,
+                        _itemsize,
+                        std::begin(current_col) + row * _itemsize
+                    );
+                }
+                inner_product(
+                    std::begin(current_col),
+                    lhs._data.begin(),
+                    res._data.begin() + x * res._itemsize,
+                    N
+                );
+            }
+
+            return RESULT_TYPE(std::in_place_type<APyCFixedArray>, std::move(res));
+        }
+    }
+
+    throw std::length_error(
+        fmt::format(
+            "APyCFixedArray.__rmatmul__: input shape mismatch, lhs: {}, rhs: {}",
+            tuple_string_from_vec(lhs._shape),
+            tuple_string_from_vec(_shape)
+        )
+    );
+}
+
 APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
 {
     if (_ndim != 1 || rhs._ndim != 1) {
@@ -2938,6 +3116,36 @@ APyCFixed APyCFixedArray::checked_inner_product(
     return res;
 }
 
+APyCFixed APyCFixedArray::checked_inner_product(
+    const APyFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
+) const
+{
+    int pad_bits = _shape[0] ? bit_width(_shape[0] - 1) : 0;
+    int res_bits = bits() + rhs.bits() + pad_bits;
+    int res_int_bits = int_bits() + rhs.int_bits() + pad_bits;
+    if (mode.has_value()) {
+        res_bits = mode->bits;
+        res_int_bits = mode->int_bits;
+    }
+
+    APyCFixedArray res_arr({ 1 }, res_bits, res_int_bits);
+    auto inner_product
+        = ComplexRealFixedPointInnerProduct(spec(), rhs.spec(), res_arr.spec(), mode);
+
+    inner_product(
+        std::begin(_data),         // src1
+        std::begin(rhs._data),     // src2
+        std::begin(res_arr._data), // dst
+        _nitems
+    );
+
+    APyCFixed res(res_bits, res_int_bits);
+    for (std::size_t i = 0; i < res_arr._data.size(); i++) {
+        res._data[i] = res_arr._data[i];
+    }
+    return res;
+}
+
 // Evaluate the matrix product between two 2D matrices. This method assumes that the
 // shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
 APyCFixedArray APyCFixedArray::checked_2d_matmul(
@@ -3007,6 +3215,78 @@ APyCFixedArray APyCFixedArray::checked_2d_matmul(
 
     if (n_threads > 1) {
         std::vector<ComplexFixedPointInnerProduct> cache_inner_prod(
+            n_threads, inner_product
+        );
+        inner_product_ptr = cache_inner_prod.data();
+        thread_pool.detach_loop(0, res_cols, matmul_task);
+        thread_pool.wait();
+    } else {
+        for (std::size_t i = 0; i < res_cols; i++) {
+            matmul_task(i);
+        }
+    }
+
+    return res;
+}
+
+APyCFixedArray APyCFixedArray::checked_2d_matmul(
+    const APyFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
+) const
+{
+    const std::size_t M = (_ndim > 1) ? _shape[0] : 1;
+    const std::size_t N = (_ndim > 1) ? _shape[1] : _shape[0];
+    const std::size_t res_cols = rhs._ndim > 1 ? rhs._shape[1] : 1;
+
+    const std::vector<std::size_t> res_shape = (_ndim > 1 && rhs._ndim > 1)
+        ? std::vector<std::size_t> { _shape[0], rhs._shape[1] }
+        : std::vector<std::size_t> { _ndim > 1 ? _shape[0] : rhs._shape[1] };
+
+    std::size_t pad_bits = N ? bit_width(N - 1) : 0;
+    std::size_t res_bits = bits() + rhs.bits() + pad_bits;
+    std::size_t res_int_bits = int_bits() + rhs.int_bits() + pad_bits;
+    if (mode.has_value()) {
+        res_bits = mode->bits;
+        res_int_bits = mode->int_bits;
+    }
+
+    const bool use_threadpool = is_mac_with_threadpool_justified(M * N * res_cols);
+    const std::size_t n_threads = use_threadpool ? thread_pool.get_thread_count() : 1;
+
+    APyCFixedArray res(res_shape, res_bits, res_int_bits);
+
+    ComplexRealFixedPointInnerProduct inner_product(
+        spec(), rhs.spec(), res.spec(), mode
+    );
+    ComplexRealFixedPointInnerProduct* inner_product_ptr = &inner_product;
+
+    const std::size_t limbs_per_col = rhs._shape[0] * bits_to_limbs(rhs.bits());
+    std::vector<apy_limb_t> cache_col(n_threads * limbs_per_col);
+
+    auto matmul_task = [&](std::size_t x) {
+        const std::size_t thread_i = ThisThread::get_index().value_or(0);
+        const auto current_col = std::begin(cache_col) + thread_i * limbs_per_col;
+        auto&& current_inner_product = inner_product_ptr[thread_i];
+
+        for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+            std::copy_n(
+                rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
+                rhs._itemsize,
+                current_col + row * rhs._itemsize
+            );
+        }
+
+        current_inner_product(
+            std::begin(_data),                         // src1, A: [M x N]
+            current_col,                               // src2, b: [N x 1]
+            std::begin(res._data) + res._itemsize * x, // dst
+            N,
+            M,
+            res_cols
+        );
+    };
+
+    if (n_threads > 1) {
+        std::vector<ComplexRealFixedPointInnerProduct> cache_inner_prod(
             n_threads, inner_product
         );
         inner_product_ptr = cache_inner_prod.data();

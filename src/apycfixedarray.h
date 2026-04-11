@@ -183,6 +183,10 @@ public:
      * dimensions are treated as matrices.
      */
     std::variant<APyCFixedArray, APyCFixed> matmul(const APyCFixedArray& rhs) const;
+    std::variant<APyCFixedArray, APyCFixed> matmul(const APyFixedArray& rhs) const;
+
+    //! Reverse matrix multiplication with a real-valued left-hand side.
+    std::variant<APyCFixedArray, APyCFixed> rmatmul(const APyFixedArray& lhs) const;
 
     /*!
      * Matrix outer product. Throws `nb::value_error` unless both `*this` and `rhs`
@@ -198,6 +202,9 @@ public:
     APyCFixed checked_inner_product(
         const APyCFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
     ) const;
+    APyCFixed checked_inner_product(
+        const APyFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
+    ) const;
 
     /*!
      * Evaluate the matrix product between two 2D matrices. This method assumes that
@@ -206,6 +213,9 @@ public:
      */
     APyCFixedArray checked_2d_matmul(
         const APyCFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
+    ) const;
+    APyCFixedArray checked_2d_matmul(
+        const APyFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
     ) const;
 
     //! Perform a linear convolution with `other` using `mode`

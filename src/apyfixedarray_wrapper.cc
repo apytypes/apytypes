@@ -1,3 +1,5 @@
+#include "apycfixed.h"
+#include "apycfixedarray.h"
 #include "apyfixed.h"
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
@@ -6,6 +8,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
 #include <nanobind/stl/optional.h>
+#include <nanobind/stl/variant.h>
 
 #include <functional>
 #include <type_traits>
@@ -1549,7 +1552,20 @@ void bind_fixed_array(nb::module_& m)
         /*
          * Dunder methods
          */
-        .def("__matmul__", &APyFixedArray::matmul, nb::arg("rhs"))
+        .def(
+            "__matmul__",
+            [](const APyFixedArray& self, const APyFixedArray& rhs)
+                -> std::variant<APyFixedArray, APyFixed> { return self.matmul(rhs); },
+            nb::arg("rhs")
+        )
+        .def(
+            "__matmul__",
+            [](const APyFixedArray& self,
+               const APyCFixedArray& rhs) -> std::variant<APyCFixedArray, APyCFixed> {
+                return rhs.rmatmul(self);
+            },
+            nb::arg("rhs")
+        )
         .def("__repr__", &APyFixedArray::repr)
         .def("__abs__", &APyFixedArray::abs)
         .def("__str__", &APyFixedArray::to_string, nb::arg("base") = 10)

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Specializations for complex-real fixed-point multiplication and division.
+- Complex-real fixed-point matrix multiplication.
 
 ### Fixed
 
