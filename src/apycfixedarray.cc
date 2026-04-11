@@ -3034,15 +3034,43 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
         return res; // early exit
     }
 
-    // Special case #2: single-limb operands and dual-limb product
-    if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
-        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
-        for (std::size_t y = 0; y < _shape[0]; y++) {
-            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-                const apy_limb_t* a = _data.data() + 2 * y;
-                const apy_limb_t* b = rhs._data.data() + 2 * x;
-                apy_limb_t* dst = res._data.data() + 4 * (y * rhs._shape[0] + x);
-                complex_multiplication_1_1_2(dst, a, b);
+    // Special case #2: dual-limb result specialization
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+                // Both operands fit in one limb.
+                for (std::size_t y = 0; y < _shape[0]; y++) {
+                    for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                        const apy_limb_t* a = _data.data() + _itemsize * y;
+                        const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
+                        apy_limb_t* dst = res._data.data()
+                            + res._itemsize * (y * rhs._shape[0] + x);
+                        complex_multiplication_1_1_2(dst, a, b);
+                    }
+                }
+            } else {
+                // Left operand fits in one limb, right operand uses two limbs.
+                for (std::size_t y = 0; y < _shape[0]; y++) {
+                    for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                        const apy_limb_t* a = _data.data() + _itemsize * y;
+                        const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
+                        apy_limb_t* dst = res._data.data()
+                            + res._itemsize * (y * rhs._shape[0] + x);
+                        complex_multiplication_1_2_2(dst, a, b);
+                    }
+                }
+            }
+        } else {
+            assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            // Left operand uses two limbs, right operand fits in one limb.
+            for (std::size_t y = 0; y < _shape[0]; y++) {
+                for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                    const apy_limb_t* a = _data.data() + _itemsize * y;
+                    const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
+                    apy_limb_t* dst
+                        = res._data.data() + res._itemsize * (y * rhs._shape[0] + x);
+                    complex_multiplication_1_2_2(dst, b, a);
+                }
             }
         }
         return res; // early exit
