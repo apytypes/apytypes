@@ -663,6 +663,9 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                     __int128 den_real = (__int128)apy_limb_signed_t(rhs._data[i + 0]);
                     __int128 den_imag = (__int128)apy_limb_signed_t(rhs._data[i + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
+                    if (den == 0) {
+                        continue;
+                    }
                     __int128 num_real = (__int128)apy_limb_signed_t(_data[i + 0]);
                     __int128 num_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                     __int128 real = num_real * den_real + num_imag * den_imag;
@@ -677,7 +680,9 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                     __int128 den_imag
                         = (__int128)apy_limb_signed_t(rhs._data[(i >> 1) + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
-
+                    if (den == 0) {
+                        continue;
+                    }
                     __int128 num_real
                         = (__int128)apy_limb_signed_t(_data[(i >> 1) + 0]);
                     __int128 num_imag
@@ -704,7 +709,9 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                 __int128 den_imag
                     = (__int128)apy_limb_signed_t(rhs._data[(i >> 1) + 1]);
                 std::int64_t den = den_real * den_real + den_imag * den_imag;
-
+                if (den == 0) {
+                    continue;
+                }
                 __int128 num_real = (__int128)(_data[i + 0])
                     | (__int128)apy_limb_signed_t(_data[i + 1]) << APY_LIMB_SIZE_BITS;
                 __int128 num_imag = (__int128)(_data[i + 2])
@@ -745,6 +752,9 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                     std::int64_t den_imag
                         = (std::int64_t)apy_limb_signed_t(rhs._data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
+                    if (den == 0) {
+                        continue;
+                    }
                     std::int64_t num_real
                         = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
                     std::int64_t num_imag
@@ -761,6 +771,9 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                     std::int64_t den_imag
                         = (std::int64_t)apy_limb_signed_t(rhs._data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
+                    if (den == 0) {
+                        continue;
+                    }
                     std::int64_t num_real
                         = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
                     std::int64_t num_imag
@@ -787,6 +800,9 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                 std::int64_t den_imag
                     = (std::int64_t)apy_limb_signed_t(rhs._data[(i >> 1) + 1]);
                 std::int64_t den = den_real * den_real + den_imag * den_imag;
+                if (den == 0) {
+                    continue;
+                }
                 std::int64_t num_real = (std::int64_t)(_data[i + 0])
                     | (std::int64_t)apy_limb_signed_t(_data[i + 1])
                         << APY_LIMB_SIZE_BITS;
@@ -910,6 +926,10 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
         __int128 den_real = (__int128)apy_limb_signed_t(rhs._data[0]);
         __int128 den_imag = (__int128)apy_limb_signed_t(rhs._data[1]);
         __int128 den = den_real * den_real + den_imag * den_imag;
+        if (den == 0) {
+            return result; // early exit
+        }
+
         auto rhs_bits = unsigned(rhs.bits());
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
@@ -978,6 +998,10 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
         std::int64_t den_real = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
         std::int64_t den_imag = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
         std::int64_t den = den_real * den_real + den_imag * den_imag;
+        if (den == 0) {
+            return result; // early exit
+        }
+
         auto rhs_bits = unsigned(rhs.bits());
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
@@ -1175,6 +1199,9 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                     __int128 den_real = (__int128)apy_limb_signed_t(_data[i + 0]);
                     __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
+                    if (den == 0) {
+                        continue;
+                    }
                     __int128 real = num_real * den_real + num_imag * den_imag;
                     __int128 imag = num_imag * den_real - num_real * den_imag;
                     result._data[i + 0] = apy_limb_signed_t((real << bits()) / den);
@@ -1185,7 +1212,9 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                     __int128 den_real = (__int128)apy_limb_signed_t(_data[i + 0]);
                     __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
-
+                    if (den == 0) {
+                        continue;
+                    }
                     __int128 real = num_real * den_real + num_imag * den_imag;
                     __int128 imag = num_imag * den_real - num_real * den_imag;
                     __int128 res_real = (real << bits()) / den;
@@ -1211,6 +1240,9 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                 __int128 den_real = (__int128)apy_limb_signed_t(_data[i + 0]);
                 __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                 __int128 den = den_real * den_real + den_imag * den_imag;
+                if (den == 0) {
+                    continue;
+                }
                 __int128 real = num_real * den_real + num_imag * den_imag;
                 __int128 imag = num_imag * den_real - num_real * den_imag;
                 __int128 res_real = (real << bits()) / den;
@@ -1250,6 +1282,9 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                     std::int64_t den_imag
                         = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
+                    if (den == 0) {
+                        continue;
+                    }
                     std::int64_t real = num_real * den_real + num_imag * den_imag;
                     std::int64_t imag = num_imag * den_real - num_real * den_imag;
                     result._data[i + 0] = apy_limb_signed_t((real << bits()) / den);
@@ -1262,7 +1297,9 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                     std::int64_t den_imag
                         = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
-
+                    if (den == 0) {
+                        continue;
+                    }
                     std::int64_t real = num_real * den_real + num_imag * den_imag;
                     std::int64_t imag = num_imag * den_real - num_real * den_imag;
                     std::int64_t res_real = (real << bits()) / den;
@@ -1288,6 +1325,9 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                 std::int64_t den_real = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
                 std::int64_t den_imag = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                 std::int64_t den = den_real * den_real + den_imag * den_imag;
+                if (den == 0) {
+                    continue;
+                }
                 std::int64_t real = num_real * den_real + num_imag * den_imag;
                 std::int64_t imag = num_imag * den_real - num_real * den_imag;
                 std::int64_t res_real = (real << bits()) / den;

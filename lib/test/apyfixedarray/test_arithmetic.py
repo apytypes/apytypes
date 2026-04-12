@@ -1439,3 +1439,25 @@ def test_two_limb_division_result_32_one_long():
             frac_bits=37,
         )
     )
+
+
+@pytest.mark.parametrize("int_bits_1", [10, 30, 50, 100, 300])
+@pytest.mark.parametrize("int_bits_2", [10, 30, 50, 100, 300])
+def test_arrays_dont_crash_on_zero_div(int_bits_1: int, int_bits_2: int):
+    """
+    In APyTypes, array division-by-zero results in an undefined values. However,
+    APyTypes should not crash when such a division occurs
+    """
+    a = APyFixedArray.from_float([0.0, 1.0, 2.0], int_bits=int_bits_1, frac_bits=0)
+    b = APyFixedArray.from_float([0.0, 0.0, 1.0], int_bits=int_bits_2, frac_bits=0)
+    _ = a / b
+    _ = b / a
+
+
+@pytest.mark.parametrize("int_bits_1", [10, 30, 50, 100, 300])
+@pytest.mark.parametrize("int_bits_2", [10, 30, 50, 100, 300])
+def test_arrays_dont_crash_on_zero_div_with_scalar(int_bits_1: int, int_bits_2: int):
+    a = APyFixedArray.from_float([0.0, 1.0, 2.0], int_bits=int_bits_1, frac_bits=0)
+    b = APyFixed.from_float(0.0, int_bits=int_bits_2, frac_bits=0)
+    _ = a / b
+    _ = b / a
