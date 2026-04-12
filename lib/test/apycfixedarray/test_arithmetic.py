@@ -569,6 +569,56 @@ def test_real_complex_array_division_different_wordlengths_different_fracbits(
 @pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
 @pytest.mark.parametrize("complex_int_bits", [4, 10, 20, 40, 100, 10000])
 @pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_complex_real_array_broadcasting_division_different_wordlengths_different_fracbits(
+    real_int_bits: int,
+    real_frac_bits: int,
+    complex_int_bits: int,
+    complex_frac_bits: int,
+):
+    a = APyCFixedArray.from_complex(
+        [[1 + 1j, 0], [-2 - 2j, -4j]],
+        int_bits=complex_int_bits,
+        frac_bits=complex_frac_bits,
+    )
+    b = APyFixedArray.from_float(
+        [2, -1], int_bits=real_int_bits, frac_bits=real_frac_bits
+    )
+    ref = APyCFixedArray.from_complex(
+        [[0.5 + 0.5j, 0], [-1 - 1j, 4j]],
+        int_bits=complex_int_bits + real_frac_bits + 1,
+        frac_bits=complex_frac_bits + real_int_bits,
+    )
+    assert (a / b).is_identical(ref)
+
+
+@pytest.mark.parametrize("real_int_bits", [6, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_int_bits", [4, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_real_complex_array_broadcasting_division_different_wordlengths_different_fracbits(
+    real_int_bits: int,
+    real_frac_bits: int,
+    complex_int_bits: int,
+    complex_frac_bits: int,
+):
+    a = APyFixedArray.from_float(
+        [[2, 0], [-5, 25]], int_bits=real_int_bits, frac_bits=real_frac_bits
+    )
+    b = APyCFixedArray.from_complex(
+        [1j, -3 - 4j], int_bits=complex_int_bits, frac_bits=complex_frac_bits
+    )
+    ref = APyCFixedArray.from_complex(
+        [[-2j, 0], [5j, -3 + 4j]],
+        int_bits=real_int_bits + complex_frac_bits + 1,
+        frac_bits=real_frac_bits + complex_int_bits,
+    )
+    assert (a / b).is_identical(ref)
+
+
+@pytest.mark.parametrize("real_int_bits", [6, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_int_bits", [4, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
 def test_real_scalar_complex_array_division_different_wordlengths_different_fracbits(
     real_int_bits: int,
     real_frac_bits: int,
