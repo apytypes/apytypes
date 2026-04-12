@@ -786,38 +786,41 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
+    // TODO: Do not rely on APyFixed for division, but implement a more efficient
+    // limb-wise division algorithm that directly produces the correctly shifted result.
+    // Create fixed-point scalars for numerator and denominator to perform division
+    APyFixed denominator(rhs.bits(), rhs.int_bits());
+    APyFixed numerator(bits(), int_bits());
     for (std::size_t i = 0; i < _nitems; i++) {
         auto den_begin = std::begin(rhs._data) + i * rhs._itemsize;
         auto den_end = den_begin + rhs._itemsize;
         if (limb_vector_is_zero(den_begin, den_end)) {
-            continue;
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
         }
 
-        APyFixed denominator(rhs.bits(), rhs.int_bits());
         std::copy_n(den_begin, rhs._itemsize, std::begin(denominator._data));
 
-        APyFixed real_numerator(bits(), int_bits());
         std::copy_n(
             std::begin(_data) + i * _itemsize,
             _itemsize / 2,
-            std::begin(real_numerator._data)
+            std::begin(numerator._data)
         );
-
-        APyFixed imag_numerator(bits(), int_bits());
-        std::copy_n(
-            std::begin(_data) + i * _itemsize + _itemsize / 2,
-            _itemsize / 2,
-            std::begin(imag_numerator._data)
-        );
-
-        APyFixed real_quotient = real_numerator / denominator;
-        APyFixed imag_quotient = imag_numerator / denominator;
-
+        APyFixed real_quotient = numerator / denominator;
         std::copy_n(
             std::begin(real_quotient._data),
             real_quotient._data.size(),
             std::begin(result._data) + i * result._itemsize
         );
+
+        std::copy_n(
+            std::begin(_data) + i * _itemsize + _itemsize / 2,
+            _itemsize / 2,
+            std::begin(numerator._data)
+        );
+
+        APyFixed imag_quotient = numerator / denominator;
+
         std::copy_n(
             std::begin(imag_quotient._data),
             imag_quotient._data.size(),
@@ -830,15 +833,17 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
 
 APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
 {
+    if (rhs.is_zero()) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+        throw nb::python_error();
+    }
+
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
     const int res_frac_bits = frac_bits() + rhs.int_bits();
     const int res_bits = res_int_bits + res_frac_bits;
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
-    if (rhs.is_zero()) {
-        return result;
-    }
-
+    // TODO: Do not use APyFixedArray division to avoid all the copying and allocation.
     APyFixedArray real_result = get_real() / rhs;
     APyFixedArray imag_result = get_imag() / rhs;
 
@@ -1426,7 +1431,10 @@ APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
             apy_limb_signed_t den_imag = apy_limb_signed_t(_data[i + 1]);
             apy_limb_signed_t den = den_real * den_real + den_imag * den_imag;
             if (den == 0) {
-                continue;
+                PyErr_SetString(
+                    PyExc_ZeroDivisionError, "fixed-point division by zero"
+                );
+                throw nb::python_error();
             }
 
             apy_limb_signed_t real = num * den_real;
@@ -1451,7 +1459,10 @@ APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
                     __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
                     if (den == 0) {
-                        continue;
+                        PyErr_SetString(
+                            PyExc_ZeroDivisionError, "fixed-point division by zero"
+                        );
+                        throw nb::python_error();
                     }
                     __int128 real = num * den_real;
                     __int128 imag = -num * den_imag;
@@ -1464,7 +1475,10 @@ APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
                     __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
                     if (den == 0) {
-                        continue;
+                        PyErr_SetString(
+                            PyExc_ZeroDivisionError, "fixed-point division by zero"
+                        );
+                        throw nb::python_error();
                     }
 
                     __int128 real = num * den_real;
@@ -1489,7 +1503,10 @@ APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
                 __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                 __int128 den = den_real * den_real + den_imag * den_imag;
                 if (den == 0) {
-                    continue;
+                    PyErr_SetString(
+                        PyExc_ZeroDivisionError, "fixed-point division by zero"
+                    );
+                    throw nb::python_error();
                 }
                 __int128 real = num * den_real;
                 __int128 imag = -num * den_imag;
@@ -1521,7 +1538,10 @@ APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
                         = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
                     if (den == 0) {
-                        continue;
+                        PyErr_SetString(
+                            PyExc_ZeroDivisionError, "fixed-point division by zero"
+                        );
+                        throw nb::python_error();
                     }
                     std::int64_t real = num * den_real;
                     std::int64_t imag = -num * den_imag;
@@ -1536,7 +1556,10 @@ APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
                         = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
                     if (den == 0) {
-                        continue;
+                        PyErr_SetString(
+                            PyExc_ZeroDivisionError, "fixed-point division by zero"
+                        );
+                        throw nb::python_error();
                     }
 
                     std::int64_t real = num * den_real;
@@ -1561,7 +1584,10 @@ APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
                 std::int64_t den_imag = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                 std::int64_t den = den_real * den_real + den_imag * den_imag;
                 if (den == 0) {
-                    continue;
+                    PyErr_SetString(
+                        PyExc_ZeroDivisionError, "fixed-point division by zero"
+                    );
+                    throw nb::python_error();
                 }
                 std::int64_t real = num * den_real;
                 std::int64_t imag = -num * den_imag;
@@ -1611,7 +1637,8 @@ APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
             std::begin(_data) + (i + 1) * _itemsize
         );
         if (den_zero) {
-            continue;
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
         }
 
         complex_fixed_point_division(
