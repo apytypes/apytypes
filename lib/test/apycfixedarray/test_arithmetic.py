@@ -483,3 +483,99 @@ def test_array_real_array_multiplication_different_wordlengths(frac_bits: int):
     ref = fx([[3, -4 - 2j], [-9 + 15j, 2j]], 12, frac_bits + 100, force_complex=True)
     assert (a * b).is_identical(ref)
     assert (b * a).is_identical(ref)
+
+
+@pytest.mark.parametrize("real_int_bits", [3, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_int_bits", [4, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_complex_real_scalar_division_different_wordlengths_different_fracbits(
+    real_int_bits: int,
+    real_frac_bits: int,
+    complex_int_bits: int,
+    complex_frac_bits: int,
+):
+    a = APyCFixedArray.from_complex(
+        [1 + 1j, 0, -1 - 1j, -4j, 6],
+        int_bits=complex_int_bits,
+        frac_bits=complex_frac_bits,
+    )
+    b = APyFixed.from_float(2, int_bits=real_int_bits, frac_bits=real_frac_bits)
+    ref = APyCFixedArray.from_complex(
+        [0.5 + 0.5j, 0, -0.5 - 0.5j, -2j, 3],
+        int_bits=complex_int_bits + real_frac_bits + 1,
+        frac_bits=complex_frac_bits + real_int_bits,
+    )
+    assert (a / b).is_identical(ref)
+
+
+@pytest.mark.parametrize("real_int_bits", [6, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_int_bits", [4, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_complex_real_array_division_different_wordlengths_different_fracbits(
+    real_int_bits: int,
+    real_frac_bits: int,
+    complex_int_bits: int,
+    complex_frac_bits: int,
+):
+    a = APyCFixedArray.from_complex(
+        [1 + 1j, 0, -1 - 1j, -4j, 6],
+        int_bits=complex_int_bits,
+        frac_bits=complex_frac_bits,
+    )
+    b = APyFixedArray.from_float(
+        [2, 3, 1, -2, 3], int_bits=real_int_bits, frac_bits=real_frac_bits
+    )
+    ref = APyCFixedArray.from_complex(
+        [0.5 + 0.5j, 0, -1 - 1j, 2j, 2],
+        int_bits=complex_int_bits + real_frac_bits + 1,
+        frac_bits=complex_frac_bits + real_int_bits,
+    )
+    assert (a / b).is_identical(ref)
+
+
+@pytest.mark.parametrize("real_int_bits", [6, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_int_bits", [4, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_real_complex_array_division_different_wordlengths_different_fracbits(
+    real_int_bits: int,
+    real_frac_bits: int,
+    complex_int_bits: int,
+    complex_frac_bits: int,
+):
+    a = APyFixedArray.from_float(
+        [2, 0, 25, 2, 6], int_bits=real_int_bits, frac_bits=real_frac_bits
+    )
+    b = APyCFixedArray.from_complex(
+        [1j, 3, -3 - 4j, -4j, 3], int_bits=complex_int_bits, frac_bits=complex_frac_bits
+    )
+    ref = APyCFixedArray.from_complex(
+        [-2j, 0, -3 + 4j, 0.5j, 2],
+        int_bits=real_int_bits + complex_frac_bits + 1,
+        frac_bits=real_frac_bits + complex_int_bits,
+    )
+    assert (a / b).is_identical(ref)
+
+
+@pytest.mark.parametrize("real_int_bits", [6, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_int_bits", [4, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_real_scalar_complex_array_division_different_wordlengths_different_fracbits(
+    real_int_bits: int,
+    real_frac_bits: int,
+    complex_int_bits: int,
+    complex_frac_bits: int,
+):
+    a = APyFixed.from_float(25, int_bits=real_int_bits, frac_bits=real_frac_bits)
+    b = APyCFixedArray.from_complex(
+        [1j, 2, -3 - 4j, -4j], int_bits=complex_int_bits, frac_bits=complex_frac_bits
+    )
+    ref = APyCFixedArray.from_complex(
+        [-25j, 12.5, -3 + 4j, 6.25j],
+        int_bits=real_int_bits + complex_frac_bits + 1,
+        frac_bits=real_frac_bits + complex_int_bits,
+    )
+    assert (a / b).is_identical(ref)

@@ -334,3 +334,32 @@ def test_outer_product_raises():
         ValueError, match=r"APyCFixedArray\.outer: both `self` and `rhs`"
     ):
         _ = outer(b, a)
+
+
+def test_complex_real_matrix_multiplication():
+    a = APyCFixedArray.from_complex(
+        [
+            [1, 2 + 3j, 3],
+            [4j, 5, 6 - 4j],
+        ],
+        bits=10,
+        int_bits=10,
+    )
+    b = APyCFixedArray.from_float(
+        [
+            [1, 1, 1, 1],
+            [2, -2, 2, 2],
+            [3, 3, -3, 3],
+        ],
+        bits=10,
+        int_bits=7,
+    )
+    assert (a @ b).is_identical(
+        APyCFixedArray.from_complex(
+            [[14 + 6j, 6 - 6j, -4 + 6j, 14 + 6j], [28 - 8j, 8 - 8j, -8 + 16j, 28 - 8j]],
+            bits=23,
+            int_bits=20,
+        )
+    )
+    with pytest.raises(ValueError, match=r"APyCFixedArray\.__matmul__: input shape"):
+        _ = b @ a
