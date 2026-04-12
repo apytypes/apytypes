@@ -207,28 +207,30 @@ def test_arithmetic_with_apyfixedarray():
     assert not (np.all(b == a))
 
 
-def test_arrays_dont_crash_on_zero_div():
+@pytest.mark.parametrize("int_bits_1", [10, 30, 50, 100, 300])
+@pytest.mark.parametrize("int_bits_2", [10, 30, 50, 100, 300])
+def test_arrays_dont_crash_on_zero_div(int_bits_1: int, int_bits_2: int):
     """
     In APyTypes, array division-by-zero results in an undefined values. However,
     APyTypes should not crash when such a division occurs
     """
-    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=10, frac_bits=0)
-    b = APyCFixedArray.from_complex([0.0, 0.0, 1.0], int_bits=10, frac_bits=0)
+    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=int_bits_1, frac_bits=0)
+    b = APyCFixedArray.from_complex([0.0, 0.0, 1.0], int_bits=int_bits_2, frac_bits=0)
     _ = a / b
     _ = b / a
 
-    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=10, frac_bits=0)
-    b = APyFixedArray.from_float([0.0, 1.0, 0.0], int_bits=10, frac_bits=0)
+    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=int_bits_1, frac_bits=0)
+    b = APyFixedArray.from_float([0.0, 1.0, 0.0], int_bits=int_bits_2, frac_bits=0)
     _ = a / b
     _ = b / a
 
-    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=10, frac_bits=0)
-    b = APyCFixed.from_complex(0.0, int_bits=10, frac_bits=0)
+    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=int_bits_1, frac_bits=0)
+    b = APyCFixed.from_complex(0.0, int_bits=int_bits_2, frac_bits=0)
     _ = a / b
     _ = b / a
 
-    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=10, frac_bits=0)
-    b = APyFixed.from_float(0.0, int_bits=10, frac_bits=0)
+    a = APyCFixedArray.from_complex([0.0, 1.0, 2.0], int_bits=int_bits_1, frac_bits=0)
+    b = APyFixed.from_float(0.0, int_bits=int_bits_2, frac_bits=0)
     _ = a / b
     _ = b / a
 
