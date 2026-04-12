@@ -616,6 +616,31 @@ def test_complex_real_matrix_multiplication():
         _ = b @ a
 
 
+def test_complex_real_matrix_vector_multiplication():
+    a = APyCFixedArray.from_complex(
+        [
+            [1, 2 + 3j, 3],
+            [4j, 5, 6 - 4j],
+        ],
+        bits=10,
+        int_bits=10,
+    )
+    b = APyFixedArray.from_float(
+        [1, 2, 3],
+        bits=10,
+        int_bits=7,
+    )
+    assert (a @ b).is_identical(
+        APyCFixedArray.from_complex(
+            [14 + 6j, 28 - 8j],
+            bits=22,
+            int_bits=19,
+        )
+    )
+    with pytest.raises(ValueError, match=r"APyCFixedArray\.__rmatmul__: input shape"):
+        _ = b @ a
+
+
 def test_real_complex_matrix_multiplication():
     a = APyFixedArray.from_float(
         [
@@ -646,3 +671,105 @@ def test_real_complex_matrix_multiplication():
     )
     with pytest.raises(ValueError, match=r"APyCFixedArray\.__matmul__: input shape"):
         _ = b @ a
+
+
+def test_real_complex_matrix_vector_multiplication():
+    a = APyFixedArray.from_float(
+        [
+            [1, 2, 3],
+            [4, 5, 6],
+        ],
+        bits=10,
+        int_bits=10,
+    )
+    b = APyCFixedArray.from_complex(
+        [1, 1 + 1j, -1j],
+        bits=10,
+        int_bits=7,
+    )
+    assert (a @ b).is_identical(
+        APyCFixedArray.from_complex(
+            [3 - 1j, 9 - 1j],
+            bits=22,
+            int_bits=19,
+        )
+    )
+    with pytest.raises(ValueError, match=r"APyCFixedArray\.__matmul__: input shape"):
+        _ = b @ a
+
+
+@pytest.mark.parametrize("left_int_bits", [20, 40, 200])
+@pytest.mark.parametrize("left_frac_bits", [10, 40, 100])
+@pytest.mark.parametrize("right_int_bits", [20, 40, 200])
+@pytest.mark.parametrize("right_frac_bits", [10, 40, 100])
+def test_outer_product_different_word_lengths(
+    left_int_bits: int, left_frac_bits: int, right_int_bits: int, right_frac_bits: int
+):
+    a = fx(
+        [1j, 1.25j, 0, -4, -3.25 + 2j, 0 + 1j, 99 + 2j],
+        int_bits=left_int_bits,
+        frac_bits=left_frac_bits,
+        force_complex=True,
+    )
+    b = fx(
+        [-1 + 2j, 1.25 - 1j, 0 - 0.25j, -4j, -3.25j],
+        int_bits=right_int_bits,
+        frac_bits=right_frac_bits,
+        force_complex=True,
+    )
+
+    assert outer(a, b).is_identical(
+        fx(
+            [
+                [-2 - 1j, 1 + 1.25j, 0.25 + 0j, 4 + 0j, 3.25 + 0j],
+                [-2.5 - 1.25j, 1.25 + 1.5625j, 0.3125 + 0j, 5 + 0j, 4.0625 + 0j],
+                [0 + 0j, 0 + 0j, 0 + 0j, 0 + 0j, 0 + 0j],
+                [4 - 8j, -5 + 4j, 0 + 1j, 0 + 16j, 0 + 13j],
+                [-0.75 - 8.5j, -2.0625 + 5.75j, 0.5 + 0.8125j, 8 + 13j, 6.5 + 10.5625j],
+                [-2 - 1j, 1 + 1.25j, 0.25 + 0j, 4 + 0j, 3.25 + 0j],
+                [-103 + 196j, 125.75 - 96.5j, 0.5 - 24.75j, 8 - 396j, 6.5 - 321.75j],
+            ],
+            int_bits=left_int_bits + right_int_bits + 1,
+            frac_bits=left_frac_bits + right_frac_bits,
+            force_complex=True,
+        )
+    )
+
+    assert outer(b, a).is_identical(
+        fx(
+            [
+                [-2 - 1j, -2.5 - 1.25j, 0, 4 - 8j, -0.75 - 8.5j, -2 - 1j, -103 + 196j],
+                [
+                    1 + 1.25j,
+                    1.25 + 1.5625j,
+                    0,
+                    -5 + 4j,
+                    -2.0625 + 5.75j,
+                    1 + 1.25j,
+                    125.75 - 96.5j,
+                ],
+                [
+                    0.25 + 0j,
+                    0.3125 + 0j,
+                    0,
+                    0 + 1j,
+                    0.5 + 0.8125j,
+                    0.25 + 0j,
+                    0.5 - 24.75j,
+                ],
+                [4 + 0j, 5 + 0j, 0, 0 + 16j, 8 + 13j, 4 + 0j, 8 - 396j],
+                [
+                    3.25 + 0j,
+                    4.0625 + 0j,
+                    0,
+                    0 + 13j,
+                    6.5 + 10.5625j,
+                    3.25 + 0j,
+                    6.5 - 321.75j,
+                ],
+            ],
+            int_bits=left_int_bits + right_int_bits + 1,
+            frac_bits=left_frac_bits + right_frac_bits,
+            force_complex=True,
+        )
+    )
