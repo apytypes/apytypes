@@ -229,3 +229,37 @@ def test_division_two_limb_result_one_longer_32():
     a = APyCFixed((3, -7), frac_bits=30, int_bits=4)
     b = APyCFixed((18, -1), frac_bits=7, int_bits=1)
     assert (a / b).is_identical(APyCFixed((48, 8796093022112), bits=43, int_bits=12))
+
+
+@pytest.mark.parametrize("real_int_bits", [3, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_int_bits", [3, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_complex_real_division_different_wordlengths_different_fracbits(
+    real_int_bits: int,
+    real_frac_bits: int,
+    complex_int_bits: int,
+    complex_frac_bits: int,
+):
+    a = APyCFixed.from_complex(
+        1 + 1j, int_bits=complex_int_bits, frac_bits=complex_frac_bits
+    )
+    b = APyFixed.from_float(2, int_bits=real_int_bits, frac_bits=real_frac_bits)
+    assert a / b == 0.5 + 0.5j
+
+
+@pytest.mark.parametrize("real_int_bits", [6, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("real_frac_bits", [0, 5, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_int_bits", [4, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("complex_frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_real_complex_division_different_wordlengths_different_fracbits(
+    real_int_bits: int,
+    real_frac_bits: int,
+    complex_int_bits: int,
+    complex_frac_bits: int,
+):
+    a = APyFixed.from_float(25, int_bits=real_int_bits, frac_bits=real_frac_bits)
+    b = APyCFixed.from_complex(
+        3 + 4j, int_bits=complex_int_bits, frac_bits=complex_frac_bits
+    )
+    assert a / b == 3 - 4j
