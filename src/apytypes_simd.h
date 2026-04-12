@@ -239,6 +239,13 @@ apy_limb_t vector_multiply_accumulate(
     std::size_t size
 );
 
+/*!
+ * Return true if any element in [ `src_begin`, `src_begin + size` ) is zero.
+ */
+bool vector_any_zero(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin, std::size_t size
+);
+
 /*
  * Functor export from functions
  */

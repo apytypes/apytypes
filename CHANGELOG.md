@@ -13,11 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--
+- Crash on division by zero for fixed-point arrays for some word lengths on some
+  platforms.
 
 ### Changed
 
--
+- BREAKING: Division by zero for fixed-point arrays will now always raise a `ZeroDivisionError`.
 
 ### Removed
 
