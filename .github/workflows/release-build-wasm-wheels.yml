@@ -1,0 +1,40 @@
+name: Build WASM Release Wheels
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build_wasm:
+    name: Build WASM Release wheels
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        name: Install Python
+        with:
+          python-version: '3.11'
+
+      - name: Install Cmake
+        run: |
+          sudo apt-get install -yy cmake
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==3.1.4
+
+      - name: Build wheels for wasm
+        run: python -m cibuildwheel --output-dir pyodide-dist
+        env:
+          CIBW_PLATFORM: pyodide
+          PYODIDE_BUILD_EXPORTS: whole_archive
+
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        with:
+          name: cibw-wheels-wasm
+          path: pyodide-dist/*.whl
+          if-no-files-found: error
