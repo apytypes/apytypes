@@ -583,6 +583,12 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
         return try_broadcast_and_then<std::divides<>>(rhs, "__truediv__");
     }
 
+    if (std::size_t(rhs.bits()) <= APY_LIMB_SIZE_BITS
+        && simd::vector_any_zero(rhs._data.begin(), rhs._data.size())) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+        throw nb::python_error();
+    }
+
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
     const int res_frac_bits = frac_bits() + rhs.int_bits();
     const int res_bits = res_int_bits + res_frac_bits;
@@ -611,9 +617,8 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
             if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (__int128)(apy_limb_signed_t)rhs._data[i];
-                    if (denominator == 0) {
-                        continue;
-                    }
+                    // No need to check if denominator is zero, as this is already
+                    // checked by SIMD specialization above
                     __int128 numerator = (__int128)(apy_limb_signed_t)_data[i];
                     numerator <<= rhs.bits();
                     auto tmp_res = numerator / denominator;
@@ -623,9 +628,8 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
             } else {
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (__int128)(apy_limb_signed_t)rhs._data[i];
-                    if (denominator == 0) {
-                        continue;
-                    }
+                    // No need to check if denominator is zero, as this is already
+                    // checked by SIMD specialization above
                     __int128 numerator = (__int128)_data[2 * i];
                     numerator |= ((__int128)(apy_limb_signed_t)_data[2 * i + 1])
                         << APY_LIMB_SIZE_BITS;
@@ -638,12 +642,14 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
         } else {
             assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
             for (std::size_t i = 0; i < _nitems; i++) {
-
                 denominator = (__int128)rhs._data[2 * i];
                 denominator |= (__int128)(apy_limb_signed_t)rhs._data[2 * i + 1]
                     << APY_LIMB_SIZE_BITS;
                 if (denominator == 0) {
-                    continue;
+                    PyErr_SetString(
+                        PyExc_ZeroDivisionError, "fixed-point division by zero"
+                    );
+                    throw nb::python_error();
                 }
                 __int128 numerator = (__int128)(apy_limb_signed_t)_data[i];
                 numerator <<= rhs.bits();
@@ -664,9 +670,8 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
             if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[i];
-                    if (denominator == 0) {
-                        continue;
-                    }
+                    // No need to check if denominator is zero, as this is already
+                    // checked by SIMD specialization above
                     std::int64_t numerator = (std::int64_t)(apy_limb_signed_t)_data[i];
                     numerator <<= rhs.bits();
                     auto tmp_res = numerator / denominator;
@@ -676,9 +681,8 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
             } else {
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[i];
-                    if (denominator == 0) {
-                        continue;
-                    }
+                    // No need to check if denominator is zero, as this is already
+                    // checked by SIMD specialization above
                     std::int64_t numerator = (std::int64_t)_data[2 * i];
                     numerator |= ((std::int64_t)(apy_limb_signed_t)_data[2 * i + 1])
                         << APY_LIMB_SIZE_BITS;
@@ -696,7 +700,10 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
                 denominator |= (std::int64_t)(apy_limb_signed_t)rhs._data[2 * i + 1]
                     << APY_LIMB_SIZE_BITS;
                 if (denominator == 0) {
-                    continue;
+                    PyErr_SetString(
+                        PyExc_ZeroDivisionError, "fixed-point division by zero"
+                    );
+                    throw nb::python_error();
                 }
                 std::int64_t numerator = (std::int64_t)(apy_limb_signed_t)_data[i];
                 numerator <<= rhs.bits();
@@ -723,7 +730,8 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
                 std::begin(rhs._data) + (i + 0) * rhs._itemsize,
                 std::begin(rhs._data) + (i + 1) * rhs._itemsize
             )) {
-            continue;
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
         }
         bool den_sign = limb_vector_abs(
             std::begin(rhs._data) + (i + 0) * rhs._itemsize,
@@ -762,6 +770,11 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
 
 APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
 {
+    if (rhs.is_zero()) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+        throw nb::python_error();
+    }
+
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
     const int res_frac_bits = frac_bits() + rhs.int_bits();
     const int res_bits = res_int_bits + res_frac_bits;
@@ -792,9 +805,6 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
             denominator = (__int128)rhs._data[0];
             denominator |= (__int128)(apy_limb_signed_t)rhs._data[1]
                 << APY_LIMB_SIZE_BITS;
-        }
-        if (denominator == 0) {
-            return result; // early exit with zero result
         }
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             for (std::size_t i = 0; i < _nitems; i++) {
@@ -829,9 +839,6 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
             denominator = (std::int64_t)rhs._data[0];
             denominator |= (std::int64_t)(apy_limb_signed_t)rhs._data[1]
                 << APY_LIMB_SIZE_BITS;
-        }
-        if (denominator == 0) {
-            return result; // Early exit
         }
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             for (std::size_t i = 0; i < _nitems; i++) {
@@ -916,6 +923,12 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
 
 APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
 {
+    if (std::size_t(bits()) <= APY_LIMB_SIZE_BITS
+        && simd::vector_any_zero(_data.begin(), _data.size())) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+        throw nb::python_error();
+    }
+
     const int res_int_bits = lhs.int_bits() + frac_bits() + 1;
     const int res_frac_bits = lhs.frac_bits() + int_bits();
     const int res_bits = res_int_bits + res_frac_bits;
@@ -950,9 +963,8 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             for (std::size_t i = 0; i < _nitems; i++) {
                 __int128 denominator = (__int128)(apy_limb_signed_t)_data[i];
-                if (denominator == 0) {
-                    continue;
-                }
+                // No need to check if denominator is zero, as this is already checked
+                // by SIMD specialization above
                 auto tmp_res = numerator / denominator;
                 result._data[2 * i + 0] = apy_limb_t(tmp_res);
                 result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
@@ -963,7 +975,10 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
                 denominator |= ((__int128)(apy_limb_signed_t)_data[2 * i + 1])
                     << APY_LIMB_SIZE_BITS;
                 if (denominator == 0) {
-                    continue;
+                    PyErr_SetString(
+                        PyExc_ZeroDivisionError, "fixed-point division by zero"
+                    );
+                    throw nb::python_error();
                 }
                 auto tmp_res = numerator / denominator;
                 result._data[2 * i + 0] = apy_limb_t(tmp_res);
@@ -989,9 +1004,8 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             for (std::size_t i = 0; i < _nitems; i++) {
                 std::int64_t denominator = (std::int64_t)(apy_limb_signed_t)(_data[i]);
-                if (denominator == 0) {
-                    continue;
-                }
+                // No need to check if denominator is zero, as this is already checked
+                // by SIMD specialization above
                 auto tmp_res = numerator / denominator;
                 result._data[2 * i + 0] = apy_limb_t(tmp_res);
                 result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
@@ -1002,7 +1016,10 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
                 denominator |= (std::int64_t)(apy_limb_signed_t)_data[2 * i + 1]
                     << APY_LIMB_SIZE_BITS;
                 if (denominator == 0) {
-                    continue;
+                    PyErr_SetString(
+                        PyExc_ZeroDivisionError, "fixed-point division by zero"
+                    );
+                    throw nb::python_error();
                 }
 
                 auto tmp_res = numerator / denominator;
@@ -1045,7 +1062,8 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
         );
 
         if (limb_vector_is_zero(std::begin(abs_den), std::end(abs_den))) {
-            continue;
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
         }
         // `apy_unsigned_division` requires the number of *significant* limbs in
         // denominator

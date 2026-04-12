@@ -445,6 +445,32 @@ namespace HWY_NAMESPACE { // required: unique per target
         return sum;
     }
 
+    HWY_ATTR bool
+    _hwy_vector_any_zero(const apy_limb_t* HWY_RESTRICT src, const std::size_t size)
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        const auto zeros = hn::Zero(d);
+        const auto ones = hn::Set(d, apy_limb_t(1));
+        std::size_t i = 0;
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v = hn::LoadU(d, src + i);
+            const auto is_zero_mask = hn::Eq(v, zeros);
+            const auto flagged = hn::IfThenElseZero(is_zero_mask, ones);
+            if (hn::ReduceSum(d, flagged) != 0) {
+                return true;
+            }
+        }
+
+        for (; i < size; i++) {
+            if (src[i] == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     HWY_ATTR std::string _hwy_simd_version_str()
     {
         constexpr const hn::ScalableTag<apy_limb_t> d;
@@ -489,6 +515,7 @@ HWY_EXPORT(_hwy_vector_sub_const);
 HWY_EXPORT(_hwy_vector_rsub_const);
 HWY_EXPORT(_hwy_vector_rdiv_const_signed);
 HWY_EXPORT(_hwy_vector_multiply_accumulate);
+HWY_EXPORT(_hwy_vector_any_zero);
 
 std::string get_simd_version_str()
 {
@@ -753,6 +780,13 @@ apy_limb_t vector_multiply_accumulate(
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_multiply_accumulate)(
         &*src1_begin, &*src2_begin, size
     );
+}
+
+bool vector_any_zero(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin, std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_any_zero)(&*src_begin, size);
 }
 
 } // namespace simd
