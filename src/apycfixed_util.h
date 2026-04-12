@@ -414,7 +414,7 @@ static APY_INLINE void complex_fixed_point_division(
     }
 }
 
-struct ComplexFixedPointInnerProduct {
+template <bool M_AND_DST_STEP_ARE_ONE = false> struct ComplexFixedPointInnerProduct {
     explicit ComplexFixedPointInnerProduct(
         const APyFixedSpec& src1_spec,
         const APyFixedSpec& src2_spec,
@@ -487,16 +487,13 @@ private:
         assert(src1_limbs == 1);
         assert(src2_limbs == 1);
         assert(dst_limbs == 1);
-        for (std::size_t m = 0; m < M; m++) {
-            auto A_it = src1 + 2 * N * m;
-            auto acc = dst + m * 2 * DST_STEP;
-            std::fill_n(acc, 2, 0);
-            for (std::size_t n = 0; n < N; n++) {
-                std::complex<apy_limb_signed_t> a(A_it[2 * n + 0], A_it[2 * n + 1]);
-                std::complex<apy_limb_signed_t> b(src2[2 * n + 0], src2[2 * n + 1]);
-                auto&& prod = a * b;
-                acc[0] += prod.real();
-                acc[1] += prod.imag();
+        if constexpr (M_AND_DST_STEP_ARE_ONE) {
+            simd::complex_vector_multiply_accumulate(src1, src2, dst, N);
+        } else {
+            for (std::size_t m = 0; m < M; m++) {
+                auto A_it = src1 + 2 * N * m;
+                auto acc = dst + m * 2 * DST_STEP;
+                simd::complex_vector_multiply_accumulate(A_it, src2, acc, N);
             }
         }
     }
@@ -508,9 +505,7 @@ private:
         assert(src1_limbs == 1);
         assert(src2_limbs == 1);
         assert(dst_limbs == 2);
-
-        for (std::size_t m = 0; m < M; m++) {
-            auto A_it = src1 + 2 * N * m;
+        auto accumulate_row = [&](auto A_it, auto dst_it) {
 #if (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__)
             /*
@@ -531,10 +526,10 @@ private:
                 acc_re += ac - bd;
                 acc_im += bc + ad;
             }
-            dst[4 * m * DST_STEP + 0] = apy_limb_t(acc_re >> 0);
-            dst[4 * m * DST_STEP + 1] = apy_limb_t(acc_re >> 64);
-            dst[4 * m * DST_STEP + 2] = apy_limb_t(acc_im >> 0);
-            dst[4 * m * DST_STEP + 3] = apy_limb_t(acc_im >> 64);
+            dst_it[0] = apy_limb_t(acc_re >> 0);
+            dst_it[1] = apy_limb_t(acc_re >> 64);
+            dst_it[2] = apy_limb_t(acc_im >> 0);
+            dst_it[3] = apy_limb_t(acc_im >> 64);
 #else
             /*
              * Microsoft Visual C/C++ compiler (or other unknown compiler)
@@ -544,8 +539,7 @@ private:
             };
             std::array<apy_limb_t, 2> ac_bd;
             std::array<apy_limb_t, 2> bc_ad;
-            auto acc = dst + m * 4 * DST_STEP;
-            std::fill_n(acc, 4, 0);
+            std::fill_n(dst_it, 4, 0);
             for (std::size_t n = 0; n < N; n++) {
                 const std::complex<apy_limb_signed_t> z1(
                     A_it[2 * n + 0], A_it[2 * n + 1]
@@ -565,8 +559,8 @@ private:
                 apy_addition_length_two(bc_ad.data(), bc.data(), ad.data());
 
                 // Perform accumulation
-                apy_inplace_addition_length_two(&acc[0], ac_bd.data());
-                apy_inplace_addition_length_two(&acc[2], bc_ad.data());
+                apy_inplace_addition_length_two(&dst_it[0], ac_bd.data());
+                apy_inplace_addition_length_two(&dst_it[2], bc_ad.data());
             }
 
 #endif
@@ -585,12 +579,22 @@ private:
                 acc_re += ac - bd;
                 acc_im += bc + ad;
             }
-            dst[4 * m * DST_STEP + 0] = apy_limb_t(acc_re >> 0);
-            dst[4 * m * DST_STEP + 1] = apy_limb_t(acc_re >> 32);
-            dst[4 * m * DST_STEP + 2] = apy_limb_t(acc_im >> 0);
-            dst[4 * m * DST_STEP + 3] = apy_limb_t(acc_im >> 32);
+            dst_it[0] = apy_limb_t(acc_re >> 0);
+            dst_it[1] = apy_limb_t(acc_re >> 32);
+            dst_it[2] = apy_limb_t(acc_im >> 0);
+            dst_it[3] = apy_limb_t(acc_im >> 32);
 
 #endif
+        };
+
+        if constexpr (M_AND_DST_STEP_ARE_ONE) {
+            accumulate_row(src1, dst);
+        } else {
+            for (std::size_t m = 0; m < M; m++) {
+                auto A_it = src1 + 2 * N * m;
+                auto dst_it = dst + m * 4 * DST_STEP;
+                accumulate_row(A_it, dst_it);
+            }
         }
     }
 
@@ -599,9 +603,7 @@ private:
         CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
-        for (std::size_t m = 0; m < M; m++) {
-            auto A_it = src1 + 2 * src1_limbs * N * m;
-            auto acc = dst + m * 2 * dst_limbs * DST_STEP;
+        auto accumulate_row = [&](auto A_it, auto acc) {
             std::fill_n(acc, 2 * dst_limbs, 0);
             for (std::size_t n = 0; n < N; n++) {
                 complex_fixed_point_product(
@@ -674,6 +676,16 @@ private:
                     &product[1 * product_limbs],
                     std::min(dst_limbs, product_limbs)
                 );
+            }
+        };
+
+        if constexpr (M_AND_DST_STEP_ARE_ONE) {
+            accumulate_row(src1, dst);
+        } else {
+            for (std::size_t m = 0; m < M; m++) {
+                auto A_it = src1 + 2 * src1_limbs * N * m;
+                auto acc = dst + m * 2 * dst_limbs * DST_STEP;
+                accumulate_row(A_it, acc);
             }
         }
     }
