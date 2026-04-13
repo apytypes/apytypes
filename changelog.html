@@ -321,13 +321,14 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li></li>
+<li><p>Crash on division by zero for fixed-point arrays for some word lengths on some
+platforms.</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li></li>
+<li><p>BREAKING: Division by zero for fixed-point arrays will now always raise a <code class="docutils literal notranslate"><span class="pre">ZeroDivisionError</span></code>.</p></li>
 </ul>
 </section>
 <section id="removed">
