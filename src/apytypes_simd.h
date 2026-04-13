@@ -239,6 +239,19 @@ apy_limb_t vector_multiply_accumulate(
     std::size_t size
 );
 
+/*!
+ * Multiply (signed) and accumulate all elements from `src1_begin` with `src2_begin`
+ * for `size` number of elements, where the result is a two-limb integer.
+ * Store the result in `dst_begin` (lower limb in `dst_begin[0]` and higher limb in
+ * `dst_begin[1]`).
+ */
+void vector_multiply_accumulate_1_1_2(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
 /*
  * Functor export from functions
  */
