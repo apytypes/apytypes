@@ -201,7 +201,7 @@ def test_cfixed_matrix_elementwise_division_20(benchmark) -> None:
         bits=19,
         int_bits=1,
     )
-
+    b[b == 0] = APyCFixed(1, bits=19, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -216,7 +216,7 @@ def test_cfixed_fixed_matrix_elementwise_division_20(benchmark) -> None:
         bits=19,
         int_bits=1,
     )
-
+    b[b == 0] = APyFixed(1, bits=19, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -231,7 +231,7 @@ def test_fixed_cfixed_matrix_elementwise_division_20(benchmark) -> None:
         bits=19,
         int_bits=1,
     )
-
+    b[b == 0] = APyCFixed(1, bits=19, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -246,7 +246,7 @@ def test_cfixed_matrix_elementwise_division_200(benchmark) -> None:
         bits=19,
         int_bits=1,
     )
-
+    b[b == 0] = APyCFixed(1, bits=19, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -261,6 +261,7 @@ def test_cfixed_fixed_matrix_elementwise_division_200(benchmark) -> None:
         bits=19,
         int_bits=1,
     )
+    b[b == 0] = APyFixed(1, bits=19, int_bits=1)
 
     benchmark(lambda x, y: x / y, a, b)
 
@@ -276,7 +277,7 @@ def test_fixed_cfixed_matrix_elementwise_division_200(benchmark) -> None:
         bits=19,
         int_bits=1,
     )
-
+    b[b == 0] = APyCFixed(1, bits=19, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -291,7 +292,7 @@ def test_cfixed_matrix_elementwise_division_medium_20(benchmark) -> None:
         bits=40,
         int_bits=1,
     )
-
+    b[b == 0] = APyCFixed(1, bits=40, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -306,7 +307,7 @@ def test_cfixed_fixed_matrix_elementwise_division_medium_20(benchmark) -> None:
         bits=40,
         int_bits=1,
     )
-
+    b[b == 0] = APyFixed(1, bits=40, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -321,6 +322,7 @@ def test_fixed_cfixed_matrix_elementwise_division_medium_20(benchmark) -> None:
         bits=40,
         int_bits=1,
     )
+    b[b == 0] = APyCFixed(1, bits=40, int_bits=1)
 
     benchmark(lambda x, y: x / y, a, b)
 
@@ -336,7 +338,7 @@ def test_cfixed_matrix_elementwise_division_medium_200(benchmark) -> None:
         bits=40,
         int_bits=1,
     )
-
+    b[b == 0] = APyCFixed(1, bits=40, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -351,7 +353,7 @@ def test_cfixed_fixed_matrix_elementwise_division_medium_200(benchmark) -> None:
         bits=40,
         int_bits=1,
     )
-
+    b[b == 0] = APyFixed(1, bits=40, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -366,6 +368,7 @@ def test_cfixed_matrix_elementwise_division_long_20(benchmark) -> None:
         bits=200,
         int_bits=1,
     )
+    b[b == 0] = APyCFixed(1, bits=200, int_bits=1)
 
     benchmark(lambda x, y: x / y, a, b)
 
@@ -381,6 +384,7 @@ def test_cfixed_fixed_matrix_elementwise_division_long_20(benchmark) -> None:
         bits=200,
         int_bits=1,
     )
+    b[b == 0] = APyFixed(1, bits=200, int_bits=1)
 
     benchmark(lambda x, y: x / y, a, b)
 
@@ -396,7 +400,7 @@ def test_fixed_cfixed_matrix_elementwise_division_long_20(benchmark) -> None:
         bits=200,
         int_bits=1,
     )
-
+    b[b == 0] = APyCFixed(1, bits=200, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -741,7 +745,8 @@ def test_cfixed_scalar_matrix_division_20(benchmark) -> None:
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=19, int_bits=1
     )
-
+    if b == 0:
+        b = APyCFixed(1, bits=19, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -754,7 +759,8 @@ def test_cfixed_scalar_matrix_division_200(benchmark) -> None:
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=19, int_bits=1
     )
-
+    if b == 0:
+        b = APyCFixed(1, bits=19, int_bits=1)
     benchmark(lambda x, y: x / y, a, b)
 
 
@@ -767,6 +773,8 @@ def test_cfixed_scalar_matrix_division_medium_20(benchmark) -> None:
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=40, int_bits=1
     )
+    if b == 0:
+        b = APyCFixed(1, bits=40, int_bits=1)
 
     benchmark(lambda x, y: x / y, a, b)
 
@@ -780,6 +788,8 @@ def test_cfixed_scalar_matrix_division_medium_200(benchmark) -> None:
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=40, int_bits=1
     )
+    if b == 0:
+        b = APyCFixed(1, bits=40, int_bits=1)
 
     benchmark(lambda x, y: x / y, a, b)
 
@@ -793,6 +803,8 @@ def test_cfixed_scalar_matrix_division_long_20(benchmark) -> None:
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=200, int_bits=1
     )
+    if b == 0:
+        b = APyCFixed(1, bits=200, int_bits=1)
 
     benchmark(lambda x, y: x / y, a, b)
 
@@ -803,6 +815,7 @@ def test_cfixed_scalar_matrix_reversed_division_20(benchmark) -> None:
         bits=19,
         int_bits=1,
     )
+    a[a == 0] = APyCFixed(1, bits=19, int_bits=1)
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=19, int_bits=1
     )
@@ -816,6 +829,7 @@ def test_cfixed_scalar_matrix_reversed_division_200(benchmark) -> None:
         bits=19,
         int_bits=1,
     )
+    a[a == 0] = APyCFixed(1, bits=19, int_bits=1)
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=19, int_bits=1
     )
@@ -829,6 +843,7 @@ def test_cfixed_scalar_matrix_reversed_division_medium_20(benchmark) -> None:
         bits=40,
         int_bits=1,
     )
+    a[a == 0] = APyCFixed(1, bits=40, int_bits=1)
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=40, int_bits=1
     )
@@ -842,6 +857,7 @@ def test_cfixed_scalar_matrix_reversed_division_medium_200(benchmark) -> None:
         bits=40,
         int_bits=1,
     )
+    a[a == 0] = APyCFixed(1, bits=40, int_bits=1)
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=40, int_bits=1
     )
@@ -855,6 +871,7 @@ def test_cfixed_scalar_matrix_reversed_division_long_20(benchmark) -> None:
         bits=200,
         int_bits=1,
     )
+    a[a == 0] = APyCFixed(1, bits=200, int_bits=1)
     b = APyCFixed.from_complex(
         np.random.rand(1)[0] + 1j * np.random.rand(1)[0] - 0.5, bits=200, int_bits=1
     )
