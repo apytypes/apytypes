@@ -17,13 +17,16 @@ Publications on APyTypes
 
 * M. Henriksson, T. Lindberg, and O. Gustafsson, "APyTypes: Algorithmic Data
   Types in Python for Efficient Simulation of Finite Word-Length Effects," in
-  *IEEE Symp. Computer Arithmetic*, 2024. `DOI <https://doi.org/10.1109/ARITH61463.2024.00021>`_.
+  *Proc. IEEE Symp. Comput. Arithmetic*, 2024. `DOI <https://doi.org/10.1109/ARITH61463.2024.00021>`_.
 
 Publications using/citing APyTypes
 ----------------------------------
 
 Please contact oscar.gustafsson@liu.se if you are using APyTypes for a
 publication and would like to have it listed here.
+
+* T. Lindberg and O. Gustafsson, "Approximating Floating-Point Addition Using The Geometric Mean," in
+  *Proc. IEEE Symp. Comput. Arithmetic*, 2026.
 
 * T. Lindberg and O. Gustafsson, "Exact Eight-Bit Floating-Point Multiplication Using Integer Arithmetic", in *Proc. Asilomar Conf. Signals Syst. Comput.*, 2025, `DOI <https://doi.org/10.1109/IEEECONF67917.2025.11443802>`_.
 
