@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Specializations for complex-real fixed-point multiplication and division.
 - Complex-real fixed-point matrix multiplication.
+- Operator overloading for real APy* and Python complex.
 
 ### Fixed
 
@@ -19,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Complex-real multiplications now produce results with one less integer bit.
-  This also holds for Python integers and floats.
+  This also holds for operations with Python integers and floats.
 
 ### Removed
 

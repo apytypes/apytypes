@@ -8,6 +8,7 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
+#include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/variant.h>
 
@@ -17,7 +18,7 @@
 namespace nb = nanobind;
 
 /*
- * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyFixedArray
+ * Binding function of a custom R-operator (e.g., `__rmul__`) with non-APyFixedArray
  * type
  */
 template <auto FUNC, typename L_TYPE>
@@ -35,7 +36,27 @@ static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs) -> APyFixedArray
 }
 
 /*
- * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFixedArray type
+ * Binding function of a custom R-operator (e.g., `__rmul__`) with complex
+ * non-APyFixedArray type
+ */
+template <auto FUNC, typename L_TYPE>
+static auto R_OPC(const APyFixedArray& rhs, const L_TYPE& lhs) -> APyCFixedArray
+{
+    if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, std::complex<double>>) {
+        return (rhs.*FUNC)(
+            APyCFixed::from_complex(lhs, rhs.int_bits(), rhs.frac_bits())
+        );
+    } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyCFixed>) {
+        return (rhs.*FUNC)(lhs);
+    } else {
+        return (rhs.*FUNC)(
+            APyCFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
+        );
+    }
+}
+
+/*
+ * Binding function of a custom L-operator (e.g., `__sub__`) with non-APyFixedArray type
  */
 template <typename OP, typename R_TYPE>
 static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
@@ -56,6 +77,22 @@ static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
     }
 }
 
+/*
+ * Binding function of a custom L-operator (e.g., `__sub__`) with complex
+ * non-APyFixedArray type
+ */
+template <typename OP, typename R_TYPE>
+static auto L_OPC(const APyFixedArray& lhs, const R_TYPE& rhs) -> APyCFixedArray
+{
+    if constexpr (std::is_same_v<remove_cvref_t<R_TYPE>, std::complex<double>>) {
+        return OP()(lhs, APyCFixed::from_complex(rhs, lhs.int_bits(), lhs.frac_bits()));
+    } else if constexpr (std::is_same_v<remove_cvref_t<R_TYPE>, APyCFixed>) {
+        return OP()(lhs, rhs);
+    } else {
+        return OP()(lhs, APyFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits()));
+    }
+}
+
 // Create a "cheat" comparison-function signature that is used *only* in the created
 // stub files. The cheat signature tells nanobind that a comparison function returns a
 // numpy array of booleans, even though the comparison function may return another
@@ -67,6 +104,8 @@ static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
         nb::sig(                                                                       \
             "def " FUNC_NAME "(self, arg: " RHS_TYPE ", /) -> NDArray[numpy.bool]"     \
         )
+
+using complex_t = std::complex<double>;
 
 void bind_fixed_array(nb::module_& m)
 {
@@ -147,6 +186,76 @@ void bind_fixed_array(nb::module_& m)
         .def("__le__", L_OP<std::less_equal<>, APyFixed>, CMP("__le__", "APyFixed"))
         .def("__gt__", L_OP<std::greater<>, APyFixed>, CMP("__gt__", "APyFixed"))
         .def("__ge__", L_OP<std::greater_equal<>, APyFixed>, CMP("__ge__", "APyFixed"))
+
+        /*
+         * Arithmetic operations with APyCFixed
+         */
+        .def("__add__", L_OPC<STD_ADD<>, APyCFixed>, NB_OP())
+        .def("__radd__", L_OPC<STD_ADD<>, APyCFixed>, NB_OP())
+        .def("__sub__", L_OPC<STD_SUB<>, APyCFixed>, NB_OP())
+        .def("__rsub__", R_OPC<&APyFixedArray::rsubc, APyCFixed>, NB_OP())
+        .def("__mul__", L_OPC<STD_MUL<>, APyCFixed>, NB_OP())
+        .def("__rmul__", L_OPC<STD_MUL<>, APyCFixed>, NB_OP())
+        .def("__truediv__", L_OPC<STD_DIV<>, APyCFixed>, NB_OP())
+        .def("__rtruediv__", R_OPC<&APyFixedArray::rdivc, APyCFixed>, NB_OP())
+
+        /*
+         * Arithmetic operation with complex
+         */
+        .def("__add__", L_OPC<STD_ADD<>, complex_t>, NB_OP())
+        .def("__radd__", L_OPC<STD_ADD<>, complex_t>, NB_OP())
+        .def("__sub__", L_OPC<STD_SUB<>, complex_t>, NB_OP())
+        .def("__rsub__", R_OPC<&APyFixedArray::rsubc, complex_t>, NB_OP())
+        .def("__mul__", L_OPC<STD_MUL<>, complex_t>, NB_OP())
+        .def("__rmul__", L_OPC<STD_MUL<>, complex_t>, NB_OP())
+        .def("__truediv__", L_OPC<STD_DIV<>, complex_t>, NB_OP())
+        .def("__rtruediv__", R_OPC<&APyFixedArray::rdivc, complex_t>, NB_OP())
+
+        /*
+         * Arithmetic operations with APyCFixedArray
+         */
+        .def(
+            "__add__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return a + b; },
+            NB_OP()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return a + b; },
+            NB_OP()
+        )
+        .def(
+            "__sub__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return a - b; },
+            NB_OP()
+        )
+        .def(
+            "__rsub__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) {
+                return b - APyCFixedArray(a);
+            },
+            NB_OP()
+        )
+        .def(
+            "__mul__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return b * a; },
+            NB_OP()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return b * a; },
+            NB_OP()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return a / b; },
+            NB_OP()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return b / a; },
+            NB_OP()
+        )
 
         /*
          * Arithmetic operations with integers
