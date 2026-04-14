@@ -709,6 +709,7 @@ def test_array_scalar_operations_different_wordlengths(
         )
     )
 
+
 def test_operation_with_integers():
     a = APyCFixedArray([5], 6, 2)
     one = APyFixedArray([4], 6, 2)

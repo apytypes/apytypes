@@ -281,7 +281,7 @@ def test_complex_real_multiplication_different_wordlengths_different_fracbits(
     b = APyFixed.from_float(2, int_bits=real_int_bits, frac_bits=real_frac_bits)
     res = APyCFixed.from_complex(
         2 - 2j,
-        int_bits=complex_int_bits + real_int_bits + 1,
+        int_bits=complex_int_bits + real_int_bits,
         frac_bits=complex_frac_bits + real_frac_bits,
     )
     assert (a * b).is_identical(res)
@@ -292,7 +292,7 @@ def test_complex_real_multiplication_different_wordlengths_different_fracbits(
     c = APyFixed.from_float(-2, int_bits=real_int_bits, frac_bits=real_frac_bits)
     res = APyCFixed.from_complex(
         -2 + 2j,
-        int_bits=complex_int_bits + real_int_bits + 1,
+        int_bits=complex_int_bits + real_int_bits,
         frac_bits=complex_frac_bits + real_frac_bits,
     )
     assert (a * c).is_identical(res)
@@ -386,6 +386,7 @@ def test_complex_real_subtraction_different_wordlengths_different_fracbits(
     assert b - c == 3 + 1j
     assert c - b == -3 - 1j
 
+
 def test_operation_with_real_integers():
     a = APyCFixed(5, 6, 2)
     one = APyFixed(4, 6, 2)
@@ -410,3 +411,18 @@ def test_operation_with_real_integers():
     assert (_ := (-2) * a).is_identical(_ := neg_two * a)
     assert (_ := a / (-2)).is_identical(_ := a / neg_two)
     assert (_ := (-2) / a).is_identical(_ := neg_two / a)
+
+
+@pytest.mark.parametrize("int_bits", [3, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_division_raises_on_zero(int_bits: int, frac_bits: int):
+    a = APyCFixed.from_complex(1 + 1j, int_bits=int_bits, frac_bits=frac_bits)
+    zero = APyCFixed.from_complex(0, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = a / zero
+    zero_real = APyFixed.from_float(0, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = a / zero_real
+    b = APyFixed(2, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = b / zero
