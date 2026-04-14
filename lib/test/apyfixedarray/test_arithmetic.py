@@ -1448,3 +1448,87 @@ def test_arrays_raises_on_zero_div_with_scalar(int_bits_1: int, int_bits_2: int)
         _ = a / b
     with pytest.raises(ZeroDivisionError):
         _ = b / a
+
+
+@pytest.mark.parametrize("complex_int_bits", [11, 31, 51, 101, 301])
+@pytest.mark.parametrize("real_int_bits", [10, 30, 50, 100, 300])
+def test_real_array_apycfixed(complex_int_bits: int, real_int_bits: int):
+    a = APyFixedArray.from_float([0.0, 1.0, -2.0], int_bits=real_int_bits, frac_bits=0)
+    b = APyCFixed.from_float(1.0 - 1.0j, int_bits=complex_int_bits, frac_bits=0)
+    res = a * b
+    assert res.is_identical(
+        APyCFixedArray.from_float(
+            [0, 1.0 - 1.0j, -2.0 + 2.0j],
+            int_bits=complex_int_bits + real_int_bits,
+            frac_bits=0,
+        )
+    )
+    assert res.is_identical(b * a)
+    res = a + b
+    assert res.is_identical(
+        APyCFixedArray.from_float(
+            [1.0 - 1.0j, 2.0 - 1.0j, -1.0 + -1.0j],
+            int_bits=max(complex_int_bits, real_int_bits) + 1,
+            frac_bits=0,
+        )
+    )
+    assert res.is_identical(b + a)
+    res = a - b
+    assert res.is_identical(
+        APyCFixedArray.from_float(
+            [-1.0 + 1.0j, 0.0 + 1.0j, -3.0 + 1.0j],
+            int_bits=max(complex_int_bits, real_int_bits) + 1,
+            frac_bits=0,
+        )
+    )
+    res = a / b
+    assert res.is_identical(
+        APyCFixedArray.from_float(
+            [0.0 + 0.0j, 0.5 + 0.5j, -1.0 - 1.0j],
+            int_bits=real_int_bits + 1,
+            frac_bits=complex_int_bits,
+        )
+    )
+
+
+@pytest.mark.parametrize("real_int_bits", [10, 30, 50, 100, 300])
+@pytest.mark.parametrize("real_frac_bits", [0, 10, 30, 50, 100, 300])
+def test_real_array_complex_scalar(real_int_bits: int, real_frac_bits: int):
+    a = APyFixedArray.from_float(
+        [0.0, 1.0, -2.0], int_bits=real_int_bits, frac_bits=real_frac_bits
+    )
+    b = 1.0 - 1.0j
+    res = a * b
+    assert res.is_identical(
+        APyCFixedArray.from_float(
+            [0, 1.0 - 1.0j, -2.0 + 2.0j],
+            int_bits=2 * real_int_bits,
+            frac_bits=2 * real_frac_bits,
+        )
+    )
+    assert res.is_identical(b * a)
+    res = a + b
+    assert res.is_identical(
+        APyCFixedArray.from_float(
+            [1.0 - 1.0j, 2.0 - 1.0j, -1.0 + -1.0j],
+            int_bits=real_int_bits + 1,
+            frac_bits=real_frac_bits,
+        )
+    )
+    assert res.is_identical(b + a)
+    res = a - b
+    assert res.is_identical(
+        APyCFixedArray.from_float(
+            [-1.0 + 1.0j, 0.0 + 1.0j, -3.0 + 1.0j],
+            int_bits=real_int_bits + 1,
+            frac_bits=real_frac_bits,
+        )
+    )
+    res = a / b
+    assert res.is_identical(
+        APyCFixedArray.from_float(
+            [0.0 + 0.0j, 0.5 + 0.5j, -1.0 - 1.0j],
+            int_bits=real_int_bits + real_frac_bits + 1,
+            frac_bits=real_int_bits + real_frac_bits,
+        )
+    )

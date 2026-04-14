@@ -7,6 +7,7 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
+#include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/variant.h>
 
@@ -20,9 +21,13 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs) -> APyFixedArray
+static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
 {
-    if constexpr (std::is_floating_point_v<L_TYPE>) {
+    if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, std::complex<double>>) {
+        return (rhs.*FUNC)(
+            APyCFixed::from_complex(lhs, rhs.int_bits(), rhs.frac_bits())
+        );
+    } else if constexpr (std::is_floating_point_v<L_TYPE>) {
         return (rhs.*FUNC)(APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits()));
     } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyFixed>) {
         return (rhs.*FUNC)(lhs);
@@ -38,9 +43,10 @@ static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs) -> APyFixedArray
  */
 template <typename OP, typename R_TYPE>
 static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
-    -> decltype(OP()(lhs, lhs))
 {
-    if constexpr (std::is_floating_point_v<R_TYPE>) {
+    if constexpr (std::is_same_v<remove_cvref_t<R_TYPE>, std::complex<double>>) {
+        return OP()(lhs, APyCFixed::from_complex(rhs, lhs.int_bits(), lhs.frac_bits()));
+    } else if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
     } else if constexpr (std::is_same_v<remove_cvref_t<R_TYPE>, APyFixed>) {
         return OP()(lhs, rhs);
@@ -66,6 +72,8 @@ static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
         nb::sig(                                                                       \
             "def " FUNC_NAME "(self, arg: " RHS_TYPE ", /) -> NDArray[numpy.bool]"     \
         )
+
+using complex_t = std::complex<double>;
 
 void bind_fixed_array(nb::module_& m)
 {
@@ -134,11 +142,27 @@ void bind_fixed_array(nb::module_& m)
         .def("__add__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
         .def("__radd__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<&APyFixedArray::rsub, APyFixed>, NB_OP(), NB_NARG())
+        .def(
+            "__rsub__",
+            R_OP<
+                static_cast<APyFixedArray (APyFixedArray::*)(const APyFixed&)
+                                const>(&APyFixedArray::rsub),
+                APyFixed>,
+            NB_OP(),
+            NB_NARG()
+        )
         .def("__mul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
         .def("__rmul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, APyFixed>, NB_OP(), NB_NARG())
+        .def(
+            "__rtruediv__",
+            R_OP<
+                static_cast<APyFixedArray (APyFixedArray::*)(const APyFixed&)
+                                const>(&APyFixedArray::rdiv),
+                APyFixed>,
+            NB_OP(),
+            NB_NARG()
+        )
 
         .def("__eq__", L_OP<std::equal_to<>, APyFixed>, CMP("__eq__", "APyFixed"))
         .def("__ne__", L_OP<std::not_equal_to<>, APyFixed>, CMP("__ne__", "APyFixed"))
@@ -148,16 +172,166 @@ void bind_fixed_array(nb::module_& m)
         .def("__ge__", L_OP<std::greater_equal<>, APyFixed>, CMP("__ge__", "APyFixed"))
 
         /*
+         * Arithmetic operations with APyCFixed
+         */
+        .def(
+            "__add__",
+            [](const APyFixedArray& a, const APyCFixed& b) { return a + b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixedArray& a, const APyCFixed& b) { return a + b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__sub__",
+            [](const APyFixedArray& a, const APyCFixed& b) { return a - b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rsub__",
+            [](const APyFixedArray& a, const APyCFixed& b) { return a.rsub(b); },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__mul__",
+            [](const APyFixedArray& a, const APyCFixed& b) { return a * b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFixedArray& a, const APyCFixed& b) { return a * b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFixedArray& a, const APyCFixed& b) { return a / b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFixedArray& a, const APyCFixed& b) { return a.rdiv(b); },
+            NB_OP(),
+            NB_NARG()
+        )
+
+        /*
+         * Arithmetic operation with complex
+         */
+        .def("__add__", L_OP<STD_ADD<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, complex_t>, NB_OP(), NB_NARG())
+        .def(
+            "__rsub__",
+            R_OP<
+                static_cast<APyCFixedArray (APyFixedArray::*)(const APyCFixed&)
+                                const>(&APyFixedArray::rsub),
+                complex_t>,
+            NB_OP(),
+            NB_NARG()
+        )
+        .def("__mul__", L_OP<STD_MUL<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, complex_t>, NB_OP(), NB_NARG())
+        .def(
+            "__rtruediv__",
+            R_OP<
+                static_cast<APyCFixedArray (APyFixedArray::*)(const APyCFixed&)
+                                const>(&APyFixedArray::rdiv),
+                complex_t>,
+            NB_OP(),
+            NB_NARG()
+        )
+
+        /*
+         * Arithmetic operations with APyCFixedArray
+         */
+        .def(
+            "__add__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return a + b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return a + b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__sub__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return a - b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rsub__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) {
+                return b - APyCFixedArray(a);
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__mul__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return b * a; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return b * a; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return a / b; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFixedArray& a, const APyCFixedArray& b) { return b / a; },
+            NB_OP(),
+            NB_NARG()
+        )
+
+        /*
          * Arithmetic operations with integers
          */
         .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__radd__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<&APyFixedArray::rsub, nb::int_>, NB_OP(), NB_NARG())
+        .def(
+            "__rsub__",
+            R_OP<
+                static_cast<APyFixedArray (APyFixedArray::*)(const APyFixed&)
+                                const>(&APyFixedArray::rsub),
+                nb::int_>,
+            NB_OP(),
+            NB_NARG()
+        )
         .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
+        .def(
+            "__rtruediv__",
+            R_OP<
+                static_cast<APyFixedArray (APyFixedArray::*)(const APyFixed&)
+                                const>(&APyFixedArray::rdiv),
+                nb::int_>,
+            NB_OP(),
+            NB_NARG()
+        )
 
         .def("__eq__", L_OP<std::equal_to<>, nb::int_>, CMP("__eq__", "int"))
         .def("__ne__", L_OP<std::not_equal_to<>, nb::int_>, CMP("__ne__", "int"))
@@ -172,11 +346,27 @@ void bind_fixed_array(nb::module_& m)
         .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
         .def("__radd__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<&APyFixedArray::rsub, double>, NB_OP(), NB_NARG())
+        .def(
+            "__rsub__",
+            R_OP<
+                static_cast<APyFixedArray (APyFixedArray::*)(const APyFixed&)
+                                const>(&APyFixedArray::rsub),
+                double>,
+            NB_OP(),
+            NB_NARG()
+        )
         .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
         .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, double>, NB_OP(), NB_NARG())
+        .def(
+            "__rtruediv__",
+            R_OP<
+                static_cast<APyFixedArray (APyFixedArray::*)(const APyFixed&)
+                                const>(&APyFixedArray::rdiv),
+                double>,
+            NB_OP(),
+            NB_NARG()
+        )
 
         .def("__eq__", L_OP<std::equal_to<>, double>, CMP("__eq__", "float"))
         .def("__ne__", L_OP<std::not_equal_to<>, double>, CMP("__ne__", "float"))
