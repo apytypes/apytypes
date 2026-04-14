@@ -1,5 +1,6 @@
 #include "apycfixed.h"
 #include "apycfixedarray.h" // Needed by: APyCFixed::is_identical
+#include "apyfixed.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -40,9 +41,9 @@ static auto L_OP(const APyCFixed& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, 
     if constexpr (std::is_same_v<std::complex<double>, R_TYPE>) {
         return OP()(lhs, APyCFixed::from_complex(rhs, lhs.int_bits(), lhs.frac_bits()));
     } else if constexpr (std::is_floating_point_v<R_TYPE>) {
-        return OP()(lhs, APyCFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
+        return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
     } else if constexpr (std::is_same_v<nb::int_, R_TYPE>) {
-        return OP()(lhs, APyCFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits()));
+        return OP()(lhs, APyFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits()));
     } else if constexpr (std::is_same_v<APyFixed, R_TYPE>) {
         return OP()(
             lhs, APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits())
@@ -124,11 +125,38 @@ void bind_cfixed(nb::module_& m)
         .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def(
+            "__truediv__",
+            [](const APyCFixed& self, const nb::int_& rhs) {
+                auto rhs_fx
+                    = APyFixed::from_integer(rhs, self.int_bits(), self.frac_bits());
+                return self / rhs_fx;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
         .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
         .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def(
+            "__rmul__",
+            [](const APyCFixed& self, const nb::int_& lhs) {
+                auto lhs_fx
+                    = APyFixed::from_integer(lhs, self.int_bits(), self.frac_bits());
+                return self * lhs_fx;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyCFixed& self, const nb::int_& lhs) {
+                auto lhs_fx
+                    = APyFixed::from_integer(lhs, self.int_bits(), self.frac_bits());
+                return self.rdiv(lhs_fx);
+            },
+            NB_OP(),
+            NB_NARG()
+        )
 
         /*
          * Arithmetic operations with floats
@@ -141,9 +169,36 @@ void bind_cfixed(nb::module_& m)
         .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
         .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
         .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def(
+            "__rmul__",
+            [](const APyCFixed& self, double lhs) {
+                auto lhs_fx
+                    = APyFixed::from_double(lhs, self.int_bits(), self.frac_bits());
+                return self * lhs_fx;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__truediv__",
+            [](const APyCFixed& self, double rhs) {
+                auto rhs_fx
+                    = APyFixed::from_double(rhs, self.int_bits(), self.frac_bits());
+                return self / rhs_fx;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyCFixed& self, double lhs) {
+                auto lhs_fx
+                    = APyFixed::from_double(lhs, self.int_bits(), self.frac_bits());
+                return self.rdiv(lhs_fx);
+            },
+            NB_OP(),
+            NB_NARG()
+        )
 
         /*
          * Arithmetic operations with Python complex
@@ -170,10 +225,28 @@ void bind_cfixed(nb::module_& m)
         .def("__radd__", R_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
         .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
         .def("__rsub__", R_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
+        .def(
+            "__mul__",
+            [](const APyCFixed& a, const APyFixed& b) { return a * b; },
+            nb::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyCFixed& a, const APyFixed& b) { return a * b; },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyCFixed& self, const APyFixed& rhs) { return self / rhs; },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyCFixed& self, const APyFixed& lhs) { return self.rdiv(lhs); },
+            NB_OP(),
+            NB_NARG()
+        )
 
         /*
          * Logic operations

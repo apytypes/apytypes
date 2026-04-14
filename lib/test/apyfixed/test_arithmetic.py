@@ -104,6 +104,38 @@ def test_float_and_int_comparison_total_order(py_type: type[float]):
     assert not APyFixed.from_float(0.0, 256, 128) >= py_type(1.0)
 
 
+def test_apyfixed_arith_complex_returns_apycfixed():
+    a = APyFixed.from_float(1.25, int_bits=5, frac_bits=7)
+    b = 2.5 - 1.0j
+
+    assert isinstance(a + b, APyCFixed)
+    assert isinstance(a - b, APyCFixed)
+    assert isinstance(a * b, APyCFixed)
+    assert isinstance(a / b, APyCFixed)
+
+    assert isinstance(b + a, APyCFixed)
+    assert isinstance(b - a, APyCFixed)
+    assert isinstance(b * a, APyCFixed)
+    assert isinstance(b / a, APyCFixed)
+
+
+def test_apyfixed_arith_complex_uses_apyfixed_bit_spec():
+    a = APyFixed.from_float(1.25, int_bits=5, frac_bits=7)
+    b = 2.5 - 1.0j
+
+    b_cfx = APyCFixed.from_complex(b, int_bits=a.int_bits, frac_bits=a.frac_bits)
+
+    assert (a + b).is_identical(b_cfx + a)
+    assert (a - b).is_identical(-(b_cfx - a))
+    assert (a * b).is_identical(b_cfx * a)
+    assert (a / b).is_identical(a / b_cfx)
+
+    assert (b + a).is_identical(b_cfx + a)
+    assert (b - a).is_identical(b_cfx - a)
+    assert (b * a).is_identical(b_cfx * a)
+    assert (b / a).is_identical(b_cfx / a)
+
+
 @pytest.mark.parametrize("apyfixed", [APyFixed, APyCFixed])
 def test_narrow_add_sub(apyfixed: type[APyCFixed]):
     for a_bits in range(10, 30):
@@ -549,11 +581,10 @@ def test_issue_224():
     assert x.leading_fractional_zeros == 6
 
 
-@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
-def test_operation_with_integers(fixed_type):
-    a = fixed_type(5, 6, 2)
-    one = fixed_type(4, 6, 2)
-    zero = fixed_type(0, 6, 2)
+def test_operation_with_integers():
+    a = APyFixed(5, 6, 2)
+    one = APyFixed(4, 6, 2)
+    zero = APyFixed(0, 6, 2)
 
     # Integer identities
     assert (_ := a + 0).is_identical(_ := a + zero)
@@ -565,7 +596,7 @@ def test_operation_with_integers(fixed_type):
     assert (_ := a / 1).is_identical(_ := a / one)
 
     # Other integer operations
-    neg_two = fixed_type(248, bits=8, int_bits=6)
+    neg_two = APyFixed(248, bits=8, int_bits=6)
     assert (_ := a + (-2)).is_identical(_ := a + neg_two)
     assert (_ := (-2) + a).is_identical(_ := neg_two + a)
     assert (_ := a - (-2)).is_identical(_ := a - neg_two)

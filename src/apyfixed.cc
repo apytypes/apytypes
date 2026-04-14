@@ -288,32 +288,17 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     std::size_t scratch_size = bits_to_limbs(res_bits) + rhs._data.size();
     ScratchVector<apy_limb_t, 16> scratch(scratch_size);
 
-    // Absolute value left-shifted numerator
-    auto abs_num_begin = std::begin(scratch);
-    auto abs_num_end = abs_num_begin + bits_to_limbs(res_bits);
-    bool sign_num = limb_vector_abs(_data.begin(), _data.end(), abs_num_begin);
-    limb_vector_lsl(abs_num_begin, abs_num_end, rhs.bits());
-
-    // Absolute value denominator
-    auto abs_den_begin = abs_num_end;
-    auto abs_den_end = abs_den_begin + rhs._data.size();
-    bool sign_den
-        = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den_begin);
-
-    // `apy_unsigned_division` requires the number of *significant* limbs in denominator
-    std::size_t den_significant_limbs = significant_limbs(abs_den_begin, abs_den_end);
-    apy_unsigned_division(
-        std::begin(result._data),                                  // Quotient
-        abs_num_begin,                                             // Numerator
-        abs_num_begin + std::distance(abs_num_begin, abs_num_end), // Numerator end
-        abs_den_begin,                                             // Denominator
-        abs_den_begin + den_significant_limbs                      // Denominator end
+    // Perform generic division (negation handled internally)
+    fixed_point_division_generic(
+        std::begin(result._data),
+        std::begin(_data),
+        std::end(_data),
+        std::begin(rhs._data),
+        std::end(rhs._data),
+        rhs.bits(),
+        bits_to_limbs(res_bits),
+        scratch
     );
-
-    // Negate result if negative
-    if (sign_num ^ sign_den) {
-        limb_vector_negate_inplace(result._data.begin(), result._data.end());
-    }
     return result;
 }
 

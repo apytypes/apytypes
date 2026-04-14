@@ -888,9 +888,9 @@ public:
 
     //! Try broadcasting two shapes to a common shape before applying the `BIN_OP`
     //! functor to them and returning the result.
-    template <typename BIN_OP>
+    template <typename BIN_OP, typename OTHER_ARRAY_TYPE>
     ARRAY_TYPE try_broadcast_and_then(
-        const ARRAY_TYPE& rhs, std::string_view exception_bin_op_name
+        const OTHER_ARRAY_TYPE& rhs, std::string_view exception_bin_op_name
     ) const
     {
         auto&& new_shape = smallest_broadcastable_shape(_shape, rhs._shape);
@@ -1586,7 +1586,7 @@ private:
             if (leading_items) {
                 std::size_t ljust = cbegin[0].length();
                 result.back() += fmt::format("{:>{}}, ", summary_sep, ljust);
-                col_cnt += 1;
+                col_cnt++;
             }
             for (std::size_t i = 0; i < trailing_items; i++, col_cnt++) {
                 bool is_insert_comma = (i != trailing_items - 1);

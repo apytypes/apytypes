@@ -263,3 +263,44 @@ def test_real_complex_division_different_wordlengths_different_fracbits(
         3 + 4j, int_bits=complex_int_bits, frac_bits=complex_frac_bits
     )
     assert a / b == 3 - 4j
+
+
+def test_operation_with_real_integers():
+    a = APyCFixed(5, 6, 2)
+    one = APyFixed(4, 6, 2)
+    zero = APyFixed(0, 6, 2)
+
+    # Integer identities
+    assert (_ := a + 0).is_identical(_ := a + zero)
+    assert (_ := 0 + a).is_identical(_ := zero + a)
+    assert (_ := a - 0).is_identical(_ := a - zero)
+    assert (_ := 0 - a).is_identical(_ := zero - a)
+    assert (_ := a * 1).is_identical(_ := a * one)
+    assert (_ := 1 * a).is_identical(_ := one * a)
+    assert (_ := a / 1).is_identical(_ := a / one)
+
+    # Other integer operations
+    neg_two = APyFixed(248, bits=8, int_bits=6)
+    assert (_ := a + (-2)).is_identical(_ := a + neg_two)
+    assert (_ := (-2) + a).is_identical(_ := neg_two + a)
+    assert (_ := a - (-2)).is_identical(_ := a - neg_two)
+    assert (_ := (-2) - a).is_identical(_ := neg_two - a)
+    assert (_ := a * (-2)).is_identical(_ := a * neg_two)
+    assert (_ := (-2) * a).is_identical(_ := neg_two * a)
+    assert (_ := a / (-2)).is_identical(_ := a / neg_two)
+    assert (_ := (-2) / a).is_identical(_ := neg_two / a)
+
+
+@pytest.mark.parametrize("int_bits", [3, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_division_raises_on_zero(int_bits: int, frac_bits: int):
+    a = APyCFixed.from_complex(1 + 1j, int_bits=int_bits, frac_bits=frac_bits)
+    zero = APyCFixed.from_complex(0, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = a / zero
+    zero_real = APyFixed.from_float(0, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = a / zero_real
+    b = APyFixed(2, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = b / zero

@@ -1,14 +1,29 @@
+#include "apycfixed.h"
 #include "apyfixed.h"
 #include "apyfixedarray.h" // Needed by: APyFixed::is_identical
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
+#include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
 
 #include <functional>
 #include <type_traits>
 
 namespace nb = nanobind;
+
+static APyCFixed apyfixed_to_apycfixed(const APyFixed& value)
+{
+    return APyCFixed::from_apyfixed(value, value.int_bits(), value.frac_bits());
+}
+
+static APyCFixed
+complex_to_apycfixed_with_spec(std::complex<double> value, const APyFixed& spec_source)
+{
+    return APyCFixed::from_complex(
+        value, spec_source.int_bits(), spec_source.frac_bits()
+    );
+}
 
 /*
  * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyFixed type
@@ -132,6 +147,76 @@ void bind_fixed(nb::module_& m)
         .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
         .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
         .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+
+        /*
+         * Arithmetic operations with Python complex
+         */
+        .def(
+            "__add__",
+            [](const APyFixed& self, std::complex<double> rhs) {
+                return complex_to_apycfixed_with_spec(rhs, self) + self;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixed& self, std::complex<double> lhs) {
+                return complex_to_apycfixed_with_spec(lhs, self) + self;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__sub__",
+            [](const APyFixed& self, std::complex<double> rhs) {
+                return apyfixed_to_apycfixed(self)
+                    - complex_to_apycfixed_with_spec(rhs, self);
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rsub__",
+            [](const APyFixed& self, std::complex<double> lhs) {
+                return complex_to_apycfixed_with_spec(lhs, self)
+                    - apyfixed_to_apycfixed(self);
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__mul__",
+            [](const APyFixed& self, std::complex<double> rhs) {
+                return complex_to_apycfixed_with_spec(rhs, self) * self;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFixed& self, std::complex<double> lhs) {
+                return complex_to_apycfixed_with_spec(lhs, self) * self;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFixed& self, std::complex<double> rhs) {
+                return complex_to_apycfixed_with_spec(rhs, self).rdiv(self);
+            },
+            NB_OP(),
+            NB_NARG()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFixed& self, std::complex<double> lhs) {
+                return complex_to_apycfixed_with_spec(lhs, self) / self;
+            },
+            NB_OP(),
+            NB_NARG()
+        )
         .def("__pow__", &APyFixed::pown, NB_OP())
 
         /*

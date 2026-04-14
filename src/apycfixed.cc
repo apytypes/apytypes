@@ -223,7 +223,6 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
 
     // Single-limb result specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        // TODO: Rewrite using SIMD MulComplex
         result._data[0] = apy_limb_signed_t(_data[0]) * apy_limb_signed_t(rhs._data[0])
             - apy_limb_signed_t(_data[1]) * apy_limb_signed_t(rhs._data[1]); // real
         result._data[1] = apy_limb_signed_t(_data[1]) * apy_limb_signed_t(rhs._data[0])
@@ -239,81 +238,38 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
                 result._data.data(), _data.data(), rhs._data.data()
             );
             return result;
+        } else if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            complex_multiplication_1_2_2(
+                result._data.data(), _data.data(), rhs._data.data()
+            );
+            return result;
         } else {
-#if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
-            __int128 re0, im0, re1, im1;
-            if (unsigned(bits()) > APY_LIMB_SIZE_BITS) {
-                re0 = (__int128)_data[0]
-                    | ((__int128)apy_limb_signed_t(_data[1]) << APY_LIMB_SIZE_BITS);
-                im0 = (__int128)_data[2]
-                    | ((__int128)apy_limb_signed_t(_data[3]) << APY_LIMB_SIZE_BITS);
-                re1 = (__int128)apy_limb_signed_t(rhs._data[0]);
-                im1 = (__int128)apy_limb_signed_t(rhs._data[1]);
-            } else {
-                re0 = (__int128)apy_limb_signed_t(_data[0]);
-                im0 = (__int128)apy_limb_signed_t(_data[1]);
-                re1 = (__int128)rhs._data[0]
-                    | ((__int128)apy_limb_signed_t(rhs._data[1]) << APY_LIMB_SIZE_BITS);
-                im1 = (__int128)rhs._data[2]
-                    | ((__int128)apy_limb_signed_t(rhs._data[3]) << APY_LIMB_SIZE_BITS);
-            }
-            auto re_res = re0 * re1 - im0 * im1;
-            auto im_res = re0 * im1 + im0 * re1;
-            result._data[0] = apy_limb_t(re_res);
-            result._data[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
-            result._data[2] = apy_limb_t(im_res);
-            result._data[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
+            complex_multiplication_1_2_2(
+                result._data.data(), rhs._data.data(), _data.data()
+            );
             return result;
-#endif
-#else
-            // Double limb result specialization
-            std::int64_t re0, im0, re1, im1;
-            if (unsigned(bits()) > APY_LIMB_SIZE_BITS) {
-                re0 = (std::int64_t)_data[0]
-                    | ((std::int64_t)apy_limb_signed_t(_data[1]) << APY_LIMB_SIZE_BITS);
-                im0 = (std::int64_t)_data[2]
-                    | ((std::int64_t)apy_limb_signed_t(_data[3]) << APY_LIMB_SIZE_BITS);
-                re1 = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
-                im1 = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
-            } else {
-                re0 = (std::int64_t)apy_limb_signed_t(_data[0]);
-                im0 = (std::int64_t)apy_limb_signed_t(_data[1]);
-                re1 = (std::int64_t)rhs._data[0]
-                    | ((std::int64_t)apy_limb_signed_t(rhs._data[1])
-                       << APY_LIMB_SIZE_BITS);
-                im1 = (std::int64_t)rhs._data[2]
-                    | ((std::int64_t)apy_limb_signed_t(rhs._data[3])
-                       << APY_LIMB_SIZE_BITS);
-            }
-            auto re_res = re0 * re1 - im0 * im1;
-            auto im_res = re0 * im1 + im0 * re1;
-            result._data[0] = apy_limb_t(re_res);
-            result._data[1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
-            result._data[2] = apy_limb_t(im_res);
-            result._data[3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
-            return result;
-#endif
         }
     }
 
     // Scratch data:
-    // * op1_abs:       _data.size() / 2
-    // * op2_abs:       rhs._data.size() / 2
-    // * prod_imm:      2 + _data.size() + rhs._data.size()
-    std::size_t scratch_size = 2 + (3 * _data.size() + 3 * rhs._data.size()) / 2;
+    // * op1_abs:       src1_limbs
+    // * op2_abs:       src2_limbs
+    // * prod_imm:      2 + 2 * src1_limbs + 2 * src2_limbs
+    std::size_t src1_limbs = _data.size() / 2;
+    std::size_t src2_limbs = rhs._data.size() / 2;
+    std::size_t scratch_size = 2 + 3 * src1_limbs + 3 * src2_limbs;
     ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto op1_abs_begin = std::begin(scratch);
-    auto op2_abs_begin = op1_abs_begin + _data.size() / 2;
-    auto prod_imm_begin = op2_abs_begin + rhs._data.size() / 2;
+    auto op2_abs_begin = op1_abs_begin + src1_limbs;
+    auto prod_imm_begin = op2_abs_begin + src2_limbs;
 
     // Perform the product
     complex_fixed_point_product(
         std::begin(_data),        // src1
         std::begin(rhs._data),    // src2
         std::begin(result._data), // dst
-        _data.size() / 2,         // src1_limbs
-        rhs._data.size() / 2,     // src2_limbs
+        src1_limbs,               // src1_limbs
+        src2_limbs,               // src2_limbs
         bits_to_limbs(res_bits),  // dst_limbs
         op1_abs_begin,            // op1_abs
         op2_abs_begin,            // op2_abs
@@ -482,6 +438,384 @@ bool APyCFixed::operator==(const APyCFixed& rhs) const
 }
 
 bool APyCFixed::operator!=(const APyCFixed& rhs) const { return !(*this == rhs); }
+
+APyCFixed APyCFixed::operator+(const APyFixed& rhs) const
+{
+    return *this + APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits());
+}
+
+APyCFixed APyCFixed::operator-(const APyFixed& rhs) const
+{
+    return *this - APyCFixed::from_apyfixed(rhs, rhs.int_bits(), rhs.frac_bits());
+}
+
+APyCFixed APyCFixed::operator*(const APyFixed& rhs) const
+{
+    const int res_int_bits = int_bits() + rhs.int_bits();
+    const int res_bits = bits() + rhs.bits();
+
+    // Result fixed-point number
+    APyCFixed result(res_bits, res_int_bits);
+
+    // Single-limb result specialization
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        result._data[0]
+            = apy_limb_signed_t(_data[0]) * apy_limb_signed_t(rhs._data[0]); // real
+        result._data[1]
+            = apy_limb_signed_t(_data[1]) * apy_limb_signed_t(rhs._data[0]); // imag
+
+        return result; // early exit
+    }
+    // Double limb result specialization
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
+            && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            complex_real_multiplication_1_1_2(
+                &result._data[0], &_data[0], &rhs._data[0]
+            );
+            return result;
+        } else if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            complex_real_multiplication_1_2_2(
+                &result._data[0], &_data[0], &rhs._data[0]
+            );
+            return result;
+        } else {
+            complex_real_multiplication_2_1_2(
+                &result._data[0], &_data[0], &rhs._data[0]
+            );
+            return result;
+        }
+    }
+
+    // Scratch data:
+    // * op1_abs:       src1_limbs
+    // * op2_abs:       src2_limbs
+    // * prod_imm:      2 + 2 * src1_limbs + 2 * src2_limbs
+    std::size_t src1_limbs = _data.size() / 2;
+    std::size_t src2_limbs = rhs._data.size();
+    std::size_t scratch_size = 2 + 3 * src1_limbs + 3 * src2_limbs;
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
+    auto op1_abs_begin = std::begin(scratch);
+    auto op2_abs_begin = op1_abs_begin + src1_limbs;
+    auto prod_imm_begin = op2_abs_begin + src2_limbs;
+
+    // Perform the product
+    complex_real_fixed_point_product(
+        std::begin(_data),        // src1
+        std::begin(rhs._data),    // src2
+        std::begin(result._data), // dst
+        src1_limbs,               // src1_limbs
+        src2_limbs,               // src2_limbs
+        bits_to_limbs(res_bits),  // dst_limbs
+        op1_abs_begin,            // op1_abs
+        op2_abs_begin,            // op2_abs
+        prod_imm_begin            // prod_abs
+    );
+
+    return result;
+}
+
+APyCFixed APyCFixed::operator/(const APyFixed& rhs) const
+{
+    if (rhs.is_zero()) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+        throw nb::python_error();
+    }
+
+    // Result bit widths (same as APyFixed division)
+    const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
+    const int res_frac_bits = frac_bits() + rhs.int_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
+
+    APyCFixed result(res_bits, res_int_bits);
+
+    // Single-limb result specialization
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        apy_limb_signed_t denominator = rhs._data[0];
+        apy_limb_signed_t real_num = apy_limb_signed_t(real_begin()[0]) << rhs.bits();
+        apy_limb_signed_t imag_num = apy_limb_signed_t(imag_begin()[0]) << rhs.bits();
+        result.real_begin()[0] = real_num / denominator;
+        result.imag_begin()[0] = imag_num / denominator;
+        return result;
+    }
+
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    // Specialization when __int128 is available
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        __int128 denominator;
+        if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            denominator = (__int128)(apy_limb_signed_t)rhs._data[0];
+        } else {
+            denominator = (__int128)rhs._data[0];
+            denominator |= (__int128)(apy_limb_signed_t)rhs._data[1]
+                << APY_LIMB_SIZE_BITS;
+        }
+
+        // Divide real part
+        __int128 real_num;
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            real_num = (__int128)(apy_limb_signed_t)*real_begin();
+        } else {
+            real_num = (__int128)*real_begin();
+            real_num |= (__int128)(apy_limb_signed_t) * (real_begin() + 1)
+                << APY_LIMB_SIZE_BITS;
+        }
+        real_num <<= rhs.bits();
+        auto res_real = real_num / denominator;
+        result.real_begin()[0] = apy_limb_t(res_real);
+        result.real_begin()[1] = apy_limb_t(res_real >> APY_LIMB_SIZE_BITS);
+
+        // Divide imaginary part
+        __int128 imag_num;
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            imag_num = (__int128)(apy_limb_signed_t)*imag_begin();
+        } else {
+            imag_num = (__int128)*imag_begin();
+            imag_num |= (__int128)(apy_limb_signed_t) * (imag_begin() + 1)
+                << APY_LIMB_SIZE_BITS;
+        }
+        imag_num <<= rhs.bits();
+        auto res_imag = imag_num / denominator;
+        result.imag_begin()[0] = apy_limb_t(res_imag);
+        result.imag_begin()[1] = apy_limb_t(res_imag >> APY_LIMB_SIZE_BITS);
+
+        return result;
+    }
+#endif
+#endif
+#if (COMPILER_LIMB_SIZE == 32)
+    // Specialization using 64-bit division
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        std::int64_t denominator;
+        if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[0];
+        } else {
+            denominator = (std::int64_t)rhs._data[0];
+            denominator |= (std::int64_t)(apy_limb_signed_t)rhs._data[1]
+                << APY_LIMB_SIZE_BITS;
+        }
+
+        // Divide real part
+        std::int64_t real_num;
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            real_num = (std::int64_t)(apy_limb_signed_t)*real_begin();
+        } else {
+            real_num = (std::int64_t)*real_begin();
+            real_num |= (std::int64_t)(apy_limb_signed_t) * (real_begin() + 1)
+                << APY_LIMB_SIZE_BITS;
+        }
+        real_num <<= rhs.bits();
+        auto res_real = real_num / denominator;
+        result.real_begin()[0] = apy_limb_t(res_real);
+        result.real_begin()[1] = apy_limb_t(res_real >> APY_LIMB_SIZE_BITS);
+
+        // Divide imaginary part
+        std::int64_t imag_num;
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            imag_num = (std::int64_t)(apy_limb_signed_t)*imag_begin();
+        } else {
+            imag_num = (std::int64_t)*imag_begin();
+            imag_num |= (std::int64_t)(apy_limb_signed_t) * (imag_begin() + 1)
+                << APY_LIMB_SIZE_BITS;
+        }
+        imag_num <<= rhs.bits();
+        auto res_imag = imag_num / denominator;
+        result.imag_begin()[0] = apy_limb_t(res_imag);
+        result.imag_begin()[1] = apy_limb_t(res_imag >> APY_LIMB_SIZE_BITS);
+
+        return result;
+    }
+#endif
+
+    // Multi-limb fallback with precomputed absolute denominator
+    std::size_t res_real_limbs = bits_to_limbs(res_bits);
+    ScratchVector<apy_limb_t, 16> scratch(res_real_limbs);
+    ScratchVector<apy_limb_t, 16> abs_den(rhs._data.size());
+    bool den_negative
+        = limb_vector_abs(rhs._data.begin(), rhs._data.end(), std::begin(abs_den));
+    std::size_t den_significant_limbs
+        = significant_limbs(std::begin(abs_den), std::end(abs_den));
+
+    // Divide real part (negation handled internally)
+    fixed_point_division_precomputed_denominator(
+        result.real_begin(),
+        real_begin(),
+        real_end(),
+        std::begin(abs_den),
+        den_significant_limbs,
+        den_negative,
+        rhs.bits(),
+        res_real_limbs,
+        scratch
+    );
+
+    // Divide imaginary part (negation handled internally)
+    fixed_point_division_precomputed_denominator(
+        result.imag_begin(),
+        imag_begin(),
+        imag_end(),
+        std::begin(abs_den),
+        den_significant_limbs,
+        den_negative,
+        rhs.bits(),
+        res_real_limbs,
+        scratch
+    );
+
+    return result;
+}
+
+APyCFixed APyCFixed::rdiv(const APyFixed& lhs) const
+{
+    if (is_zero()) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+        throw nb::python_error();
+    }
+
+    const int num_int_bits = 1 + int_bits() + lhs.int_bits();
+    const int num_frac_bits = frac_bits() + lhs.frac_bits();
+    const int div_bits = num_int_bits + num_frac_bits + bits();
+
+    const int res_int_bits = lhs.int_bits() + frac_bits() + 1;
+    const int res_frac_bits = lhs.frac_bits() + int_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
+
+    APyCFixed result(res_bits, res_int_bits);
+
+    if (unsigned(div_bits) <= APY_LIMB_SIZE_BITS) {
+        apy_limb_signed_t num = apy_limb_signed_t(lhs._data[0]);
+        apy_limb_signed_t den_real = apy_limb_signed_t(_data[0]);
+        apy_limb_signed_t den_imag = apy_limb_signed_t(_data[1]);
+        apy_limb_signed_t den = den_real * den_real + den_imag * den_imag;
+        apy_limb_signed_t real = num * den_real;
+        apy_limb_signed_t imag = -num * den_imag;
+
+        result._data[0] = (apy_limb_signed_t(real << bits()) / den);
+        result._data[1] = (apy_limb_signed_t(imag << bits()) / den);
+        return result;
+    }
+
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+        if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            __int128 num = (__int128)apy_limb_signed_t(lhs._data[0]);
+            __int128 den_real = (__int128)apy_limb_signed_t(_data[0]);
+            __int128 den_imag = (__int128)apy_limb_signed_t(_data[1]);
+            __int128 den = den_real * den_real + den_imag * den_imag;
+            __int128 real = num * den_real;
+            __int128 imag = -num * den_imag;
+            __int128 res_real = (real << bits()) / den;
+            __int128 res_imag = (imag << bits()) / den;
+            if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+                result._data[0] = apy_limb_t(res_real);
+                result._data[1] = apy_limb_t(res_imag);
+            } else {
+                result._data[0] = apy_limb_t(res_real);
+                result._data[1] = apy_limb_t(res_real >> APY_LIMB_SIZE_BITS);
+                result._data[2] = apy_limb_t(res_imag);
+                result._data[3] = apy_limb_t(res_imag >> APY_LIMB_SIZE_BITS);
+            }
+        } else {
+            assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
+            __int128 num = (__int128)(lhs._data[0])
+                | ((__int128)apy_limb_signed_t(lhs._data[1]) << APY_LIMB_SIZE_BITS);
+            __int128 den_real = (__int128)apy_limb_signed_t(_data[0]);
+            __int128 den_imag = (__int128)apy_limb_signed_t(_data[1]);
+            __int128 den = den_real * den_real + den_imag * den_imag;
+            __int128 real = num * den_real;
+            __int128 imag = -num * den_imag;
+            __int128 res_real = (real << bits()) / den;
+            __int128 res_imag = (imag << bits()) / den;
+            result._data[0] = apy_limb_t(res_real);
+            result._data[1] = apy_limb_t(res_real >> APY_LIMB_SIZE_BITS);
+            result._data[2] = apy_limb_t(res_imag);
+            result._data[3] = apy_limb_t(res_imag >> APY_LIMB_SIZE_BITS);
+        }
+        return result;
+    }
+#endif
+#endif
+#if (COMPILER_LIMB_SIZE == 32)
+    if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+        if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            std::int64_t num = (std::int64_t)apy_limb_signed_t(lhs._data[0]);
+            std::int64_t den_real = (std::int64_t)apy_limb_signed_t(_data[0]);
+            std::int64_t den_imag = (std::int64_t)apy_limb_signed_t(_data[1]);
+            std::int64_t den = den_real * den_real + den_imag * den_imag;
+            std::int64_t real = num * den_real;
+            std::int64_t imag = -num * den_imag;
+            std::int64_t res_real = (real << bits()) / den;
+            std::int64_t res_imag = (imag << bits()) / den;
+            if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+                result._data[0] = apy_limb_t(res_real);
+                result._data[1] = apy_limb_t(res_imag);
+            } else {
+                result._data[0] = apy_limb_t(res_real);
+                result._data[1] = apy_limb_t(res_real >> APY_LIMB_SIZE_BITS);
+                result._data[2] = apy_limb_t(res_imag);
+                result._data[3] = apy_limb_t(res_imag >> APY_LIMB_SIZE_BITS);
+            }
+        } else {
+            assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
+            std::int64_t num = (std::int64_t)(lhs._data[0])
+                | ((std::int64_t)apy_limb_signed_t(lhs._data[1]) << APY_LIMB_SIZE_BITS);
+            std::int64_t den_real = (std::int64_t)apy_limb_signed_t(_data[0]);
+            std::int64_t den_imag = (std::int64_t)apy_limb_signed_t(_data[1]);
+            std::int64_t den = den_real * den_real + den_imag * den_imag;
+            std::int64_t real = num * den_real;
+            std::int64_t imag = -num * den_imag;
+            std::int64_t res_real = (real << bits()) / den;
+            std::int64_t res_imag = (imag << bits()) / den;
+            result._data[0] = apy_limb_t(res_real);
+            result._data[1] = apy_limb_t(res_real >> APY_LIMB_SIZE_BITS);
+            result._data[2] = apy_limb_t(res_imag);
+            result._data[3] = apy_limb_t(res_imag >> APY_LIMB_SIZE_BITS);
+        }
+        return result;
+    }
+#endif
+
+    std::size_t src1_limbs = lhs._data.size();
+    std::size_t src2_limbs = _data.size() / 2;
+    std::size_t dst_limbs = result._data.size() / 2;
+    std::size_t div_limbs = bits_to_limbs(div_bits);
+
+    std::size_t scratch_limbs = 2 + 3 * src1_limbs + 5 * src2_limbs + 2 * div_limbs;
+    ScratchVector<apy_limb_t, 64> scratch(scratch_limbs);
+
+    auto op1_abs = std::begin(scratch);
+    auto op2_abs = op1_abs + src1_limbs;
+    auto prod_imm = op2_abs + src2_limbs;
+    auto num_imm = prod_imm + 2 + 2 * src1_limbs + 2 * src2_limbs;
+    auto den_imm = num_imm + div_limbs;
+    auto qte_imm = den_imm + 2 * src2_limbs;
+
+    std::vector<apy_limb_t> lhs_complex(2 * src1_limbs, apy_limb_t(0));
+    std::copy_n(std::begin(lhs._data), src1_limbs, std::begin(lhs_complex));
+
+    complex_fixed_point_division(
+        std::begin(lhs_complex),  // src1
+        std::begin(_data),        // src2
+        std::begin(result._data), // dst
+        src1_limbs,               // src1_limbs
+        src2_limbs,               // src2_limbs
+        dst_limbs,                // dst_limbs
+        bits(),                   // src2_bits
+        div_limbs,                // div_limbs
+        op1_abs,                  // op1_abs
+        op2_abs,                  // op2_abs
+        prod_imm,                 // prod_imm
+        den_imm,                  // den_imm
+        num_imm,                  // num_imm
+        qte_imm                   // qte_imm
+    );
+
+    return result;
+}
 
 bool APyCFixed::operator==(const APyFixed& rhs) const
 {
