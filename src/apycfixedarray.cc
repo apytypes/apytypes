@@ -311,11 +311,18 @@ APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs) const
         lhs_shift_amount          // left_shift_amount
     );
     _cast_no_quantize_no_overflow(
-        std::begin(rhs._data), // src_begin
-        std::end(rhs._data),   // src_end
-        std::begin(imm._data), // dst_begin
-        std::end(imm._data),   // dst_end
-        rhs_shift_amount       // left_shift_amount
+        rhs.real_cbegin(), // src_begin
+        rhs.real_cend(),   // src_end
+        imm.real_begin(),  // dst_begin
+        imm.real_end(),    // dst_end
+        rhs_shift_amount   // left_shift_amount
+    );
+    _cast_no_quantize_no_overflow(
+        rhs.imag_cbegin(), // src_begin
+        rhs.imag_cend(),   // src_end
+        imm.imag_begin(),  // dst_begin
+        imm.imag_end(),    // dst_end
+        rhs_shift_amount   // left_shift_amount
     );
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
         // Perform ripple-carry operation
@@ -414,11 +421,18 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
         rhs_shift_amount          // left_shift_amount
     );
     _cast_no_quantize_no_overflow(
-        std::begin(lhs._data), // src_begin
-        std::end(lhs._data),   // src_end
-        std::begin(imm._data), // dst_begin
-        std::end(imm._data),   // dst_end
-        lhs_shift_amount       // left_shift_amount
+        lhs.real_cbegin(), // src_begin
+        lhs.real_cend(),   // src_end
+        imm.real_begin(),  // dst_begin
+        imm.real_end(),    // dst_end
+        lhs_shift_amount   // left_shift_amount
+    );
+    _cast_no_quantize_no_overflow(
+        lhs.imag_cbegin(), // src_begin
+        lhs.imag_cend(),   // src_end
+        imm.imag_begin(),  // dst_begin
+        imm.imag_end(),    // dst_end
+        lhs_shift_amount   // left_shift_amount
     );
     auto result_it = result._data.begin();
     for (; result_it != result._data.end(); result_it += result._itemsize) {
