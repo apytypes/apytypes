@@ -104,6 +104,38 @@ def test_float_and_int_comparison_total_order(py_type: type[float]):
     assert not APyFixed.from_float(0.0, 256, 128) >= py_type(1.0)
 
 
+def test_apyfixed_arith_complex_returns_apycfixed():
+    a = APyFixed.from_float(1.25, int_bits=5, frac_bits=7)
+    b = 2.5 - 1.0j
+
+    assert isinstance(a + b, APyCFixed)
+    assert isinstance(a - b, APyCFixed)
+    assert isinstance(a * b, APyCFixed)
+    assert isinstance(a / b, APyCFixed)
+
+    assert isinstance(b + a, APyCFixed)
+    assert isinstance(b - a, APyCFixed)
+    assert isinstance(b * a, APyCFixed)
+    assert isinstance(b / a, APyCFixed)
+
+
+def test_apyfixed_arith_complex_uses_apyfixed_bit_spec():
+    a = APyFixed.from_float(1.25, int_bits=5, frac_bits=7)
+    b = 2.5 - 1.0j
+
+    b_cfx = APyCFixed.from_complex(b, int_bits=a.int_bits, frac_bits=a.frac_bits)
+
+    assert (a + b).is_identical(b_cfx + a)
+    assert (a - b).is_identical(-(b_cfx - a))
+    assert (a * b).is_identical(b_cfx * a)
+    assert (a / b).is_identical(a / b_cfx)
+
+    assert (b + a).is_identical(b_cfx + a)
+    assert (b - a).is_identical(b_cfx - a)
+    assert (b * a).is_identical(b_cfx * a)
+    assert (b / a).is_identical(b_cfx / a)
+
+
 @pytest.mark.parametrize("apyfixed", [APyFixed, APyCFixed])
 def test_narrow_add_sub(apyfixed: type[APyCFixed]):
     for a_bits in range(10, 30):
