@@ -350,9 +350,9 @@ public:
     static APyCFixed one(int bits, int int_bits);
 
     /* ****************************************************************************** *
-     *                        Private helper methods                                * *
+     *                        Public helper methods                                * *
      * ****************************************************************************** */
-private:
+public:
     auto real_begin() noexcept { return std::begin(_data); }
     auto real_begin() const noexcept { return std::cbegin(_data); }
     auto real_cbegin() const noexcept { return real_begin(); }
