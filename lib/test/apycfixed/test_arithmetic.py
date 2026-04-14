@@ -289,3 +289,18 @@ def test_operation_with_real_integers():
     assert (_ := (-2) * a).is_identical(_ := neg_two * a)
     assert (_ := a / (-2)).is_identical(_ := a / neg_two)
     assert (_ := (-2) / a).is_identical(_ := neg_two / a)
+
+
+@pytest.mark.parametrize("int_bits", [3, 10, 20, 40, 100, 10000])
+@pytest.mark.parametrize("frac_bits", [0, 5, 20, 40, 100, 10000])
+def test_division_raises_on_zero(int_bits: int, frac_bits: int):
+    a = APyCFixed.from_complex(1 + 1j, int_bits=int_bits, frac_bits=frac_bits)
+    zero = APyCFixed.from_complex(0, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = a / zero
+    zero_real = APyFixed.from_float(0, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = a / zero_real
+    b = APyFixed(2, int_bits=int_bits, frac_bits=frac_bits)
+    with pytest.raises(ZeroDivisionError):
+        _ = b / zero
