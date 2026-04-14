@@ -3,6 +3,8 @@
 #include <Python.h> // PYLONG_BITS_IN_DIGIT, PyLongObject
 
 #include "apybuffer.h"
+#include "apycfixed_util.h"
+#include "apycfixedarray.h"
 #include "apyfixed.h"
 #include "apyfixed_util.h"
 #include "apyfixedarray.h"
@@ -343,6 +345,16 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
         simd::shift_add_const_functor<>>(rhs);
 }
 
+APyCFixedArray APyFixedArray::operator+(const APyCFixedArray& rhs) const
+{
+    return APyCFixedArray(*this) + rhs;
+}
+
+APyCFixedArray APyFixedArray::operator+(const APyCFixed& rhs) const
+{
+    return APyCFixedArray(*this) + rhs;
+}
+
 APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
@@ -363,6 +375,16 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
         apy_sub_2_functor<>,
         simd::sub_const_functor<>,
         simd::shift_sub_const_functor<>>(rhs);
+}
+
+APyCFixedArray APyFixedArray::operator-(const APyCFixedArray& rhs) const
+{
+    return APyCFixedArray(*this) - rhs;
+}
+
+APyCFixedArray APyFixedArray::operator-(const APyCFixed& rhs) const
+{
+    return APyCFixedArray(*this) - rhs;
 }
 
 // Scalar - Array
@@ -412,6 +434,11 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
 
     // Return result
     return result;
+}
+
+APyCFixedArray APyFixedArray::rsub(const APyCFixed& lhs) const
+{
+    return APyCFixedArray(*this).rsub(lhs);
 }
 
 APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
@@ -572,6 +599,179 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
                 result._data.begin() + (i + 0) * result._itemsize
             );
         }
+        op1_begin = op1_end;
+    }
+    return result;
+}
+
+APyCFixedArray APyFixedArray::operator*(const APyCFixedArray& rhs) const
+{
+    return rhs * *this;
+}
+
+APyCFixedArray APyFixedArray::operator*(const APyCFixed& rhs) const
+{
+    const int res_int_bits = int_bits() + rhs.int_bits();
+    const int res_bits = bits() + rhs.bits();
+
+    // Resulting `APyCFixedArray` fixed-point tensor
+    APyCFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Special case #1: The resulting number of bits fit in a single limb
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        for (std::size_t i = 0; i < _nitems; i++) {
+            result._data[2 * i + 0]
+                = (apy_limb_signed_t)_data[i] * (apy_limb_signed_t)rhs.real_begin()[0];
+            result._data[2 * i + 1]
+                = (apy_limb_signed_t)_data[i] * (apy_limb_signed_t)rhs.imag_begin()[0];
+        }
+        return result; // early exit
+    }
+
+    // Special case #2: Both arguments are single limb, result two limbs
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+
+        if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+                for (std::size_t i = 0; i < _nitems; i++) {
+                    complex_real_multiplication_1_1_2(
+                        result._data.data() + i * 4, // dst
+                        &rhs.real_begin()[0], // src2 (pointer to complex constant)
+                        _data.data() + i      // src1 (pointer to real part of constant)
+                    );
+                }
+                return result;
+            } else {
+                // Left-hand side is single limb, right-hand side (complex) is two limbs
+                for (std::size_t i = 0; i < _nitems; i++) {
+                    complex_real_multiplication_2_1_2(
+                        result._data.data() + i * 4, // dst
+                        &rhs.real_begin()[0], // src2 (pointer to complex constant)
+                        _data.data() + i      // src1 (pointer to real part of constant)
+                    );
+                }
+                return result;
+            }
+        } else {
+            assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            // Left-hand side is two limbs, right-hand side is single limb
+            for (std::size_t i = 0; i < _nitems; i++) {
+                complex_real_multiplication_1_2_2(
+                    result._data.data() + i * 4, // dst
+                    &rhs.real_begin()[0],        // src2 (pointer to complex constant)
+                    _data.data() + i * 2 // src1 (pointer to real part of constant)
+                );
+            }
+            return result;
+        }
+    }
+
+    // General case: This always works but is slower than the special cases.
+    auto op2_real_begin = rhs.real_begin();
+    auto op2_real_end = rhs.real_end();
+    auto op2_size = std::distance(op2_real_begin, op2_real_end);
+    std::vector<apy_limb_t> op2_real_abs(op2_size);
+    // Compute the absolute value of operand, as required by multiplication algorithm
+    bool sign2_real
+        = limb_vector_abs(op2_real_begin, op2_real_end, op2_real_abs.begin());
+
+    auto op2_imag_begin = rhs.imag_begin();
+    auto op2_imag_end = rhs.imag_end();
+    std::vector<apy_limb_t> op2_imag_abs(op2_size);
+    // Compute the absolute value of operand, as required by multiplication algorithm
+    bool sign2_imag
+        = limb_vector_abs(op2_imag_begin, op2_imag_end, op2_imag_abs.begin());
+
+    // Perform multiplication for each element in the tensor.
+    // `apy_unsigned_multiplication` requires: "The destination has to have space for
+    // `s1n` + `s2n` limbs, even if the product’s most significant limbs are zero."
+    std::vector<apy_limb_t> res_tmp_vec(_itemsize + op2_size, 0);
+    std::vector<apy_limb_t> op1_abs(_itemsize);
+    auto op1_begin = _data.begin();
+    for (std::size_t i = 0; i < _nitems; i++) {
+        // Current working operands
+        auto op1_end = op1_begin + _itemsize;
+
+        // Compute the absolute value of operand, as required by multiplication
+        // algorithm
+        bool sign1 = limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
+
+        // Evaluate resulting sign
+        bool real_result_sign = sign1 ^ sign2_real;
+
+        // Perform the multiplication
+        if (op1_abs.size() < op2_real_abs.size()) {
+            apy_unsigned_multiplication(
+                res_tmp_vec.data(),  // dst
+                op2_real_abs.data(), // src1
+                op2_real_abs.size(), // src1 limb vector length
+                op1_abs.data(),      // src2
+                op1_abs.size()       // src2 limb vector length
+            );
+        } else {
+            apy_unsigned_multiplication(
+                res_tmp_vec.data(),  // dst
+                op1_abs.data(),      // src1
+                op1_abs.size(),      // src1 limb vector length
+                op2_real_abs.data(), // src2
+                op2_real_abs.size()  // src2 limb vector length
+            );
+        }
+
+        // Handle sign
+        if (real_result_sign) {
+            limb_vector_negate(
+                res_tmp_vec.begin(),
+                res_tmp_vec.begin() + result._itemsize / 2,
+                result._data.begin() + (2 * i + 0) * result._itemsize / 2
+            );
+        } else {
+            // Copy into resulting vector
+            std::copy_n(
+                res_tmp_vec.begin(),
+                result._itemsize / 2,
+                result._data.begin() + (2 * i + 0) * result._itemsize / 2
+            );
+        }
+
+        // Evaluate resulting sign
+        bool imag_result_sign = sign1 ^ sign2_imag;
+
+        // Perform the multiplication
+        if (op1_abs.size() < op2_imag_abs.size()) {
+            apy_unsigned_multiplication(
+                res_tmp_vec.data(),  // dst
+                op2_imag_abs.data(), // src1
+                op2_imag_abs.size(), // src1 limb vector length
+                op1_abs.data(),      // src2
+                op1_abs.size()       // src2 limb vector length
+            );
+        } else {
+            apy_unsigned_multiplication(
+                res_tmp_vec.data(),  // dst
+                op1_abs.data(),      // src1
+                op1_abs.size(),      // src1 limb vector length
+                op2_imag_abs.data(), // src2
+                op2_imag_abs.size()  // src2 limb vector length
+            );
+        }
+
+        // Handle sign
+        if (imag_result_sign) {
+            limb_vector_negate(
+                res_tmp_vec.begin(),
+                res_tmp_vec.begin() + result._itemsize / 2,
+                result._data.begin() + (2 * i + 1) * result._itemsize / 2
+            );
+        } else {
+            // Copy into resulting vector
+            std::copy_n(
+                res_tmp_vec.begin(),
+                result._itemsize / 2,
+                result._data.begin() + (2 * i + 1) * result._itemsize / 2
+            );
+        }
+
         op1_begin = op1_end;
     }
     return result;
@@ -894,6 +1094,16 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     return result;
 }
 
+APyCFixedArray APyFixedArray::operator/(const APyCFixedArray& rhs) const
+{
+    return APyCFixedArray(*this) / rhs;
+}
+
+APyCFixedArray APyFixedArray::operator/(const APyCFixed& rhs) const
+{
+    return APyCFixedArray(*this) / rhs;
+}
+
 APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
 {
     if (std::size_t(bits()) <= APY_LIMB_SIZE_BITS
@@ -1059,6 +1269,11 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
         }
     }
     return result;
+}
+
+APyCFixedArray APyFixedArray::rdiv(const APyCFixed& lhs) const
+{
+    return APyCFixedArray(*this).rdiv(lhs);
 }
 
 APyFixedArray APyFixedArray::operator<<(const int shift_val) const

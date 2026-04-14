@@ -160,18 +160,28 @@ private:
 public:
     APyFixedArray operator+(const APyFixedArray& rhs) const;
     APyFixedArray operator+(const APyFixed& rhs) const;
+    APyCFixedArray operator+(const APyCFixedArray& rhs) const;
+    APyCFixedArray operator+(const APyCFixed& rhs) const;
     APyFixedArray operator-(const APyFixedArray& rhs) const;
     APyFixedArray operator-(const APyFixed& rhs) const;
+    APyCFixedArray operator-(const APyCFixedArray& rhs) const;
+    APyCFixedArray operator-(const APyCFixed& rhs) const;
     APyFixedArray operator*(const APyFixedArray& rhs) const;
     APyFixedArray operator*(const APyFixed& rhs) const;
+    APyCFixedArray operator*(const APyCFixedArray& rhs) const;
+    APyCFixedArray operator*(const APyCFixed& rhs) const;
     APyFixedArray operator/(const APyFixedArray& rhs) const;
     APyFixedArray operator/(const APyFixed& rhs) const;
+    APyCFixedArray operator/(const APyCFixedArray& rhs) const;
+    APyCFixedArray operator/(const APyCFixed& rhs) const;
     APyFixedArray operator<<(const int shift_val) const;
     APyFixedArray operator>>(const int shift_val) const;
     APyFixedArray& operator<<=(const int shift_val);
     APyFixedArray& operator>>=(const int shift_val);
     APyFixedArray rsub(const APyFixed& rhs) const;
+    APyCFixedArray rsub(const APyCFixed& rhs) const;
     APyFixedArray rdiv(const APyFixed& rhs) const;
+    APyCFixedArray rdiv(const APyCFixed& rhs) const;
 
     template <typename T> ThirdPartyArray<bool> operator==(const T& rhs) const;
     template <typename T> ThirdPartyArray<bool> operator!=(const T& rhs) const;
