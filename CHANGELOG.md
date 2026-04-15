@@ -15,10 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Crash on division by zero for fixed-point arrays for some word lengths on some
   platforms.
+- Bug in mixed multi-limb array-scalar fixed-point addition and subtraction.
 
 ### Changed
 
-- BREAKING: Division by zero for fixed-point arrays will now always raise a `ZeroDivisionError`.
+- BREAKING: Division by zero for fixed-point arrays will now always raise a
+  `ZeroDivisionError`.
 
 ### Removed
 
