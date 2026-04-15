@@ -438,14 +438,14 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
     for (; result_it != result._data.end(); result_it += result._itemsize) {
         // Perform ripple-carry operation
         apy_inplace_reversed_subtraction_same_length( // real part
-            result_it,                                // dst/src2
-            result_it + result._itemsize / 2,         // dst/src2 end
-            std::begin(imm._data)                     // src1
+            result_it,                                // dst_begin
+            result_it + result._itemsize / 2,         // dst_end
+            imm.real_begin()                          // src_begin
         );
-        apy_inplace_reversed_subtraction_same_length(    // imaginary part
-            result_it + result._itemsize / 2,            // dst(src2)
-            result_it + result._itemsize,                // dst/src2 end
-            std::begin(imm._data) + result._itemsize / 2 // src1
+        apy_inplace_reversed_subtraction_same_length( // imaginary part
+            result_it + result._itemsize / 2,         // dst_begin
+            result_it + result._itemsize,             // dst_end
+            imm.imag_begin()                          // src_begin
         );
     }
 

@@ -309,7 +309,7 @@ apy_inplace_reversed_subtraction_same_length(
     assert(dest_begin < dest_end);
 
     // Specialized first iteration
-    apy_limb_t carry = 1;
+    apy_limb_t carry = 0;
     auto dest_it = dest_begin;
     auto src_it = src_begin;
 
