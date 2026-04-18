@@ -81,7 +81,7 @@ jobs:
           cp -r apytypes-wasm-wheels/* pyodide-dist
           zip -r pyodide-dist/pyodide-home.zip pyproject.toml lib 1> /dev/null
           python -m http.server -d pyodide-dist &
-          p=$!; while ! nc -z localhost 8000; do sleep 1; done; echo ready$pid $p$
+          p=$!; while ! nc -z localhost 8000; do sleep 1; done; echo "ready pid=$p"
           cp lib/test/run.mts pyodide-dist/run.mts
           cd pyodide-dist
           node run.mts $(ls ../apytypes-wasm-wheels)
