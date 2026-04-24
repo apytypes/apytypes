@@ -36,9 +36,12 @@ jobs:
     - uses: nickg/setup-nvc@master  # v1v1
       with:
         version: latest
+    - name: Set up GHDL
+      uses: ghdl/setup-ghdl@v1
     - name: Check simulator installation
       run: |
         nvc --version # Make sure nvc was installed successfully
+        ghdl --version # Make sure ghdl was installed successfully
     - name: Install nvc packages
       run: |
         nvc --install osvvm vunit

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- VHDL generator producing an extra `in`.
+- VHDL generation when providing address table.
 - Crash on division by zero for fixed-point arrays for some word lengths on some
   platforms.
 - Bug in mixed multi-limb array-scalar fixed-point addition and subtraction.
