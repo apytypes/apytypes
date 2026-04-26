@@ -33,7 +33,6 @@ if get_option('limb_size') == '64'
         language: ['cpp', 'c'],
     )
 endif
-add_project_arguments('-DCMAKE_VERBOSE_MAKEFILE=ON', language: ['cpp', 'c'])
 
 # Disable nanobind leak warnings on release builds
 if get_option('buildtype') == 'release'
@@ -51,7 +50,7 @@ nanobind_dep = dependency('nanobind')
 
 # Threadpool dependency
 if host_machine.cpu_family().contains('wasm')
-  threadpool_dep = dependency('', required: false)
+  threadpool_dep = declare_dependency()
 else
   threadpool_dep = dependency('bshoshany-thread-pool')
 endif
