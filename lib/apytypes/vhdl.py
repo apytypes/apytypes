@@ -22,11 +22,11 @@ def generate_rom(
 
     Parameters
     ----------
-    table : APyFixedArray, APyFloatArray
+    table : :class:`APyFixedArray`, :class:`APyFloatArray`
         The data in the ROM.
     entity : str, optional
         VHDL entity name.
-    address : APyFixedArray, APyFloatArray, optional
+    address : :class:`APyFixedArray`, :class:`APyFloatArray`, optional
         Addresses for the ROM. If not provided, sequential addressing from 0 is assumed.
     frac_bits : :class:`int`, optional
         If *ieee2008* is True and *address* is not provided, use this many fractional bits for address.

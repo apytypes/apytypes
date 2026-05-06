@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+-
+
+### Changed
+
+-
+
+### Removed
+
+-
+
+## [0.5.1] - 2026-05-06
+
+### Fixed
+
 - VHDL generator producing an extra `in`.
 - VHDL generation when providing address table.
 - Crash on division by zero for fixed-point arrays for some word lengths on some
@@ -23,10 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BREAKING: Division by zero for fixed-point arrays will now always raise a
   `ZeroDivisionError`.
-
-### Removed
-
--
 
 ## [0.5.0] - 2026-04-09
 
