@@ -113,9 +113,9 @@ def test_to_complex():
     )
 
 
-@pytest.mark.parametrize("exp_bits", product([5, 11], repeat=2))
-@pytest.mark.parametrize("man_bits", product([11, 30, 51], repeat=2))
-@pytest.mark.parametrize("bias", product([None, 14], repeat=2))
+@pytest.mark.parametrize("exp_bits", list(product([5, 11], repeat=2)))
+@pytest.mark.parametrize("man_bits", list(product([11, 30, 51], repeat=2)))
+@pytest.mark.parametrize("bias", list(product([None, 14], repeat=2)))
 @pytest.mark.parametrize(
     "value", [0.0, -0.0, 4.5, -62.0625, float("-inf"), -(2**11), 2**-11]
 )
