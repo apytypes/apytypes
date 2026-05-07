@@ -8,14 +8,13 @@ authors = [
 ]
 description = "Python package for custom fixed-point and floating-point formats"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -43,21 +42,21 @@ docs = [
     "sphinx_gallery>=0.16",
     "m2r2",
     "docutils",
-    "numpy>=1.25",
+    "numpy>=2",
     "scipy",
     "cocotb>=2",
 ]
-test = ["numpy>=1.25", "pytest>=8.2"]
-test_hdl = ["numpy>=1.25", "pytest>=8.2", "cocotb>=2", "vunit-hdl", "packaging"]
+test = ["numpy>=2", "pytest>=8.2"]
+test_hdl = ["numpy>=2", "pytest>=8.2", "cocotb>=2", "vunit-hdl", "packaging"]
 dev = ["nanobind>=2.8.0"]
-benchmark = ["numpy>=1.25", "pytest>=8.2", "pytest-benchmark"]
+benchmark = ["numpy>=2", "pytest>=8.2", "pytest-benchmark"]
 comparison = [
     "fpbinary",
     "fixedpoint",
     "fxpmath>=0.4.9",
     "spfpm",
     "numfi>=0.5",
-    "numpy>=1.25",
+    "numpy>=2",
     "matplotlib>=3.7",
 ]
 
@@ -115,8 +114,8 @@ exclude = [".git", ".vscode", "_build", "build"]
 line-length = 88
 indent-width = 4
 
-# Assume Python 3.10
-target-version = "py310"
+# Assume Python 3.11
+target-version = "py311"
 
 [tool.ruff.lint]
 select = [

@@ -198,9 +198,17 @@ def test_sub_double_precision(x: complex, y: complex):
 @pytest.mark.parametrize("man_bits", [10, 35, 52])
 @pytest.mark.parametrize(
     ("a_val", "b_val"),
-    product(
-        [0.0 + 0.0j, -1.0 + 0.0j, -0.0 - 1.0j, 3.0625 - 1.25j, -(2 ** (-4)) + 247.25j],
-        repeat=2,
+    list(
+        product(
+            [
+                0.0 + 0.0j,
+                -1.0 + 0.0j,
+                -0.0 - 1.0j,
+                3.0625 - 1.25j,
+                -(2 ** (-4)) + 247.25j,
+            ],
+            repeat=2,
+        )
     ),
 )
 def test_arithmetic_with_python_complex(

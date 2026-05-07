@@ -110,8 +110,8 @@ def test_inf_comparison():
 
 
 @pytest.mark.float_comp
-@pytest.mark.parametrize("a_sign", product([0, 1], repeat=2))
-@pytest.mark.parametrize("b_sign", product([0, 1], repeat=2))
+@pytest.mark.parametrize("a_sign", list(product([0, 1], repeat=2)))
+@pytest.mark.parametrize("b_sign", list(product([0, 1], repeat=2)))
 def test_signed_zero_comparison(a_sign: tuple[int, int], b_sign: tuple[int, int]):
     a = APyCFloat(a_sign, (0, 0), (0, 0), 5, 10)
     b = APyCFloat(b_sign, (0, 0), (0, 0), 5, 10)

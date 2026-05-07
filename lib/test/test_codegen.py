@@ -30,12 +30,14 @@ ADDRESSES = [
 @pytest.mark.skipif(not shutil.which("nvc"), reason="nvc not found")
 @pytest.mark.parametrize(
     ("table", "address", "ieee2008", "input_register", "output_register"),
-    product(
-        TABLES,
-        ADDRESSES,
-        [True, False],
-        [True, False],
-        [True, False],
+    list(
+        product(
+            TABLES,
+            ADDRESSES,
+            [True, False],
+            [True, False],
+            [True, False],
+        )
     ),
 )
 def test_generate_rom_nvc(
@@ -62,12 +64,14 @@ def test_generate_rom_nvc(
 @pytest.mark.skipif(not shutil.which("ghdl"), reason="ghdl not found")
 @pytest.mark.parametrize(
     ("table", "address", "ieee2008", "input_register", "output_register"),
-    product(
-        TABLES,
-        ADDRESSES,
-        [True, False],
-        [True, False],
-        [True, False],
+    list(
+        product(
+            TABLES,
+            ADDRESSES,
+            [True, False],
+            [True, False],
+            [True, False],
+        )
     ),
 )
 def test_generate_rom_ghdl(
@@ -99,12 +103,14 @@ def test_generate_rom_ghdl(
 @pytest.mark.skipif(not shutil.which("iverilog"), reason="iverilog not found")
 @pytest.mark.parametrize(
     ("table", "address", "systemverilog", "input_register", "output_register"),
-    product(
-        TABLES,
-        ADDRESSES,
-        [True, False],
-        [True, False],
-        [True, False],
+    list(
+        product(
+            TABLES,
+            ADDRESSES,
+            [True, False],
+            [True, False],
+            [True, False],
+        )
     ),
 )
 def test_generate_rom_iverilog(
@@ -135,12 +141,14 @@ def test_generate_rom_iverilog(
 @pytest.mark.skipif(not shutil.which("verilator"), reason="verilator not found")
 @pytest.mark.parametrize(
     ("table", "address", "systemverilog", "input_register", "output_register"),
-    product(
-        TABLES,
-        ADDRESSES,
-        [True, False],
-        [True, False],
-        [True, False],
+    list(
+        product(
+            TABLES,
+            ADDRESSES,
+            [True, False],
+            [True, False],
+            [True, False],
+        )
     ),
 )
 def test_generate_rom_verilator(
@@ -170,7 +178,7 @@ def test_generate_rom_verilator(
 @pytest.mark.skipif(not shutil.which("scala-cli"), reason="scala-cli not found")
 @pytest.mark.parametrize(
     ("table", "address", "input_register", "output_register"),
-    product(TABLES, ADDRESSES, [True, False], [True, False]),
+    list(product(TABLES, ADDRESSES, [True, False], [True, False])),
 )
 def test_generate_rom_chisel(table, address, input_register, output_register, tmp_path):
     filepath = tmp_path / "testrom.scala"
@@ -206,7 +214,7 @@ def test_generate_rom_chisel(table, address, input_register, output_register, tm
 )
 @pytest.mark.parametrize(
     ("table", "address", "input_register", "output_register"),
-    product(TABLES, ADDRESSES, [True, False], [True, False]),
+    list(product(TABLES, ADDRESSES, [True, False], [True, False])),
 )
 def test_generate_rom_amaranth(
     table, address, input_register, output_register, tmp_path
@@ -229,7 +237,7 @@ def test_generate_rom_amaranth(
 @pytest.mark.skipif(not shutil.which("scala-cli"), reason="scala-cli not found")
 @pytest.mark.parametrize(
     ("table", "address", "input_register", "output_register"),
-    product(TABLES, ADDRESSES, [True, False], [True, False]),
+    list(product(TABLES, ADDRESSES, [True, False], [True, False])),
 )
 def test_generate_rom_spinalhdl(
     table, address, input_register, output_register, tmp_path
@@ -264,11 +272,13 @@ def test_generate_rom_spinalhdl(
 @pytest.mark.skipif(not shutil.which("spade"), reason="spade not found")
 @pytest.mark.parametrize(
     ("table", "address", "input_register", "output_register"),
-    product(
-        TABLES,
-        ADDRESSES,
-        [True, False],
-        [True, False],
+    list(
+        product(
+            TABLES,
+            ADDRESSES,
+            [True, False],
+            [True, False],
+        )
     ),
 )
 def test_generate_rom_spade(table, address, input_register, output_register, tmp_path):
@@ -293,11 +303,13 @@ def test_generate_rom_spade(table, address, input_register, output_register, tmp
 @pytest.mark.skipif(not shutil.which("clash"), reason="clash not found")
 @pytest.mark.parametrize(
     ("table", "address", "input_register", "output_register"),
-    product(
-        TABLES,
-        ADDRESSES,
-        [True, False],
-        [True, False],
+    list(
+        product(
+            TABLES,
+            ADDRESSES,
+            [True, False],
+            [True, False],
+        )
     ),
 )
 def test_generate_rom_clash(table, address, input_register, output_register, tmp_path):

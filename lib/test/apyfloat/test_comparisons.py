@@ -82,9 +82,11 @@ def test_comparisons_with_apyfixed():
 
 @pytest.mark.float_comp
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
-@pytest.mark.parametrize("val", product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
-@pytest.mark.parametrize("exp_bits", product([4, 6], repeat=2))
-@pytest.mark.parametrize("man_bits", product([7, 8], repeat=2))
+@pytest.mark.parametrize(
+    "val", list(product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
+)
+@pytest.mark.parametrize("exp_bits", list(product([4, 6], repeat=2)))
+@pytest.mark.parametrize("man_bits", list(product([7, 8], repeat=2)))
 def test_equality(
     apyfloat: type[APyCFloat],
     val: tuple[float, float],
@@ -99,9 +101,11 @@ def test_equality(
 
 
 @pytest.mark.float_comp
-@pytest.mark.parametrize("val", product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
-@pytest.mark.parametrize("exp_bits", product([5, 7], repeat=2))
-@pytest.mark.parametrize("man_bits", product([6, 8], repeat=2))
+@pytest.mark.parametrize(
+    "val", list(product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
+)
+@pytest.mark.parametrize("exp_bits", list(product([5, 7], repeat=2)))
+@pytest.mark.parametrize("man_bits", list(product([6, 8], repeat=2)))
 def test_lt_gt(
     val: tuple[float, float],
     exp_bits: tuple[int, int],
@@ -116,9 +120,11 @@ def test_lt_gt(
 
 
 @pytest.mark.float_comp
-@pytest.mark.parametrize("val", product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
-@pytest.mark.parametrize("exp_bits", product([5, 7], repeat=2))
-@pytest.mark.parametrize("man_bits", product([6, 8], repeat=2))
+@pytest.mark.parametrize(
+    "val", list(product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
+)
+@pytest.mark.parametrize("exp_bits", list(product([5, 7], repeat=2)))
+@pytest.mark.parametrize("man_bits", list(product([6, 8], repeat=2)))
 def test_leq_geq(
     val: tuple[float, float],
     exp_bits: tuple[int, int],
@@ -134,8 +140,8 @@ def test_leq_geq(
 
 @pytest.mark.float_comp
 @pytest.mark.parametrize("val", [0.0, -2.5, -2.75, -(2**-9), 2**5])
-@pytest.mark.parametrize("exp_bits", product([5, 7], repeat=2))
-@pytest.mark.parametrize("man_bits", product([6, 8], repeat=2))
+@pytest.mark.parametrize("exp_bits", list(product([5, 7], repeat=2)))
+@pytest.mark.parametrize("man_bits", list(product([6, 8], repeat=2)))
 def test_nan_comparison(
     val: float,
     exp_bits: tuple[int, int],
@@ -164,8 +170,8 @@ def test_nan_comparison(
 @pytest.mark.float_special
 @pytest.mark.parametrize("val0", [float("inf"), float("-inf"), 0.0, -1.0])
 @pytest.mark.parametrize("val1", [float("inf"), float("-inf"), 0.0, -1.0])
-@pytest.mark.parametrize("exp_bits", product([5, 7], repeat=2))
-@pytest.mark.parametrize("man_bits", product([6, 8], repeat=2))
+@pytest.mark.parametrize("exp_bits", list(product([5, 7], repeat=2)))
+@pytest.mark.parametrize("man_bits", list(product([6, 8], repeat=2)))
 def test_inf_comparison(
     val0: float,
     val1: float,
