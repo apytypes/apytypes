@@ -133,6 +133,7 @@ breathe_projects_source = {
             "array_utils.h",
             "broadcast.h",
             "ieee754.h",
+            "nanobind_util.h",
             "python_util.h",
         ],
     )

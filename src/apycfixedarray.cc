@@ -1562,7 +1562,7 @@ APyCFixedArray& APyCFixedArray::operator>>=(const int shift_val)
     return *this;
 }
 
-APyCFixedArray APyCFixedArray::rdiv_real_scalar(const APyFixed& lhs) const
+APyCFixedArray APyCFixedArray::rdiv_real(const APyFixed& lhs) const
 {
     // Divider bits (denominator known to be positive)
     const int num_int_bits = 1 + int_bits() + lhs.int_bits();

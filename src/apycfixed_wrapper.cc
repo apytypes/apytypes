@@ -1,6 +1,7 @@
 #include "apycfixed.h"
 #include "apycfixedarray.h" // Needed by: APyCFixed::is_identical
 #include "apyfixed.h"
+#include "nanobind_util.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -122,9 +123,9 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == nb::int_())
         .def(nb::self != nb::int_())
 
-        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP())
         .def(
             "__truediv__",
             [](const APyCFixed& self, const nb::int_& rhs) {
@@ -132,11 +133,10 @@ void bind_cfixed(nb::module_& m)
                     = APyFixed::from_integer(rhs, self.int_bits(), self.frac_bits());
                 return self / rhs_fx;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
-        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP())
         .def(
             "__rmul__",
             [](const APyCFixed& self, const nb::int_& lhs) {
@@ -144,8 +144,7 @@ void bind_cfixed(nb::module_& m)
                     = APyFixed::from_integer(lhs, self.int_bits(), self.frac_bits());
                 return self * lhs_fx;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__rtruediv__",
@@ -154,8 +153,7 @@ void bind_cfixed(nb::module_& m)
                     = APyFixed::from_integer(lhs, self.int_bits(), self.frac_bits());
                 return self.rdiv(lhs_fx);
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
 
         /*
@@ -164,11 +162,11 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == double())
         .def(nb::self != double())
 
-        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP())
         .def(
             "__rmul__",
             [](const APyCFixed& self, double lhs) {
@@ -176,8 +174,7 @@ void bind_cfixed(nb::module_& m)
                     = APyFixed::from_double(lhs, self.int_bits(), self.frac_bits());
                 return self * lhs_fx;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__truediv__",
@@ -186,8 +183,7 @@ void bind_cfixed(nb::module_& m)
                     = APyFixed::from_double(rhs, self.int_bits(), self.frac_bits());
                 return self / rhs_fx;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__rtruediv__",
@@ -196,8 +192,7 @@ void bind_cfixed(nb::module_& m)
                     = APyFixed::from_double(lhs, self.int_bits(), self.frac_bits());
                 return self.rdiv(lhs_fx);
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
 
         /*
@@ -206,14 +201,14 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == std::complex<double>())
         .def(nb::self != std::complex<double>())
 
-        .def("__add__", L_OP<STD_ADD<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, std::complex<double>>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, std::complex<double>>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, std::complex<double>>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, std::complex<double>>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, std::complex<double>>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, std::complex<double>>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, std::complex<double>>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, std::complex<double>>, NB_OP())
 
         /*
          * Arithmetic operations with `APyFixed`
@@ -221,10 +216,10 @@ void bind_cfixed(nb::module_& m)
         .def("__eq__", L_OP<std::equal_to<>, APyFixed>, NB_OP())
         .def("__ne__", L_OP<std::not_equal_to<>, APyFixed>, NB_OP())
 
-        .def("__add__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, APyFixed>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, APyFixed>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, APyFixed>, NB_OP())
         .def(
             "__mul__",
             [](const APyCFixed& a, const APyFixed& b) { return a * b; },
@@ -238,14 +233,12 @@ void bind_cfixed(nb::module_& m)
         .def(
             "__truediv__",
             [](const APyCFixed& self, const APyFixed& rhs) { return self / rhs; },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__rtruediv__",
             [](const APyCFixed& self, const APyFixed& lhs) { return self.rdiv(lhs); },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
 
         /*
@@ -508,8 +501,8 @@ void bind_cfixed(nb::module_& m)
         .def("__repr__", &APyCFixed::repr)
         .def("__str__", &APyCFixed::to_string, nb::arg("base") = 10)
         .def("__complex__", &APyCFixed::to_complex)
-        .def("__lshift__", &APyCFixed::operator<<, nb::arg("shift_amnt"), NB_OP())
-        .def("__rshift__", &APyCFixed::operator>>, nb::arg("shift_amnt"), NB_OP())
+        .def("__lshift__", &APyCFixed::operator<<, NB_OP("shift_amnt"))
+        .def("__rshift__", &APyCFixed::operator>>, NB_OP("shift_amnt"))
 
         /*
          * LaTeX representation

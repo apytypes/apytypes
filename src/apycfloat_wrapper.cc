@@ -2,6 +2,7 @@
 #include "apycfloat.h"
 #include "apycfloatarray.h" // Needed by: APyCFloat::is_identical
 #include "apyfixed.h"
+#include "nanobind_util.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -185,14 +186,14 @@ void bind_cfloat(nb::module_& m)
         /*
          * Arithmetic operations with `int`
          */
-        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP())
 
         /*
          * Arithmetic operations with `APyFloat`
@@ -200,14 +201,14 @@ void bind_cfloat(nb::module_& m)
         .def("__eq__", BIN_OP<std::equal_to<>, APyCFloat, APyFloat>)
         .def("__ne__", BIN_OP<std::not_equal_to<>, APyCFloat, APyFloat>)
 
-        .def("__add__", L_OP<STD_ADD<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, APyFloat>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, APyFloat>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, APyFloat>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, APyFloat>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, APyFloat>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, APyFloat>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFloat>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, APyFloat>, NB_OP())
 
         /*
          * Arithmetic operations with `APyFixed`
@@ -227,26 +228,26 @@ void bind_cfloat(nb::module_& m)
         .def(nb::self == double())
         .def(nb::self != double())
 
-        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP())
 
         /*
          * Arithmetic operations with Python `complex`
          */
-        .def("__add__", L_OP<STD_ADD<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, std::complex<double>>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, std::complex<double>>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, std::complex<double>>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, std::complex<double>>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, std::complex<double>>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, std::complex<double>>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, std::complex<double>>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, std::complex<double>>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, std::complex<double>>, NB_OP())
 
         /*
          * Get real and imaginary part
