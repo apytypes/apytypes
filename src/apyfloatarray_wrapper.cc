@@ -1,5 +1,6 @@
 #include "apyfloatarray.h"
 #include "apyfloatarray_iterator.h"
+#include "nanobind_util.h"
 
 #include <nanobind/make_iterator.h>
 #include <nanobind/nanobind.h>
@@ -145,14 +146,14 @@ void bind_float_array(nb::module_& m)
         /*
          * Arithmetic operators with integers
          */
-        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__radd__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<&APyFloatArray::rsub, nb::int_>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__radd__", L_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP())
+        .def("__rsub__", R_OP<&APyFloatArray::rsub, nb::int_>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP())
+        .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP())
+        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, nb::int_>, NB_OP())
 
         .def("__eq__", L_OP<std::equal_to<>, nb::int_>, CMP("__eq__", "int"))
         .def("__ne__", L_OP<std::not_equal_to<>, nb::int_>, CMP("__ne__", "int"))
@@ -164,14 +165,14 @@ void bind_float_array(nb::module_& m)
         /*
          * Arithmetic operators with floats
          */
-        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__radd__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<&APyFloatArray::rsub, double>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, double>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP())
+        .def("__radd__", L_OP<STD_ADD<>, double>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP())
+        .def("__rsub__", R_OP<&APyFloatArray::rsub, double>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP())
+        .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP())
+        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, double>, NB_OP())
 
         .def("__eq__", L_OP<std::equal_to<>, double>, CMP("__eq__", "float"))
         .def("__ne__", L_OP<std::not_equal_to<>, double>, CMP("__ne__", "float"))
@@ -183,14 +184,14 @@ void bind_float_array(nb::module_& m)
         /*
          * Arithmetic operators with APyFloat
          */
-        .def("__add__", L_OP<STD_ADD<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__radd__", L_OP<STD_ADD<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<&APyFloatArray::rsub, APyFloat>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__rmul__", L_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, APyFloat>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, APyFloat>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, APyFloat>, NB_OP())
+        .def("__radd__", L_OP<STD_ADD<>, APyFloat>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, APyFloat>, NB_OP())
+        .def("__rsub__", R_OP<&APyFloatArray::rsub, APyFloat>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, APyFloat>, NB_OP())
+        .def("__rmul__", L_OP<STD_MUL<>, APyFloat>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFloat>, NB_OP())
+        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, APyFloat>, NB_OP())
 
         .def("__eq__", L_OP<std::equal_to<>, APyFloat>, CMP("__eq__", "APyFloat"))
         .def("__ne__", L_OP<std::not_equal_to<>, APyFloat>, CMP("__ne__", "APyFloat"))
@@ -204,15 +205,10 @@ void bind_float_array(nb::module_& m)
          * The right-hand versions are not used since Numpy will convert the
          * APyFloatArray to a Numpy array before they are invoked.
          */
-        .def("__add__", L_OP<STD_ADD<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
-        .def(
-            "__truediv__",
-            L_OP<STD_DIV<>, nb::ndarray<nb::c_contig>>,
-            NB_OP(),
-            NB_NARG()
-        )
+        .def("__add__", L_OP<STD_ADD<>, nb::ndarray<nb::c_contig>>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, nb::ndarray<nb::c_contig>>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, nb::ndarray<nb::c_contig>>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::ndarray<nb::c_contig>>, NB_OP())
 
         /*
          * Logic operations

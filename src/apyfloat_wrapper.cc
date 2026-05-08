@@ -1,6 +1,7 @@
 #include "apyfixed.h"
 #include "apyfloat.h"
 #include "apyfloatarray.h" // Needed by: APyFloat::is_identical
+#include "nanobind_util.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -141,14 +142,14 @@ void bind_float(nb::module_& m)
         /*
          * Arithmetic operations with integers
          */
-        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP())
 
         /*
          * Arithmetic with floats
@@ -160,14 +161,14 @@ void bind_float(nb::module_& m)
         .def(nb::self <= double())
         .def(nb::self >= double())
 
-        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP())
 
         /*
          * Arithmetic operations with APyFixed

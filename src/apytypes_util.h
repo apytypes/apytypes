@@ -1201,26 +1201,20 @@ CREATE_FUNCTOR_FROM_FUNC(apy_sub_n_functor, apy_subtraction_same_length);
 CREATE_FUNCTOR_FROM_FUNC(apy_add_2_functor, apy_addition_length_two);
 CREATE_FUNCTOR_FROM_FUNC(apy_sub_2_functor, apy_subtraction_length_two);
 
-//! Mark nanobind Python-exposed parameter that does not support implicit conversions
-//! from other types.
-#define NB_NARG(...) nb::arg(__VA_ARGS__).noconvert()
-
-//! Mark a special double-underscore nanobind operator (e.g., `__add__`) the implements
-//! an arithmetic operation. In Python, when a bound function with this annotation is
-//! called with incompatible arguments, it will return `NotImplemented` rather than
-//! raising a `TypeError` as is default.
-#define NB_OP(...) nb::is_operator(__VA_ARGS__)
-
-//! Short-hand C++ arithmetic functors
-#define STD_ADD std::plus
-#define STD_SUB std::minus
-#define STD_MUL std::multiplies
-#define STD_DIV std::divides
-#define STD_EQ std::equal_to
-#define STD_NE std::not_equal_to
-
-//! Type-dependant `false` value. Can be used as a `false` value in a static assert as
-//! `static_assert(always_false_v)` without triggering ill-formed behaviour.
+//! Type-dependant `false` value. Can be used as a `false` value in a static assertion
+//! as `static_assert(always_false_v)` without triggering ill-formed behaviour.
 template <typename> inline constexpr bool always_false_v = false;
+
+//! Test if two types `T` and `U` are equal, ignoring references and const-volatile
+//! qualifiers. The expression `is_same_type<T, U>::value` equals `true` if `T` and `V`
+//! are equal types and `false` otherwise.
+template <typename T, typename U> struct is_same_type {
+    static constexpr bool value = std::is_same_v<
+        std::remove_cv_t<std::remove_reference_t<T>>,
+        std::remove_cv_t<std::remove_reference_t<U>>>;
+};
+
+template <typename T, typename U>
+constexpr bool is_same_type_v = is_same_type<T, U>::value;
 
 #endif // _APYTYPES_UTIL_H

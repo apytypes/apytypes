@@ -1,13 +1,13 @@
 #include "apycfixed.h"
 #include "apyfixed.h"
 #include "apyfixedarray.h" // Needed by: APyFixed::is_identical
+#include "nanobind_util.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
 #include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
 
-#include <functional>
 #include <type_traits>
 
 namespace nb = nanobind;
@@ -124,10 +124,10 @@ void bind_fixed(nb::module_& m)
         .def(nb::self - nb::int_(), NB_NARG())
         .def(nb::self * nb::int_(), NB_NARG())
         .def(nb::self / nb::int_(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP())
 
         /*
          * Arithmetic operations with floats
@@ -139,14 +139,14 @@ void bind_fixed(nb::module_& m)
         .def(nb::self <= double())
         .def(nb::self >= double())
 
-        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
-        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
-        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
-        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
-        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP())
+        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP())
+        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP())
+        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP())
+        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP())
 
         /*
          * Arithmetic operations with Python complex
@@ -156,16 +156,14 @@ void bind_fixed(nb::module_& m)
             [](const APyFixed& self, std::complex<double> rhs) {
                 return complex_to_apycfixed_with_spec(rhs, self) + self;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__radd__",
             [](const APyFixed& self, std::complex<double> lhs) {
                 return complex_to_apycfixed_with_spec(lhs, self) + self;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__sub__",
@@ -173,8 +171,7 @@ void bind_fixed(nb::module_& m)
                 return apyfixed_to_apycfixed(self)
                     - complex_to_apycfixed_with_spec(rhs, self);
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__rsub__",
@@ -182,40 +179,35 @@ void bind_fixed(nb::module_& m)
                 return complex_to_apycfixed_with_spec(lhs, self)
                     - apyfixed_to_apycfixed(self);
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__mul__",
             [](const APyFixed& self, std::complex<double> rhs) {
                 return complex_to_apycfixed_with_spec(rhs, self) * self;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__rmul__",
             [](const APyFixed& self, std::complex<double> lhs) {
                 return complex_to_apycfixed_with_spec(lhs, self) * self;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__truediv__",
             [](const APyFixed& self, std::complex<double> rhs) {
                 return complex_to_apycfixed_with_spec(rhs, self).rdiv(self);
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def(
             "__rtruediv__",
             [](const APyFixed& self, std::complex<double> lhs) {
                 return complex_to_apycfixed_with_spec(lhs, self) / self;
             },
-            NB_OP(),
-            NB_NARG()
+            NB_OP()
         )
         .def("__pow__", &APyFixed::pown, NB_OP())
 
@@ -488,8 +480,8 @@ void bind_fixed(nb::module_& m)
         .def("__float__", &APyFixed::operator double)
         .def("__repr__", &APyFixed::repr)
         .def("__str__", &APyFixed::to_string, nb::arg("base") = 10)
-        .def("__lshift__", &APyFixed::operator<<, nb::arg("shift_amnt"), NB_OP())
-        .def("__rshift__", &APyFixed::operator>>, nb::arg("shift_amnt"), NB_OP())
+        .def("__lshift__", &APyFixed::operator<<, NB_OP("shift_amnt"))
+        .def("__rshift__", &APyFixed::operator>>, NB_OP("shift_amnt"))
 
         /*
          * Static methods
