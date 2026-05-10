@@ -321,49 +321,6 @@
 <dd><p>Macro for creating a void-specialization state-less functor <code class="docutils literal notranslate"><span class="pre">FUNCTOR_NAME</span></code> from a function <code class="docutils literal notranslate"><span class="pre">FUNC_NAME</span></code>. The void-specialization functor allows template argument deduction to be performed once its function is called. Neat! </p>
 </dd></dl>
 
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.NB_NARG">
-<span class="target" id="apytypes__util_8h_1ac84222cbe2a97d95a66f19c62cd0379f"></span><span class="sig-name descname"><span class="n"><span class="pre">NB_NARG</span></span></span><span class="sig-paren">(</span><span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.NB_NARG" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Mark nanobind Python-exposed parameter that does not support implicit conversions from other types. </p>
-</dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.NB_OP">
-<span class="target" id="apytypes__util_8h_1af7b88fa369a6866aabc53d7e78433fd8"></span><span class="sig-name descname"><span class="n"><span class="pre">NB_OP</span></span></span><span class="sig-paren">(</span><span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.NB_OP" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Mark a special double-underscore nanobind operator (e.g., <code class="docutils literal notranslate"><span class="pre">__add__</span></code>) the implements an arithmetic operation. In Python, when a bound function with this annotation is called with incompatible arguments, it will return <code class="docutils literal notranslate"><span class="pre">NotImplemented</span></code> rather than raising a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> as is default. </p>
-</dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.STD_ADD">
-<span class="target" id="apytypes__util_8h_1a39c5bbad18cd75aacb39386e3b1716e3"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_ADD</span></span></span><a class="headerlink" href="#c.STD_ADD" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Short-hand C++ arithmetic functors. </p>
-</dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.STD_SUB">
-<span class="target" id="apytypes__util_8h_1a7723471444c7114659081ecbcdddbdaa"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_SUB</span></span></span><a class="headerlink" href="#c.STD_SUB" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.STD_MUL">
-<span class="target" id="apytypes__util_8h_1a1c3070e14b15ee737aa84e6e59789fae"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_MUL</span></span></span><a class="headerlink" href="#c.STD_MUL" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.STD_DIV">
-<span class="target" id="apytypes__util_8h_1a72459dc2b3ba76b9e126967e8b0bb8d2"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_DIV</span></span></span><a class="headerlink" href="#c.STD_DIV" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.STD_EQ">
-<span class="target" id="apytypes__util_8h_1a894039f9bea54d8b84554d449eef9617"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_EQ</span></span></span><a class="headerlink" href="#c.STD_EQ" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.STD_NE">
-<span class="target" id="apytypes__util_8h_1a7cc3612777c36e3c1bb2dfa9c0449f28"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_NE</span></span></span><a class="headerlink" href="#c.STD_NE" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
@@ -718,8 +675,13 @@
 <dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv4I0E14always_false_v">
 <span id="_CPPv3I0E14always_false_v"></span><span id="_CPPv2I0E14always_false_v"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="apytypes__util_8h_1ae696a34b97be9b139f09aa17cf854eb9"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">always_false_v</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><a class="headerlink" href="#_CPPv4I0E14always_false_v" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Type-dependant <code class="docutils literal notranslate"><span class="pre">false</span></code> value. Can be used as a <code class="docutils literal notranslate"><span class="pre">false</span></code> value in a static assert as <code class="docutils literal notranslate"><span class="pre">static_assert(always_false_v)</span></code> without triggering ill-formed behaviour. </p>
+<dd><p>Type-dependant <code class="docutils literal notranslate"><span class="pre">false</span></code> value. Can be used as a <code class="docutils literal notranslate"><span class="pre">false</span></code> value in a static assertion as <code class="docutils literal notranslate"><span class="pre">static_assert(always_false_v)</span></code> without triggering ill-formed behaviour. </p>
 </dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4I00E14is_same_type_v">
+<span id="_CPPv3I00E14is_same_type_v"></span><span id="_CPPv2I00E14is_same_type_v"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="apytypes__util_8h_1acc80d82098d8f3b9237f613355301ba3"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_same_type_v</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E12is_same_type" title="is_same_type"><span class="n"><span class="pre">is_same_type</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00E14is_same_type_v" title="is_same_type_v::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14is_same_type_v" title="is_same_type_v::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">value</span></span><a class="headerlink" href="#_CPPv4I00E14is_same_type_v" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
 
 </div>
 <dl class="cpp struct">
@@ -786,6 +748,22 @@
 <span id="_CPPv3N16DoubleDabbleList12_NIBBLE_MASKE"></span><span id="_CPPv2N16DoubleDabbleList12_NIBBLE_MASKE"></span><span id="DoubleDabbleList::_NIBBLE_MASK__apy_limb_t"></span><span class="target" id="structDoubleDabbleList_1a3221f6c82c3c4cc9722d1d0059fd0546"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">apy_limb_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_NIBBLE_MASK</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">APY_LIMB_SIZE_BITS</span></span><span class="w"> </span><span class="o"><span class="pre">==</span></span><span class="w"> </span><span class="m"><span class="pre">64</span></span><span class="w"> </span><span class="o"><span class="pre">?</span></span><span class="w"> </span><span class="n"><span class="pre">apy_limb_t</span></span><span class="p"><span class="pre">(</span></span><span class="m"><span class="pre">0x1111111111111111</span></span><span class="p"><span class="pre">)</span></span><span class="w"> </span><span class="o"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">apy_limb_t</span></span><span class="p"><span class="pre">(</span></span><span class="m"><span class="pre">0x11111111</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv4N16DoubleDabbleList12_NIBBLE_MASKE" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Mask with a bit in every position where a nibble starts. </p>
 </dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I00E12is_same_type">
+<span id="_CPPv3I00E12is_same_type"></span><span id="_CPPv2I00E12is_same_type"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structis__same__type"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_same_type</span></span></span><a class="headerlink" href="#_CPPv4I00E12is_same_type" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;apytypes_util.h&gt;</em></div>
+<p>Test if two types <code class="docutils literal notranslate"><span class="pre">T</span></code> and <code class="docutils literal notranslate"><span class="pre">U</span></code> are equal, ignoring references and const-volatile qualifiers. The expression <code class="docutils literal notranslate"><a class="reference internal" href="#structis__same__type"><span class="std std-ref"><span class="pre">is_same_type</span></span></a><span class="pre">&lt;T,</span> <span class="pre">U&gt;::value</span></code> equals <code class="docutils literal notranslate"><span class="pre">true</span></code> if <code class="docutils literal notranslate"><span class="pre">T</span></code> and <code class="docutils literal notranslate"><span class="pre">V</span></code> are equal types and <code class="docutils literal notranslate"><span class="pre">false</span></code> otherwise. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-attributes">Public Static Attributes</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12is_same_type5valueE">
+<span id="_CPPv3N12is_same_type5valueE"></span><span id="_CPPv2N12is_same_type5valueE"></span><span id="is_same_type::value__b"></span><span class="target" id="structis__same__type_1a084536f59c18a9660da378b175591ad2"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">value</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">is_same_v</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">remove_cv_t</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">remove_reference_t</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00E12is_same_type" title="is_same_type::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">remove_cv_t</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">remove_reference_t</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00E12is_same_type" title="is_same_type::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N12is_same_type5valueE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
 
 </div>
 </dd></dl>
@@ -857,14 +835,6 @@
 <li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a><ul>
 <li><a class="reference internal" href="#c.UINT64_TO_LIMB"><code class="docutils literal notranslate"><span class="pre">UINT64_TO_LIMB</span></code></a></li>
 <li><a class="reference internal" href="#c.CREATE_FUNCTOR_FROM_FUNC"><code class="docutils literal notranslate"><span class="pre">CREATE_FUNCTOR_FROM_FUNC</span></code></a></li>
-<li><a class="reference internal" href="#c.NB_NARG"><code class="docutils literal notranslate"><span class="pre">NB_NARG</span></code></a></li>
-<li><a class="reference internal" href="#c.NB_OP"><code class="docutils literal notranslate"><span class="pre">NB_OP</span></code></a></li>
-<li><a class="reference internal" href="#c.STD_ADD"><code class="docutils literal notranslate"><span class="pre">STD_ADD</span></code></a></li>
-<li><a class="reference internal" href="#c.STD_SUB"><code class="docutils literal notranslate"><span class="pre">STD_SUB</span></code></a></li>
-<li><a class="reference internal" href="#c.STD_MUL"><code class="docutils literal notranslate"><span class="pre">STD_MUL</span></code></a></li>
-<li><a class="reference internal" href="#c.STD_DIV"><code class="docutils literal notranslate"><span class="pre">STD_DIV</span></code></a></li>
-<li><a class="reference internal" href="#c.STD_EQ"><code class="docutils literal notranslate"><span class="pre">STD_EQ</span></code></a></li>
-<li><a class="reference internal" href="#c.STD_NE"><code class="docutils literal notranslate"><span class="pre">STD_NE</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E14remove_cvref_t"><code class="docutils literal notranslate"><span class="pre">remove_cvref_t</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv413bits_to_limbsNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">bits_to_limbs()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E17significant_limbsNSt6size_tE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR"><code class="docutils literal notranslate"><span class="pre">significant_limbs()</span></code></a></li>
@@ -924,6 +894,7 @@
 <li><a class="reference internal" href="#_CPPv424CREATE_FUNCTOR_FROM_FUNC17apy_add_2_functor23apy_addition_length_two"><code class="docutils literal notranslate"><span class="pre">CREATE_FUNCTOR_FROM_FUNC()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv424CREATE_FUNCTOR_FROM_FUNC17apy_sub_2_functor26apy_subtraction_length_two"><code class="docutils literal notranslate"><span class="pre">CREATE_FUNCTOR_FROM_FUNC()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E14always_false_v"><code class="docutils literal notranslate"><span class="pre">always_false_v</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I00E14is_same_type_v"><code class="docutils literal notranslate"><span class="pre">is_same_type_v</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E12remove_cvref"><code class="docutils literal notranslate"><span class="pre">remove_cvref</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N12remove_cvref4typeE"><code class="docutils literal notranslate"><span class="pre">type</span></code></a></li>
 </ul>
@@ -935,6 +906,10 @@
 <li><a class="reference internal" href="#_CPPv4N16DoubleDabbleList17do_reverse_dabbleEv"><code class="docutils literal notranslate"><span class="pre">do_reverse_dabble()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N16DoubleDabbleList4dataE"><code class="docutils literal notranslate"><span class="pre">data</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N16DoubleDabbleList12_NIBBLE_MASKE"><code class="docutils literal notranslate"><span class="pre">_NIBBLE_MASK</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I00E12is_same_type"><code class="docutils literal notranslate"><span class="pre">is_same_type</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N12is_same_type5valueE"><code class="docutils literal notranslate"><span class="pre">value</span></code></a></li>
 </ul>
 </li>
 </ul>
