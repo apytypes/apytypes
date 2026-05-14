@@ -1,7 +1,6 @@
 /* For std::size_t */
 #include <cassert>
 #include <cstddef>
-#include <vector>
 
 #include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"

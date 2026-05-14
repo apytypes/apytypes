@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--
+- Proper nesting using multiple levels of APyTypes contexts
 
 ### Changed
 

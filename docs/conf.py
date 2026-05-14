@@ -120,6 +120,8 @@ breathe_projects_source = {
             "apyfloatarray_wrapper.cc",
             "apytypes_common.cc",
             "apytypes_common.h",
+            "apytypes_context.cc",
+            "apytypes_context.h",
             "apytypes_context_wrapper.cc",
             "apytypes_fwd.h",
             "apytypes_intrinsics.h",

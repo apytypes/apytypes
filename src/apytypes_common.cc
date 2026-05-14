@@ -1,8 +1,6 @@
 #include "apytypes_common.h"
-#include "apyfloat_util.h"
 #include "apytypes_intrinsics.h"
 #include "apytypes_thread_pool.h"
-#include "apytypes_util.h"
 
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
@@ -12,31 +10,39 @@ namespace nb = nanobind;
 #include <cstdlib> // std::getenv
 #include <random>  // std::random_devive, std::mt19937_64
 
-/* ********************************************************************************** *
- * *                        Thread-local states for APyTypes                        * *
- * ********************************************************************************** */
-
-// Quantization mode for floating-point arithmetic
-thread_local static QuantizationMode qntz_mode_fl = QuantizationMode::RND_CONV;
-
-// Get the thread-local floating-point quantization mode
-QuantizationMode get_float_quantization_mode() { return qntz_mode_fl; }
-
-// Set the thread-local floating-point quantization mode
-void set_float_quantization_mode(QuantizationMode mode) { qntz_mode_fl = mode; }
+#include <fmt/format.h>
 
 /* ********************************************************************************** *
  * *            Random number engines for APyTypes stochastic quantization          * *
  * ********************************************************************************** */
 
-// Seed used for the default stochastic rounding engines
+// Seeds used to initialize the stochastic rounding engines
 thread_local static std::uint64_t rnd64_fx_seed = std::random_device {}();
 thread_local static std::uint64_t rnd64_fp_seed = std::random_device {}();
 
-// Current thread-local random-number generators for stochastic quantization: uniform on
-// the interval [0, 2^64)
+// Current thread-local RNGs for stochastic quantization: uniform on interval [0, 2^64)
 thread_local static std::mt19937_64 current_mt19937_fx { rnd64_fx_seed };
 thread_local static std::mt19937_64 current_mt19937_fp { rnd64_fp_seed };
+
+// Draw a 64-bit uniform random number from the RNG
+std::uint64_t rnd64_fx() { return current_mt19937_fx(); }
+std::uint64_t rnd64_fp() { return current_mt19937_fp(); }
+
+// Retrieve the seed that was used to initialize the active RNG
+std::uint64_t get_rnd64_fx_seed() { return rnd64_fx_seed; }
+std::uint64_t get_rnd64_fp_seed() { return rnd64_fp_seed; }
+
+// Retrieve a *copy* of the current mt19937 RNG
+std::mt19937_64 get_rnd64_fx_engine() { return current_mt19937_fx; }
+std::mt19937_64 get_rnd64_fp_engine() { return current_mt19937_fp; }
+
+// Set the current mt19937 RNG engine
+void set_rnd64_fx_engine(const std::mt19937_64& engine) { current_mt19937_fx = engine; }
+void set_rnd64_fp_engine(const std::mt19937_64& engine) { current_mt19937_fp = engine; }
+
+// Overwrite which seed value that was used to initialize the current RNG
+void set_rnd64_fx_seed(std::uint64_t seed) { rnd64_fx_seed = seed; }
+void set_rnd64_fp_seed(std::uint64_t seed) { rnd64_fp_seed = seed; }
 
 // Reset the default stochastic quantization random number generators
 void rst_default_rnd64_fx(std::uint64_t seed)
@@ -50,187 +56,74 @@ void rst_default_rnd64_fp(std::uint64_t seed)
     current_mt19937_fp.seed(seed);
 }
 
-// Return the seed used to initialize the active random number engine
-std::uint64_t get_rnd64_fx_seed() { return rnd64_fx_seed; }
-std::uint64_t get_rnd64_fp_seed() { return rnd64_fp_seed; }
-
-// Generate a 64-bit random number using the current random-number engines
-std::uint64_t rnd64_fx() { return current_mt19937_fx(); }
-std::uint64_t rnd64_fp() { return current_mt19937_fp(); }
-
 /* ********************************************************************************** *
- * *                          Quantization context for APyFloat                     * *
+ * *             Global (`thread_local`) quantization mode for APyFloat             * *
  * ********************************************************************************** */
 
-APyFloatQuantizationContext::APyFloatQuantizationContext(
-    const QuantizationMode& new_mode, std::optional<std::uint64_t> seed
-)
-    : prev_mode { get_float_quantization_mode() }
-    , new_mode { new_mode }
-    , prev_seed { rnd64_fp_seed }
-    , new_seed { seed.value_or(std::random_device {}()) }
-    , prev_engine() /* is copied on `enter_context()` */
-    , new_engine { new_seed }
-{
-}
+// Quantization mode for floating-point arithmetic
+thread_local static QuantizationMode qntz_mode_fl = QuantizationMode::RND_CONV;
 
-void APyFloatQuantizationContext::enter_context()
-{
-    // Copy the old RNG engine
-    prev_engine = current_mt19937_fp;
+// Get the thread-local floating-point quantization mode
+QuantizationMode get_float_quantization_mode() { return qntz_mode_fl; }
 
-    set_float_quantization_mode(new_mode);
-    rnd64_fp_seed = new_seed;
-    current_mt19937_fp = new_engine;
-}
-
-void APyFloatQuantizationContext::exit_context()
-{
-    set_float_quantization_mode(prev_mode);
-    rnd64_fp_seed = prev_seed;
-    current_mt19937_fp = prev_engine;
-}
+// Set the thread-local floating-point quantization mode
+void set_float_quantization_mode(QuantizationMode mode) { qntz_mode_fl = mode; }
 
 /* ********************************************************************************** *
- * *                      Cast context for APyFixed                                 * *
+ * *                Global (`thread_local`) casting mode for APyFixed               * *
  * ********************************************************************************** */
 
-// Global fixed-point cast option, default value: { TRN, WRAP }
+//! Default casting mode: { `TRN`, `WRAP` }
 thread_local static APyFixedCastOption global_cast_option_fixed
     = { QuantizationMode::TRN, OverflowMode::WRAP };
 
-APyFixedCastContext::APyFixedCastContext(
-    std::optional<QuantizationMode> quantization, std::optional<OverflowMode> overflow
-)
-{
-    if (!quantization.has_value() && !overflow.has_value()) {
-        throw nb::value_error(
-            "Either quantization mode or overflow mode must be specified."
-        );
-    }
-
-    // Store the previous accumulator mode
-    previous_mode = global_cast_option_fixed;
-
-    // Extract the input
-    APyFixedCastOption new_mode;
-
-    new_mode.quantization = quantization.value_or(previous_mode.quantization);
-    new_mode.overflow = overflow.value_or(previous_mode.overflow);
-
-    // Set the current mode
-    current_mode = new_mode;
-}
-
-void APyFixedCastContext::enter_context() { global_cast_option_fixed = current_mode; }
-void APyFixedCastContext::exit_context() { global_cast_option_fixed = previous_mode; }
-
 APyFixedCastOption get_fixed_cast_mode() { return global_cast_option_fixed; }
 
-/* ********************************************************************************** *
- * *                      Accumulator context for APyFixedArray                     * *
- * ********************************************************************************** */
-
-// Global accumulator option (default value: std::nullopt)
-thread_local static std::optional<APyFixedAccumulatorOption>
-    global_accumulator_option_fixed = std::nullopt;
-
-// Return the global accumulator mode
-std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed()
+void set_fixed_cast_mode(const APyFixedCastOption& mode)
 {
-    return global_accumulator_option_fixed;
-}
-
-APyFixedAccumulatorContext::APyFixedAccumulatorContext(
-    std::optional<int> int_bits,
-    std::optional<int> frac_bits,
-    std::optional<QuantizationMode> quantization,
-    std::optional<OverflowMode> overflow,
-    std::optional<int> bits
-)
-{
-    // Store the previous accumulator mode
-    previous_mode = global_accumulator_option_fixed;
-
-    // Extract the input
-    APyFixedAccumulatorOption new_mode
-        = get_accumulator_mode_fixed().value_or(APyFixedAccumulatorOption {});
-
-    new_mode.bits = bits_from_optional(bits, int_bits, frac_bits);
-    new_mode.int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
-    new_mode.quantization = quantization.value_or(QuantizationMode::TRN);
-    new_mode.overflow = overflow.value_or(OverflowMode::WRAP);
-
-    // Set the current mode
-    current_mode = new_mode;
-}
-
-void APyFixedAccumulatorContext::enter_context()
-{
-    global_accumulator_option_fixed = current_mode;
-}
-void APyFixedAccumulatorContext::exit_context()
-{
-    global_accumulator_option_fixed = previous_mode;
+    global_cast_option_fixed = mode;
 }
 
 /* ********************************************************************************** *
- * *                      Accumulator context for APyFloatArray                     * *
+ * *            Global (`thread_local`) floating-point accumulator mode             * *
  * ********************************************************************************** */
 
-// Global accumulator option (default value: std::nullopt)
+//! Global accumulator option, default value: `std::nullopt`
 thread_local static std::optional<APyFloatAccumulatorOption>
     global_accumulator_option_float = std::nullopt;
 
-// Return the global accumulator mode
 std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float()
 {
     return global_accumulator_option_float;
 }
 
-APyFloatAccumulatorContext::APyFloatAccumulatorContext(
-    std::optional<int> exp_bits,
-    std::optional<int> man_bits,
-    std::optional<exp_t> bias,
-    std::optional<QuantizationMode> quantization
-)
+void set_accumulator_mode_float(const std::optional<APyFloatAccumulatorOption>& mode)
 {
-    // Store the previous accumulator mode§
-    previous_mode = global_accumulator_option_float;
-
-    // Extract the input
-    APyFloatAccumulatorOption new_mode
-        = get_accumulator_mode_float().value_or(APyFloatAccumulatorOption {});
-
-    if (!exp_bits.has_value() || !man_bits.has_value()) {
-        throw nb::value_error(
-            "Both the exponent bits and mantissa bits must be specified."
-        );
-    }
-
-    check_exponent_format(exp_bits.value(), "APyFloatAccumulatorContext");
-    check_mantissa_format(man_bits.value(), "APyFloatAccumulatorContext");
-
-    new_mode.exp_bits = exp_bits.value();
-    new_mode.man_bits = man_bits.value();
-    new_mode.bias = bias;
-    new_mode.quantization = quantization.value_or(get_float_quantization_mode());
-
-    // Set the current mode
-    current_mode = new_mode;
-}
-
-void APyFloatAccumulatorContext::enter_context()
-{
-    global_accumulator_option_float = current_mode;
-}
-void APyFloatAccumulatorContext::exit_context()
-{
-    global_accumulator_option_float = previous_mode;
+    global_accumulator_option_float = mode;
 }
 
 /* ********************************************************************************** *
- * *                     Preferred third-party array library                        * *
+ * *            Global (`thread_local`) fixed-point accumulator mode                * *
+ * ********************************************************************************** */
+
+//! Global accumulator option (default value: `std::nullopt`)
+thread_local static std::optional<APyFixedAccumulatorOption>
+    global_accumulator_option_fixed = std::nullopt;
+
+//! Return the global accumulator mode for APyFixed
+std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed()
+{
+    return global_accumulator_option_fixed;
+}
+
+//! Return the global accumulator mode for APyFixed
+void set_accumulator_mode_fixed(const std::optional<APyFixedAccumulatorOption>& mode)
+{
+    global_accumulator_option_fixed = mode;
+}
+
+/* ********************************************************************************** *
+ * *                      Preferred third-party array library                       * *
  * ********************************************************************************** */
 
 static ThirdPartyArrayLibrary preferred_array_lib { ThirdPartyArrayLibrary::NUMPY };
@@ -287,7 +180,7 @@ std::string get_array_library_as_str()
 }
 
 /* ********************************************************************************** *
- * *                Threadpool for submitting parallel tasks tasks to               * *
+ * *                    Threadpool for submitting parallel tasks                    * *
  * ********************************************************************************** */
 
 //! Thread count environment variable

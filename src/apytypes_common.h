@@ -16,7 +16,7 @@
 #include <variant>
 
 /* ********************************************************************************** *
- * *                    Quantization modes and overflow modes                       * *
+ * *            Quantization modes, overflow modes and convolution modes            * *
  * ********************************************************************************** */
 
 enum class QuantizationMode {
@@ -46,7 +46,7 @@ enum class OverflowMode {
 enum class ConvolutionMode { FULL, SAME, VALID };
 
 /* ********************************************************************************** *
- * *            Random number engines for APyTypes stochastic quantization          * *
+ * *           Random number engines for APyTypes stochastic quantization           * *
  * ********************************************************************************** */
 
 //! Uniform 64-bit random number generator function type
@@ -55,73 +55,42 @@ using Rnd64Func_t = std::uint64_t();
 //! Uniform 64-bit random number generator function pointer type
 using Rnd64FuncPtr_t = Rnd64Func_t*;
 
-//! 64-bit uniform random number generator for fixed-point stochastic quantization
+//! Draw a 64-bit uniform random number from the RNG
 std::uint64_t rnd64_fx();
 std::uint64_t rnd64_fp();
 
-//! Reset the default stochastic quantization random number generators
-void rst_default_rnd64_fx(std::uint64_t seed);
-void rst_default_rnd64_fp(std::uint64_t seed);
-
-// Return the seed used to initialize the active random number engine
+//! Retrieve the seed that was used to initialize the active RNG
 std::uint64_t get_rnd64_fx_seed();
 std::uint64_t get_rnd64_fp_seed();
 
+//! Retrieve a *copy* of the current mt19937 RNG
+std::mt19937_64 get_rnd64_fx_engine();
+std::mt19937_64 get_rnd64_fp_engine();
+
+//! Set the current mt19937 RNG engine
+void set_rnd64_fx_engine(const std::mt19937_64& engine);
+void set_rnd64_fp_engine(const std::mt19937_64& engine);
+
+//! Overwrite which seed value that was used to initialize the current RNG
+void set_rnd64_fx_seed(std::uint64_t seed);
+void set_rnd64_fp_seed(std::uint64_t seed);
+
+//! Reset the default stochastic quantization RNG
+void rst_default_rnd64_fx(std::uint64_t seed);
+void rst_default_rnd64_fp(std::uint64_t seed);
+
 /* ********************************************************************************** *
- * *                             Context management                                 * *
+ * *            Global (`thread_local`) floating-point quantization mode            * *
  * ********************************************************************************** */
-
-//! Base class defining the interface for context managers
-class ContextManager {
-public:
-    virtual ~ContextManager() = default;
-    virtual void enter_context() = 0;
-    virtual void exit_context() = 0;
-};
-
-/*
- * This allows the user to choose a quantization mode for all operations performed
- * inside the runtime context. The quantization mode will be changed back to whatever it
- * was before when the context ends.
- *
- * Python example using nested contexts:
- *
- * ```
- * with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
- *     # Operations now round towards negative infinity
- *     ...
- *     with APyFloatQuantizationContext(QuantizationMode.TO_POS):
- *         # Operations now round towards positive infinity
- *         ...
- *     # Operations now round towards negative infinity again
- *
- * # Quantization mode now reverted back to what was used before
- * ```
- */
-
-class APyFloatQuantizationContext : public ContextManager {
-public:
-    APyFloatQuantizationContext(
-        const QuantizationMode& new_mode,
-        std::optional<std::uint64_t> seed = std::nullopt
-    );
-    void enter_context() override;
-    void exit_context() override;
-
-private:
-    QuantizationMode prev_mode, new_mode;
-    std::uint64_t prev_seed, new_seed;
-    std::mt19937_64 prev_engine, new_engine;
-};
-
-//! Set the global quantization mode for APyFloat
-void set_float_quantization_mode(QuantizationMode mode);
 
 //! Return the global quantization mode for APyFloat
 QuantizationMode get_float_quantization_mode();
 
+//! Set the global quantization mode for APyFloat
+void set_float_quantization_mode(QuantizationMode mode);
+
 /* ********************************************************************************** *
- * *                          Cast context for APyFixed                             * *
+ * *                Global (`thread_local`) casting mode for APyFixed               * *
  * ********************************************************************************** */
 
 struct APyFixedCastOption {
@@ -129,60 +98,35 @@ struct APyFixedCastOption {
     OverflowMode overflow;         //! Overflow mode to use for cast operations
 };
 
-class APyFixedCastContext : public ContextManager {
-public:
-    APyFixedCastContext(
-        std::optional<QuantizationMode> quantization = std::nullopt,
-        std::optional<OverflowMode> overflow = std::nullopt
-    );
-    void enter_context() override;
-    void exit_context() override;
-
-private:
-    APyFixedCastOption current_mode, previous_mode;
-};
-
 //! Return the global cast mode for APyFixed
 APyFixedCastOption get_fixed_cast_mode();
 
+//! Set the global cast mode for APyFixed
+void set_fixed_cast_mode(const APyFixedCastOption& mode);
+
 /* ********************************************************************************** *
- * *                          Accumulator context for APyFixed                      * *
+ * *              Global (`thread_local`) accumulator mode for APyFixed             * *
  * ********************************************************************************** */
 
 // Accumulator type for APyFixed
 struct APyFixedAccumulatorOption {
-    int bits;     //! Total number of bits to use for accumulator
-    int int_bits; //! Number of integer bits to use for accumulator
-    QuantizationMode
-        quantization;      //! Quantization mode to use for multiplication result
-    OverflowMode overflow; //! Overflow mode to apply after each accumulation
-};
-
-// Accumulator context
-class APyFixedAccumulatorContext : public ContextManager {
-public:
-    APyFixedAccumulatorContext(
-        std::optional<int> int_bits = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt,
-        std::optional<QuantizationMode> quantization = std::nullopt,
-        std::optional<OverflowMode> overflow = std::nullopt,
-        std::optional<int> bits = std::nullopt
-    );
-    void enter_context() override;
-    void exit_context() override;
-
-private:
-    std::optional<APyFixedAccumulatorOption> current_mode, previous_mode;
+    int bits;                      //! Total number of bits to use for accumulator
+    int int_bits;                  //! Number of integer bits to use for accumulator
+    QuantizationMode quantization; //! Quantization mode to use for multiplication
+    OverflowMode overflow;         //! Overflow mode to apply after each accumulation
 };
 
 //! Return the global accumulator mode for APyFixed
 std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed();
 
+//! Return the global accumulator mode for APyFixed
+void set_accumulator_mode_fixed(const std::optional<APyFixedAccumulatorOption>& mode);
+
 /* ********************************************************************************** *
- * *                          Accumulator context for APyFloat                      * *
+ * *            Global (`thread_local`) floating-point accumulator mode             * *
  * ********************************************************************************** */
 
-// Accumulator type for APyFloat
+//! Accumulator mode type for APyFloat
 struct APyFloatAccumulatorOption {
     //! Number of exponent bits
     std::uint8_t exp_bits;
@@ -199,24 +143,11 @@ struct APyFloatAccumulatorOption {
     }
 };
 
-// Accumulator context
-class APyFloatAccumulatorContext : public ContextManager {
-public:
-    APyFloatAccumulatorContext(
-        std::optional<int> = std::nullopt,
-        std::optional<int> = std::nullopt,
-        std::optional<exp_t> = std::nullopt,
-        std::optional<QuantizationMode> quantization = std::nullopt
-    );
-    void enter_context() override;
-    void exit_context() override;
-
-private:
-    std::optional<APyFloatAccumulatorOption> current_mode, previous_mode;
-};
-
 //! Return the global accumulator mode for APyFloat
 std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float();
+
+//! Set the global accumulator mode for APyFloat
+void set_accumulator_mode_float(const std::optional<APyFloatAccumulatorOption>& mode);
 
 /* ********************************************************************************** *
  * *                     Preferred third-party array library                        * *

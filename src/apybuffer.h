@@ -154,7 +154,7 @@ public:
     std::size_t ndim() const noexcept { return _shape.size(); }
 
     //! Return array size
-    std::size_t size() const noexcept { return _shape[0]; }
+    std::size_t size() const noexcept { return _shape.size() ? _shape[0] : 0; }
 
     //! Return array shape
     const std::vector<std::size_t>& shape() const noexcept { return _shape; }

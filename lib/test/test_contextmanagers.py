@@ -9,6 +9,8 @@ from apytypes import (
     APyFloatQuantizationContext,
     OverflowMode,
     QuantizationMode,
+    fp,
+    fx,
     get_fixed_quantization_seed,
     get_float_quantization_mode,
     get_float_quantization_seed,
@@ -18,10 +20,10 @@ from apytypes import (
 )
 
 
-class TestCastContext:
+class TestFxCastContext:
     """
-    This test class doesn't test if cast itself works,
-    just that the context manager acts correctly.
+    This test class doesn't test if cast itself works, just that the context manager
+    acts correctly.
     """
 
     def test_raises(self):
@@ -218,6 +220,41 @@ class TestCastContext:
         set_fixed_quantization_seed(new_seed)
         assert get_fixed_quantization_seed() == new_seed
 
+    def test_context_state_captured_and_restored(self):
+        """
+        Contexts with state must be captured on enter and then properly restored on
+        exit. Test especially that this holds for multiple levels of contexts.
+        """
+        a = fx(1.5, int_bits=3, frac_bits=1)
+        b = fx(-1.5, int_bits=3, frac_bits=1)
+
+        # Global context where `TRN` should apply
+        assert a.cast(int_bits=3, frac_bits=0).is_identical(fx(1.0, 3, 0))
+        assert b.cast(int_bits=3, frac_bits=0).is_identical(fx(-2.0, 3, 0))
+
+        # Outer context created, but not yet entered. Global context still applies
+        ctx_outer = APyFixedCastContext(quantization=QuantizationMode.RND)
+        assert a.cast(int_bits=3, frac_bits=0).is_identical(fx(1.0, 3, 0))
+        assert b.cast(int_bits=3, frac_bits=0).is_identical(fx(-2.0, 3, 0))
+
+        # Inner context created, but not yet entered. Global context still applies
+        ctx_inner = APyFixedCastContext(quantization=QuantizationMode.TRN_ZERO)
+        assert a.cast(int_bits=3, frac_bits=0).is_identical(fx(1.0, 3, 0))
+        assert b.cast(int_bits=3, frac_bits=0).is_identical(fx(-2.0, 3, 0))
+
+        with ctx_outer:
+            assert a.cast(int_bits=3, frac_bits=0).is_identical(fx(2.0, 3, 0))
+            assert b.cast(int_bits=3, frac_bits=0).is_identical(fx(-1.0, 3, 0))
+            with ctx_inner:
+                assert a.cast(int_bits=3, frac_bits=0).is_identical(fx(1.0, 3, 0))
+                assert b.cast(int_bits=3, frac_bits=0).is_identical(fx(-1.0, 3, 0))
+            # The context should be restored to the `ctx_outer`
+            assert a.cast(int_bits=3, frac_bits=0).is_identical(fx(2.0, 3, 0))
+            assert b.cast(int_bits=3, frac_bits=0).is_identical(fx(-1.0, 3, 0))
+
+        assert a.cast(int_bits=3, frac_bits=0).is_identical(fx(1.0, 3, 0))
+        assert b.cast(int_bits=3, frac_bits=0).is_identical(fx(-2.0, 3, 0))
+
 
 class TestAccumulatorContext:
     """
@@ -275,11 +312,77 @@ class TestAccumulatorContext:
             ):
                 assert get_float_quantization_mode() == QuantizationMode.TO_POS
 
+    def test_fx_context_state_captured_and_restored(self):
+        """
+        Contexts with state must be captured on enter and then properly restored on
+        exit. Test especially that this holds for multiple levels of contexts.
+        """
+        a = fx([0.75], int_bits=2, frac_bits=2)
 
-class TestQuantizationContext:
+        # Global context where no accumulator option is applied
+        assert (a @ a).is_identical(fx(0.5625, int_bits=4, frac_bits=4))
+
+        # Outer context created, but not yet entered. Global context still applies
+        ctx_outer = APyFixedAccumulatorContext(int_bits=4, frac_bits=3)
+        assert (a @ a).is_identical(fx(0.5625, int_bits=4, frac_bits=4))
+
+        # Inner context created, but not yet entered. Global context still applies
+        ctx_inner = APyFixedAccumulatorContext(int_bits=4, frac_bits=1)
+        assert (a @ a).is_identical(fx(0.5625, int_bits=4, frac_bits=4))
+
+        with ctx_outer:
+            assert (a @ a).is_identical(fx(0.525, int_bits=4, frac_bits=3))
+            with ctx_inner:
+                assert (a @ a).is_identical(fx(0.50, int_bits=4, frac_bits=1))
+
+            # The context is restored to `ctx_outer`
+            assert (a @ a).is_identical(fx(0.525, int_bits=4, frac_bits=3))
+
+        # The context is restored to the global state
+        assert (a @ a).is_identical(fx(0.5625, int_bits=4, frac_bits=4))
+
+    def test_fp_context_state_captured_and_restored(self):
+        """
+        Contexts with state must be captured on enter and then properly restored on
+        exit. Test especially that this holds for multiple levels of contexts.
+        """
+        a = fp([2.0**10 + 2.0**-10], exp_bits=7, man_bits=22)
+
+        # Global context where no accumulator option is applied
+        assert (a @ a).is_identical(fp(2.0**20 + 2.0, exp_bits=7, man_bits=22))
+
+        # Outer context created, but not yet entered. Global context still applies
+        ctx_outer = APyFloatAccumulatorContext(exp_bits=10, man_bits=48)
+        assert (a @ a).is_identical(fp(2.0**20 + 2.0, exp_bits=7, man_bits=22))
+
+        # Inner context created, but not yet entered. Global context still applies
+        ctx_inner = APyFloatAccumulatorContext(
+            exp_bits=7, man_bits=22, quantization=QuantizationMode.TRN_INF
+        )
+        assert (a @ a).is_identical(fp(2.0**20 + 2.0, exp_bits=7, man_bits=22))
+
+        with ctx_outer:
+            assert (a @ a).is_identical(
+                fp(2.0**20 + 2.0 + 2.0**-20, exp_bits=10, man_bits=48)
+            )
+            with ctx_inner:
+                assert (a @ a).is_identical(
+                    fp(2.0**20 + 2.0 + 2**-2, exp_bits=7, man_bits=22)
+                )
+
+            # The context is restored to `ctx_outer`
+            assert (a @ a).is_identical(
+                fp(2.0**20 + 2.0 + 2.0**-20, exp_bits=10, man_bits=48)
+            )
+
+        # The context is restored to the global state
+        assert (a @ a).is_identical(fp(2.0**20 + 2.0, exp_bits=7, man_bits=22))
+
+
+class TestFpQuantizationContext:
     """
-    This test class doesn't test if the quantization itself works,
-    just that the context manager acts correctly.
+    This test class doesn't test if the quantization itself works, just that the context
+    manager acts correctly.
     """
 
     default_mode = None

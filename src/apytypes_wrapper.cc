@@ -106,6 +106,7 @@ void bind_common(nb::module_& m)
             QuantizationMode::RND,
             R"pbdoc(Alias. Round to nearest, ties towards positive infinity.)pbdoc"
         )
+
         /*
          * Base quantization modes
          */
@@ -236,28 +237,30 @@ void bind_common(nb::module_& m)
             "FULL",
             ConvolutionMode::FULL,
             R"pbdoc(
-        Full convolution for each point of overlap.
+            Full convolution for each point of overlap.
 
-        The resulting single-dimensional shape will have length :code:`N + M - 1`. Boundary
-        effects occurs for points where the sequences do not overlap completely.
-        )pbdoc"
+            The resulting single-dimensional shape will have length :code:`N + M - 1`.
+            Boundary effects occurs for points where the sequences do not overlap
+            completely.
+            )pbdoc"
         )
         .value(
             "SAME",
             ConvolutionMode::SAME,
             R"pbdoc(
-        Convolution of length :code:`max(M, N)`.
+            Convolution of length :code:`max(M, N)`.
 
-        Boundary effects still occur around the edges of the result.
-        )pbdoc"
+            Boundary effects still occur around the edges of the result.
+            )pbdoc"
         )
         .value(
             "VALID",
             ConvolutionMode::VALID,
             R"pbdoc(
-        Convolution for each point of full overlap.
+            Convolution for each point of full overlap.
 
-        The resulting single-dimensional shape will have length :code:`max(M, N) - min(M, N) + 1`.
+            The resulting single-dimensional shape will have length :code:`max(M, N) -
+            min(M, N) + 1`.
             )pbdoc"
         );
 
