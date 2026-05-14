@@ -125,8 +125,9 @@ class ConvolutionMode(enum.Enum):
     """
     Full convolution for each point of overlap.
 
-    The resulting single-dimensional shape will have length :code:`N + M - 1`. Boundary
-    effects occurs for points where the sequences do not overlap completely.
+    The resulting single-dimensional shape will have length :code:`N + M - 1`.
+    Boundary effects occurs for points where the sequences do not overlap
+    completely.
     """
 
     SAME = 1
@@ -140,7 +141,8 @@ class ConvolutionMode(enum.Enum):
     """
     Convolution for each point of full overlap.
 
-    The resulting single-dimensional shape will have length :code:`max(M, N) - min(M, N) + 1`.
+    The resulting single-dimensional shape will have length :code:`max(M, N) -
+    min(M, N) + 1`.
     """
 
 def set_float_quantization_mode(mode: QuantizationMode) -> None:
