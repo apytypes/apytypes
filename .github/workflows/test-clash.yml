@@ -6,7 +6,7 @@
 #
 
 
-name: Unit tests (cocotb examples)
+name: Unit tests (Clash code generation)
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
   cancel-in-progress: true
@@ -37,46 +37,22 @@ jobs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
         python-version: "3.10"
-    - uses: nickg/setup-nvc@master  # v1v1
+    - name: Setup Haskell
+      uses: haskell-actions/setup@v2
       with:
-        version: latest
-    - name: Set up GHDL
-      uses: ghdl/setup-ghdl@v1
-    - name: Install HDL toolchains
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          iverilog \
-          verilator \
-          openjdk-17-jdk
+        ghc-version: "9.6.6"
+        cabal-version: "latest"
 
-    - name: Install Scala CLI
+    - name: Install Clash
       run: |
-        curl -fL https://github.com/VirtusLab/scala-cli/releases/latest/download/scala-cli-x86_64-pc-linux.gz | gunzip > scala-cli
-        chmod +x scala-cli
-        sudo mv scala-cli /usr/local/bin/scala-cli
-    - name: Install Python and Python HDL dependencies
+        cabal update
+        cabal install clash-ghc --overwrite-policy=always
+        cabal install --lib clash-prelude ghc-typelits-knownnat
+        clash --version
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install amaranth pytest numpy "meson>=1.10.1" meson-python setuptools_scm cocotb pytest-cov ninja vunit-hdl
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
-
-    - name: Cache Cargo
-      uses: Swatinem/rust-cache@v2
-
-    - name: Install Spade
-      run: |
-        cargo install --locked --git https://gitlab.com/spade-lang/spade spade-lang
-    - name: Check simulator installation
-      run: |
-        nvc --version # Make sure nvc was installed successfully
-        ghdl --version # Make sure ghdl was installed successfully
-        iverilog -V # Make sure iverilog was installed successfully
-        verilator --version # Make sure verilator was installed successfully
-    - name: Install nvc packages
-      run: |
-        nvc --install osvvm vunit
+        python -m pip install pytest numpy "meson>=1.10.1" meson-python setuptools_scm pytest-cov ninja
     - name: Install APyTypes
       run: |
         git fetch --tags

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Specializations for complex-real fixed-point multiplication and division.
 - Complex-real fixed-point matrix multiplication.
 - Operator overloading for real APy* and Python complex.
+- ROM generators for (System)Verilog, Spade, Chisel, Amaranth, and Spinal HDL.
 
 ### Fixed
 
@@ -19,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Complex-real multiplications now produce results with one less integer bit.
+- Complex-real fixed-point multiplications now produce results with one less
+  integer bit compared to earlier, i.e., the number of bits one would expect.
   This also holds for operations with Python integers and floats.
 
 ### Removed
