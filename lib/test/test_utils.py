@@ -24,6 +24,22 @@ def test_fx():
         APyFixedArray.from_float([0.3, -0.4], 4, 6)
     )
 
+    assert fx([0.3, -0.4j], 4, 6).is_identical(
+        APyCFixedArray.from_float([0.3, -0.4j], 4, 6)
+    )
+
+    assert fx([0.3j, 0.4], 4, 6).is_identical(
+        APyCFixedArray.from_float([0.3j, 0.4], 4, 6)
+    )
+
+    assert fx([0.3, -0.4j], 4, 6, force_complex=True).is_identical(
+        APyCFixedArray.from_float([0.3, -0.4j], 4, 6)
+    )
+
+    assert fx([0.3j, 0.4], 4, 6, force_complex=True).is_identical(
+        APyCFixedArray.from_float([0.3j, 0.4], 4, 6)
+    )
+
     assert fx(0.3, 4, 6, force_complex=True).is_identical(
         APyCFixed.from_complex(0.3, 4, 6)
     )
@@ -68,6 +84,14 @@ def test_fp():
 
     assert fp([0.3, -0.4], 4, 6).is_identical(
         APyFloatArray.from_float([0.3, -0.4], 4, 6)
+    )
+
+    assert fp([0.3, -0.4j], 4, 6).is_identical(
+        APyCFloatArray.from_float([0.3, -0.4j], 4, 6)
+    )
+
+    assert fp([0.3j, -0.4j], 4, 6).is_identical(
+        APyCFloatArray.from_float([0.3j, -0.4j], 4, 6)
     )
 
     assert fp([0.3j, -0.4], 4, 6, force_complex=True).is_identical(
