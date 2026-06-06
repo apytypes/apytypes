@@ -82,7 +82,7 @@ def fx(
     """
     Create a fixed-point scalar or array.
 
-    Convenience method that passes `value` and bit-specifiers to one of:
+    Convenience function that passes `value` and bit-specifiers to one of:
 
     * :func:`APyFixed.from_float`
     * :func:`APyFixedArray.from_float`
@@ -90,15 +90,11 @@ def fx(
     * :func:`APyCFixedArray.from_complex`
 
     depending on `value`. Returns :class:`APyFixed` when `value` is :class:`int` or
-    :class:`float`. Returns :class:`APyCFixed` when `value` is :class:`complex` or
+    :class:`float`. Returns :class:`APyCFixed` when `value` is :class:`complex` or when
     *force_complex* is True. Returns :class:`APyFixedArray` or :class:`APyCFixedArray`
     when `value` is a sequence of numbers.
 
     .. versionadded:: 0.3
-
-    .. hint::
-        Currently, this function will not detect sequences of complex values. Set
-        *force_complex* to True.
 
     Parameters
     ----------
@@ -124,7 +120,10 @@ def fx(
         if force_complex:
             return APyCFixedArray.from_complex(value, int_bits, frac_bits, bits)
         else:
-            return APyFixedArray.from_float(value, int_bits, frac_bits, bits)
+            try:
+                return APyFixedArray.from_float(value, int_bits, frac_bits, bits)
+            except ValueError:
+                return APyCFixedArray.from_complex(value, int_bits, frac_bits, bits)
     else:
         if isinstance(value, complex):
             return APyCFixed.from_complex(value, int_bits, frac_bits, bits)
@@ -201,7 +200,7 @@ def fp(
     """
     Create a floating-point scalar or array.
 
-    Convenience method that passes `value` and bit-specifiers to one of:
+    Convenience function that passes `value` and bit-specifiers to one of:
 
     * :func:`APyFloat.from_float`
     * :func:`APyFloatArray.from_float`
@@ -214,10 +213,6 @@ def fp(
     `value` is a sequence of numbers.
 
     .. versionadded:: 0.3
-
-    .. hint::
-        Currently, this function will not detect sequences of complex values. Set
-        *force_complex* to True.
 
     Parameters
     ----------
@@ -243,7 +238,10 @@ def fp(
         if force_complex:
             return APyCFloatArray.from_complex(value, exp_bits, man_bits, bias)
         else:
-            return APyFloatArray.from_float(value, exp_bits, man_bits, bias)
+            try:
+                return APyFloatArray.from_float(value, exp_bits, man_bits, bias)
+            except ValueError:
+                return APyCFloatArray.from_float(value, exp_bits, man_bits, bias)
     else:
         if isinstance(value, complex):
             return APyCFloat.from_complex(value, exp_bits, man_bits, bias)
