@@ -677,9 +677,10 @@ nb::object APyFixed::as_integer_ratio() const
 
 std::string APyFixed::to_string_dec() const
 {
-    return fixed_point_to_string_dec(
-        std::begin(_data), std::end(_data), _bits, _int_bits
-    );
+    // return fixed_point_to_string_dec(
+    //     std::begin(_data), std::end(_data), _bits, _int_bits
+    // );
+    return to_decimal_string(std::begin(_data), std::end(_data));
 }
 
 std::string APyFixed::to_string_hex() const
