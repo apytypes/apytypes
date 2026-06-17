@@ -250,6 +250,14 @@ void bind_cfloat(nb::module_& m)
         .def("__rtruediv__", R_OP<STD_DIV<>, std::complex<double>>, NB_OP())
 
         /*
+         * Logic operations
+         */
+        .def(nb::self & nb::self)
+        .def(nb::self | nb::self)
+        .def(nb::self ^ nb::self)
+        .def(~nb::self)
+
+        /*
          * Get real and imaginary part
          */
         .def_prop_ro("real", &APyCFloat::get_real, R"pbdoc(

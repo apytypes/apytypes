@@ -200,6 +200,31 @@ calc_bias(int new_exp_bits, const APyFloatSpec& spec1, const APyFloatSpec& spec2
 }
 
 /* ********************************************************************************** *
+ * *                        Floating-point logic operations                         * *
+ * ********************************************************************************** */
+
+//! Logical AND
+static APY_INLINE APyFloatData
+floating_point_logic_and(APyFloatData lhs, APyFloatData rhs)
+{
+    return { lhs.sign && rhs.sign, lhs.exp & rhs.exp, lhs.man & rhs.man };
+}
+
+//! Logical OR
+static APY_INLINE APyFloatData
+floating_point_logic_or(APyFloatData lhs, APyFloatData rhs)
+{
+    return { lhs.sign || rhs.sign, lhs.exp | rhs.exp, lhs.man | rhs.man };
+}
+
+//! Logical XOR
+static APY_INLINE APyFloatData
+floating_point_logic_xor(APyFloatData lhs, APyFloatData rhs)
+{
+    return { bool(lhs.sign ^ rhs.sign), lhs.exp ^ rhs.exp, lhs.man ^ rhs.man };
+}
+
+/* ********************************************************************************** *
  * *                     Floating-point quantization functions                      * *
  * ********************************************************************************** */
 

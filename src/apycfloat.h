@@ -221,15 +221,23 @@ public:
      * *                     Unary/binary arithmetic operators                      * *
      * ****************************************************************************** */
 
-    // Unary negation
     APyCFloat operator+(const APyCFloat& rhs) const;
     APyCFloat operator-(const APyCFloat& rhs) const;
     APyCFloat operator*(const APyCFloat& rhs) const;
     APyCFloat operator/(const APyCFloat& rhs) const;
 
-    // Unary negation
+    // Unary negation and plus
     APyCFloat operator-() const;
     APyCFloat operator+() const { return *this; };
+
+    //! Bitwise AND between two floating-point scalars
+    APyCFloat operator&(const APyCFloat& rhs) const;
+    //! Bitwise OR between two floating-point scalars
+    APyCFloat operator|(const APyCFloat& rhs) const;
+    //! Bitwise Exclusive-OR (XOR) between two floating-point scalars
+    APyCFloat operator^(const APyCFloat& rhs) const;
+    //! Bitwise NOT
+    APyCFloat operator~() const;
 
     /* ****************************************************************************** *
      * *                       Non-computational functions                          * *

@@ -534,6 +534,100 @@ APyCFloat APyCFloat::operator-() const
     return APyCFloat(real_data, imag_data, exp_bits, man_bits, bias);
 }
 
+APyCFloat APyCFloat::operator&(const APyCFloat& rhs) const
+{
+    if (is_same_spec(rhs)) {
+        const auto real_data = floating_point_logic_and(real(), rhs.real());
+        const auto imag_data = floating_point_logic_and(imag(), rhs.imag());
+
+        return APyCFloat(real_data, imag_data, exp_bits, man_bits, bias);
+    }
+
+    const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
+    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, ieee_bias };
+
+    const auto lhs_big_real = floating_point_cast_no_quant(real(), spec(), big_spec);
+    const auto lhs_big_imag = floating_point_cast_no_quant(imag(), spec(), big_spec);
+    const auto rhs_big_real
+        = floating_point_cast_no_quant(rhs.real(), rhs.spec(), big_spec);
+    const auto rhs_big_imag
+        = floating_point_cast_no_quant(rhs.imag(), rhs.spec(), big_spec);
+
+    const auto real_data = floating_point_logic_and(lhs_big_real, rhs_big_real);
+    const auto imag_data = floating_point_logic_and(lhs_big_imag, rhs_big_imag);
+
+    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, ieee_bias);
+}
+
+APyCFloat APyCFloat::operator|(const APyCFloat& rhs) const
+{
+    if (is_same_spec(rhs)) {
+        const auto real_data = floating_point_logic_or(real(), rhs.real());
+        const auto imag_data = floating_point_logic_or(imag(), rhs.imag());
+
+        return APyCFloat(real_data, imag_data, exp_bits, man_bits, bias);
+    }
+
+    const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
+    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, ieee_bias };
+
+    const auto lhs_big_real = floating_point_cast_no_quant(real(), spec(), big_spec);
+    const auto lhs_big_imag = floating_point_cast_no_quant(imag(), spec(), big_spec);
+    const auto rhs_big_real
+        = floating_point_cast_no_quant(rhs.real(), rhs.spec(), big_spec);
+    const auto rhs_big_imag
+        = floating_point_cast_no_quant(rhs.imag(), rhs.spec(), big_spec);
+
+    const auto real_data = floating_point_logic_or(lhs_big_real, rhs_big_real);
+    const auto imag_data = floating_point_logic_or(lhs_big_imag, rhs_big_imag);
+
+    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, ieee_bias);
+}
+
+APyCFloat APyCFloat::operator^(const APyCFloat& rhs) const
+{
+    if (is_same_spec(rhs)) {
+        const auto real_data = floating_point_logic_xor(real(), rhs.real());
+        const auto imag_data = floating_point_logic_xor(imag(), rhs.imag());
+
+        return APyCFloat(real_data, imag_data, exp_bits, man_bits, bias);
+    }
+    const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
+    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, ieee_bias };
+
+    const auto lhs_big_real = floating_point_cast_no_quant(real(), spec(), big_spec);
+    const auto lhs_big_imag = floating_point_cast_no_quant(imag(), spec(), big_spec);
+    const auto rhs_big_real
+        = floating_point_cast_no_quant(rhs.real(), rhs.spec(), big_spec);
+    const auto rhs_big_imag
+        = floating_point_cast_no_quant(rhs.imag(), rhs.spec(), big_spec);
+
+    const auto real_data = floating_point_logic_xor(lhs_big_real, rhs_big_real);
+    const auto imag_data = floating_point_logic_xor(lhs_big_imag, rhs_big_imag);
+
+    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, ieee_bias);
+}
+
+APyCFloat APyCFloat::operator~() const
+{
+    APyFloatData real_data = real();
+    real_data.sign = !real_data.sign;
+    real_data.exp = ~real_data.exp & ((1ULL << exp_bits) - 1);
+    real_data.man = ~real_data.man & ((1ULL << man_bits) - 1);
+
+    APyFloatData imag_data = imag();
+    imag_data.sign = !imag_data.sign;
+    imag_data.exp = ~imag_data.exp & ((1ULL << exp_bits) - 1);
+    imag_data.man = ~imag_data.man & ((1ULL << man_bits) - 1);
+    return APyCFloat(real_data, imag_data, exp_bits, man_bits, bias);
+}
+
 /* ********************************************************************************** *
  * *                        Other public member functions                           * *
  * ********************************************************************************** */
