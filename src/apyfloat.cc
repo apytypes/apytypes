@@ -828,22 +828,23 @@ APyFloat APyFloat::operator&(const APyFloat& rhs) const
 {
     if (is_same_spec(rhs)) {
         return APyFloat(
-            sign & rhs.sign, exp & rhs.exp, man & rhs.man, exp_bits, man_bits
+            sign & rhs.sign, exp & rhs.exp, man & rhs.man, exp_bits, man_bits, bias
         );
     }
 
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
-    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
-    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
+    const exp_t res_bias = calc_bias(max_exp_bits, spec(), rhs.spec());
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, res_bias);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, res_bias);
 
     return APyFloat(
         lhs_big.sign & rhs_big.sign,
         lhs_big.exp & rhs_big.exp,
         lhs_big.man & rhs_big.man,
         max_exp_bits,
-        max_man_bits
+        max_man_bits,
+        res_bias
     );
 }
 
@@ -851,21 +852,22 @@ APyFloat APyFloat::operator|(const APyFloat& rhs) const
 {
     if (is_same_spec(rhs)) {
         return APyFloat(
-            sign | rhs.sign, exp | rhs.exp, man | rhs.man, exp_bits, man_bits
+            sign | rhs.sign, exp | rhs.exp, man | rhs.man, exp_bits, man_bits, bias
         );
     }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
-    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
-    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
+    const exp_t res_bias = calc_bias(max_exp_bits, spec(), rhs.spec());
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, res_bias);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, res_bias);
 
     return APyFloat(
         lhs_big.sign | rhs_big.sign,
         lhs_big.exp | rhs_big.exp,
         lhs_big.man | rhs_big.man,
         max_exp_bits,
-        max_man_bits
+        max_man_bits,
+        res_bias
     );
 }
 
@@ -873,21 +875,22 @@ APyFloat APyFloat::operator^(const APyFloat& rhs) const
 {
     if (is_same_spec(rhs)) {
         return APyFloat(
-            sign ^ rhs.sign, exp ^ rhs.exp, man ^ rhs.man, exp_bits, man_bits
+            sign ^ rhs.sign, exp ^ rhs.exp, man ^ rhs.man, exp_bits, man_bits, bias
         );
     }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
-    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
-    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
+    const exp_t res_bias = calc_bias(max_exp_bits, spec(), rhs.spec());
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, res_bias);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, res_bias);
 
     return APyFloat(
         lhs_big.sign ^ rhs_big.sign,
         lhs_big.exp ^ rhs_big.exp,
         lhs_big.man ^ rhs_big.man,
         max_exp_bits,
-        max_man_bits
+        max_man_bits,
+        res_bias
     );
 }
 
@@ -898,7 +901,8 @@ APyFloat APyFloat::operator~() const
         ~exp & ((1ULL << exp_bits) - 1),
         ~man & ((1ULL << man_bits) - 1),
         exp_bits,
-        man_bits
+        man_bits,
+        bias
     );
 }
 

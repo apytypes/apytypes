@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Proper nesting using multiple levels of APyTypes contexts
 - Utility functions `fp` and `fx` automatically detect complex-valued arrays
+- Correct output bias for logical operations on `APyFloat`
 
 ### Changed
 

@@ -545,8 +545,8 @@ APyCFloat APyCFloat::operator&(const APyCFloat& rhs) const
 
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
-    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, ieee_bias };
+    const exp_t res_bias = calc_bias(max_exp_bits, spec(), rhs.spec());
+    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, res_bias };
 
     const auto lhs_big_real = floating_point_cast_no_quant(real(), spec(), big_spec);
     const auto lhs_big_imag = floating_point_cast_no_quant(imag(), spec(), big_spec);
@@ -558,7 +558,7 @@ APyCFloat APyCFloat::operator&(const APyCFloat& rhs) const
     const auto real_data = floating_point_logic_and(lhs_big_real, rhs_big_real);
     const auto imag_data = floating_point_logic_and(lhs_big_imag, rhs_big_imag);
 
-    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, ieee_bias);
+    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, res_bias);
 }
 
 APyCFloat APyCFloat::operator|(const APyCFloat& rhs) const
@@ -572,8 +572,8 @@ APyCFloat APyCFloat::operator|(const APyCFloat& rhs) const
 
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
-    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, ieee_bias };
+    const exp_t res_bias = calc_bias(max_exp_bits, spec(), rhs.spec());
+    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, res_bias };
 
     const auto lhs_big_real = floating_point_cast_no_quant(real(), spec(), big_spec);
     const auto lhs_big_imag = floating_point_cast_no_quant(imag(), spec(), big_spec);
@@ -585,7 +585,7 @@ APyCFloat APyCFloat::operator|(const APyCFloat& rhs) const
     const auto real_data = floating_point_logic_or(lhs_big_real, rhs_big_real);
     const auto imag_data = floating_point_logic_or(lhs_big_imag, rhs_big_imag);
 
-    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, ieee_bias);
+    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, res_bias);
 }
 
 APyCFloat APyCFloat::operator^(const APyCFloat& rhs) const
@@ -598,8 +598,8 @@ APyCFloat APyCFloat::operator^(const APyCFloat& rhs) const
     }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
-    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, ieee_bias };
+    const exp_t res_bias = calc_bias(max_exp_bits, spec(), rhs.spec());
+    const APyFloatSpec big_spec = { max_exp_bits, max_man_bits, res_bias };
 
     const auto lhs_big_real = floating_point_cast_no_quant(real(), spec(), big_spec);
     const auto lhs_big_imag = floating_point_cast_no_quant(imag(), spec(), big_spec);
@@ -611,7 +611,7 @@ APyCFloat APyCFloat::operator^(const APyCFloat& rhs) const
     const auto real_data = floating_point_logic_xor(lhs_big_real, rhs_big_real);
     const auto imag_data = floating_point_logic_xor(lhs_big_imag, rhs_big_imag);
 
-    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, ieee_bias);
+    return APyCFloat(real_data, imag_data, max_exp_bits, max_man_bits, res_bias);
 }
 
 APyCFloat APyCFloat::operator~() const
