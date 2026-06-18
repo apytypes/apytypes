@@ -333,6 +333,24 @@ void bind_cfloat_array(nb::module_& m)
         )
 
         /*
+         * Get real and imaginary part
+         */
+        .def_prop_ro("real", &APyCFloatArray::get_real, R"pbdoc(
+            Real part.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc")
+        .def_prop_ro("imag", &APyCFloatArray::get_imag, R"pbdoc(
+            Imaginary part.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc")
+
+        /*
          * Static methods
          */
         .def_static(

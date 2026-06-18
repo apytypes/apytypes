@@ -676,6 +676,26 @@ APyCFloatArray APyCFloatArray::hermitian_transpose() const
     return res;
 }
 
+//! Return real part
+APyFloatArray APyCFloatArray::get_real() const
+{
+    APyFloatArray res(_shape, exp_bits, man_bits, bias);
+    for (std::size_t i = 0; i < _nitems; i++) {
+        res._data[i] = _data[2 * i];
+    }
+    return res;
+}
+
+//! Return imaginary part
+APyFloatArray APyCFloatArray::get_imag() const
+{
+    APyFloatArray res(_shape, exp_bits, man_bits, bias);
+    for (std::size_t i = 0; i < _nitems; i++) {
+        res._data[i] = _data[2 * i + 1];
+    }
+    return res;
+}
+
 /* ********************************************************************************** *
  * *                          Arithmetic member functions                           * *
  * ********************************************************************************** */

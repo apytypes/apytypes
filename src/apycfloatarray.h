@@ -222,6 +222,12 @@ public:
         return exp_bits + man_bits + 1;
     }
 
+    //! Return real part
+    APyFloatArray get_real() const;
+
+    //! Return imaginary part
+    APyFloatArray get_imag() const;
+
     //! Test if two floating-point arrays are identical, i.e., has the same values, and
     //! the same format
     bool is_identical(const nb::object& other, bool ignore_zero_sign = false) const;
