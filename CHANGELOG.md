@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complex-real fixed-point matrix multiplication.
 - Operator overloading for real APy* and Python complex.
 - ROM generators for (System)Verilog, Spade, Chisel, Amaranth, and Spinal HDL.
+- Getters for real and imaginary part of `APyCFloatArray`.
 
 ### Fixed
 

@@ -2638,6 +2638,26 @@ class APyCFloatArray:
         :class:`APyCFloatArray`
         """
 
+    @property
+    def real(self) -> APyFloatArray:
+        """
+        Real part.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+        """
+
+    @property
+    def imag(self) -> APyFloatArray:
+        """
+        Imaginary part.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+        """
+
     @staticmethod
     def from_complex(
         complex_sequence: Iterable[Any],
