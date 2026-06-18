@@ -26,16 +26,10 @@ def test_and():
     assert (a & b).is_identical(expected)
 
     # Mixed spec
-    a = APyCFloat((1, 0), (0b01010, 0b10100), (0b0101010, 0b1111000), 5, 7)
+    a = APyCFloat((1, 0), (0b01010, 0b10100), (0b0101010, 0b1111000), 5, 7, 17)
     b = APyCFloat((1, 1), (0b00101, 0b01001), (0b01111, 0b10101), 4, 5)
 
-    expected = APyCFloat(
-        (1, 0),
-        (0b01010 & 0b01101, 0b10100 & 0b10001),
-        (0b0101010 & 0b0111100, 0b1111000 & 0b1010100),
-        5,
-        7,
-    )
+    expected = a.cast(5, 7, 16) & b.cast(5, 7, 16)
     assert (a & b).is_identical(expected)
 
 
@@ -54,16 +48,10 @@ def test_or():
     assert (a | b).is_identical(expected)
 
     # Mixed spec
-    a = APyCFloat((1, 0), (0b01010, 0b10100), (0b0101010, 0b1111000), 5, 7)
+    a = APyCFloat((1, 0), (0b01010, 0b10100), (0b0101010, 0b1111000), 5, 7, 19)
     b = APyCFloat((1, 1), (0b00101, 0b01001), (0b01111, 0b10101), 4, 5)
 
-    expected = APyCFloat(
-        (1, 1),
-        (0b01010 | 0b01101, 0b10100 | 0b10001),
-        (0b0101010 | 0b0111100, 0b1111000 | 0b1010100),
-        5,
-        7,
-    )
+    expected = a.cast(5, 7, 17) | b.cast(5, 7, 17)
     assert (a | b).is_identical(expected)
 
 
@@ -83,13 +71,8 @@ def test_xor():
 
     # Mixed spec
     a = APyCFloat((1, 0), (0b01010, 0b10100), (0b0101010, 0b1111000), 5, 7)
-    b = APyCFloat((1, 1), (0b00101, 0b01001), (0b01111, 0b10101), 4, 5)
+    b = APyCFloat((1, 1), (0b00101, 0b01001), (0b01111, 0b10101), 4, 5, 5)
 
-    expected = APyCFloat(
-        (0, 1),
-        (0b01010 ^ 0b01101, 0b10100 ^ 0b10001),
-        (0b0101010 ^ 0b0111100, 0b1111000 ^ 0b1010100),
-        5,
-        7,
-    )
+    print(repr(a ^ b))
+    expected = a.cast(5, 7, 13) ^ b.cast(5, 7, 13)
     assert (a ^ b).is_identical(expected)
