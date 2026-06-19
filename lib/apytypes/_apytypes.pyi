@@ -2890,6 +2890,47 @@ class APyCFloatArray:
         from_float
         """
 
+    @staticmethod
+    def from_bits(
+        bits: Iterable[Any], exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloatArray:
+        """
+        Create an :class:`APyCFloatArray` object from bit-representations.
+
+        Parameters
+        ----------
+        bits : :class:`int`
+            The bit-representations.
+        exp_bits : :class:`int`
+            Number of exponent bits in the created floating-point tensor
+        man_bits : :class:`int`
+            Number of mantissa bits in the created floating-point tensor
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloatArray.from_bits(
+        ...     [[60, 61], [80, 82]], exp_bits=5, man_bits=2
+        ... )
+        >>> a
+        APyCFloatArray(
+            [  (0, 0),   (0, 0)],
+            [(15, 15), (20, 20)],
+            [  (0, 1),   (0, 2)],
+            exp_bits=5,
+            man_bits=2
+        )
+        >>> print(a)
+        [1+1.25j,  32+48j]
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
     def is_identical(self, other: object, ignore_zero_sign: bool = False) -> bool:
         """
         Test if two :py:class:`APyCFloatArray` objects are identical.
@@ -3261,6 +3302,26 @@ class APyCFloatArray:
         Returns
         -------
         :class:`numpy.ndarray`
+        """
+
+    def to_bits(
+        self, numpy: bool = False
+    ) -> (
+        list
+        | NDArray[numpy.uint64]
+        | NDArray[numpy.uint32]
+        | NDArray[numpy.uint16]
+        | NDArray[numpy.uint8]
+    ):
+        """
+        Return the underlying bit representations.
+
+        When `numpy` is true, the bit representations are returned in a
+        :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+
+        Returns
+        -------
+        :class:`list` or :class:`numpy.ndarray`
         """
 
     def broadcast_to(self, shape: int | tuple[int, ...]) -> APyCFloatArray:

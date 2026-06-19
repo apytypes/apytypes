@@ -1,4 +1,120 @@
+import pytest
+
 from apytypes import APyCFloatArray, APyFloatArray, QuantizationMode
+
+
+@pytest.mark.float_array
+def test_from_bits():
+    # Test raises
+    with pytest.raises(
+        ValueError,
+        match=r"APyCFloatArray\.from_bits: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+    ):
+        APyCFloatArray.from_bits([0], 300, 5)
+
+    with pytest.raises(
+        ValueError, match=r"APyCFloatArray\.from_bits: unexpected type when traversing"
+    ):
+        APyCFloatArray.from_bits(["0"], 5, 10)
+
+    # Only reals
+    a = APyCFloatArray.from_bits([108, 112, 120, 4224], exp_bits=8, man_bits=4, bias=6)
+    assert a.is_identical(
+        APyCFloatArray(
+            [(0, 0), (0, 0), (0, 0), (1, 0)],
+            [(6, 0), (7, 0), (7, 0), (8, 0)],
+            [(12, 0), (0, 0), (8, 0), (0, 0)],
+            exp_bits=8,
+            man_bits=4,
+            bias=6,
+        )
+    )
+
+    # Complex as well
+    a = APyCFloatArray.from_bits([[108, 112], [120, 4224]], 8, 4)
+    assert a.is_identical(
+        APyCFloatArray(
+            [(0, 0), (0, 1)],
+            [(6, 7), (7, 8)],
+            [(12, 0), (8, 0)],
+            exp_bits=8,
+            man_bits=4,
+        )
+    )
+
+
+@pytest.mark.float_array
+def test_from_bits_np():
+    # Skip this test if `NumPy` is not present on the machine
+    np = pytest.importorskip("numpy")
+    # Only reals
+    a = APyCFloatArray.from_bits(
+        np.asarray([108, 112, 120, 4224]), exp_bits=8, man_bits=4, bias=6
+    )
+    assert a.is_identical(
+        APyCFloatArray(
+            [(0, 0), (0, 0), (0, 0), (1, 0)],
+            [(6, 0), (7, 0), (7, 0), (8, 0)],
+            [(12, 0), (0, 0), (8, 0), (0, 0)],
+            exp_bits=8,
+            man_bits=4,
+            bias=6,
+        )
+    )
+
+    # Complex as well
+    a = APyCFloatArray.from_bits(
+        np.asarray([[108, 112], [120, 4224]]), exp_bits=8, man_bits=4
+    )
+    assert a.is_identical(
+        APyCFloatArray(
+            [(0, 0), (0, 1)],
+            [(6, 7), (7, 8)],
+            [(12, 0), (8, 0)],
+            exp_bits=8,
+            man_bits=4,
+        )
+    )
+
+
+@pytest.mark.float_array
+def test_to_bits():
+    a = APyCFloatArray(
+        [(0, 0), (0, 0), (0, 0), (1, 0)],
+        [(6, 0), (7, 0), (7, 0), (8, 0)],
+        [(12, 0), (0, 0), (8, 0), (0, 0)],
+        exp_bits=8,
+        man_bits=4,
+        bias=6,
+    )
+    assert a.to_bits() == [(108, 0), (112, 0), (120, 0), (4224, 0)]
+
+    a = APyCFloatArray(
+        [(0, 0), (0, 1)], [(6, 7), (7, 8)], [(12, 0), (8, 0)], exp_bits=8, man_bits=4
+    )
+    assert a.to_bits() == [(108, 112), (120, 4224)]
+
+
+@pytest.mark.float_array
+def test_to_bits_np():
+    np = pytest.importorskip("numpy")
+
+    a = APyCFloatArray(
+        [(0, 0), (0, 0), (0, 0), (1, 0)],
+        [(6, 0), (7, 0), (7, 0), (8, 0)],
+        [(12, 0), (0, 0), (8, 0), (0, 0)],
+        exp_bits=8,
+        man_bits=4,
+        bias=6,
+    )
+    assert np.array_equal(
+        a.to_bits(True), np.asarray([[108, 0], [112, 0], [120, 0], [4224, 0]])
+    )
+
+    a = APyCFloatArray(
+        [(0, 0), (0, 1)], [(6, 7), (7, 8)], [(12, 0), (8, 0)], exp_bits=8, man_bits=4
+    )
+    assert np.array_equal(a.to_bits(True), np.asarray([(108, 112), (120, 4224)]))
 
 
 def test_real_imag():

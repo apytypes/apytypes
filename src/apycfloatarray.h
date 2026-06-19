@@ -201,6 +201,24 @@ public:
     std::string to_string(int base = 10) const;
     std::string to_string_dec() const;
 
+    //! Extract bit-pattern
+    std::variant<
+        nb::list,
+        nb::ndarray<nb::numpy, uint64_t>,
+        nb::ndarray<nb::numpy, uint32_t>,
+        nb::ndarray<nb::numpy, uint16_t>,
+        nb::ndarray<nb::numpy, uint8_t>>
+    to_bits(bool numpy = false) const;
+
+    //! Create an N-dimensional array containing bit-patterns.
+    template <typename NB_ARRAY_TYPE, typename INT_TYPE>
+    nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> to_bits_ndarray() const;
+
+    //! Create a nested Python list containing bit-patterns as Python integers.
+    nb::list to_bits_python_recursive_descent(
+        std::size_t dim, std::vector<APyFloatData>::const_iterator& it
+    ) const;
+
     //! Convert to a NumPy array
     nanobind::ndarray<nanobind::numpy, std::complex<double>> to_numpy(
         std::optional<nb::object> dtype = std::nullopt,
@@ -317,9 +335,22 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Create an `APyCFloatArray` tensor object initialized from bit-representation
+    static APyCFloatArray from_bits(
+        const nb::typed<nb::iterable, nb::any>& seq,
+        int exp_bits,
+        int man_bits,
+        std::optional<exp_t> bias
+    );
+
 private:
     //! Set data fields based on an ndarray of doubles
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
+
+    //! Set data fields based on an ndarray of doubles
+    void _set_bits_from_ndarray(
+        const nanobind::ndarray<nanobind::c_contig>& ndarray, bool is_inner_dim_complex
+    );
 
     //! Set `sign` bits from ndarray
     void _set_sign_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array);
