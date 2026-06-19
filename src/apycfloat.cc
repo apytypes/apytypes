@@ -763,8 +763,8 @@ std::complex<double> APyCFloat::to_complex() const
 nb::tuple APyCFloat::to_bits() const
 {
     return nb::make_tuple(
-        APyFloat(real(), exp_bits, man_bits, bias).to_bits(),
-        APyFloat(imag(), exp_bits, man_bits, bias).to_bits()
+        apyfloat_to_bits(real(), exp_bits, man_bits),
+        apyfloat_to_bits(imag(), exp_bits, man_bits)
     );
 }
 

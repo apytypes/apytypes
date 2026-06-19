@@ -512,6 +512,52 @@ void bind_cfloat_array(nb::module_& m)
 
             )pbdoc"
         )
+        .def_static(
+            "from_bits",
+            &APyCFloatArray::from_bits,
+            nb::arg("bits"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyCFloatArray` object from bit-representations.
+
+            Parameters
+            ----------
+            bits : :class:`int`
+                The bit-representations.
+            exp_bits : :class:`int`
+                Number of exponent bits in the created floating-point tensor
+            man_bits : :class:`int`
+                Number of mantissa bits in the created floating-point tensor
+            bias : :class:`int`, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+            Examples
+            --------
+
+            >>> import apytypes as apy
+            >>> a = apy.APyCFloatArray.from_bits(
+            ...     [[60, 61], [80, 82]],
+            ...     exp_bits=5,
+            ...     man_bits=2
+            ... )
+            >>> a
+            APyCFloatArray(
+                [  (0, 0),   (0, 0)],
+                [(15, 15), (20, 20)],
+                [  (0, 1),   (0, 2)],
+                exp_bits=5,
+                man_bits=2
+            )
+            >>> print(a)
+            [1+1.25j,  32+48j]
+
+            Returns
+            -------
+            :class:`APyCFloatArray`
+            )pbdoc"
+        )
 
         /*
          * Public methods
@@ -988,6 +1034,22 @@ void bind_cfloat_array(nb::module_& m)
             Returns
             -------
             :class:`numpy.ndarray`
+            )pbdoc"
+        )
+
+        .def(
+            "to_bits",
+            &APyCFloatArray::to_bits,
+            nb::arg("numpy") = false,
+            R"pbdoc(
+            Return the underlying bit representations.
+
+            When `numpy` is true, the bit representations are returned in a
+            :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+
+            Returns
+            -------
+            :class:`list` or :class:`numpy.ndarray`
             )pbdoc"
         )
 

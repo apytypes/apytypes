@@ -478,6 +478,134 @@ void APyCFloatArray::_set_man_bits_from_ndarray(const nb::ndarray<nb::c_contig>&
     );
 }
 
+APyCFloatArray APyCFloatArray::from_bits(
+    const nb::typed<nb::iterable, nb::any>& seq,
+    int exp_bits,
+    int man_bits,
+    std::optional<exp_t> bias
+)
+{
+    check_exponent_format(exp_bits, "APyCFloatArray.from_bits");
+    check_mantissa_format(man_bits, "APyCFloatArray.from_bits");
+
+    if (nb::isinstance<nb::ndarray<>>(seq)) {
+        const auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(seq);
+
+        assert(ndarray.ndim() > 0);
+        std::vector<std::size_t> shape(ndarray.ndim(), 0);
+        for (std::size_t i = 0; i < ndarray.ndim(); i++) {
+            shape[i] = ndarray.shape(i);
+        }
+
+        bool is_inner_dim_complex = false;
+        if (shape[ndarray.ndim() - 1] == 2) {
+            is_inner_dim_complex = true;
+            shape.pop_back();
+        }
+
+        APyCFloatArray result(shape, exp_bits, man_bits, bias);
+
+        result._set_bits_from_ndarray(ndarray, is_inner_dim_complex);
+        return result;
+    }
+
+    APyCFloatArray result(
+        python_iterable_extract_shape</* IS_COMPLEX_COLLAPSE = */ true>(
+            seq, "APyCFloatArray.from_bits"
+        ),
+        exp_bits,
+        man_bits,
+        bias
+    );
+
+    // 1D vector of Python int objects (`nb::int_` objects)
+    auto python_objs = python_iterable_walk<nb::int_>(seq, "APyCFloatArray.from_bits");
+
+    // If the walked sequence of Python integers is
+    assert(
+        python_objs.size() == result._nitems || python_objs.size() == 2 * result._nitems
+    );
+    bool is_inner_dim_complex = (python_objs.size() == 2 * result._nitems);
+
+    APyFloat f(exp_bits, man_bits, result.bias);
+    if (is_inner_dim_complex) {
+        for (std::size_t i = 0; i < 2 * result._nitems; i++) {
+            if (nb::isinstance<nb::int_>(python_objs[i])) {
+                result._data[i]
+                    = f.update_from_bits(nb::cast<nb::int_>(python_objs[i])).get_data();
+            } else {
+                throw std::domain_error("Invalid Python objects in sequence");
+            }
+        }
+    } else {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            if (nb::isinstance<nb::int_>(python_objs[i])) {
+                result._data[2 * i]
+                    = f.update_from_bits(nb::cast<nb::int_>(python_objs[i])).get_data();
+            } else {
+                throw std::domain_error("Invalid Python objects in sequence");
+            }
+        }
+    }
+    return result;
+}
+
+void APyCFloatArray::_set_bits_from_ndarray(
+    const nb::ndarray<nb::c_contig>& ndarray, bool is_inner_dim_complex
+)
+{
+    // Double value used for converting.
+    APyFloat f(exp_bits, man_bits, bias);
+
+#define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                       \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            const auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();           \
+            if (is_inner_dim_complex) {                                                \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    const auto bits                                                    \
+                        = static_cast<std::uint64_t>(ndarray_view.data()[i]);          \
+                    f.update_from_bits(bits);                                          \
+                    _data[i] = f.get_data();                                           \
+                }                                                                      \
+            } else {                                                                   \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    const auto bits                                                    \
+                        = static_cast<std::uint64_t>(ndarray_view.data()[i]);          \
+                    f.update_from_bits(bits);                                          \
+                    _data[2 * i] = f.get_data();                                       \
+                    _data[2 * i + 1] = { 0, 0, 0 };                                    \
+                }                                                                      \
+            }                                                                          \
+            return; /* Conversion completed, exit function */                          \
+        }                                                                              \
+    } while (0)
+
+    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // converts all the data if it matches. If successful,
+    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attempted
+    // conversion will take place
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int64_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int32_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int16_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int8_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint8_t);
+
+#undef CHECK_AND_SET_BITS_FROM_NPTYPE
+
+    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
+    // an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
+    // find out how this can be achieved.
+    throw nb::type_error(
+        "APyCFloatArray::_set_bits_from_ndarray(): "
+        "unsupported `dtype` expecting integer"
+    );
+}
+
 template <typename DTYPE>
 bool APyCFloatArray::_check_and_set_sign_bits_from_ndarray(
     const nb::ndarray<nb::c_contig>& ndarray_sign
@@ -562,6 +690,105 @@ std::string APyCFloatArray::repr() const
     }
 
     return array_repr(formatters, kw_args);
+}
+
+std::variant<
+    nb::list,
+    nb::ndarray<nb::numpy, std::uint64_t>,
+    nb::ndarray<nb::numpy, std::uint32_t>,
+    nb::ndarray<nb::numpy, std::uint16_t>,
+    nb::ndarray<nb::numpy, std::uint8_t>>
+APyCFloatArray::to_bits(bool numpy) const
+{
+    using RESULT_TYPE = std::variant<
+        nb::list,
+        nb::ndarray<nb::numpy, std::uint64_t>,
+        nb::ndarray<nb::numpy, std::uint32_t>,
+        nb::ndarray<nb::numpy, std::uint16_t>,
+        nb::ndarray<nb::numpy, std::uint8_t>>;
+
+    if (numpy) {
+        if (get_bits() <= 8) {
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint8_t>>,
+                to_bits_ndarray<nb::numpy, std::uint8_t>()
+            );
+        } else if (get_bits() <= 16) {
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint16_t>>,
+                to_bits_ndarray<nb::numpy, std::uint16_t>()
+            );
+        } else if (get_bits() <= 32) {
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint32_t>>,
+                to_bits_ndarray<nb::numpy, std::uint32_t>()
+            );
+        } else {
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint64_t>>,
+                to_bits_ndarray<nb::numpy, std::uint64_t>()
+            );
+        }
+    } else {
+        auto it = std::cbegin(_data);
+        return RESULT_TYPE(
+            std::in_place_type<nb::list>, to_bits_python_recursive_descent(0, it)
+        );
+    }
+}
+
+template <typename NB_ARRAY_TYPE, typename INT_TYPE>
+nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyCFloatArray::to_bits_ndarray() const
+{
+    constexpr std::size_t INT_TYPE_SIZE_BITS = 8 * sizeof(INT_TYPE);
+    if (get_bits() > int(INT_TYPE_SIZE_BITS)) {
+        throw nb::value_error(
+            fmt::format(
+                "APyCFloatArray::to_bits_ndarray(): only supports <= {}-bit elements",
+                INT_TYPE_SIZE_BITS
+            )
+                .c_str()
+        );
+    }
+
+    INT_TYPE* result_data = new INT_TYPE[_data.size()];
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        result_data[i] = to_bits_uint64(_data[i], exp_bits, man_bits);
+    }
+
+    // Delete `result_data` when the `owner` capsule expires
+    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (INT_TYPE*)p; });
+
+    std::vector<size_t> result_shape(_shape.begin(), _shape.end());
+    result_shape.push_back(2); // Split real and imaginary bit patterns
+
+    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(
+        result_data, ndim() + 1, result_shape.data(), owner
+    );
+}
+
+nb::list APyCFloatArray::to_bits_python_recursive_descent(
+    std::size_t dim, std::vector<APyFloatData>::const_iterator& it
+) const
+{
+    nb::list result;
+    if (dim == ndim() - 1) {
+        // Most inner dimension: append data
+        for (std::size_t i = 0; i < _shape[dim]; i++) {
+            const auto complex_data = nb::make_tuple(
+                apyfloat_to_bits(*it, exp_bits, man_bits),
+                apyfloat_to_bits(*(it + 1), exp_bits, man_bits)
+            );
+            result.append(complex_data);
+            it += 2;
+        }
+    } else {
+        // We need to go deeper...
+        for (std::size_t i = 0; i < _shape[dim]; i++) {
+            result.append(to_bits_python_recursive_descent(dim + 1, it));
+        }
+    }
+    return result;
 }
 
 std::string APyCFloatArray::to_string_dec() const
