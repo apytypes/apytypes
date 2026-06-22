@@ -36,6 +36,9 @@ jobs:
             python-version: "3.11"
           - os: "windows-11-arm"
             python-version: "3.12"
+          # NumPy 1.26.4 is only supported for 3.9-3.12
+          - numpy-version: ">=1.26.4,<2"
+            python-version: "3.13"
           # Do not test with NumPy 1 on free-threaded Python
           - numpy-version: ">=1.26.4,<2"
             python-version: "3.13t"
