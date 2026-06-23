@@ -2,7 +2,7 @@ from itertools import product
 
 import pytest
 
-from apytypes import APyCFloat, APyFloat
+from apytypes import APyCFloat, APyFloat, QuantizationMode
 
 
 def test_not_implemented():
@@ -194,3 +194,48 @@ def test_to_bits():
 
     b = APyCFloat(sign=(1, 1), exp=(0, 2097151), man=(0, 129), exp_bits=21, man_bits=50)
     assert b.to_bits() == (1 << 71, 0xFFFFFC000000000081)
+
+
+def test_convenience_cast():
+    a = APyCFloat.from_complex(0.893820 + 3e20j, exp_bits=10, man_bits=50)
+    assert a.cast_to_double().is_identical(
+        APyCFloat(
+            sign=(0, 0),
+            exp=(1022, 1091),
+            man=(3547215210502096, 74037091379504),
+            exp_bits=11,
+            man_bits=52,
+        )
+    )
+    assert a.cast_to_single().is_identical(
+        APyCFloat(
+            sign=(0, 0),
+            exp=(126, 195),
+            man=(6607203, 137905),
+            exp_bits=8,
+            man_bits=23,
+        )
+    )
+    assert a.cast_to_half().is_identical(
+        APyCFloat(
+            sign=(0, 0),
+            exp=(14, 31),
+            man=(807, 0),
+            exp_bits=5,
+            man_bits=10,
+        )
+    )
+    assert a.cast_to_bfloat16().is_identical(
+        APyCFloat(
+            sign=(0, 0),
+            exp=(126, 195),
+            man=(101, 2),
+            exp_bits=8,
+            man_bits=7,
+        )
+    )
+    a = APyCFloat(sign=(1, 0), exp=(0, 0), man=(1, 1), exp_bits=10, man_bits=40)
+    b = a.cast_to_bfloat16(QuantizationMode.TO_POS)
+    assert b.is_identical(
+        APyCFloat(sign=(1, 0), exp=(0, 0), man=(0, 1), exp_bits=8, man_bits=7)
+    )

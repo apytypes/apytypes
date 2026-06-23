@@ -653,6 +653,26 @@ APyCFloat APyCFloat::cast(
     );
 }
 
+APyCFloat APyCFloat::cast_to_double(std::optional<QuantizationMode> qntz) const
+{
+    return checked_cast(11, 52, 1023, qntz.value_or(get_float_quantization_mode()));
+}
+
+APyCFloat APyCFloat::cast_to_single(std::optional<QuantizationMode> qntz) const
+{
+    return checked_cast(8, 23, 127, qntz.value_or(get_float_quantization_mode()));
+}
+
+APyCFloat APyCFloat::cast_to_half(std::optional<QuantizationMode> qntz) const
+{
+    return checked_cast(5, 10, 15, qntz.value_or(get_float_quantization_mode()));
+}
+
+APyCFloat APyCFloat::cast_to_bfloat16(std::optional<QuantizationMode> qntz) const
+{
+    return checked_cast(8, 7, 127, qntz.value_or(get_float_quantization_mode()));
+}
+
 APyCFloat APyCFloat::checked_cast(
     std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias, QuantizationMode qntz
 ) const

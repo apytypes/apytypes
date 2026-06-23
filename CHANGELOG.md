@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ROM generators for (System)Verilog, Spade, Chisel, Amaranth, and Spinal HDL.
 - Getters for real and imaginary part of `APyCFloatArray`.
 - Support for logic NOT, AND, OR, and XOR in `APyCFloat`.
+- Convenience cast functions to `APyCFloat` and `APyCFloatArray`.
 
 ### Fixed
 

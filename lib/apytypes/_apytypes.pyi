@@ -2377,6 +2377,76 @@ class APyCFloat:
         :class:`int`
         """
 
+    def cast_to_double(self, quantization: QuantizationMode | None = None) -> APyCFloat:
+        """
+        Cast to IEEE 754 binary64 (double-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=11, man_bits=52)
+
+        Parameters
+        ----------
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
+        """
+
+    def cast_to_single(self, quantization: QuantizationMode | None = None) -> APyCFloat:
+        """
+        Cast to IEEE 754 binary32 (single-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=8, man_bits=23)
+
+        Parameters
+        ----------
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
+        """
+
+    def cast_to_half(self, quantization: QuantizationMode | None = None) -> APyCFloat:
+        """
+        Cast to IEEE 754 binary16 (half-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=5, man_bits=10)
+
+        Parameters
+        ----------
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
+        """
+
+    def cast_to_bfloat16(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyCFloat:
+        """
+        Cast to bfloat16 format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=8, man_bits=7)
+
+        Parameters
+        ----------
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
+        """
+
 class APyCFloatArray:
     """
     Class for configurable complex-valued array floating-point formats.
@@ -3232,6 +3302,99 @@ class APyCFloatArray:
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def cast_to_double(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyCFloatArray:
+        """
+        Cast to IEEE 754 binary64 (double-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=11, man_bits=52)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def cast_to_single(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyCFloatArray:
+        """
+        Cast to IEEE 754 binary32 (single-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=8, man_bits=23)
+
+        Parameters
+        ----------
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def cast_to_half(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyCFloatArray:
+        """
+        Cast to IEEE 754 binary16 (half-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=5, man_bits=10)
+
+        Parameters
+        ----------
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def cast_to_bfloat16(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyCFloatArray:
+        """
+        Cast to bfloat16 format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=8, man_bits=7)
+
+        Parameters
+        ----------
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
 
         Returns
         -------

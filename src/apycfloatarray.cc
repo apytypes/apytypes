@@ -930,6 +930,30 @@ APyCFloatArray APyCFloatArray::cast(
     );
 }
 
+APyCFloatArray
+APyCFloatArray::cast_to_double(std::optional<QuantizationMode> quantization) const
+{
+    return _cast(11, 52, 1023, quantization.value_or(get_float_quantization_mode()));
+}
+
+APyCFloatArray
+APyCFloatArray::cast_to_single(std::optional<QuantizationMode> quantization) const
+{
+    return _cast(8, 23, 127, quantization.value_or(get_float_quantization_mode()));
+}
+
+APyCFloatArray
+APyCFloatArray::cast_to_half(std::optional<QuantizationMode> quantization) const
+{
+    return _cast(5, 10, 15, quantization.value_or(get_float_quantization_mode()));
+}
+
+APyCFloatArray
+APyCFloatArray::cast_to_bfloat16(std::optional<QuantizationMode> quantization) const
+{
+    return _cast(8, 7, 127, quantization.value_or(get_float_quantization_mode()));
+}
+
 APyCFloatArray APyCFloatArray::_cast(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
