@@ -145,7 +145,7 @@ void bind_cfloat(nb::module_& m)
             man_bits : :class:`int`
                 Number of mantissa bits.
             bias : :class:`int`, optional
-                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
             Returns
             -------
@@ -293,7 +293,7 @@ void bind_cfloat(nb::module_& m)
             man_bits : :class:`int`
                 Number of mantissa bits.
             bias : :class:`int`, optional
-                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
             Examples
             --------
@@ -358,7 +358,7 @@ void bind_cfloat(nb::module_& m)
             man_bits : :class:`int`
                 Number of mantissa bits.
             bias : :class:`int`, optional
-                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
             Examples
             --------
@@ -439,7 +439,7 @@ void bind_cfloat(nb::module_& m)
             man_bits : :class:`int`, optional
                 Number of mantissa bits in the result.
             bias : :class:`int`, optional
-                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
             quantization : :class:`QuantizationMode`, optional.
                 Quantization mode to use in this cast. If None, use the global
                 quantization mode.

@@ -652,15 +652,18 @@ class APyCFixed:
         >>> import apytypes as apy
         >>> fx = apy.fx(2.125 + 1.625j, int_bits=3, frac_bits=3)
 
-        # Truncation: 2.0 + 1.5j
+        Truncation: 2.0 + 1.5j
+
         >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
         APyCFixed((8, 6), bits=5, int_bits=3)
 
-        # Fixed-point rounding: 2.25 + 1.75j
+        Fixed-point rounding: 2.25 + 1.75j
+
         >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
         APyCFixed((9, 7), bits=5, int_bits=3)
 
-        # Two's complement overflowing: -1.875 + 1.625j
+        Two's complement overflowing: -1.875 + 1.625j
+
         >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
         APyCFixed((17, 13), bits=5, int_bits=2)
 
@@ -1994,7 +1997,7 @@ class APyCFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -2150,7 +2153,7 @@ class APyCFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -2202,7 +2205,7 @@ class APyCFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -2278,7 +2281,7 @@ class APyCFloat:
         man_bits : :class:`int`, optional
             Number of mantissa bits in the result.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
@@ -3038,7 +3041,7 @@ class APyCFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -3065,7 +3068,7 @@ class APyCFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -3095,7 +3098,7 @@ class APyCFloatArray:
         m : :class:`int`, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -3119,7 +3122,7 @@ class APyCFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -5595,7 +5598,7 @@ class APyFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -5725,7 +5728,7 @@ class APyFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -5768,7 +5771,7 @@ class APyFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -5877,7 +5880,7 @@ class APyFloat:
         man_bits : :class:`int`, optional
             Number of mantissa bits in the result.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
@@ -6239,7 +6242,7 @@ class APyFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -6274,7 +6277,7 @@ class APyFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -6309,7 +6312,7 @@ class APyFloat:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -6370,7 +6373,7 @@ class APyFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -6884,7 +6887,7 @@ class APyFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits in the created floating-point tensor
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -6934,7 +6937,7 @@ class APyFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -6961,7 +6964,7 @@ class APyFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -6991,7 +6994,7 @@ class APyFloatArray:
         m : :class:`int`, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -7015,7 +7018,7 @@ class APyFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
