@@ -360,6 +360,22 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
+    //! Convenience cast to IEEE 754 binary64 (double-precision) format.
+    APyCFloatArray
+    cast_to_double(std::optional<QuantizationMode> quantization = std::nullopt) const;
+
+    //! Convenience cast to IEEE 754 binary32 (single-precision) format.
+    APyCFloatArray
+    cast_to_single(std::optional<QuantizationMode> quantization = std::nullopt) const;
+
+    //! Convenience cast to IEEE 754 binary16 (half-precision) format.
+    APyCFloatArray
+    cast_to_half(std::optional<QuantizationMode> quantization = std::nullopt) const;
+
+    //! Convenience cast to bfloat16 format.
+    APyCFloatArray
+    cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
+
     //! Internal cast method when format and quantization mode is given.
     APyCFloatArray _cast(
         std::uint8_t new_exp_bits,

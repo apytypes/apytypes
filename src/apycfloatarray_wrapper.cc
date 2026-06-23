@@ -1041,6 +1041,107 @@ void bind_cfloat_array(nb::module_& m)
             )pbdoc"
         )
 
+        /*
+         * Convenience methods
+         */
+        .def(
+            "cast_to_double",
+            &APyCFloatArray::cast_to_double,
+            nb::arg("quantization") = nb::none(),
+            R"pbdoc(
+            Cast to IEEE 754 binary64 (double-precision) format.
+
+            Convenience method corresponding to
+
+            .. code-block:: python
+
+               f.cast(exp_bits=11, man_bits=52)
+
+            Parameters
+            ----------
+
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_float_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyCFloatArray`
+            )pbdoc"
+        )
+        .def(
+            "cast_to_single",
+            &APyCFloatArray::cast_to_single,
+            nb::arg("quantization") = nb::none(),
+            R"pbdoc(
+            Cast to IEEE 754 binary32 (single-precision) format.
+
+            Convenience method corresponding to
+
+            .. code-block:: python
+
+               f.cast(exp_bits=8, man_bits=23)
+
+            Parameters
+            ----------
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_float_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyCFloatArray`
+            )pbdoc"
+        )
+        .def(
+            "cast_to_half",
+            &APyCFloatArray::cast_to_half,
+            nb::arg("quantization") = nb::none(),
+            R"pbdoc(
+            Cast to IEEE 754 binary16 (half-precision) format.
+
+            Convenience method corresponding to
+
+            .. code-block:: python
+
+               f.cast(exp_bits=5, man_bits=10)
+
+            Parameters
+            ----------
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_float_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyCFloatArray`
+            )pbdoc"
+        )
+        .def(
+            "cast_to_bfloat16",
+            &APyCFloatArray::cast_to_bfloat16,
+            nb::arg("quantization") = nb::none(),
+            R"pbdoc(
+            Cast to bfloat16 format.
+
+            Convenience method corresponding to
+
+            .. code-block:: python
+
+               f.cast(exp_bits=8, man_bits=7)
+
+            Parameters
+            ----------
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_float_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyCFloatArray`
+            )pbdoc"
+        )
+
         .def("sum", &APyCFloatArray::sum, nb::arg("axis") = nb::none(), R"pbdoc(
             Return the sum of the elements along specified axis/axes.
 

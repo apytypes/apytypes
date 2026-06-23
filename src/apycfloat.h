@@ -279,6 +279,23 @@ public:
         std::optional<QuantizationMode> quantization
     ) const;
 
+    //! Convenience method when target format is known to correspond to a
+    //! double-precision floating-point
+    APyCFloat
+    cast_to_double(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a
+    //! single-precision floating-point
+    APyCFloat
+    cast_to_single(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a
+    //! half-precision floating-point
+    APyCFloat
+    cast_to_half(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a 16-bit brain
+    //! float
+    APyCFloat
+    cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
+
     //! Core cast method when it is known that the bit widths are not the same
     APyCFloat checked_cast(
         std::uint8_t exp_bits,
