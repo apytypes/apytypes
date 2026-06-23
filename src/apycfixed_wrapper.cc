@@ -461,15 +461,18 @@ void bind_cfixed(nb::module_& m)
             >>> import apytypes as apy
             >>> fx = apy.fx(2.125 + 1.625j, int_bits=3, frac_bits=3)
 
-            # Truncation: 2.0 + 1.5j
+            Truncation: 2.0 + 1.5j
+
             >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
             APyCFixed((8, 6), bits=5, int_bits=3)
 
-            # Fixed-point rounding: 2.25 + 1.75j
+            Fixed-point rounding: 2.25 + 1.75j
+
             >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
             APyCFixed((9, 7), bits=5, int_bits=3)
 
-            # Two's complement overflowing: -1.875 + 1.625j
+            Two's complement overflowing: -1.875 + 1.625j
+
             >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
             APyCFixed((17, 13), bits=5, int_bits=2)
 

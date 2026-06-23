@@ -223,7 +223,7 @@ def fp(
     man_bits : :class:`int`
         Number of mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     force_complex : :class:`bool`, default: False
         If True, force the return value to be :class:`APyCFloat` or
         :class:`APyCFloatArray`, even if *value* is real.

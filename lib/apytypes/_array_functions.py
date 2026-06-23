@@ -788,7 +788,7 @@ def zeros(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     force_complex : :class:`bool`, optional
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
@@ -919,7 +919,7 @@ def ones(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     force_complex : :class:`bool`, optional
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
@@ -1059,7 +1059,7 @@ def eye(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     force_complex : :class:`bool`, optional
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
@@ -1192,7 +1192,7 @@ def identity(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     force_complex : :class:`bool`, optional
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
@@ -1355,7 +1355,7 @@ def full(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
     Returns
     -------
@@ -1477,7 +1477,7 @@ def zeros_like(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
     Returns
     -------
@@ -1598,7 +1598,7 @@ def ones_like(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
     Returns
     -------
@@ -1728,7 +1728,7 @@ def full_like(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
     Returns
     -------
@@ -1989,7 +1989,7 @@ def arange(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
     Returns
     -------
@@ -2265,7 +2265,7 @@ def fullrange(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
     Returns
     -------
@@ -2538,7 +2538,7 @@ def import_csv(
     man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
-        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     force_complex : :class:`bool`, optional
         If True, forces the array to be treated as complex.
     layout : {"default", "vunit"}, default: "default"
