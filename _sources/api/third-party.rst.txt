@@ -9,11 +9,11 @@ It is required to install these third-party libraries separately if you want to 
 
 The following third-party array libraries are supported
 
-- NumPy
-- PyTorch
-- TensorFlow
-- JAX
-- CuPy
+- [NumPy](https://numpy.org/)
+- [PyTorch](https://pytorch.org/)
+- [TensorFlow](https://www.tensorflow.org/)
+- [JAX](https://jax.readthedocs.io/)
+- [CuPy](https://cupy.dev/)
 
 These are represented by the enumeration :class:`ThirdPartyArrayLibrary`.
 

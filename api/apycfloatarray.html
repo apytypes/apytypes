@@ -224,6 +224,7 @@
 <li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="third-party.html">Third-party array libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threading.html">Threading</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utility functions</a></li>
 </ul>
 </li>
@@ -332,9 +333,13 @@
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyCFloatArray.exp_bits" title="apytypes.APyCFloatArray.exp_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp_bits</span></code></a></dt><dd><p>Number of exponent bits.</p>
 </dd>
+<dt><a class="reference internal" href="#apytypes.APyCFloatArray.imag" title="apytypes.APyCFloatArray.imag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></a></dt><dd><p>Imaginary part.</p>
+</dd>
 <dt><a class="reference internal" href="#apytypes.APyCFloatArray.man_bits" title="apytypes.APyCFloatArray.man_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man_bits</span></code></a></dt><dd><p>Number of mantissa bits.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyCFloatArray.ndim" title="apytypes.APyCFloatArray.ndim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndim</span></code></a></dt><dd><p>Number of dimensions in the array.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyCFloatArray.real" title="apytypes.APyCFloatArray.real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></a></dt><dd><p>Real part.</p>
 </dd>
 <dt><a class="reference internal" href="arrayfunctions.html#apytypes.shape" title="apytypes.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a></dt><dd><p>The shape of the array.</p>
 </dd>
@@ -655,7 +660,7 @@ sequence shape.</p>
 </dd>
 <dt><strong>m</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of columns. Default is None, which results in an n x n output.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**(exp_bits</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -703,7 +708,7 @@ sequence shape.</p>
 </dd>
 <dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**(exp_bits</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -729,7 +734,7 @@ sequence shape.</p>
 </dd>
 <dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**(exp_bits</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -755,7 +760,7 @@ sequence shape.</p>
 </dd>
 <dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**(exp_bits</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -1681,6 +1686,32 @@ the array.</p>
 </section>
 <section id="real-and-imaginary-part">
 <h3>Real and imaginary part<a class="headerlink" href="#real-and-imaginary-part" title="Link to this heading">¶</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyCFloatArray.real">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#apytypes.APyCFloatArray.real" title="Link to this definition">¶</a></dt>
+<dd><p>Real part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyCFloatArray.imag">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#apytypes.APyCFloatArray.imag" title="Link to this definition">¶</a></dt>
+<dd><p>Imaginary part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 </dd></dl>
@@ -1791,6 +1822,8 @@ the array.</p>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.shape"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.shape</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.T"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.T</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.H"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.H</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFloatArray.real"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.real</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFloatArray.imag"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.imag</span></code></a></li>
 </ul>
 </li>
 </ul>

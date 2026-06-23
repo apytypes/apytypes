@@ -3,11 +3,11 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Utility functions" href="utils.html"><link rel="prev" title="Third-party array libraries" href="third-party.html">
         <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image">
 
     <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Computation times - APyTypes documentation</title>
+        <title>Threading - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -187,7 +187,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -209,23 +209,23 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input aria-label="Toggle navigation of apytypes Python package" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/apycfloat.html"><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/apycfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/arrayfunctions.html">Array functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/third-party.html">Third-party array libraries</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/threading.html">Threading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input aria-label="Toggle navigation of apytypes Python package" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apycfloat.html"><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apycfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codegeneration.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third-party.html">Third-party array libraries</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Threading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utility functions</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../cpp_api/index.html">APyTypes C++ API</a><input aria-label="Toggle navigation of APyTypes C++ API" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -250,15 +250,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/array_utils.html"><code class="docutils literal notranslate"><span class="pre">array_utils.h</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="index.html">Examples</a><input aria-label="Toggle navigation of Examples" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="apyfloat.html">APyFloat</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apyfixed.html">APyFixed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="numpy_integration.html">NumPy integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="approximate_multiplication.html">Approximate floating-point multiplication</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ode_solver.html">Floating-point ODE solver</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vectorrotation.html">Fixed-point vector rotation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reciprocal_lookup.html">Reciprocal lookup table</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test_fp8_mul.html">cocotb integration</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input aria-label="Toggle navigation of Examples" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/numpy_integration.html">NumPy integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/approximate_multiplication.html">Approximate floating-point multiplication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/ode_solver.html">Floating-point ODE solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/vectorrotation.html">Fixed-point vector rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reciprocal_lookup.html">Reciprocal lookup table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/test_fp8_mul.html">cocotb integration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../playground.html">APyTypes Playground</a></li>
@@ -288,7 +288,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/examples/sg_execution_times.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/api/threading.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -301,71 +301,54 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="computation-times">
-<span id="sphx-glr-examples-sg-execution-times"></span><h1>Computation times<a class="headerlink" href="#computation-times" title="Link to this heading">¶</a></h1>
-<p><strong>00:06.031</strong> total execution time for 8 files <strong>from examples</strong>:</p>
-<div class="docutils container">
-<style scoped>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
-<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
-</style>
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script type="text/javascript" class="init">
-$(document).ready( function () {
-    $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
-} );
-</script><div class="table-wrapper table table-striped sg-datatable docutils container">
-<table class="table table-striped sg-datatable docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Example</p></th>
-<th class="head"><p>Time</p></th>
-<th class="head"><p>Mem (MB)</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="test_fp8_mul.html#sphx-glr-examples-test-fp8-mul-py"><span class="std std-ref">cocotb integration</span></a> (<code class="docutils literal notranslate"><span class="pre">test_fp8_mul.py</span></code>)</p></td>
-<td><p>00:03.989</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="numpy_integration.html#sphx-glr-examples-numpy-integration-py"><span class="std std-ref">NumPy integration</span></a> (<code class="docutils literal notranslate"><span class="pre">numpy_integration.py</span></code>)</p></td>
-<td><p>00:01.089</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="ode_solver.html#sphx-glr-examples-ode-solver-py"><span class="std std-ref">Floating-point ODE solver</span></a> (<code class="docutils literal notranslate"><span class="pre">ode_solver.py</span></code>)</p></td>
-<td><p>00:00.355</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="reciprocal_lookup.html#sphx-glr-examples-reciprocal-lookup-py"><span class="std std-ref">Reciprocal lookup table</span></a> (<code class="docutils literal notranslate"><span class="pre">reciprocal_lookup.py</span></code>)</p></td>
-<td><p>00:00.292</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="vectorrotation.html#sphx-glr-examples-vectorrotation-py"><span class="std std-ref">Fixed-point vector rotation</span></a> (<code class="docutils literal notranslate"><span class="pre">vectorrotation.py</span></code>)</p></td>
-<td><p>00:00.162</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="approximate_multiplication.html#sphx-glr-examples-approximate-multiplication-py"><span class="std std-ref">Approximate floating-point multiplication</span></a> (<code class="docutils literal notranslate"><span class="pre">approximate_multiplication.py</span></code>)</p></td>
-<td><p>00:00.132</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="apyfloat.html#sphx-glr-examples-apyfloat-py"><span class="std std-ref">APyFloat</span></a> (<code class="docutils literal notranslate"><span class="pre">apyfloat.py</span></code>)</p></td>
-<td><p>00:00.009</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="apyfixed.html#sphx-glr-examples-apyfixed-py"><span class="std std-ref">APyFixed</span></a> (<code class="docutils literal notranslate"><span class="pre">apyfixed.py</span></code>)</p></td>
-<td><p>00:00.003</p></td>
-<td><p>0.0</p></td>
-</tr>
-</tbody>
-</table>
+          <section id="threading">
+<h1>Threading<a class="headerlink" href="#threading" title="Link to this heading">¶</a></h1>
+<p>APyTypes supports multi-threading for certain operations, allowing for improved performance in some cases.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="apytypes.n_threads">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">n_threads</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#apytypes.n_threads" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of threads active in the APyTypes thread pool.</p>
+<p>On startup, a suitable number of threads is automatically determined by
+APyTypes, unless the environment variable <cite>APYTYPES_THREAD_COUNT</cite> is set. In
+that case, the thread pool is initialized with <cite>int(APYTYPES_THREAD_COUNT)</cite>
+number of threads.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd><p>Number of threads in the APyTypes thread pool.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apytypes.reset_thread_pool">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">reset_thread_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_threads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#apytypes.reset_thread_pool" title="Link to this definition">¶</a></dt>
+<dd><p>Reset the APyTypes thread pool with a new thread count.</p>
+<p>If <cite>n_threads == 0</cite>, the thread pool will determine a suitable number of
+threads on its own.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.5.</span></p>
 </div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>n_threads</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of threads in the new thread pool. Zero to let APyTypes decide.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article>
@@ -373,8 +356,26 @@ $(document).ready( function () {
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="utils.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Utility functions</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="third-party.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Third-party array libraries</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -400,8 +401,28 @@ $(document).ready( function () {
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Threading</a><ul>
+<li><a class="reference internal" href="#apytypes.n_threads"><code class="docutils literal notranslate"><span class="pre">n_threads()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.reset_thread_pool"><code class="docutils literal notranslate"><span class="pre">reset_thread_pool()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

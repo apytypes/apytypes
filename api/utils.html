@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="APyTypes C++ API" href="../cpp_api/index.html"><link rel="prev" title="Third-party array libraries" href="third-party.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="APyTypes C++ API" href="../cpp_api/index.html"><link rel="prev" title="Threading" href="threading.html">
         <link rel="prefetch" href="../_static/apytypeslogo.svg" as="image">
 
     <link rel="shortcut icon" href="../_static/apytypes.ico"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
@@ -224,6 +224,7 @@
 <li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="third-party.html">Third-party array libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threading.html">Threading</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Utility functions</a></li>
 </ul>
 </li>
@@ -395,7 +396,7 @@ when <cite>value</cite> is a sequence of numbers.</p>
 </dd>
 <dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**(exp_bits</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 <dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: False</span></dt><dd><p>If True, force the return value to be <a class="reference internal" href="apycfloat.html#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a> or
 <a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a>, even if <em>value</em> is real.</p>
@@ -471,14 +472,14 @@ perform, e.g., <code class="docutils literal notranslate"><span class="pre">sin<
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="third-party.html">
+          <a class="prev-page" href="threading.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Third-party array libraries</div>
+                <div class="title">Threading</div>
                 
               </div>
             </a>

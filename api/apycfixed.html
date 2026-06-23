@@ -224,6 +224,7 @@
 <li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="third-party.html">Third-party array libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threading.html">Threading</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utility functions</a></li>
 </ul>
 </li>
@@ -532,15 +533,21 @@ needs to be set.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="mf">2.125</span> <span class="o">+</span> <span class="mf">1.625</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
-<p># Truncation: 2.0 + 1.5j
-&gt;&gt;&gt; fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
-APyCFixed((8, 6), bits=5, int_bits=3)</p>
-<p># Fixed-point rounding: 2.25 + 1.75j
-&gt;&gt;&gt; fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
-APyCFixed((9, 7), bits=5, int_bits=3)</p>
-<p># Two’s complement overflowing: -1.875 + 1.625j
-&gt;&gt;&gt; fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
-APyCFixed((17, 13), bits=5, int_bits=2)</p>
+<p>Truncation: 2.0 + 1.5j</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">apy</span><span class="o">.</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">TRN</span><span class="p">)</span>
+<span class="go">APyCFixed((8, 6), bits=5, int_bits=3)</span>
+</pre></div>
+</div>
+<p>Fixed-point rounding: 2.25 + 1.75j</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">apy</span><span class="o">.</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">RND</span><span class="p">)</span>
+<span class="go">APyCFixed((9, 7), bits=5, int_bits=3)</span>
+</pre></div>
+</div>
+<p>Two’s complement overflowing: -1.875 + 1.625j</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="n">apy</span><span class="o">.</span><span class="n">OverflowMode</span><span class="o">.</span><span class="n">WRAP</span><span class="p">)</span>
+<span class="go">APyCFixed((17, 13), bits=5, int_bits=2)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
