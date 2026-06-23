@@ -800,17 +800,19 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
+    // SIMD check for zeros
+    if (std::size_t(rhs.bits()) <= APY_LIMB_SIZE_BITS
+        && simd::vector_any_zero(rhs._data.begin(), rhs._data.size())) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+        throw nb::python_error();
+    }
+
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         const int rhs_bits = rhs.bits();
         for (std::size_t i = 0; i < result._nitems; i += 1) {
             apy_limb_signed_t den = rhs._data[i];
-            if (den == 0) {
-                PyErr_SetString(
-                    PyExc_ZeroDivisionError, "fixed-point division by zero"
-                );
-                throw nb::python_error();
-            }
+            // No need to check if den is zero as SIMD check above is done
             apy_limb_signed_t real
                 = (apy_limb_signed_t(_data[2 * i + 0]) << rhs_bits) / den;
             apy_limb_signed_t imag
@@ -820,6 +822,167 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
         }
         return result; // early exit
     }
+
+    // Result fits in two limbs.
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    // Specialization when __int128 is available
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        __int128 denominator;
+        if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+                for (std::size_t i = 0; i < _nitems; i++) {
+                    denominator = (__int128)(apy_limb_signed_t)rhs._data[i];
+                    // No need to check if denominator is zero, as this is already
+                    // checked by SIMD specialization above
+                    __int128 numerator_real = (__int128)(apy_limb_signed_t)_data[2 * i];
+                    __int128 numerator_imag
+                        = (__int128)(apy_limb_signed_t)_data[2 * i + 1];
+                    numerator_real <<= rhs.bits();
+                    numerator_imag <<= rhs.bits();
+                    auto tmp_res_real = numerator_real / denominator;
+                    auto tmp_res_imag = numerator_imag / denominator;
+                    result._data[4 * i + 0] = apy_limb_t(tmp_res_real);
+                    result._data[4 * i + 1]
+                        = apy_limb_t(tmp_res_real >> APY_LIMB_SIZE_BITS);
+                    result._data[4 * i + 2] = apy_limb_t(tmp_res_imag);
+                    result._data[4 * i + 3]
+                        = apy_limb_t(tmp_res_imag >> APY_LIMB_SIZE_BITS);
+                }
+            } else {
+                for (std::size_t i = 0; i < _nitems; i++) {
+                    denominator = (__int128)(apy_limb_signed_t)rhs._data[i];
+                    // No need to check if denominator is zero, as this is already
+                    // checked by SIMD specialization above
+                    __int128 numerator_real = (__int128)_data[4 * i];
+                    numerator_real |= ((__int128)(apy_limb_signed_t)_data[4 * i + 1])
+                        << APY_LIMB_SIZE_BITS;
+                    __int128 numerator_imag = (__int128)_data[4 * i + 2];
+                    numerator_imag |= ((__int128)(apy_limb_signed_t)_data[4 * i + 3])
+                        << APY_LIMB_SIZE_BITS;
+                    numerator_real <<= rhs.bits();
+                    numerator_imag <<= rhs.bits();
+                    auto tmp_res_real = numerator_real / denominator;
+                    auto tmp_res_imag = numerator_imag / denominator;
+                    result._data[4 * i + 0] = apy_limb_t(tmp_res_real);
+                    result._data[4 * i + 1]
+                        = apy_limb_t(tmp_res_real >> APY_LIMB_SIZE_BITS);
+                    result._data[4 * i + 2] = apy_limb_t(tmp_res_imag);
+                    result._data[4 * i + 3]
+                        = apy_limb_t(tmp_res_imag >> APY_LIMB_SIZE_BITS);
+                }
+            }
+        } else {
+            assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+            for (std::size_t i = 0; i < _nitems; i++) {
+                denominator = (__int128)rhs._data[2 * i];
+                denominator |= (__int128)(apy_limb_signed_t)rhs._data[2 * i + 1]
+                    << APY_LIMB_SIZE_BITS;
+                if (denominator == 0) {
+                    PyErr_SetString(
+                        PyExc_ZeroDivisionError, "fixed-point division by zero"
+                    );
+                    throw nb::python_error();
+                }
+                __int128 numerator_real = (__int128)(apy_limb_signed_t)_data[2 * i];
+                __int128 numerator_imag = (__int128)(apy_limb_signed_t)_data[2 * i + 1];
+                numerator_real <<= rhs.bits();
+                numerator_imag <<= rhs.bits();
+                auto tmp_res_real = numerator_real / denominator;
+                auto tmp_res_imag = numerator_imag / denominator;
+                result._data[4 * i + 0] = apy_limb_t(tmp_res_real);
+                result._data[4 * i + 1]
+                    = apy_limb_t(tmp_res_real >> APY_LIMB_SIZE_BITS);
+                result._data[4 * i + 2] = apy_limb_t(tmp_res_imag);
+                result._data[4 * i + 3]
+                    = apy_limb_t(tmp_res_imag >> APY_LIMB_SIZE_BITS);
+            }
+        }
+        return result;
+    }
+#endif
+#endif
+#if (COMPILER_LIMB_SIZE == 32)
+    // Specialization using 64-bit division
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
+        std::int64_t denominator;
+        if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+                for (std::size_t i = 0; i < _nitems; i++) {
+                    denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[i];
+                    // No need to check if denominator is zero, as this is already
+                    // checked by SIMD specialization above
+                    std::int64_t numerator_real
+                        = (std::int64_t)(apy_limb_signed_t)_data[2 * i];
+                    std::int64_t numerator_imag
+                        = (std::int64_t)(apy_limb_signed_t)_data[2 * i + 1];
+                    numerator_real <<= rhs.bits();
+                    numerator_imag <<= rhs.bits();
+                    auto tmp_res_real = numerator_real / denominator;
+                    auto tmp_res_imag = numerator_imag / denominator;
+                    result._data[4 * i + 0] = apy_limb_t(tmp_res_real);
+                    result._data[4 * i + 1]
+                        = apy_limb_t(tmp_res_real >> APY_LIMB_SIZE_BITS);
+                    result._data[4 * i + 2] = apy_limb_t(tmp_res_imag);
+                    result._data[4 * i + 3]
+                        = apy_limb_t(tmp_res_imag >> APY_LIMB_SIZE_BITS);
+                }
+            } else {
+                for (std::size_t i = 0; i < _nitems; i++) {
+                    denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[i];
+                    // No need to check if denominator is zero, as this is already
+                    // checked by SIMD specialization above
+                    std::int64_t numerator_real = (std::int64_t)_data[4 * i];
+                    numerator_real
+                        |= ((std::int64_t)(apy_limb_signed_t)_data[4 * i + 1])
+                        << APY_LIMB_SIZE_BITS;
+                    std::int64_t numerator_imag = (std::int64_t)_data[4 * i + 2];
+                    numerator_imag
+                        |= ((std::int64_t)(apy_limb_signed_t)_data[4 * i + 3])
+                        << APY_LIMB_SIZE_BITS;
+                    numerator_real <<= rhs.bits();
+                    numerator_imag <<= rhs.bits();
+                    auto tmp_res_real = numerator_real / denominator;
+                    auto tmp_res_imag = numerator_imag / denominator;
+                    result._data[4 * i + 0] = apy_limb_t(tmp_res_real);
+                    result._data[4 * i + 1]
+                        = apy_limb_t(tmp_res_real >> APY_LIMB_SIZE_BITS);
+                    result._data[4 * i + 2] = apy_limb_t(tmp_res_imag);
+                    result._data[4 * i + 3]
+                        = apy_limb_t(tmp_res_imag >> APY_LIMB_SIZE_BITS);
+                }
+            }
+        } else {
+            assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+            for (std::size_t i = 0; i < _nitems; i++) {
+                denominator = (std::int64_t)rhs._data[2 * i];
+                denominator |= (std::int64_t)(apy_limb_signed_t)rhs._data[2 * i + 1]
+                    << APY_LIMB_SIZE_BITS;
+                if (denominator == 0) {
+                    PyErr_SetString(
+                        PyExc_ZeroDivisionError, "fixed-point division by zero"
+                    );
+                    throw nb::python_error();
+                }
+                std::int64_t numerator_real
+                    = (std::int64_t)(apy_limb_signed_t)_data[2 * i];
+                std::int64_t numerator_imag
+                    = (std::int64_t)(apy_limb_signed_t)_data[2 * i + 1];
+                numerator_real <<= rhs.bits();
+                numerator_imag <<= rhs.bits();
+                auto tmp_res_real = numerator_real / denominator;
+                auto tmp_res_imag = numerator_imag / denominator;
+                result._data[4 * i + 0] = apy_limb_t(tmp_res_real);
+                result._data[4 * i + 1]
+                    = apy_limb_t(tmp_res_real >> APY_LIMB_SIZE_BITS);
+                result._data[4 * i + 2] = apy_limb_t(tmp_res_imag);
+                result._data[4 * i + 3]
+                    = apy_limb_t(tmp_res_imag >> APY_LIMB_SIZE_BITS);
+            }
+        }
+        return result;
+    }
+#endif
 
     // TODO: Do not rely on APyFixed for division, but implement a more efficient
     // limb-wise division algorithm that directly produces the correctly shifted result.
@@ -889,7 +1052,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
         return result; // early exit
     }
 
-    // Single limb specialization
+    // Double limb result specialization
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
 #if COMPILER_LIMB_SIZE == 64
 #if defined(__GNUC__) || defined(__clang__)
