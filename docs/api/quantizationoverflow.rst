@@ -165,6 +165,10 @@ the bias will converge towards zero the more bits are quantized away (except for
 
 .. autofunction:: apytypes.set_float_quantization_seed
 
+.. autofunction:: apytypes.get_fixed_quantization_seed
+
+.. autofunction:: apytypes.set_fixed_quantization_seed
+
    Sign of zero for floating-point
    -------------------------------
 
