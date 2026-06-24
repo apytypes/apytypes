@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for logic NOT, AND, OR, and XOR in `APyCFloat`.
 - Convenience cast functions to `APyCFloat` and `APyCFloatArray`.
 - Parameter for `seed` in `APyFloatAccumulatorContext`.
+- Utility function `from_bits`.
 
 ### Fixed
 

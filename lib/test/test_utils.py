@@ -13,6 +13,7 @@ from apytypes import (
     APyFloatArray,
     fn,
     fp,
+    from_bits,
     fx,
 )
 
@@ -159,3 +160,39 @@ def test_fn_warnings():
 
     with pytest.warns(UserWarning, match="Mix of APyFloat"):
         fn(np.hypot, b, a)
+
+
+def test_from_bits():
+    with pytest.raises(
+        ValueError, match="from_bits: could not determine data type from bit-specifiers"
+    ):
+        from_bits(1)
+
+    with pytest.raises(
+        ValueError, match="from_bits: could not determine data type from bit-specifiers"
+    ):
+        from_bits(1, exp_bits=2, man_bits=3, bits=2)
+
+    assert from_bits(0b1_01111_10, exp_bits=5, man_bits=2, bias=6).is_identical(
+        APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2, bias=6)
+    )
+
+    assert from_bits(13, int_bits=3, frac_bits=1).is_identical(
+        APyFixed(13, int_bits=3, frac_bits=1)
+    )
+
+    assert from_bits([0, 1, 2, 3], int_bits=3, frac_bits=0).is_identical(
+        APyFixedArray([0, 1, 2, 3], int_bits=3, frac_bits=0)
+    )
+
+    assert from_bits([60, 61, 80, 82], exp_bits=5, man_bits=2).is_identical(
+        APyFloatArray.from_bits([60, 61, 80, 82], exp_bits=5, man_bits=2)
+    )
+
+    assert from_bits([1, 2], int_bits=10, frac_bits=0, force_complex=True).is_identical(
+        APyCFixedArray.from_bits([1, 2], int_bits=10, frac_bits=0)
+    )
+
+    assert from_bits(
+        [[108, 112], [120, 4224]], exp_bits=8, man_bits=4, force_complex=True
+    ).is_identical(APyCFloatArray.from_bits([[108, 112], [120, 4224]], 8, 4))

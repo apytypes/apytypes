@@ -14,6 +14,7 @@ from apytypes._apytypes import (
     APyFloat,
     APyFloatArray,
 )
+from apytypes._array_functions import _determine_array_type
 
 
 @overload
@@ -361,3 +362,248 @@ def fn(
     pargs, conv = _process_args(args)
     fval = fn(*pargs)
     return conv(fval)
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: Literal[False] = False,
+) -> APyFixed: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: Literal[True],
+) -> APyCFixed: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: bool,
+) -> APyFixed | APyCFixed: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: Literal[False] = False,
+) -> APyFixedArray: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: bool,
+) -> APyFixedArray | APyCFixedArray: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[False] = False,
+) -> APyFloat: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[True],
+) -> APyCFloat: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: bool,
+) -> APyFloat | APyCFloat: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[False] = False,
+) -> APyFloatArray: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[True],
+) -> APyCFloatArray: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: bool,
+) -> APyFloatArray | APyCFloatArray: ...
+
+
+def from_bits(
+    bit_patterns: int | Iterable[Any],
+    *,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool = False,
+) -> (
+    APyFloat
+    | APyCFloat
+    | APyFloatArray
+    | APyCFloatArray
+    | APyFixed
+    | APyCFixed
+    | APyFixedArray
+    | APyCFixedArray
+):
+    """
+    Create an APyType scalar or array from bit pattern.
+
+    Parameters
+    ----------
+    bit_patterns : :class:`int` or :class:`Iterable`
+        Bit representation of the number(s).
+        Number of rows and columns in output.
+    int_bits : :class:`int`, optional
+        Number of fixed-point integer bits.
+    frac_bits : :class:`int`, optional
+        Number of fixed-point fractional bits.
+    bits : :class:`int`, optional
+        Number of fixed-point bits.
+    exp_bits : :class:`int`, optional
+        Number of floating-point exponential bits.
+    man_bits : :class:`int`, optional
+        Number of floating-point mantissa bits.
+    bias : :class:`int`, optional
+        Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+    force_complex : :class:`bool`, optional
+        Returns a complex-valued type.
+
+    Returns
+    -------
+    result : :class:`APyFixed`, :class:`APyFloat`, :class:`APyFixedArray`, :class:`APyFloatArray`, :class:`APyCFixed`, :class:`APyCFloat`, :class:`APyCFixedArray` or :class:`APyCFloatArray`
+    """
+    apy_type = _determine_array_type(
+        int_bits, frac_bits, bits, exp_bits, man_bits, bias
+    )
+    if apy_type is None:
+        raise ValueError("from_bits: could not determine data type from bit-specifiers")
+
+    if apy_type is APyFixedArray:
+        actual_type = None
+        if force_complex:
+            actual_type = (
+                APyCFixedArray if isinstance(bit_patterns, Iterable) else APyCFixed
+            )
+        else:
+            actual_type = (
+                APyFixedArray if isinstance(bit_patterns, Iterable) else APyFixed
+            )
+        return actual_type(bit_patterns, int_bits, frac_bits, bits)
+    else:
+        actual_type = None
+        if force_complex:
+            actual_type = (
+                APyCFloatArray if isinstance(bit_patterns, Iterable) else APyCFloat
+            )
+        else:
+            actual_type = (
+                APyFloatArray if isinstance(bit_patterns, Iterable) else APyFloat
+            )
+        return actual_type.from_bits(bit_patterns, exp_bits, man_bits, bias)
