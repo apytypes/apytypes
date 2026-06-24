@@ -34,7 +34,7 @@ async def fp8_mul_test_all(dut) -> None:
     Exhaustive test of all inputs.
     """
     EXP_BITS, MAN_BITS = 4, 3
-    fp8_values = apy.fp(
+    fp8_values = apy.from_bits(
         range(2 ** (1 + EXP_BITS + MAN_BITS)), exp_bits=EXP_BITS, man_bits=MAN_BITS
     )
 
