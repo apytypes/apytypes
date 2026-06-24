@@ -1179,7 +1179,7 @@ private:
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + src1_limbs * N * m;
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
             /*
              * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++
              * compiler (ICC).

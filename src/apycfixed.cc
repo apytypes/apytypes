@@ -318,7 +318,7 @@ APyCFixed APyCFixed::operator/(const APyCFixed& rhs) const
 
     // Double-limb divider specialization
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         __int128 rhs_real, rhs_imag;
         // div_bits = bits() + 2 * rhs.bits() + 1, so rhs.bits() is guaranteed to be <=
@@ -540,7 +540,7 @@ APyCFixed APyCFixed::operator/(const APyFixed& rhs) const
     }
 
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // Specialization when __int128 is available
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         __int128 denominator;
@@ -697,7 +697,7 @@ APyCFixed APyCFixed::rdiv(const APyFixed& lhs) const
     }
 
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
         if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {

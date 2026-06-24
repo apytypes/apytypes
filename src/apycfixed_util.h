@@ -11,7 +11,7 @@ static APY_INLINE void complex_multiplication_1_1_2(
 )
 {
 #if COMPILER_LIMB_SIZE == 64
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // GCC and Clang
     __int128 re0 = (__int128)apy_limb_signed_t(src0[0]);
     __int128 im0 = (__int128)apy_limb_signed_t(src0[1]);
@@ -70,7 +70,7 @@ static APY_INLINE void complex_multiplication_1_2_2(
 )
 {
 #if COMPILER_LIMB_SIZE == 64
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // GCC and Clang
     __int128 re0 = (__int128)apy_limb_signed_t(src0[0]);
     __int128 im0 = (__int128)apy_limb_signed_t(src0[1]);
@@ -161,7 +161,7 @@ static APY_INLINE void complex_real_multiplication_1_2_2(
 )
 {
 #if COMPILER_LIMB_SIZE == 64
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // GCC and Clang
     __int128 re0 = (__int128)apy_limb_signed_t(src0[0]);
     __int128 im0 = (__int128)apy_limb_signed_t(src0[1]);
@@ -223,7 +223,7 @@ static APY_INLINE void complex_real_multiplication_2_1_2(
 )
 {
 #if COMPILER_LIMB_SIZE == 64
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // GCC and Clang
     __int128 re0 = (__int128)(src0[0])
         | ((__int128)apy_limb_signed_t(src0[1]) << APY_LIMB_SIZE_BITS);

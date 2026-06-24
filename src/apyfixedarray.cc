@@ -809,7 +809,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
     // Special case #2: Result fits in two limbs. Plus correct
     // compiler/limb size
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // Specialization when __int128 is available
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         __int128 denominator;
@@ -968,7 +968,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     // Special case #2: Result fits in two limbs. Plus correct
     // compiler/limb size
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // Specialization when __int128 is available
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         __int128 denominator;
@@ -1131,7 +1131,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
     // Special case #2: Result fits in two limbs. Plus correct
     // compiler/limb size
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // Specialization when __int128 is available
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         __int128 numerator;
