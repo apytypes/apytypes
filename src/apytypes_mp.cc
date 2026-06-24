@@ -110,7 +110,6 @@ apy_limb_t apy_rshift(
 */
 
 // Multiplication
-
 static APY_INLINE apy_limb_t apy_mul_add_with_carry(
     apy_limb_t lhs, apy_limb_t rhs, apy_limb_t addend, apy_limb_t* low_result
 )
@@ -140,8 +139,7 @@ apy_limb_t apy_submul_single_limb(
     assert(limbs > 0);
 
     // TODO: Rewrite to use __int128 on supported architectures
-    apy_limb_t subtrahend;
-    apy_limb_t carry = apy_mul_add_with_carry(src0[0], src1, 0, &subtrahend);
+    auto [carry, subtrahend] = long_unsigned_mult(src0[0], src1);
     subtrahend = dest[0] - subtrahend;
     carry += (subtrahend > dest[0]);
     dest[0] = subtrahend;
@@ -168,8 +166,6 @@ apy_limb_t apy_unsigned_multiplication(
 
 #if COMPILER_LIMB_SIZE == 64 && defined(__SIZEOF_INT128__)
     std::memset(dest, 0, (src0_limbs + src1_limbs) * sizeof(*dest));
-
-    constexpr unsigned LIMB_BITS = 64;
     for (std::size_t i = 0; i < src1_limbs; i++) {
         unsigned __int128 carry = 0;
         const unsigned __int128 rhs = src1[i];
@@ -178,14 +174,12 @@ apy_limb_t apy_unsigned_multiplication(
             unsigned __int128 acc
                 = (unsigned __int128)src0[j] * rhs + dest[i + j] + carry;
             dest[i + j] = (apy_limb_t)acc;
-            carry = acc >> LIMB_BITS;
+            carry = acc >> COMPILER_LIMB_SIZE;
         }
         dest[i + src0_limbs] = (apy_limb_t)carry;
     }
 #elif COMPILER_LIMB_SIZE == 32
     std::memset(dest, 0, (src0_limbs + src1_limbs) * sizeof(*dest));
-
-    constexpr unsigned LIMB_BITS = 32;
     for (std::size_t i = 0; i < src1_limbs; i++) {
         std::uint64_t carry = 0;
         const std::uint64_t rhs = src1[i];
@@ -193,7 +187,7 @@ apy_limb_t apy_unsigned_multiplication(
         for (std::size_t j = 0; j < src0_limbs; j++) {
             std::uint64_t acc = (std::uint64_t)src0[j] * rhs + dest[i + j] + carry;
             dest[i + j] = (apy_limb_t)acc;
-            carry = acc >> LIMB_BITS;
+            carry = acc >> COMPILER_LIMB_SIZE;
         }
         dest[i + src0_limbs] = (apy_limb_t)carry;
     }
@@ -228,6 +222,87 @@ apy_limb_t apy_unsigned_square(
 
     // Zero the output buffer
     std::memset(dest, 0, 2 * src_limbs * sizeof(*dest));
+
+#if COMPILER_LIMB_SIZE == 64 && defined(__SIZEOF_INT128__)
+
+    // Phase 1: accumulate upper-triangle products for i < j.
+    for (std::size_t i = 0; i < src_limbs - 1; i++) {
+        unsigned __int128 carry = 0;
+        const unsigned __int128 lhs = src[i];
+
+        for (std::size_t j = i + 1; j < src_limbs; j++) {
+            unsigned __int128 acc
+                = lhs * (unsigned __int128)src[j] + dest[i + j] + carry;
+            dest[i + j] = (apy_limb_t)acc;
+            carry = acc >> COMPILER_LIMB_SIZE;
+        }
+        for (std::size_t k = i + src_limbs; carry && k < 2 * src_limbs; k++) {
+            unsigned __int128 acc = (unsigned __int128)dest[k] + carry;
+            dest[k] = (apy_limb_t)acc;
+            carry = acc >> COMPILER_LIMB_SIZE;
+        }
+    }
+
+    // Phase 2: double the cross-term sum.
+    apy_limb_t shift_carry = 0;
+    for (std::size_t k = 0; k < 2 * src_limbs; k++) {
+        apy_limb_t new_carry = dest[k] >> (APY_LIMB_SIZE_BITS - 1);
+        dest[k] = (dest[k] << 1) | shift_carry;
+        shift_carry = new_carry;
+    }
+
+    // Phase 3: add diagonal terms src[i]^2 at dest[2i..2i+1].
+    unsigned __int128 add_carry = 0;
+    for (std::size_t i = 0; i < src_limbs; i++) {
+        unsigned __int128 sq = (unsigned __int128)src[i] * src[i];
+        unsigned __int128 acc0
+            = (unsigned __int128)dest[2 * i] + (apy_limb_t)sq + add_carry;
+        dest[2 * i] = (apy_limb_t)acc0;
+        unsigned __int128 acc1 = (unsigned __int128)dest[2 * i + 1]
+            + (apy_limb_t)(sq >> COMPILER_LIMB_SIZE) + (acc0 >> COMPILER_LIMB_SIZE);
+        dest[2 * i + 1] = (apy_limb_t)acc1;
+        add_carry = acc1 >> COMPILER_LIMB_SIZE;
+    }
+
+#elif COMPILER_LIMB_SIZE == 32
+    // Phase 1: accumulate upper-triangle products for i < j.
+    for (std::size_t i = 0; i < src_limbs - 1; i++) {
+        std::uint64_t carry = 0;
+        const std::uint64_t lhs = src[i];
+
+        for (std::size_t j = i + 1; j < src_limbs; j++) {
+            std::uint64_t acc = lhs * (std::uint64_t)src[j] + dest[i + j] + carry;
+            dest[i + j] = (apy_limb_t)acc;
+            carry = acc >> COMPILER_LIMB_SIZE;
+        }
+        for (std::size_t k = i + src_limbs; carry && k < 2 * src_limbs; k++) {
+            std::uint64_t acc = (std::uint64_t)dest[k] + carry;
+            dest[k] = (apy_limb_t)acc;
+            carry = acc >> COMPILER_LIMB_SIZE;
+        }
+    }
+
+    // Phase 2: double the cross-term sum.
+    apy_limb_t shift_carry = 0;
+    for (std::size_t k = 0; k < 2 * src_limbs; k++) {
+        apy_limb_t new_carry = dest[k] >> (APY_LIMB_SIZE_BITS - 1);
+        dest[k] = (dest[k] << 1) | shift_carry;
+        shift_carry = new_carry;
+    }
+
+    // Phase 3: add diagonal terms src[i]^2 at dest[2i..2i+1].
+    std::uint64_t add_carry = 0;
+    for (std::size_t i = 0; i < src_limbs; i++) {
+        std::uint64_t sq = (std::uint64_t)src[i] * src[i];
+        std::uint64_t acc0 = (std::uint64_t)dest[2 * i] + (apy_limb_t)sq + add_carry;
+        dest[2 * i] = (apy_limb_t)acc0;
+        std::uint64_t acc1 = (std::uint64_t)dest[2 * i + 1]
+            + (apy_limb_t)(sq >> COMPILER_LIMB_SIZE) + (acc0 >> COMPILER_LIMB_SIZE);
+        dest[2 * i + 1] = (apy_limb_t)acc1;
+        add_carry = acc1 >> COMPILER_LIMB_SIZE;
+    }
+
+#else
 
     // Phase 1: Accumulate upper-triangle products src[i]*src[j] for i < j.
     // Each cross term src[i]*src[j] == src[j]*src[i], so computing it once and
@@ -269,6 +344,7 @@ apy_limb_t apy_unsigned_square(
         add_carry += (ph < dest[2 * i + 1]);
         dest[2 * i + 1] = ph;
     }
+#endif
 
     return dest[2 * src_limbs - 1];
 }
@@ -576,9 +652,11 @@ void apy_division_multiple_limbs_preinverted(
     assert(quotient != NULL);
     assert((inv->norm_denominator_1 & APY_LIMB_MSBWEIGHT) != 0);
 
+    const bool needs_norm = inv->norm_shift > 0;
+
     // Normalize numerator
     apy_limb_t numerator_1
-        = (inv->norm_shift > 0
+        = (needs_norm
                ? apy_inplace_left_shift(numerator, numerator_limbs, inv->norm_shift)
                : 0);
     /* Iteration variable is the index of the quotient_tmp limb.
@@ -635,7 +713,7 @@ void apy_division_multiple_limbs_preinverted(
     numerator[denominator_limbs - 1] = numerator_1;
 
     // Denormalize numerator back
-    if (inv->norm_shift > 0) {
+    if (needs_norm) {
         apy_limb_t carry
             = apy_inplace_right_shift(numerator, denominator_limbs, inv->norm_shift);
         assert(carry == 0);
