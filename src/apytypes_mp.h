@@ -108,11 +108,11 @@ template <
 {
 #if COMPILER_LIMB_SIZE == 64
 #if defined(__SIZEOF_INT128__)
-    unsigned __int128 src0_128
+    const unsigned __int128 src0_128
         = (static_cast<unsigned __int128>(src0[1]) << 64) | src0[0];
-    unsigned __int128 src1_128
+    const unsigned __int128 src1_128
         = (static_cast<unsigned __int128>(src1[1]) << 64) | src1[0];
-    unsigned __int128 dest_128 = src0_128 + src1_128;
+    const unsigned __int128 dest_128 = src0_128 + src1_128;
     dest[0] = apy_limb_t(dest_128);
     dest[1] = apy_limb_t(dest_128 >> 64);
     return (dest_128 < src1_128) ? 1 : 0;
@@ -126,9 +126,9 @@ template <
 #endif
 #elif COMPILER_LIMB_SIZE == 32
     // Specialized implementation using 64-bit addition with carry
-    uint64_t src0_64 = (uint64_t(src0[1]) << 32) | src0[0];
-    uint64_t src1_64 = (uint64_t(src1[1]) << 32) | src1[0];
-    uint64_t dest_64 = src0_64 + src1_64;
+    const uint64_t src0_64 = (uint64_t(src0[1]) << 32) | src0[0];
+    const uint64_t src1_64 = (uint64_t(src1[1]) << 32) | src1[0];
+    const uint64_t dest_64 = src0_64 + src1_64;
     dest[0] = apy_limb_t(dest_64);
     dest[1] = apy_limb_t(dest_64 >> 32);
     return (dest_64 < src1_64) ? 1 : 0;
@@ -379,11 +379,11 @@ apy_inplace_reversed_subtraction_same_length(
 {
 #if COMPILER_LIMB_SIZE == 64
 #if defined(__SIZEOF_INT128__)
-    unsigned __int128 src0_128
+    const unsigned __int128 src0_128
         = (static_cast<unsigned __int128>(src0[1]) << 64) | src0[0];
-    unsigned __int128 src1_128
+    const unsigned __int128 src1_128
         = (static_cast<unsigned __int128>(src1[1]) << 64) | src1[0];
-    unsigned __int128 dest_128 = src0_128 - src1_128;
+    const unsigned __int128 dest_128 = src0_128 - src1_128;
     dest[0] = apy_limb_t(dest_128);
     dest[1] = apy_limb_t(dest_128 >> 64);
     return (src0_128 < src1_128) ? 1 : 0;
@@ -396,9 +396,9 @@ apy_inplace_reversed_subtraction_same_length(
 #endif
 #elif COMPILER_LIMB_SIZE == 32
     // Specialized implementation using 64-bit subtraction with borrow
-    uint64_t src0_64 = (uint64_t(src0[1]) << 32) | src0[0];
-    uint64_t src1_64 = (uint64_t(src1[1]) << 32) | src1[0];
-    uint64_t dest_64 = src0_64 - src1_64;
+    const uint64_t src0_64 = (uint64_t(src0[1]) << 32) | src0[0];
+    const uint64_t src1_64 = (uint64_t(src1[1]) << 32) | src1[0];
+    const uint64_t dest_64 = src0_64 - src1_64;
     dest[0] = apy_limb_t(dest_64);
     dest[1] = apy_limb_t(dest_64 >> 32);
     return (src0_64 < src1_64) ? 1 : 0;

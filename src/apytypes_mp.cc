@@ -171,7 +171,7 @@ apy_limb_t apy_unsigned_multiplication(
         const unsigned __int128 rhs = src1[i];
 
         for (std::size_t j = 0; j < src0_limbs; j++) {
-            unsigned __int128 acc
+            const unsigned __int128 acc
                 = (unsigned __int128)src0[j] * rhs + dest[i + j] + carry;
             dest[i + j] = (apy_limb_t)acc;
             carry = acc >> COMPILER_LIMB_SIZE;
@@ -185,7 +185,8 @@ apy_limb_t apy_unsigned_multiplication(
         const std::uint64_t rhs = src1[i];
 
         for (std::size_t j = 0; j < src0_limbs; j++) {
-            std::uint64_t acc = (std::uint64_t)src0[j] * rhs + dest[i + j] + carry;
+            const std::uint64_t acc
+                = (std::uint64_t)src0[j] * rhs + dest[i + j] + carry;
             dest[i + j] = (apy_limb_t)acc;
             carry = acc >> COMPILER_LIMB_SIZE;
         }
@@ -231,13 +232,13 @@ apy_limb_t apy_unsigned_square(
         const unsigned __int128 lhs = src[i];
 
         for (std::size_t j = i + 1; j < src_limbs; j++) {
-            unsigned __int128 acc
+            const unsigned __int128 acc
                 = lhs * (unsigned __int128)src[j] + dest[i + j] + carry;
             dest[i + j] = (apy_limb_t)acc;
             carry = acc >> COMPILER_LIMB_SIZE;
         }
         for (std::size_t k = i + src_limbs; carry && k < 2 * src_limbs; k++) {
-            unsigned __int128 acc = (unsigned __int128)dest[k] + carry;
+            const unsigned __int128 acc = (unsigned __int128)dest[k] + carry;
             dest[k] = (apy_limb_t)acc;
             carry = acc >> COMPILER_LIMB_SIZE;
         }
@@ -254,11 +255,11 @@ apy_limb_t apy_unsigned_square(
     // Phase 3: add diagonal terms src[i]^2 at dest[2i..2i+1].
     unsigned __int128 add_carry = 0;
     for (std::size_t i = 0; i < src_limbs; i++) {
-        unsigned __int128 sq = (unsigned __int128)src[i] * src[i];
-        unsigned __int128 acc0
+        const unsigned __int128 sq = (unsigned __int128)src[i] * src[i];
+        const unsigned __int128 acc0
             = (unsigned __int128)dest[2 * i] + (apy_limb_t)sq + add_carry;
         dest[2 * i] = (apy_limb_t)acc0;
-        unsigned __int128 acc1 = (unsigned __int128)dest[2 * i + 1]
+        const unsigned __int128 acc1 = (unsigned __int128)dest[2 * i + 1]
             + (apy_limb_t)(sq >> COMPILER_LIMB_SIZE) + (acc0 >> COMPILER_LIMB_SIZE);
         dest[2 * i + 1] = (apy_limb_t)acc1;
         add_carry = acc1 >> COMPILER_LIMB_SIZE;
@@ -271,12 +272,12 @@ apy_limb_t apy_unsigned_square(
         const std::uint64_t lhs = src[i];
 
         for (std::size_t j = i + 1; j < src_limbs; j++) {
-            std::uint64_t acc = lhs * (std::uint64_t)src[j] + dest[i + j] + carry;
+            const std::uint64_t acc = lhs * (std::uint64_t)src[j] + dest[i + j] + carry;
             dest[i + j] = (apy_limb_t)acc;
             carry = acc >> COMPILER_LIMB_SIZE;
         }
         for (std::size_t k = i + src_limbs; carry && k < 2 * src_limbs; k++) {
-            std::uint64_t acc = (std::uint64_t)dest[k] + carry;
+            const std::uint64_t acc = (std::uint64_t)dest[k] + carry;
             dest[k] = (apy_limb_t)acc;
             carry = acc >> COMPILER_LIMB_SIZE;
         }
@@ -293,10 +294,11 @@ apy_limb_t apy_unsigned_square(
     // Phase 3: add diagonal terms src[i]^2 at dest[2i..2i+1].
     std::uint64_t add_carry = 0;
     for (std::size_t i = 0; i < src_limbs; i++) {
-        std::uint64_t sq = (std::uint64_t)src[i] * src[i];
-        std::uint64_t acc0 = (std::uint64_t)dest[2 * i] + (apy_limb_t)sq + add_carry;
+        const std::uint64_t sq = (std::uint64_t)src[i] * src[i];
+        const std::uint64_t acc0
+            = (std::uint64_t)dest[2 * i] + (apy_limb_t)sq + add_carry;
         dest[2 * i] = (apy_limb_t)acc0;
-        std::uint64_t acc1 = (std::uint64_t)dest[2 * i + 1]
+        const std::uint64_t acc1 = (std::uint64_t)dest[2 * i + 1]
             + (apy_limb_t)(sq >> COMPILER_LIMB_SIZE) + (acc0 >> COMPILER_LIMB_SIZE);
         dest[2 * i + 1] = (apy_limb_t)acc1;
         add_carry = acc1 >> COMPILER_LIMB_SIZE;
