@@ -2022,10 +2022,40 @@ nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyFixedArray::to_bits_ndarray() const
     }
 
     INT_TYPE* result_data = new INT_TYPE[_nitems];
-    for (std::size_t i = 0; i < _nitems; i++) {
-        result_data[i] = INT_TYPE(_data[i]);
-        if (bits() % (INT_TYPE_SIZE_BITS)) {
-            result_data[i] &= (INT_TYPE(1) << (bits() % INT_TYPE_SIZE_BITS)) - 1;
+    const INT_TYPE MASK = (INT_TYPE(1) << (_bits % INT_TYPE_SIZE_BITS)) - 1;
+    if (_itemsize == 1) {
+        if (_bits % (INT_TYPE_SIZE_BITS)) {
+            for (std::size_t i = 0; i < _nitems; i++) {
+                result_data[i] = INT_TYPE(_data[i]) & MASK;
+            }
+        } else {
+            for (std::size_t i = 0; i < _nitems; i++) {
+                result_data[i] = INT_TYPE(_data[i]);
+            }
+        }
+    } else {
+        if (_bits % (INT_TYPE_SIZE_BITS)) {
+            for (std::size_t i = 0; i < _nitems; i++) {
+                INT_TYPE value {};
+
+                // Endian-safe copy
+                for (std::size_t j = 0; j < _itemsize; j++) {
+                    const std::size_t shift = j * APY_LIMB_SIZE_BITS;
+                    value |= INT_TYPE(_data[i * _itemsize + j]) << shift;
+                }
+
+                result_data[i] = value & MASK;
+            }
+        } else {
+            for (std::size_t i = 0; i < _nitems; i++) {
+                INT_TYPE value {};
+                // Endian-safe copy
+                for (std::size_t j = 0; j < _itemsize; j++) {
+                    const std::size_t shift = j * APY_LIMB_SIZE_BITS;
+                    value |= INT_TYPE(_data[i * _itemsize + j]) << shift;
+                }
+                result_data[i] = value;
+            }
         }
     }
 
