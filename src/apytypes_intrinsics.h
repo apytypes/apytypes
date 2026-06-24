@@ -52,7 +52,7 @@ long_unsigned_mult(apy_limb_t src0, apy_limb_t src1)
     apy_limb_t high_limb = apy_limb_t(res >> 32);
     return { high_limb, apy_limb_t(res) };
 #elif (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     /*
      * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
      * (ICC).
@@ -137,7 +137,7 @@ long_signed_unsigned_mult(apy_limb_signed_t src0, apy_limb_t src1)
     apy_limb_t high_limb = apy_limb_t(res >> COMPILER_LIMB_SIZE);
     return { high_limb, apy_limb_t(res) };
 #elif (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     /*
      * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
      * (ICC).

@@ -227,7 +227,7 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     }
 
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // Specialization when __int128 is available
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         __int128 denominator;

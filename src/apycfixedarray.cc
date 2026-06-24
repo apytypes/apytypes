@@ -825,7 +825,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
 
     // Result fits in two limbs.
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
+#if defined(__SIZEOF_INT128__)
     // Specialization when __int128 is available
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         __int128 denominator;
@@ -1055,7 +1055,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
     // Double limb result specialization
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
 #if COMPILER_LIMB_SIZE == 64
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
         __int128 den;
         if (unsigned(rhs.bits()) <= COMPILER_LIMB_SIZE) {
             den = (__int128)apy_limb_signed_t(rhs._data[0]);
@@ -1220,7 +1220,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     }
 
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     // Double limb result specialization
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
@@ -1510,7 +1510,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
     }
 
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     // Double limb result specialization
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
@@ -1761,7 +1761,7 @@ APyCFixedArray APyCFixedArray::rdiv_real(const APyFixed& lhs) const
     }
 
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     // Double limb result specialization
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
@@ -2014,7 +2014,7 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     }
 
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     // Double limb result specialization
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
