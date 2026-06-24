@@ -110,27 +110,6 @@ apy_limb_t apy_rshift(
 */
 
 // Multiplication
-static APY_INLINE apy_limb_t apy_mul_add_with_carry(
-    apy_limb_t lhs, apy_limb_t rhs, apy_limb_t addend, apy_limb_t* low_result
-)
-{
-    auto [prod_high, prod_low] = long_unsigned_mult(lhs, rhs);
-    prod_low += addend;
-    *low_result = prod_low;
-    return prod_high + (prod_low < addend);
-}
-
-static APY_INLINE apy_limb_t apy_mul_add_accumulate(
-    apy_limb_t* accumulator, apy_limb_t lhs, apy_limb_t rhs, apy_limb_t carry
-)
-{
-    apy_limb_t low_result;
-    carry = apy_mul_add_with_carry(lhs, rhs, carry, &low_result);
-    low_result += *accumulator;
-    carry += (low_result < *accumulator);
-    *accumulator = low_result;
-    return carry;
-}
 
 apy_limb_t apy_submul_single_limb(
     apy_limb_t* dest, const apy_limb_t* src0, std::size_t limbs, apy_limb_t src1

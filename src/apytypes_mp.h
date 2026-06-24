@@ -194,6 +194,28 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     return carry;
 }
 
+static APY_INLINE apy_limb_t apy_mul_add_with_carry(
+    apy_limb_t lhs, apy_limb_t rhs, apy_limb_t addend, apy_limb_t* low_result
+)
+{
+    auto [prod_high, prod_low] = long_unsigned_mult(lhs, rhs);
+    prod_low += addend;
+    *low_result = prod_low;
+    return prod_high + (prod_low < addend);
+}
+
+static APY_INLINE apy_limb_t apy_mul_add_accumulate(
+    apy_limb_t* accumulator, apy_limb_t lhs, apy_limb_t rhs, apy_limb_t carry
+)
+{
+    apy_limb_t low_result;
+    carry = apy_mul_add_with_carry(lhs, rhs, carry, &low_result);
+    low_result += *accumulator;
+    carry += (low_result < *accumulator);
+    *accumulator = low_result;
+    return carry;
+}
+
 //! Add two limb vectors of the same length in place: dest += src, where len(dest)
 //! == len(src)
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition_same_length(
