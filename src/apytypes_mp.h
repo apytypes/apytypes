@@ -40,7 +40,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
         add_single_limbs_with_carry(*src_it, *dest_it, &*dest_it, carry, &carry);
     }
     if (carry) {
-        for (; dest_it != dest_end; ++dest_it) {
+        for (; dest_it != dest_end && carry; ++dest_it) {
             *dest_it += carry;
             carry = (*dest_it < carry);
         }
@@ -136,7 +136,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
 
     /* src is initial "carry" */
     apy_limb_t carry = src;
-    for (auto it = begin_it; it != end_it; ++it) {
+    for (auto it = begin_it; it != end_it && carry; ++it) {
         *it += carry;
         carry = (*it < carry);
     }
@@ -153,7 +153,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     assert(begin_it < end_it);
 
     apy_limb_t carry = 1;
-    for (auto it = begin_it; it != end_it; ++it) {
+    for (auto it = begin_it; it != end_it && carry; ++it) {
         *it += carry;
         carry = (*it < carry);
     }
@@ -223,13 +223,23 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
 {
     assert(begin_it < end_it);
 
-    apy_limb_t carry = 1;
-    for (auto it = begin_it; it != end_it; ++it) {
-        *it = ~(*it) + carry;
-        carry = (*it < carry);
+    // Carry phase: negate limbs until carry is consumed
+    auto it = begin_it;
+    bool carry_remains = true;
+    for (; it != end_it; ++it) {
+        *it = ~(*it) + 1;
+        if (*it != 0) {
+            ++it;
+            carry_remains = false;
+            break;
+        }
+    }
+    // Complement-only phase: carry is 0, just bitwise-NOT remaining limbs
+    for (; it != end_it; ++it) {
+        *it = ~(*it);
     }
 
-    return carry;
+    return carry_remains ? 1 : 0;
 }
 //! Negate a limb vector: dest = -src
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
@@ -241,16 +251,26 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 {
     assert(src_begin < src_end);
 
-    apy_limb_t carry = 1;
     auto dest_it = dest_begin;
     auto src_it = src_begin;
 
+    // Carry phase: negate limbs until carry is consumed
+    bool carry_remains = true;
     for (; src_it != src_end; ++dest_it, ++src_it) {
-        *dest_it = ~(*src_it) + carry;
-        carry = (*dest_it < carry);
+        *dest_it = ~(*src_it) + 1;
+        if (*dest_it != 0) {
+            ++dest_it;
+            ++src_it;
+            carry_remains = false;
+            break;
+        }
+    }
+    // Complement-only phase: carry is 0, just bitwise-NOT remaining limbs
+    for (; src_it != src_end; ++dest_it, ++src_it) {
+        *dest_it = ~(*src_it);
     }
 
-    return carry;
+    return carry_remains ? 1 : 0;
 }
 
 //! Subtract a single limb from a limb vectors in place: dest -= src
@@ -266,7 +286,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     /* src is initial "carry" */
     apy_limb_t carry = src;
 
-    for (auto it = begin_it; it != end_it; ++it) {
+    for (auto it = begin_it; it != end_it && carry; ++it) {
         /* Determine carry to next limb */
         apy_limb_t carry_tmp = *it < carry;
         *it -= carry;
@@ -577,9 +597,11 @@ void apy_division_double_limbs_preinverted(
 {
     assert(std::distance(numerator_begin, numerator_end) >= 2);
 
+    const bool needs_norm = inv->norm_shift > 0;
+
     // Normalize numerator
     apy_limb_t numerator_1
-        = (inv->norm_shift > 0
+        = (needs_norm
                ? apy_inplace_left_shift(numerator_begin, numerator_end, inv->norm_shift)
                : 0);
     apy_limb_t numerator_0 = *(numerator_end - 1);
@@ -597,7 +619,7 @@ void apy_division_double_limbs_preinverted(
     }
 
     // Denormalize numerator back
-    if (inv->norm_shift > 0) {
+    if (needs_norm) {
         assert(
             (numerator_0 & (APY_NUMBER_MASK >> (APY_LIMB_SIZE_BITS - inv->norm_shift)))
             == 0
