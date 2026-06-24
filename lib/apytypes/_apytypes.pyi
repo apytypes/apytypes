@@ -1044,6 +1044,27 @@ class APyCFixedArray:
         :class:`numpy.ndarray`
         """
 
+    def to_bits(
+        self, numpy: bool = False
+    ) -> (
+        list
+        | NDArray[numpy.uint64]
+        | NDArray[numpy.uint32]
+        | NDArray[numpy.uint16]
+        | NDArray[numpy.uint8]
+    ):
+        """
+        Return the underlying bit representations.
+
+        When `numpy` is true, the bit representations are returned in a
+        :class:`numpy.ndarray`. Otherwise, they are returned in a
+        :class:`list`.
+
+        Returns
+        -------
+        :class:`list` or :class:`numpy.ndarray`
+        """
+
     def reshape(self, new_shape: int | tuple[int, ...]) -> APyCFixedArray:
         """
         Reshape the APyCFixedArray to the specified shape without changing its data.
@@ -1757,6 +1778,32 @@ class APyCFixedArray:
         >>> print(a)
         [[1+0j, 2+0j, 3+0j],
          [4+0j, 5+0j, 6+0j]]
+
+        Returns
+        -------
+        :class:`APyCFixedArray`
+        """
+
+    @staticmethod
+    def from_bits(
+        bit_pattern_sequence: Iterable[Any],
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyCFixedArray:
+        """
+        Create an :class:`APyCFixedArray` object from a sequence of bit patterns.
+
+        Parameters
+        ----------
+        bit_pattern_sequence : list
+            Bit patterns to initialize from.
+        int_bits : :class:`int`, optional
+            Number of integer bits in the created fixed-point tensor.
+        frac_bits : :class:`int`, optional
+            Number of fractional bits in the created fixed-point tensor.
+        bits : :class:`int`, optional
+            Total number of bits in the created fixed-point tensor.
 
         Returns
         -------

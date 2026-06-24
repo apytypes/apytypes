@@ -2386,6 +2386,148 @@ nb::ndarray<nb::numpy, std::complex<double>> APyCFixedArray::to_numpy(
     );
 }
 
+std::variant<
+    nb::list,
+    nb::ndarray<nb::numpy, std::uint64_t>,
+    nb::ndarray<nb::numpy, std::uint32_t>,
+    nb::ndarray<nb::numpy, std::uint16_t>,
+    nb::ndarray<nb::numpy, std::uint8_t>>
+APyCFixedArray::to_bits(bool numpy) const
+{
+    using RESULT_TYPE = std::variant<
+        nb::list,
+        nb::ndarray<nb::numpy, std::uint64_t>,
+        nb::ndarray<nb::numpy, std::uint32_t>,
+        nb::ndarray<nb::numpy, std::uint16_t>,
+        nb::ndarray<nb::numpy, std::uint8_t>>;
+
+    if (numpy) {
+        if (_bits <= 8) {
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint8_t>>,
+                to_bits_ndarray<nb::numpy, std::uint8_t>()
+            );
+        } else if (_bits <= 16) {
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint16_t>>,
+                to_bits_ndarray<nb::numpy, std::uint16_t>()
+            );
+        } else if (_bits <= 32) {
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint32_t>>,
+                to_bits_ndarray<nb::numpy, std::uint32_t>()
+            );
+        } else {
+            return RESULT_TYPE(
+                std::in_place_type<nb::ndarray<nb::numpy, std::uint64_t>>,
+                to_bits_ndarray<nb::numpy, std::uint64_t>()
+            );
+        }
+    } else {
+        auto it = std::cbegin(_data);
+        return RESULT_TYPE(
+            std::in_place_type<nb::list>, to_bits_python_recursive_descent(0, it)
+        );
+    }
+}
+
+template <typename NB_ARRAY_TYPE, typename INT_TYPE>
+nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyCFixedArray::to_bits_ndarray() const
+{
+    constexpr std::size_t INT_TYPE_SIZE_BITS = 8 * sizeof(INT_TYPE);
+    if (_bits > int(INT_TYPE_SIZE_BITS)) {
+        throw nb::value_error(
+            fmt::format(
+                "APyCFixedArray::to_bits_ndarray(): only supports <= {}-bit elements",
+                INT_TYPE_SIZE_BITS
+            )
+                .c_str()
+        );
+    }
+
+    INT_TYPE* result_data = new INT_TYPE[2 * _nitems]; // 2x for real and complex parts
+    const INT_TYPE MASK = (INT_TYPE(1) << (bits() % INT_TYPE_SIZE_BITS)) - 1;
+    if (_itemsize == 2) {
+        // Real and complex parts fit into one limb each
+        if (_bits % (INT_TYPE_SIZE_BITS)) {
+            for (std::size_t i = 0; i < _data.size(); i++) {
+                result_data[i] = INT_TYPE(_data[i]) & MASK;
+            }
+        } else {
+            for (std::size_t i = 0; i < _data.size(); i++) {
+                result_data[i] = INT_TYPE(_data[i]);
+            }
+        }
+    } else {                                  // _itemsize > 2
+        const auto part_size = _itemsize / 2; // Size of a real/imag part
+
+        if (_bits % (INT_TYPE_SIZE_BITS)) {
+            for (std::size_t i = 0; i < 2 * _nitems; i++) {
+                INT_TYPE value {};
+
+                // Endian-safe copy
+                for (std::size_t j = 0; j < part_size; j++) {
+                    const std::size_t shift = j * APY_LIMB_SIZE_BITS;
+                    value |= INT_TYPE(_data[i * part_size + j]) << shift;
+                }
+
+                result_data[i] = value & MASK;
+            }
+        } else {
+            for (std::size_t i = 0; i < 2 * _nitems; i++) {
+                INT_TYPE value {};
+                // Endian-safe copy
+                for (std::size_t j = 0; j < part_size; j++) {
+                    const std::size_t shift = j * APY_LIMB_SIZE_BITS;
+                    value |= INT_TYPE(_data[i * part_size + j]) << shift;
+                }
+                result_data[i] = value;
+            }
+        }
+    }
+
+    // Delete `result_data` when the `owner` capsule expires
+    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (INT_TYPE*)p; });
+
+    std::vector<size_t> result_shape(_shape.begin(), _shape.end());
+    result_shape.push_back(2); // Split real and imaginary bit patterns
+
+    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(
+        result_data, ndim() + 1, result_shape.data(), owner
+    );
+}
+
+nb::list APyCFixedArray::to_bits_python_recursive_descent(
+    std::size_t dim, std::vector<apy_limb_t>::const_iterator& it
+) const
+{
+    nb::list result;
+    if (dim == ndim() - 1) {
+        // Most inner dimension: append data
+        for (std::size_t i = 0; i < _shape[dim]; i++) {
+            const auto complex_data = nb::make_tuple(
+                python_limb_vec_to_long(
+                    it, it + _itemsize / 2, false, _bits % APY_LIMB_SIZE_BITS
+                ),
+                python_limb_vec_to_long(
+                    it + _itemsize / 2,
+                    it + _itemsize,
+                    false,
+                    _bits % APY_LIMB_SIZE_BITS
+                )
+            );
+            result.append(complex_data);
+            it += _itemsize;
+        }
+    } else {
+        // We need to go deeper...
+        for (std::size_t i = 0; i < _shape[dim]; i++) {
+            result.append(to_bits_python_recursive_descent(dim + 1, it));
+        }
+    }
+    return result;
+}
+
 APyCFixedArray APyCFixedArray::cast(
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
@@ -2843,6 +2985,16 @@ APyCFixedArray APyCFixedArray::from_array(
     APyCFixedArray result(shape, int_bits, frac_bits, bits);
     result._set_values_from_ndarray(ndarray);
     return result;
+}
+
+APyCFixedArray APyCFixedArray::from_bits(
+    const nb::typed<nb::iterable, nb::any>& bit_pattern_sequence,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    return APyCFixedArray(bit_pattern_sequence, int_bits, frac_bits, bits);
 }
 
 std::string APyCFixedArray::to_string_dec() const
