@@ -1252,6 +1252,17 @@ def test_to_bits_numpy():
         == np.array([[[2, 4], [6, 8], [10, 12]], [[14, 16], [18, 16], [14, 12]]])
     )
 
+    # Exporting 64-bit values. This will trigger a special case on 32-bit systems.
+    assert np.array_equal(
+        APyFixedArray([(1, 1)], int_bits=63, frac_bits=0).to_bits(True),
+        np.asarray([(1, 1)]),
+    )
+    # Similar case, but with bits being exactly 64.
+    assert np.array_equal(
+        APyFixedArray([(1, 1)], int_bits=64, frac_bits=0).to_bits(True),
+        np.asarray([(1, 1)]),
+    )
+
 
 def test_copy():
     a = APyFixedArray([3, 1], 4, 5)
