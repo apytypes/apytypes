@@ -47,6 +47,13 @@ def test_from_bits():
 def test_from_bits_np():
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")
+
+    with pytest.raises(
+        TypeError,
+        match=r"APyCFloatArray::_set_bits_from_ndarray\(\): unsupported `dtype` expecting integer",
+    ):
+        APyCFloatArray.from_bits(np.asarray([1.0]), 8, 7)
+
     # Only reals
     a = APyCFloatArray.from_bits(
         np.asarray([108, 112, 120, 4224]), exp_bits=8, man_bits=4, bias=6
@@ -94,6 +101,15 @@ def test_to_bits():
     )
     assert a.to_bits() == [(108, 112), (120, 4224)]
 
+    a = APyCFloatArray(
+        [(0, 0), (0, 1), (0, 0), (0, 1)],
+        [(6, 7), (7, 8), (6, 7), (7, 8)],
+        [(12, 0), (8, 0), (12, 0), (8, 0)],
+        exp_bits=8,
+        man_bits=4,
+    ).reshape((2, 1, 2))
+    assert a.to_bits() == [[[(108, 112), (120, 4224)]], [[(108, 112), (120, 4224)]]]
+
 
 @pytest.mark.float_array
 def test_to_bits_np():
@@ -115,6 +131,51 @@ def test_to_bits_np():
         [(0, 0), (0, 1)], [(6, 7), (7, 8)], [(12, 0), (8, 0)], exp_bits=8, man_bits=4
     )
     assert np.array_equal(a.to_bits(True), np.asarray([(108, 112), (120, 4224)]))
+
+    a = APyCFloatArray(
+        [(0, 0), (0, 1), (0, 0), (0, 1)],
+        [(6, 7), (7, 8), (6, 7), (7, 8)],
+        [(12, 0), (8, 0), (12, 0), (8, 0)],
+        exp_bits=8,
+        man_bits=4,
+    ).reshape((2, 1, 2))
+    assert np.array_equal(
+        a.to_bits(True),
+        np.asarray([[[(108, 112), (120, 4224)]], [[(108, 112), (120, 4224)]]]),
+    )
+
+    # Test with 8, 16, 32, and 64 bit
+    a = APyCFloatArray([(0, 1)], [(2, 3)], [(4, 5)], exp_bits=3, man_bits=4).to_bits(
+        True
+    )
+    assert np.array_equal(a, np.asarray([(36, 181)], dtype=np.uint8))
+    assert a.dtype == np.uint8
+
+    a = APyCFloatArray([(0, 1)], [(2, 3)], [(4, 5)], exp_bits=7, man_bits=8).to_bits(
+        True
+    )
+    assert np.array_equal(a, np.asarray([(516, 33541)], dtype=np.uint16))
+    assert a.dtype == np.uint16
+
+    a = APyCFloatArray([(0, 1)], [(2, 3)], [(4, 5)], exp_bits=8, man_bits=23).to_bits(
+        True
+    )
+    assert np.array_equal(a, np.asarray([(16777220, 2172649477)], dtype=np.uint32))
+    assert a.dtype == np.uint32
+
+    a = APyCFloatArray([(0, 1)], [(2, 3)], [(4, 5)], exp_bits=11, man_bits=52).to_bits(
+        True
+    )
+    assert np.array_equal(
+        a, np.asarray([(9007199254740996, 9236882835736887301)], dtype=np.uint64)
+    )
+    assert a.dtype == np.uint64
+
+    with pytest.raises(
+        ValueError,
+        match=r"APyCFloatArray::to_bits_ndarray\(\): only supports",
+    ):
+        APyCFloatArray([0], [0], [0], 30, 60).to_bits(True)
 
 
 def test_real_imag():

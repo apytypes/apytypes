@@ -13,6 +13,8 @@
 
    .. automethod:: to_numpy
 
+   .. automethod:: to_bits
+
    Creation from other types
    -------------------------
 
@@ -21,6 +23,8 @@
    .. automethod:: from_complex
 
    .. automethod:: from_float
+
+   .. automethod:: from_bits
 
    Other creation functions
    ------------------------

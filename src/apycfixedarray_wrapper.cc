@@ -429,22 +429,22 @@ void bind_cfixed_array(nb::module_& m)
             )pbdoc"
         )
 
-        //.def(
-        //    "to_bits",
-        //    &APyCFixedArray::to_bits,
-        //    nb::arg("numpy") = false,
-        //    R"pbdoc(
-        //    Return the underlying bit representations.
+        .def(
+            "to_bits",
+            &APyCFixedArray::to_bits,
+            nb::arg("numpy") = false,
+            R"pbdoc(
+            Return the underlying bit representations.
 
-        //    When `numpy` is true, the bit representations are returned in a
-        //    :class:`numpy.ndarray`. Otherwise, they are returned in a
-        //    :class:`list`.
+            When `numpy` is true, the bit representations are returned in a
+            :class:`numpy.ndarray`. Otherwise, they are returned in a
+            :class:`list`.
 
-        //    Returns
-        //    -------
-        //    :class:`list` or :class:`numpy.ndarray`
-        //    )pbdoc"
-        //)
+            Returns
+            -------
+            :class:`list` or :class:`numpy.ndarray`
+            )pbdoc"
+        )
 
         .def("reshape", &APyCFixedArray::python_reshape, nb::arg("new_shape"), R"pbdoc(
             Reshape the APyCFixedArray to the specified shape without changing its data.
@@ -1238,6 +1238,32 @@ void bind_cfixed_array(nb::module_& m)
             >>> print(a)
             [[1+0j, 2+0j, 3+0j],
              [4+0j, 5+0j, 6+0j]]
+
+            Returns
+            -------
+            :class:`APyCFixedArray`
+            )pbdoc"
+        )
+        .def_static(
+            "from_bits",
+            &APyCFixedArray::from_bits,
+            nb::arg("bit_pattern_sequence"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyCFixedArray` object from a sequence of bit patterns.
+
+            Parameters
+            ----------
+            bit_pattern_sequence : list
+                Bit patterns to initialize from.
+            int_bits : :class:`int`, optional
+                Number of integer bits in the created fixed-point tensor.
+            frac_bits : :class:`int`, optional
+                Number of fractional bits in the created fixed-point tensor.
+            bits : :class:`int`, optional
+                Total number of bits in the created fixed-point tensor.
 
             Returns
             -------

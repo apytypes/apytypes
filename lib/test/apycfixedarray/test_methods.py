@@ -136,3 +136,141 @@ def test_python_deepcopy():
     a[0] = APyCFixed((2, 1), 4, 5)
     assert a.is_identical(b)
     assert not a.is_identical(c)
+
+
+@pytest.mark.parametrize(
+    ("lst", "ref"),
+    [
+        ([1], APyCFixedArray.from_complex([1], int_bits=10, frac_bits=0)),
+        ([1, 2], APyCFixedArray.from_complex([1 + 2j], int_bits=10, frac_bits=0)),
+        ([1, 3, 4], APyCFixedArray.from_complex([1, 3, 4], int_bits=10, frac_bits=0)),
+        ([[1], [2]], APyCFixedArray.from_complex([[1], [2]], int_bits=10, frac_bits=0)),
+        (
+            [[1, 2], [3, 4]],
+            APyCFixedArray.from_complex([1 + 2j, 3 + 4j], int_bits=10, frac_bits=0),
+        ),
+        (
+            [[[1, 2]], [[3, 4]]],
+            APyCFixedArray.from_complex([[1 + 2j], [3 + 4j]], int_bits=10, frac_bits=0),
+        ),
+    ],
+)
+def test_from_bits(lst: list[list[int] | int], ref: APyCFixedArray):
+    assert APyCFixedArray.from_bits(lst, int_bits=10, frac_bits=0).is_identical(ref)
+
+
+@pytest.mark.parametrize(
+    ("lst", "ref"),
+    [
+        ([1], APyCFixedArray.from_complex([1], int_bits=10, frac_bits=0)),
+        ([1, 2], APyCFixedArray.from_complex([1 + 2j], int_bits=10, frac_bits=0)),
+        ([1, 3, 4], APyCFixedArray.from_complex([1, 3, 4], int_bits=10, frac_bits=0)),
+        ([[1], [2]], APyCFixedArray.from_complex([[1], [2]], int_bits=10, frac_bits=0)),
+        (
+            [[1, 2], [3, 4]],
+            APyCFixedArray.from_complex([1 + 2j, 3 + 4j], int_bits=10, frac_bits=0),
+        ),
+        (
+            [[[1, 2]], [[3, 4]]],
+            APyCFixedArray.from_complex([[1 + 2j], [3 + 4j]], int_bits=10, frac_bits=0),
+        ),
+    ],
+)
+def test_from_bits_np(lst: list[list[int] | int], ref: APyCFixedArray):
+    np = pytest.importorskip("numpy")
+    assert APyCFixedArray.from_bits(
+        np.asarray(lst), int_bits=10, frac_bits=0
+    ).is_identical(ref)
+
+
+@pytest.mark.parametrize(
+    "lst",
+    [
+        [(1, 1)],
+        [(1, 2), (2, 0)],
+        [(1, 3), (3, 8), (4, 1)],
+        [[(1, 7)], [(2, 8)]],
+        [[(1, 3), (2, 0)], [(3, 5), (4, 6)]],
+        [[[(1, 2**80 - 7), (2**90, 4)]], [[(3, 1), (2**65 - 4, 2**70)]]],
+    ],
+)
+def test_to_bits(lst: list[list[tuple[int, int]] | tuple[int, int]]):
+    assert APyCFixedArray(lst, int_bits=91, frac_bits=0).to_bits() == lst
+
+
+@pytest.mark.parametrize(
+    "lst",
+    [
+        [(1, 1)],
+        [(1, 2), (2, 0)],
+        [(1, 3), (3, 8), (4, 1)],
+        [[(1, 7)], [(2, 2**16 - 9)]],
+        [[(1, 3), (2, 0)], [(3, 7), (2**30 - 7, 6)]],
+        [[[(1, 1), (2**62 - 5, 4)]], [[(3, 1), (4, 0)]]],
+    ],
+)
+def test_to_bits_np(lst: list[list[tuple[int, int]] | tuple[int, int]]):
+    np = pytest.importorskip("numpy")
+    assert np.array_equal(
+        APyCFixedArray(lst, int_bits=63, frac_bits=0).to_bits(True), np.asarray(lst)
+    )
+
+
+def test_to_bits_np_neg():
+    np = pytest.importorskip("numpy")
+    assert np.array_equal(
+        APyCFixedArray.from_float(range(-3, 3), int_bits=4, frac_bits=1).to_bits(True),
+        np.array(
+            [
+                (0b11010, 0),
+                (0b11100, 0),
+                (0b11110, 0),
+                (0b00000, 0),
+                (0b00010, 0),
+                (0b00100, 0),
+            ]
+        ),
+    )
+
+    data = np.arange(-3, 3) + 1j * np.arange(2, -4, -1)
+    assert np.array_equal(
+        APyCFixedArray.from_complex(data, int_bits=4, frac_bits=1).to_bits(True),
+        np.array(
+            [
+                (0b11010, 0b00100),
+                (0b11100, 0b00010),
+                (0b11110, 0b00000),
+                (0b00000, 0b11110),
+                (0b00010, 0b11100),
+                (0b00100, 0b11010),
+            ]
+        ),
+    )
+
+
+@pytest.mark.parametrize(
+    "bits",
+    [8, 16, 32, 64],
+)
+def test_to_bits_np_sizes(bits: int):
+    np = pytest.importorskip("numpy")
+    dtype_map = {
+        8: np.uint8,
+        16: np.uint16,
+        32: np.uint32,
+        64: np.uint64,
+    }
+    dtype = dtype_map[bits]
+    a = APyCFixedArray([(2**bits - 7, 2 ** (bits - 1) + 9)], bits, 0).to_bits(True)
+    expected = np.asarray([(2**bits - 7, 2 ** (bits - 1) + 9)], dtype=dtype)
+    assert np.array_equal(a, expected)
+    assert a.dtype == dtype
+
+
+def test_to_bits_np_raise():
+    _ = pytest.importorskip("numpy")
+    with pytest.raises(
+        ValueError,
+        match=r"APyCFixedArray::to_bits_ndarray\(\): only supports",
+    ):
+        APyCFixedArray([0], 30, 60).to_bits(True)

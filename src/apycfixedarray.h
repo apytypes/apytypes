@@ -244,6 +244,15 @@ public:
         std::optional<bool> copy = std::nullopt
     ) const;
 
+    //! Extract bit-pattern
+    std::variant<
+        nb::list,
+        nb::ndarray<nb::numpy, uint64_t>,
+        nb::ndarray<nb::numpy, uint32_t>,
+        nb::ndarray<nb::numpy, uint16_t>,
+        nb::ndarray<nb::numpy, uint8_t>>
+    to_bits(bool numpy = false) const;
+
     //! Sum over one or more axes.
     std::variant<APyCFixedArray, APyCFixed>
     sum(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
@@ -323,6 +332,15 @@ public:
     //! Create an `APyCFixedArray` tensor object initialized with values from an ndarray
     static APyCFixedArray from_array(
         const nb::ndarray<nb::c_contig>& ndarray,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
+    //! Create an `APyCFixedArray` tensor object initialized with values from bit
+    //! patterns
+    static APyCFixedArray from_bits(
+        const nb::typed<nb::iterable, nb::any>& bit_pattern_sequence,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -415,6 +433,15 @@ private:
      * before being copied into `*this`.
      */
     void _set_values_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray);
+
+    //! Create an N-dimensional array containing bit-patterns.
+    template <typename NB_ARRAY_TYPE, typename INT_TYPE>
+    nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> to_bits_ndarray() const;
+
+    //! Create a nested Python list containing bit-patterns as Python integers.
+    nb::list to_bits_python_recursive_descent(
+        std::size_t dim, std::vector<apy_limb_t>::const_iterator& it
+    ) const;
 };
 
 #endif
