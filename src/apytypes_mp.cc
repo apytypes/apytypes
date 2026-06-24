@@ -1,6 +1,7 @@
 /* For std::size_t */
 #include <cassert>
 #include <cstddef>
+#include <cstring>
 
 #include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
@@ -110,6 +111,28 @@ apy_limb_t apy_rshift(
 
 // Multiplication
 
+static APY_INLINE apy_limb_t apy_mul_add_with_carry(
+    apy_limb_t lhs, apy_limb_t rhs, apy_limb_t addend, apy_limb_t* low_result
+)
+{
+    auto [prod_high, prod_low] = long_unsigned_mult(lhs, rhs);
+    prod_low += addend;
+    *low_result = prod_low;
+    return prod_high + (prod_low < addend);
+}
+
+static APY_INLINE apy_limb_t apy_mul_add_accumulate(
+    apy_limb_t* accumulator, apy_limb_t lhs, apy_limb_t rhs, apy_limb_t carry
+)
+{
+    apy_limb_t low_result;
+    carry = apy_mul_add_with_carry(lhs, rhs, carry, &low_result);
+    low_result += *accumulator;
+    carry += (low_result < *accumulator);
+    *accumulator = low_result;
+    return carry;
+}
+
 apy_limb_t apy_submul_single_limb(
     apy_limb_t* dest, const apy_limb_t* src0, std::size_t limbs, apy_limb_t src1
 )
@@ -117,20 +140,16 @@ apy_limb_t apy_submul_single_limb(
     assert(limbs > 0);
 
     // TODO: Rewrite to use __int128 on supported architectures
-    // First iteration outside of loop to save a few computations
-    auto [prod_high, prod_low] = long_unsigned_mult(src0[0], src1);
-    prod_low = dest[0] - prod_low;
-    apy_limb_t carry = prod_high + (prod_low > dest[0]);
-    dest[0] = prod_low;
+    apy_limb_t subtrahend;
+    apy_limb_t carry = apy_mul_add_with_carry(src0[0], src1, 0, &subtrahend);
+    subtrahend = dest[0] - subtrahend;
+    carry += (subtrahend > dest[0]);
+    dest[0] = subtrahend;
     for (std::size_t i = 1; i < limbs; i++) {
-        auto [prod_high, prod_low] = long_unsigned_mult(src0[i], src1);
-
-        prod_low += carry;
-        carry = (prod_low < carry) + prod_high;
-
-        prod_low = dest[i] - prod_low;
-        carry += prod_low > dest[i];
-        dest[i] = prod_low;
+        carry = apy_mul_add_with_carry(src0[i], src1, carry, &subtrahend);
+        subtrahend = dest[i] - subtrahend;
+        carry += (subtrahend > dest[i]);
+        dest[i] = subtrahend;
     }
 
     return carry;
@@ -147,47 +166,57 @@ apy_limb_t apy_unsigned_multiplication(
     assert(src0_limbs >= src1_limbs);
     assert(src1_limbs > 0);
 
-    // Multiply src0 with the least significant limb of src1
-    // TODO: Rewrite to use __int128 on supported architectures
-    // First iteration outside of loop to save a few computations
-    auto [prod_high, prod_low] = long_unsigned_mult(src0[0], src1[0]);
+#if COMPILER_LIMB_SIZE == 64 && defined(__SIZEOF_INT128__)
+    std::memset(dest, 0, (src0_limbs + src1_limbs) * sizeof(*dest));
 
-    apy_limb_t carry = prod_high;
+    constexpr unsigned LIMB_BITS = 64;
+    for (std::size_t i = 0; i < src1_limbs; i++) {
+        unsigned __int128 carry = 0;
+        const unsigned __int128 rhs = src1[i];
 
-    dest[0] = prod_low;
+        for (std::size_t j = 0; j < src0_limbs; j++) {
+            unsigned __int128 acc
+                = (unsigned __int128)src0[j] * rhs + dest[i + j] + carry;
+            dest[i + j] = (apy_limb_t)acc;
+            carry = acc >> LIMB_BITS;
+        }
+        dest[i + src0_limbs] = (apy_limb_t)carry;
+    }
+#elif COMPILER_LIMB_SIZE == 32
+    std::memset(dest, 0, (src0_limbs + src1_limbs) * sizeof(*dest));
+
+    constexpr unsigned LIMB_BITS = 32;
+    for (std::size_t i = 0; i < src1_limbs; i++) {
+        std::uint64_t carry = 0;
+        const std::uint64_t rhs = src1[i];
+
+        for (std::size_t j = 0; j < src0_limbs; j++) {
+            std::uint64_t acc = (std::uint64_t)src0[j] * rhs + dest[i + j] + carry;
+            dest[i + j] = (apy_limb_t)acc;
+            carry = acc >> LIMB_BITS;
+        }
+        dest[i + src0_limbs] = (apy_limb_t)carry;
+    }
+#else
+    // Fallback for 64-bit limbs on compilers
+    // without __int128 support.
+    apy_limb_t carry = apy_mul_add_with_carry(src0[0], src1[0], 0, &dest[0]);
     for (std::size_t i = 1; i < src0_limbs; i++) {
-        auto [prod_high, prod_low] = long_unsigned_mult(src0[i], src1[0]);
-
-        prod_low += carry;
-        carry = (prod_low < carry) + prod_high;
-
-        dest[i] = prod_low;
+        carry = apy_mul_add_with_carry(src0[i], src1[0], carry, &dest[i]);
     }
 
     dest[src0_limbs] = carry;
 
-    // Multiply src0 with the remaining limbs of src1, adding the previous partial
-    // results
     for (std::size_t i = 1; i < src1_limbs; i++) {
-        // First iteration outside of loop to save a few computations
-        auto [prod_high, prod_low] = long_unsigned_mult(src0[0], src1[i]);
-
-        prod_low += dest[i];
-        carry = prod_high + (prod_low < dest[i]);
-        dest[i] = prod_low;
+        carry = apy_mul_add_accumulate(&dest[i], src0[0], src1[i], 0);
         for (std::size_t j = 1; j < src0_limbs; j++) {
-            auto [prod_high, prod_low] = long_unsigned_mult(src0[j], src1[i]);
-
-            prod_low += carry;
-            carry = (prod_low < carry) + prod_high;
-
-            prod_low += dest[i + j];
-            carry += prod_low < dest[i + j];
-            dest[i + j] = prod_low;
+            carry = apy_mul_add_accumulate(&dest[i + j], src0[j], src1[i], carry);
         }
 
         dest[src0_limbs + i] = carry;
     }
+#endif
+
     return dest[src0_limbs + src1_limbs - 1];
 }
 
@@ -197,48 +226,50 @@ apy_limb_t apy_unsigned_square(
 {
     assert(src_limbs > 0);
 
-    // Multiply src with the least significant limb of src
-    // TODO: Rewrite to use __int128 on supported architectures
-    // First iteration outside of loop to save a few computations
-    auto [prod_high, prod_low] = long_unsigned_mult(src[0], src[0]);
+    // Zero the output buffer
+    std::memset(dest, 0, 2 * src_limbs * sizeof(*dest));
 
-    apy_limb_t carry = prod_high;
-
-    dest[0] = prod_low;
-    for (std::size_t i = 1; i < src_limbs; i++) {
-        auto [prod_high, prod_low] = long_unsigned_mult(src[i], src[0]);
-
-        prod_low += carry;
-        carry = (prod_low < carry) + prod_high;
-
-        dest[i] = prod_low;
-    }
-
-    dest[src_limbs] = carry;
-
-    // Multiply src with the remaining limbs of src, adding the previous partial
-    // results
-    // TODO: Rewrite to use __int128 on supported architectures
-    for (std::size_t i = 1; i < src_limbs; i++) {
-        // First iteration outside of loop to save a few computations
-        auto [prod_high, prod_low] = long_unsigned_mult(src[0], src[i]);
-
-        prod_low += dest[i];
-        carry = prod_high + (prod_low < dest[i]);
-        dest[i] = prod_low;
-        for (std::size_t j = 1; j < src_limbs; j++) {
-            auto [prod_high, prod_low] = long_unsigned_mult(src[j], src[i]);
-
-            prod_low += carry;
-            carry = (prod_low < carry) + prod_high;
-
-            prod_low += dest[i + j];
-            carry += prod_low < dest[i + j];
-            dest[i + j] = prod_low;
+    // Phase 1: Accumulate upper-triangle products src[i]*src[j] for i < j.
+    // Each cross term src[i]*src[j] == src[j]*src[i], so computing it once and
+    // doubling in Phase 2 halves the number of multiplications vs. naive squaring.
+    for (std::size_t i = 0; i < src_limbs - 1; i++) {
+        apy_limb_t carry = 0;
+        for (std::size_t j = i + 1; j < src_limbs; j++) {
+            carry = apy_mul_add_accumulate(&dest[i + j], src[i], src[j], carry);
         }
-
-        dest[src_limbs + i] = carry;
+        // Propagate the carry left over from the j-loop
+        for (std::size_t k = i + src_limbs; carry && k < 2 * src_limbs; k++) {
+            dest[k] += carry;
+            carry = (dest[k] < carry);
+        }
     }
+
+    // Phase 2: Double the cross-term sum (left-shift by 1 bit)
+    apy_limb_t shift_carry = 0;
+    for (std::size_t k = 0; k < 2 * src_limbs; k++) {
+        apy_limb_t new_carry = dest[k] >> (APY_LIMB_SIZE_BITS - 1);
+        dest[k] = (dest[k] << 1) | shift_carry;
+        shift_carry = new_carry;
+    }
+
+    // Phase 3: Add the diagonal terms src[i]^2 at positions dest[2i..2i+1]
+    apy_limb_t add_carry = 0;
+    for (std::size_t i = 0; i < src_limbs; i++) {
+        auto [ph, pl] = long_unsigned_mult(src[i], src[i]);
+
+        pl += add_carry;
+        apy_limb_t c = (pl < add_carry);
+        pl += dest[2 * i];
+        c += (pl < dest[2 * i]);
+        dest[2 * i] = pl;
+
+        ph += c;
+        add_carry = (ph < c);
+        ph += dest[2 * i + 1];
+        add_carry += (ph < dest[2 * i + 1]);
+        dest[2 * i + 1] = ph;
+    }
+
     return dest[2 * src_limbs - 1];
 }
 
