@@ -356,6 +356,18 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.cast" title="apytypes.APyCFloatArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a>(self[, exp_bits, man_bits, bias, ...])</p></td>
 <td><p>Change format of the floating-point array.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.cast_to_bfloat16" title="apytypes.APyCFloatArray.cast_to_bfloat16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_bfloat16</span></code></a>(self[, quantization])</p></td>
+<td><p>Cast to bfloat16 format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.cast_to_double" title="apytypes.APyCFloatArray.cast_to_double"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_double</span></code></a>(self[, quantization])</p></td>
+<td><p>Cast to IEEE 754 binary64 (double-precision) format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.cast_to_half" title="apytypes.APyCFloatArray.cast_to_half"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_half</span></code></a>(self[, quantization])</p></td>
+<td><p>Cast to IEEE 754 binary16 (half-precision) format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.cast_to_single" title="apytypes.APyCFloatArray.cast_to_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_single</span></code></a>(self[, quantization])</p></td>
+<td><p>Cast to IEEE 754 binary32 (single-precision) format.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFloatArray.conj" title="apytypes.APyCFloatArray.conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conj</span></code></a>(self)</p></td>
 <td><p>Return complex conjugate.</p></td>
 </tr>
@@ -1563,6 +1575,102 @@ the array.</p>
 </section>
 <section id="convenience-casting-methods">
 <h2>Convenience casting methods<a class="headerlink" href="#convenience-casting-methods" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFloatArray.cast_to_bfloat16">
+<span class="sig-name descname"><span class="pre">cast_to_bfloat16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="QuantizationMode"><span class="pre">QuantizationMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloatArray.cast_to_bfloat16" title="Link to this definition">¶</a></dt>
+<dd><p>Cast to bfloat16 format.</p>
+<p>Convenience method corresponding to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, optional</span></dt><dd><p>Quantization mode to use. If not provided, the global mode,
+see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_float_quantization_mode" title="apytypes.get_float_quantization_mode"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_float_quantization_mode()</span></code></a>, is used.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFloatArray.cast_to_double">
+<span class="sig-name descname"><span class="pre">cast_to_double</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="QuantizationMode"><span class="pre">QuantizationMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloatArray.cast_to_double" title="Link to this definition">¶</a></dt>
+<dd><p>Cast to IEEE 754 binary64 (double-precision) format.</p>
+<p>Convenience method corresponding to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">exp_bits</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">52</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, optional</span></dt><dd><p>Quantization mode to use. If not provided, the global mode,
+see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_float_quantization_mode" title="apytypes.get_float_quantization_mode"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_float_quantization_mode()</span></code></a>, is used.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFloatArray.cast_to_half">
+<span class="sig-name descname"><span class="pre">cast_to_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="QuantizationMode"><span class="pre">QuantizationMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloatArray.cast_to_half" title="Link to this definition">¶</a></dt>
+<dd><p>Cast to IEEE 754 binary16 (half-precision) format.</p>
+<p>Convenience method corresponding to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, optional</span></dt><dd><p>Quantization mode to use. If not provided, the global mode,
+see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_float_quantization_mode" title="apytypes.get_float_quantization_mode"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_float_quantization_mode()</span></code></a>, is used.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFloatArray.cast_to_single">
+<span class="sig-name descname"><span class="pre">cast_to_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="QuantizationMode"><span class="pre">QuantizationMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFloatArray" title="APyCFloatArray"><span class="pre">APyCFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFloatArray.cast_to_single" title="Link to this definition">¶</a></dt>
+<dd><p>Cast to IEEE 754 binary32 (single-precision) format.</p>
+<p>Convenience method corresponding to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, optional</span></dt><dd><p>Quantization mode to use. If not provided, the global mode,
+see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_float_quantization_mode" title="apytypes.get_float_quantization_mode"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_float_quantization_mode()</span></code></a>, is used.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="properties">
 <h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">¶</a></h2>
@@ -1814,6 +1922,10 @@ the array.</p>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.conj"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.conj()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.outer"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.outer()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.broadcast_to"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.broadcast_to()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFloatArray.cast_to_bfloat16"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.cast_to_bfloat16()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFloatArray.cast_to_double"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.cast_to_double()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFloatArray.cast_to_half"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.cast_to_half()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFloatArray.cast_to_single"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.cast_to_single()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.bits"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.exp_bits"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.exp_bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFloatArray.man_bits"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray.man_bits</span></code></a></li>
