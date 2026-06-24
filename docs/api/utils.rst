@@ -8,6 +8,8 @@ Create scalars and arrays
 
 .. autofunction:: apytypes.fp
 
+.. autofunction:: apytypes.from_bits
+
 Evaluate functions
 ------------------
 

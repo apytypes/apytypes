@@ -57,7 +57,7 @@ from apytypes._array_functions import (
     zeros,
     zeros_like,
 )
-from apytypes._utils import fn, fp, fx
+from apytypes._utils import fn, fp, from_bits, fx
 from apytypes._version import version as __version__
 
 __all__ = [
@@ -87,6 +87,7 @@ __all__ = [
     "flatten",
     "fn",
     "fp",
+    "from_bits",
     "full",
     "full_like",
     "fullrange",
