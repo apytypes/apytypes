@@ -99,11 +99,13 @@ void bind_accumulator_context(nb::module_& m)
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<exp_t>,
-                std::optional<QuantizationMode>>(),
+                std::optional<QuantizationMode>,
+                std::optional<std::uint64_t>>(),
             nb::arg("exp_bits") = nb::none(),
             nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
-            nb::arg("quantization") = nb::none()
+            nb::arg("quantization") = nb::none(),
+            nb::arg("seed") = nb::none()
         )
         .def("__enter__", &context_enter_handler)
         .def(

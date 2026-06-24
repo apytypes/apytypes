@@ -136,6 +136,10 @@ struct APyFloatAccumulatorOption {
     std::optional<exp_t> bias;
     //! Quantization mode
     QuantizationMode quantization;
+    //! Psueod RNG seed
+    std::uint64_t seed;
+    //! RNG engine
+    std::mt19937_64 rng_engine;
 
     APyFloatSpec get_spec(exp_t backup_bias) const noexcept
     {

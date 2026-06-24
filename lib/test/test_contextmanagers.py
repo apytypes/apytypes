@@ -312,6 +312,61 @@ class TestAccumulatorContext:
             ):
                 assert get_float_quantization_mode() == QuantizationMode.TO_POS
 
+    def test_with_seed(self):
+        # Test setting a stochastic quantization mode without changing the seed
+        set_float_quantization_seed(123)
+        with APyFloatAccumulatorContext(
+            exp_bits=5, man_bits=4, quantization=QuantizationMode.STOCH_EQUAL
+        ):
+            pass
+        assert get_float_quantization_seed() == 123
+
+        # Test setting a stochastic quantization mode and changing the seed
+        with APyFloatAccumulatorContext(
+            exp_bits=5,
+            man_bits=4,
+            quantization=QuantizationMode.STOCH_WEIGHTED,
+            seed=77,
+        ):
+            assert get_float_quantization_seed() == 77
+        assert get_float_quantization_seed() == 123
+
+    def test_nested_seed(self):
+        set_float_quantization_seed(123)
+        with APyFloatAccumulatorContext(
+            exp_bits=5,
+            man_bits=4,
+            quantization=QuantizationMode.STOCH_WEIGHTED,
+            seed=456,
+        ):
+            assert get_float_quantization_seed() == 456
+            with APyFloatAccumulatorContext(
+                exp_bits=5,
+                man_bits=4,
+                quantization=QuantizationMode.STOCH_EQUAL,
+                seed=789,
+            ):
+                assert get_float_quantization_seed() == 789
+            assert get_float_quantization_seed() == 456
+        assert get_float_quantization_seed() == 123
+
+    def test_seed_with_quantization_context(self):
+        set_float_quantization_seed(123)
+        with APyFloatAccumulatorContext(
+            exp_bits=5,
+            man_bits=4,
+            quantization=QuantizationMode.STOCH_WEIGHTED,
+            seed=456,
+        ):
+            assert get_float_quantization_seed() == 456
+            with APyFloatQuantizationContext(
+                quantization=QuantizationMode.STOCH_EQUAL, seed=789
+            ):
+                assert get_float_quantization_seed() == 789
+            assert get_float_quantization_seed() == 456
+        assert get_float_quantization_mode() == QuantizationMode.TIES_EVEN
+        assert get_float_quantization_seed() == 123
+
     def test_fx_context_state_captured_and_restored(self):
         """
         Contexts with state must be captured on enter and then properly restored on

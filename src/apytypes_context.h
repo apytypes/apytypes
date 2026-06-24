@@ -43,13 +43,16 @@ public:
         std::optional<int> = std::nullopt,
         std::optional<int> = std::nullopt,
         std::optional<exp_t> = std::nullopt,
-        std::optional<QuantizationMode> quantization = std::nullopt
+        std::optional<QuantizationMode> quantization = std::nullopt,
+        std::optional<std::uint64_t> seed = std::nullopt
     );
     void enter_context() override;
     void exit_context() override;
 
 private:
     std::optional<APyFloatAccumulatorOption> previous_mode, context_mode;
+    std::uint64_t previous_seed;
+    std::mt19937_64 previous_engine;
 };
 
 /* ********************************************************************************** *

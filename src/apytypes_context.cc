@@ -81,11 +81,12 @@ APyFloatAccumulatorContext::APyFloatAccumulatorContext(
     std::optional<int> exp_bits,
     std::optional<int> man_bits,
     std::optional<exp_t> bias,
-    std::optional<QuantizationMode> quantization
+    std::optional<QuantizationMode> quantization,
+    std::optional<std::uint64_t> seed
 )
 {
     // Extract the input
-    APyFloatAccumulatorOption new_mode {};
+    APyFloatAccumulatorOption new_mode;
 
     if (!exp_bits.has_value() || !man_bits.has_value()) {
         throw nb::value_error(
@@ -99,6 +100,8 @@ APyFloatAccumulatorContext::APyFloatAccumulatorContext(
     new_mode.man_bits = man_bits.value();
     new_mode.bias = bias;
     new_mode.quantization = quantization.value_or(get_float_quantization_mode());
+    new_mode.seed = seed.value_or(std::random_device {}());
+    new_mode.rng_engine = std::mt19937_64(new_mode.seed);
 
     // Setup the context mode
     context_mode = new_mode;
@@ -109,11 +112,19 @@ APyFloatAccumulatorContext::APyFloatAccumulatorContext(
 void APyFloatAccumulatorContext::enter_context()
 {
     previous_mode = get_accumulator_mode_float();
+    previous_seed = get_rnd64_fp_seed();
+    previous_engine = get_rnd64_fp_engine();
     set_accumulator_mode_float(context_mode);
+    // Apply seed
+    set_rnd64_fp_seed(context_mode.value().seed);
+    set_rnd64_fp_engine(context_mode.value().rng_engine);
 }
 void APyFloatAccumulatorContext::exit_context()
 {
     set_accumulator_mode_float(previous_mode);
+    // Apply seed
+    set_rnd64_fp_seed(previous_seed);
+    set_rnd64_fp_engine(previous_engine);
 }
 
 /* ********************************************************************************** *

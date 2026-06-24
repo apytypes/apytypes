@@ -8135,6 +8135,7 @@ class APyFloatAccumulatorContext(ContextManager):
         man_bits: int | None = None,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
+        seed: int | None = None,
     ) -> None: ...
     def __enter__(self) -> None: ...
     def __exit__(
