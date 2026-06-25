@@ -57,7 +57,7 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
         Exhaustive test of all inputs.
         """
         EXP_BITS, MAN_BITS = 4, 3
-        fp8_values = apy.fp(
+        fp8_values = apy.from_bits(
             range(2 ** (1 + EXP_BITS + MAN_BITS)), exp_bits=EXP_BITS, man_bits=MAN_BITS
         )
 
@@ -149,7 +149,7 @@ The contents of ``fp8_multiplier.vhdl`` is shown below.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.212 seconds)
+   **Total running time of the script:** (0 minutes 2.703 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:
