@@ -464,7 +464,7 @@ std::string APyFloat::str() const
     if (is_nan()) {
         return "nan";
     } else {
-        return fmt::format("{:g}", to_double());
+        return fmt::format("{:}", to_double());
     }
 }
 
