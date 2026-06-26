@@ -1897,7 +1897,7 @@ std::string APyFloatArray::to_string_dec() const
         if (is_nan(*cbegin_it, spec)) {
             return "nan";
         } else {
-            return fmt::format("{:g}", floating_point_to_double(*cbegin_it, spec));
+            return fmt::format("{:}", floating_point_to_double(*cbegin_it, spec));
         }
     };
 

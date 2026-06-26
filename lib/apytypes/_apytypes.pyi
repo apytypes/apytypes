@@ -2806,7 +2806,7 @@ class APyCFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
-            Bias in the created floating-point tensor.
+            Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -2884,7 +2884,7 @@ class APyCFloatArray:
         man_bits : :class:`int`
             Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
-            Bias in the created floating-point tensor.
+            Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Returns
         -------
@@ -2907,11 +2907,11 @@ class APyCFloatArray:
             Values to initialize from. The tensor shape will be taken from the
             ndarray shape.
         exp_bits : :class:`int`
-            Number of exponent bits in the created floating-point tensor
+            Number of exponent bits in the created floating-point tensor.
         man_bits : :class:`int`
-            Number of mantissa bits in the created floating-point tensor
+            Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
-            Bias in the created floating-point tensor
+            Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -2954,9 +2954,9 @@ class APyCFloatArray:
         bits : :class:`int`
             The bit-representations.
         exp_bits : :class:`int`
-            Number of exponent bits in the created floating-point tensor
+            Number of exponent bits in the created floating-point tensor.
         man_bits : :class:`int`
-            Number of mantissa bits in the created floating-point tensor
+            Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
@@ -3411,7 +3411,7 @@ class APyCFloatArray:
         man_bits : :class:`int`, optional
             Number of mantissa bits in the result.
         bias : :class:`int`, optional
-            Bias used in the result.
+            Bias used in the result. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
@@ -7053,11 +7053,11 @@ class APyFloatArray:
             Floating point values to initialize from. The tensor shape will be taken
             from the sequence shape.
         exp_bits : :class:`int`
-            Number of exponent bits in the created floating-point tensor
+            Number of exponent bits in the created floating-point tensor.
         man_bits : :class:`int`
-            Number of mantissa bits in the created floating-point tensor
+            Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
-            Bias in the created floating-point tensor
+            Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -7075,7 +7075,7 @@ class APyFloatArray:
             man_bits=15
         )
         >>> print(a)
-        [      1,    1.25, 1.48999]
+        [             1,           1.25, 1.489990234375]
 
         >>> b = apy.APyFloatArray.from_float(
         ...     [
@@ -7128,11 +7128,11 @@ class APyFloatArray:
             Values to initialize from. The tensor shape will be taken from the
             ndarray shape.
         exp_bits : :class:`int`
-            Number of exponent bits in the created floating-point tensor
+            Number of exponent bits in the created floating-point tensor.
         man_bits : :class:`int`
-            Number of mantissa bits in the created floating-point tensor
+            Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
-            Bias in the created floating-point tensor
+            Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
 
         Examples
         --------
@@ -8003,7 +8003,7 @@ class APyFloatArray:
         man_bits : :class:`int`, optional
             Number of mantissa bits in the result.
         bias : :class:`int`, optional
-            Bias used in the result.
+            Bias used in the result. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
