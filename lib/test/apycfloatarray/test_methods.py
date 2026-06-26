@@ -1,6 +1,6 @@
 import pytest
 
-from apytypes import APyCFloatArray, APyFloatArray, QuantizationMode
+from apytypes import APyCFloat, APyCFloatArray, APyFloatArray, QuantizationMode
 
 
 @pytest.mark.float_array
@@ -254,4 +254,40 @@ def test_convenience_cast():
     b = a.cast_to_bfloat16(QuantizationMode.TO_POS)
     assert b.is_identical(
         APyCFloatArray([1, 0], [0, 0], [0, 1], exp_bits=8, man_bits=7)
+    )
+
+
+@pytest.mark.float_array
+def test_iterator():
+    fp_array = APyCFloatArray.from_complex(
+        [1.25 + 0.5j, -2.5 + 1.75j, 3.5 - 0.25j, -4.75 - 1.5j],
+        exp_bits=5,
+        man_bits=10,
+    )
+    iterator = iter(fp_array)
+    assert next(iterator).is_identical(
+        APyCFloat.from_complex(1.25 + 0.5j, exp_bits=5, man_bits=10)
+    )
+    assert next(iterator).is_identical(
+        APyCFloat.from_complex(-2.5 + 1.75j, exp_bits=5, man_bits=10)
+    )
+
+
+@pytest.mark.float_array
+def test_iterator_2d():
+    fp_array = APyCFloatArray.from_complex(
+        [[1.25 + 0.5j, -2.5 + 1.75j], [3.5 - 0.25j, -4.75 - 1.5j]],
+        exp_bits=5,
+        man_bits=10,
+    )
+    iterator = iter(fp_array)
+    assert next(iterator).is_identical(
+        APyCFloatArray.from_complex(
+            [1.25 + 0.5j, -2.5 + 1.75j], exp_bits=5, man_bits=10
+        )
+    )
+    assert next(iterator).is_identical(
+        APyCFloatArray.from_complex(
+            [3.5 - 0.25j, -4.75 - 1.5j], exp_bits=5, man_bits=10
+        )
     )

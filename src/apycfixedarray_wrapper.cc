@@ -1,5 +1,6 @@
 #include "apycfixed.h"
 #include "apycfixedarray.h"
+#include "apycfixedarray_iterator.h"
 #include "apyfixed.h"
 #include "apyfixedarray.h"
 #include "nanobind_util.h"
@@ -1494,14 +1495,14 @@ void bind_cfixed_array(nb::module_& m)
         .def("__getitem__", &APyCFixedArray::get_item, nb::arg("key"))
         .def("__setitem__", &APyCFixedArray::set_item, nb::arg("key"), nb::arg("val"))
         .def("__len__", &APyCFixedArray::size)
-        //     .def(
-        //         "__iter__",
-        //         [](nb::iterable array) {
-        //             return APyCFixedArrayIterator(
-        //                 nb::cast<const APyCFixedArray&>(array), array
-        //             );
-        //         }
-        //     )
+        .def(
+            "__iter__",
+            [](nb::iterable array) {
+                return APyCFixedArrayIterator(
+                    nb::cast<const APyCFixedArray&>(array), array
+                );
+            }
+        )
         .def(
             "__array__",
             &APyCFixedArray::to_numpy,
@@ -1511,10 +1512,10 @@ void bind_cfixed_array(nb::module_& m)
 
         ;
 
-    // nb::class_<APyCFixedArrayIterator>(m, "APyCFixedArrayIterator")
-    //     .def(
-    //         "__iter__",
-    //         [](APyCFixedArrayIterator& it) -> APyCFixedArrayIterator& { return it; }
-    //     )
-    //     .def("__next__", &APyCFixedArrayIterator::next);
+    nb::class_<APyCFixedArrayIterator>(m, "APyCFixedArrayIterator")
+        .def(
+            "__iter__",
+            [](APyCFixedArrayIterator& it) -> APyCFixedArrayIterator& { return it; }
+        )
+        .def("__next__", &APyCFixedArrayIterator::next);
 }

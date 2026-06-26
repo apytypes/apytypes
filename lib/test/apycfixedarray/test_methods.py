@@ -274,3 +274,28 @@ def test_to_bits_np_raise():
         match=r"APyCFixedArray::to_bits_ndarray\(\): only supports",
     ):
         APyCFixedArray([0], 30, 60).to_bits(True)
+
+
+def test_iterator():
+    fx_array = APyCFixedArray([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
+    iterator = iter(fx_array)
+    assert next(iterator).is_identical(APyCFixed((1, 0), bits=10, int_bits=10))
+    assert next(iterator).is_identical(APyCFixed((2, 0), bits=10, int_bits=10))
+
+    fx_array = APyCFixedArray([(1, 2), (3, 4)], bits=10, int_bits=10)
+    iterator = iter(fx_array)
+    assert next(iterator).is_identical(APyCFixed((1, 2), bits=10, int_bits=10))
+    assert next(iterator).is_identical(APyCFixed((3, 4), bits=10, int_bits=10))
+
+
+def test_iterator_2d():
+    fx_array = APyCFixedArray(
+        [[(1, 2), (3, 4)], [(5, 6), (7, 8)]], bits=10, int_bits=10
+    )
+    iterator = iter(fx_array)
+    assert next(iterator).is_identical(
+        APyCFixedArray([(1, 2), (3, 4)], bits=10, int_bits=10)
+    )
+    assert next(iterator).is_identical(
+        APyCFixedArray([(5, 6), (7, 8)], bits=10, int_bits=10)
+    )
