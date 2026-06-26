@@ -150,7 +150,7 @@ jobs:
       shell: pwsh
       run: |
         git fetch --tags
-        python -m pip install --no-deps --no-build-isolation -v --editable . -Csetup-args=-Dbuildtype=release -Csetup-args=-Ddebug=true -Csetup-args=-Db_lto=false
+        python -m pip install --no-deps --no-build-isolation -v --editable . -Csetup-args=-Dbuildtype=release -Csetup-args=-Ddebug=true -Csetup-args=-Db_lto=false -Csetup-args=-Doptimization=1
     - name: Test with pytest and collect C++ coverage
       shell: pwsh
       run: |
