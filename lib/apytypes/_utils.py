@@ -343,7 +343,7 @@ def fn(
     ----------
     fn : callable
        The function to evaluate.
-    args: APyFixed, APyFloat, APyFixedArray, APyFloatArray
+    args : APyFixed, APyFloat, APyFixedArray, APyFloatArray
        The argument(s) to evaluate the function for.
 
     Examples
@@ -554,6 +554,8 @@ def from_bits(
 ):
     """
     Create an APyType scalar or array from bit pattern.
+
+    .. versionadded:: 0.6
 
     Parameters
     ----------

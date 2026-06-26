@@ -32,7 +32,7 @@ fork your own copy and then clone that. See the next section.
 Fork and clone
 --------------
 
-Go to `the repository in GitHub <https://github.com/apytypes/apytypes>`_ and
+Go to `the GitHub-repository <https://github.com/apytypes/apytypes>`_ and
 then click the Fork button. This will create a copy of APyTypes in your own user
 space. Now, click the Code button and clone using either ssh (preferred) or https.
 For ssh to work you need to set up ssh keys.
@@ -58,6 +58,19 @@ If you want to run tests, instead doing
 
 will also install the test dependencies required. (This only needs to be done once, or when the
 dependencies are updated.)
+
+Build using 32-bit limbs on 64-bit platforms
+--------------------------------------------
+
+If you want to build APyTypes with 32-bit limbs on a 64-bit platform, do
+
+.. code-block:: bash
+
+    CXXFLAGS="-DCOMPILER_LIMB_SIZE=32" python -m pip install -v .
+
+This can reduce the memory requirements when using short fixed-point numbers
+and also speed up some computations as more computations can be done in a SIMD-instruction,
+while slowing down others as long wordlength operations will be split over more limbs.
 
 Run test suite
 --------------
