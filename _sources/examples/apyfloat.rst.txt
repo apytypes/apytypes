@@ -152,7 +152,7 @@ Standard string formatting is supported
  .. code-block:: none
 
 
-    '-0.0722656'
+    '-0.072265625'
 
 
 

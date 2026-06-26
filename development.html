@@ -332,7 +332,7 @@ fork your own copy and then clone that. See the next section.</p>
 </section>
 <section id="fork-and-clone">
 <h2>Fork and clone<a class="headerlink" href="#fork-and-clone" title="Link to this heading">¶</a></h2>
-<p>Go to <a class="reference external" href="https://github.com/apytypes/apytypes">the repository in GitHub</a> and
+<p>Go to <a class="reference external" href="https://github.com/apytypes/apytypes">the GitHub-repository</a> and
 then click the Fork button. This will create a copy of APyTypes in your own user
 space. Now, click the Code button and clone using either ssh (preferred) or https.
 For ssh to work you need to set up ssh keys.</p>
@@ -352,6 +352,16 @@ during development.</p>
 </div>
 <p>will also install the test dependencies required. (This only needs to be done once, or when the
 dependencies are updated.)</p>
+</section>
+<section id="build-using-32-bit-limbs-on-64-bit-platforms">
+<h2>Build using 32-bit limbs on 64-bit platforms<a class="headerlink" href="#build-using-32-bit-limbs-on-64-bit-platforms" title="Link to this heading">¶</a></h2>
+<p>If you want to build APyTypes with 32-bit limbs on a 64-bit platform, do</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CXXFLAGS</span><span class="o">=</span><span class="s2">&quot;-DCOMPILER_LIMB_SIZE=32&quot;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>.
+</pre></div>
+</div>
+<p>This can reduce the memory requirements when using short fixed-point numbers
+and also speed up some computations as more computations can be done in a SIMD-instruction,
+while slowing down others as long wordlength operations will be split over more limbs.</p>
 </section>
 <section id="run-test-suite">
 <h2>Run test suite<a class="headerlink" href="#run-test-suite" title="Link to this heading">¶</a></h2>
@@ -447,6 +457,7 @@ python<span class="w"> </span>run_berkeley_cases.py<span class="w"> </span>-h
 <li><a class="reference internal" href="#clone-the-repository">Clone the repository</a></li>
 <li><a class="reference internal" href="#fork-and-clone">Fork and clone</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#build-using-32-bit-limbs-on-64-bit-platforms">Build using 32-bit limbs on 64-bit platforms</a></li>
 <li><a class="reference internal" href="#run-test-suite">Run test suite</a></li>
 <li><a class="reference internal" href="#update-stub-files">Update stub files</a></li>
 <li><a class="reference internal" href="#run-floating-point-tests-vs-berkeley-testfloat">Run floating-point tests vs Berkeley TestFloat</a></li>
