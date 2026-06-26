@@ -1,4 +1,5 @@
 #include "apycfloatarray.h"
+#include "apycfloatarray_iterator.h"
 #include "apyfloatarray.h"
 #include "nanobind_util.h"
 
@@ -1597,9 +1598,26 @@ void bind_cfloat_array(nb::module_& m)
         .def("__setitem__", &APyCFloatArray::set_item, nb::arg("key"), nb::arg("val"))
         .def("__len__", &APyCFloatArray::size)
         .def(
+            "__iter__",
+            [](nb::iterable array) {
+                return APyCFloatArrayIterator(
+                    nb::cast<const APyCFloatArray&>(array), array
+                );
+            }
+        )
+        .def(
             "__array__",
             &APyCFloatArray::to_numpy,
             nb::arg("dtype") = nb::none(),
             nb::arg("copy") = nb::none()
-        );
+        )
+
+        ;
+
+    nb::class_<APyCFloatArrayIterator>(m, "APyCFloatArrayIterator")
+        .def(
+            "__iter__",
+            [](APyCFloatArrayIterator& it) -> APyCFloatArrayIterator& { return it; }
+        )
+        .def("__next__", &APyCFloatArrayIterator::next);
 }
