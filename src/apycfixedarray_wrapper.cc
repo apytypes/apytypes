@@ -940,6 +940,10 @@ void bind_cfixed_array(nb::module_& m)
             R"pbdoc(
             Return the product of the elements along specified axis/axes.
 
+            The number of integer bits of the product is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil`,
+            where :math:`N` is the number of elements in the product.
+
+
             Parameters
             ----------
             axis : :class:`tuple`, int, optional
@@ -956,7 +960,7 @@ void bind_cfixed_array(nb::module_& m)
             ...     frac_bits=0
             ... )
             >>> a.prod()
-            APyCFixed((36893488147419101837, 36893488147419103007), bits=65, int_bits=65)
+            APyCFixed((576460752303422093, 576460752303423263), bits=59, int_bits=59)
             >>> print(a.prod())
             (-1395-225j)
 
@@ -978,6 +982,10 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("axis") = nb::none(),
             R"pbdoc(
             Return the cumulative product of the elements along a given axes.
+
+            For the cumulative product, the number of integer bits is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil` and
+            the number of fractional bits is :math:`\text{frac_bits}_{\text{result}} = \max\{N \times \text{frac_bits}, \text{frac_bits}\}`,
+            where :math:`N` is the number of elements in the product.
 
             Parameters
             ----------

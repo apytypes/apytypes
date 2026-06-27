@@ -11,15 +11,15 @@ def test_prod():
         [1, 2 + 1j, 3 + 3j, -4 + 1j, 5 - 2j, 6 - 3j], int_bits=6, frac_bits=0
     )
     assert a.prod().is_identical(
-        APyCFixed.from_float(-1395 - 225j, bits=41, int_bits=41)
+        APyCFixed.from_float(-1395 - 225j, bits=35, int_bits=35)
     )
 
     # Multi limb
     b = APyCFixedArray.from_complex(
-        [1, 2 + 1j, 3 + 3j, -4 + 1j, 5 - 2j, 6 - 3j], int_bits=10, frac_bits=0
+        [1, 2 + 1j, 3 + 3j, -4 + 1j, 5 - 2j, 6 - 3j], int_bits=15, frac_bits=0
     )
     assert b.prod().is_identical(
-        APyCFixed.from_float(-1395 - 225j, bits=65, int_bits=65)
+        APyCFixed.from_float(-1395 - 225j, bits=89, int_bits=89)
     )
 
 

@@ -22,14 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Proper nesting using multiple levels of APyTypes contexts
-- Utility functions `fp` and `fx` automatically detect complex-valued arrays
-- Correct output bias for logical operations on `APyFloat`
-- `APyFixedArray.to_bits` for 64-bit NumPy arrays on 32-bit systems
+- Proper nesting using multiple levels of APyTypes contexts.
+- Utility functions `fp` and `fx` automatically detect complex-valued arrays.
+- Correct output bias for logical operations on `APyFloat`.
+- `APyFixedArray.to_bits` for 64-bit NumPy arrays on 32-bit systems.
+- `prod` and `cumprod` are using fewer bits for fixed-point arrays, see the
+  documentation for exact expressions.
 
 ### Changed
 
-- Complex-real fixed-point multiplications now produce results with one less
+- Complex-real fixed-point multiplications now produce results with one less.
   integer bit compared to earlier, i.e., the number of bits one would expect.
   This also holds for operations with Python integers and floats.
 

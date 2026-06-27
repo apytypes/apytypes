@@ -1499,8 +1499,12 @@ class APyCFixedArray:
     def prod(
         self, axis: int | tuple[int, ...] | None = None
     ) -> APyCFixedArray | APyCFixed:
-        """
+        r"""
         Return the product of the elements along specified axis/axes.
+
+        The number of integer bits of the product is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil`,
+        where :math:`N` is the number of elements in the product.
+
 
         Parameters
         ----------
@@ -1516,7 +1520,7 @@ class APyCFixedArray:
         ...     [1, 2 + 1j, 3 + 3j, -4 + 1j, 5 - 2j, 6 - 3j], int_bits=10, frac_bits=0
         ... )
         >>> a.prod()
-        APyCFixed((36893488147419101837, 36893488147419103007), bits=65, int_bits=65)
+        APyCFixed((576460752303422093, 576460752303423263), bits=59, int_bits=59)
         >>> print(a.prod())
         (-1395-225j)
 
@@ -1532,8 +1536,12 @@ class APyCFixedArray:
         """
 
     def cumprod(self, axis: int | None = None) -> APyCFixedArray:
-        """
+        r"""
         Return the cumulative product of the elements along a given axes.
+
+        For the cumulative product, the number of integer bits is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil` and
+        the number of fractional bits is :math:`\text{frac_bits}_{\text{result}} = \max\{N \times \text{frac_bits}, \text{frac_bits}\}`,
+        where :math:`N` is the number of elements in the product.
 
         Parameters
         ----------
@@ -5396,8 +5404,11 @@ class APyFixedArray:
     def prod(
         self, axis: int | tuple[int, ...] | None = None
     ) -> APyFixedArray | APyFixed:
-        """
+        r"""
         Return the product of the elements along specified axis/axes.
+
+        The number of integer bits of the product is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2`
+        where :math:`N` is the number of elements in the product.
 
         Parameters
         ----------
@@ -5410,7 +5421,7 @@ class APyFixedArray:
         >>> import apytypes as apy
         >>> a = apy.APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
         >>> a.prod()
-        APyFixed(720, bits=60, int_bits=60)
+        APyFixed(720, bits=56, int_bits=56)
 
         Returns
         -------
@@ -5424,8 +5435,12 @@ class APyFixedArray:
         """
 
     def cumprod(self, axis: int | None = None) -> APyFixedArray:
-        """
+        r"""
         Return the cumulative product of the elements along a given axes.
+
+        The number of bits of the cumulative product is calculated as :math:`\text{int_bits}_{\text{result}} = \max\{N \times (\text{int_bits} - 1) + 2, \text{int_bits}\}` and
+        :math:`\text{frac_bits}_{\text{result}} = \max\{N \times \text{frac_bits}, \text{frac_bits}\}`
+        where :math:`N` is the number of elements in the product.
 
         Parameters
         ----------
@@ -5442,7 +5457,7 @@ class APyFixedArray:
                        [4, 5, 6]], int_bits=10, frac_bits=0)
 
         >>> a.cumprod()
-        APyFixedArray([  1,   2,   6,  24, 120, 720], int_bits=60, frac_bits=0)
+        APyFixedArray([  1,   2,   6,  24, 120, 720], int_bits=56, frac_bits=0)
 
         >>> a.cumprod(0)
         APyFixedArray([[ 1,  2,  3],
@@ -5450,7 +5465,7 @@ class APyFixedArray:
 
         >>> a.cumprod(1)
         APyFixedArray([[  1,   2,   6],
-                       [  4,  20, 120]], int_bits=30, frac_bits=0)
+                       [  4,  20, 120]], int_bits=29, frac_bits=0)
 
         Returns
         -------

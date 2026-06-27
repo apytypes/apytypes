@@ -699,14 +699,11 @@ def test_array_prod(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFi
 def test_prod_negative_int_bits(
     fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
 ):
-    # Complex mult results in one additional bit compared to real mult
-    cb = fixed_array == APyCFixedArray
+    int_bits = -64 if fixed_array == APyCFixedArray else -70
     a = fixed_array(
         [[1, 2, 3], [1, 4, 4], [1, 5, 6], [1, 7, 8]], int_bits=-5, frac_bits=10
     )
-    assert a.prod().is_identical(
-        fixed_scalar(161280, int_bits=-60 + 11 * cb, frac_bits=120)
-    )
+    assert a.prod().is_identical(fixed_scalar(161280, int_bits=int_bits, frac_bits=120))
     assert a.cumprod().is_identical(
         fixed_array(
             [
@@ -739,14 +736,11 @@ def test_prod_negative_int_bits(
 def test_prod_negative_frac_bits(
     fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
 ):
-    # Complex mult results in one additional bit compared to real mult
-    cb = fixed_array == APyCFixedArray
+    int_bits = 12 * 9 + 2 + 6 if fixed_array == APyCFixedArray else 12 * 9 + 2
     a = fixed_array(
         [[1, 2, 3], [1, 4, 4], [1, 5, 6], [1, 7, 8]], int_bits=10, frac_bits=-5
     )
-    assert a.prod().is_identical(
-        fixed_scalar(161280, int_bits=120 + 11 * cb, frac_bits=-60)
-    )
+    assert a.prod().is_identical(fixed_scalar(161280, int_bits=int_bits, frac_bits=-60))
     assert a.cumprod().is_identical(
         fixed_array(
             [
@@ -763,7 +757,7 @@ def test_prod_negative_frac_bits(
                 22698142121947299840,
                 5810724383218508759040,
             ],
-            int_bits=120 + 11 * cb,
+            int_bits=int_bits,
             frac_bits=-5,
         )
     )
