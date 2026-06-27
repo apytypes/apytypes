@@ -95,7 +95,7 @@ def test_issue_615_complex(bits: int):
     assert A_fx.cumprod().is_identical(
         APyCFixedArray.from_complex(
             [1 + 2j, 8 + 1j, -43 + 19j, -77 + 291j],
-            bits=4 * bits + 3,
+            bits=4 * bits,
             frac_bits=2 * bits,
         )
     )

@@ -270,12 +270,12 @@ def test_prod(
 
     a = fixed_array([[1, 2, 3], [3, 4, 6], [5, 6, 1], [7, 8, 8]], bits=5, int_bits=5)
     b = getattr(a, prod_func)()
-    assert b.is_identical(fixed_scalar(5806080, int_bits=60 + 11 * cb, frac_bits=0))
+    assert b.is_identical(fixed_scalar(5806080, int_bits=50 + 6 * cb, frac_bits=0))
     c = fixed_array([[0, 1, 2], [3, 4, 5], [1, 1, 2]], frac_bits=0, int_bits=5)
     e = getattr(c, prod_func)(0)
     f = getattr(c, prod_func)(1)
-    assert e.is_identical(fixed_array([0, 4, 20], int_bits=15 + 2 * cb, frac_bits=0))
-    assert f.is_identical(fixed_array([0, 60, 2], int_bits=15 + 2 * cb, frac_bits=0))
+    assert e.is_identical(fixed_array([0, 4, 20], int_bits=14 + 2 * cb, frac_bits=0))
+    assert f.is_identical(fixed_array([0, 60, 2], int_bits=14 + 2 * cb, frac_bits=0))
     # test for size larger than 32 and 64 when number over multiple limbs
     g = fixed_array([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
     h = getattr(g, prod_func)(0)
@@ -296,7 +296,7 @@ def test_prod(
     )
     o = getattr(n, prod_func)((0, 1))
     assert o.is_identical(
-        fixed_array([105, 384, 945], frac_bits=0, int_bits=20 + 3 * cb)
+        fixed_array([105, 384, 945], frac_bits=0, int_bits=18 + 2 * cb)
     )
 
     x = fixed_array(
@@ -353,7 +353,7 @@ def test_prod_negative(prod_func: str):
 def test_prod_multiple_axes(prod_func: str):
     c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
     d = getattr(c, prod_func)((0, 1))
-    assert d.is_identical(APyFixed(0, bits=30, int_bits=30))
+    assert d.is_identical(APyFixed(0, bits=26, int_bits=26))
 
     x = APyFixedArray(
         [
@@ -365,7 +365,7 @@ def test_prod_multiple_axes(prod_func: str):
     )
     w = getattr(x, prod_func)((1, 3))
     assert w.is_identical(
-        APyFixedArray([[0, 252], [11232, 23100]], int_bits=40, frac_bits=0)
+        APyFixedArray([[0, 252], [11232, 23100]], int_bits=38, frac_bits=0)
     )
 
 
@@ -379,7 +379,7 @@ def test_cumprod(fixed_array: type[APyCFixedArray], prod_func: str):
     b = getattr(a, prod_func)()
     assert b.is_identical(
         fixed_array.from_float(
-            [1, 2, 6, -24, -120, -720], int_bits=30 + 5 * cb, frac_bits=30
+            [1, 2, 6, -24, -120, -720], int_bits=26 + 3 * cb, frac_bits=30
         )
     )
     c = getattr(a, prod_func)(0)
@@ -391,7 +391,7 @@ def test_cumprod(fixed_array: type[APyCFixedArray], prod_func: str):
     d = getattr(a, prod_func)(1)
     assert d.is_identical(
         fixed_array.from_float(
-            [[1, 2, 6], [-4, -20, -120]], int_bits=15 + 2 * cb, frac_bits=15
+            [[1, 2, 6], [-4, -20, -120]], int_bits=14 + 2 * cb, frac_bits=15
         )
     )
     e = fixed_array.from_float(
@@ -404,7 +404,7 @@ def test_cumprod(fixed_array: type[APyCFixedArray], prod_func: str):
     assert f.is_identical(
         fixed_array.from_float(
             [1, 2, -6, -24, -120, -720, -5040, 40320],
-            int_bits=64 + 7 * cb,
+            int_bits=58 + 4 * cb,
             frac_bits=64,
         )
     )
@@ -433,7 +433,7 @@ def test_cumprod(fixed_array: type[APyCFixedArray], prod_func: str):
     m = getattr(k, prod_func)()
     assert m.is_identical(
         fixed_array.from_float(
-            [0.25, 0.125, 0.125, 0.25], int_bits=40 + 3 * cb, frac_bits=40
+            [0.25, 0.125, 0.125, 0.25], int_bits=38 + 2 * cb, frac_bits=40
         )
     )
 
@@ -1314,10 +1314,11 @@ def test_issue_615(fixed_array: type[APyCFixedArray], bits: int):
     )
 
     A_fx = fixed_array.from_float([1, 2, -3, 4], bits=bits, frac_bits=bits // 2)
-    extra_bits_complex = 3 if fixed_array == APyCFixedArray else 0
+    int_bits = 4 * (bits // 2 - 1) + 2
+    extra_bits_complex = 2 if fixed_array == APyCFixedArray else 0
     assert A_fx.cumprod().is_identical(
         fixed_array.from_float(
-            [1, 2, -6, -24], bits=4 * bits + extra_bits_complex, frac_bits=2 * bits
+            [1, 2, -6, -24], int_bits=int_bits + extra_bits_complex, frac_bits=2 * bits
         )
     )
 

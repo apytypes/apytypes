@@ -1132,6 +1132,9 @@ void bind_fixed_array(nb::module_& m)
             R"pbdoc(
             Return the product of the elements along specified axis/axes.
 
+            The number of integer bits of the product is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2`
+            where :math:`N` is the number of elements in the product.
+
             Parameters
             ----------
             axis : :class:`tuple`, int, optional
@@ -1147,7 +1150,7 @@ void bind_fixed_array(nb::module_& m)
             ...     frac_bits=0
             ... )
             >>> a.prod()
-            APyFixed(720, bits=60, int_bits=60)
+            APyFixed(720, bits=56, int_bits=56)
 
             Returns
             -------
@@ -1168,6 +1171,10 @@ void bind_fixed_array(nb::module_& m)
             R"pbdoc(
             Return the cumulative product of the elements along a given axes.
 
+            The number of bits of the cumulative product is calculated as :math:`\text{int_bits}_{\text{result}} = \max\{N \times (\text{int_bits} - 1) + 2, \text{int_bits}\}` and
+            :math:`\text{frac_bits}_{\text{result}} = \max\{N \times \text{frac_bits}, \text{frac_bits}\}`
+            where :math:`N` is the number of elements in the product.
+
             Parameters
             ----------
             axis : :class:`int`, optional
@@ -1183,7 +1190,7 @@ void bind_fixed_array(nb::module_& m)
                            [4, 5, 6]], int_bits=10, frac_bits=0)
 
             >>> a.cumprod()
-            APyFixedArray([  1,   2,   6,  24, 120, 720], int_bits=60, frac_bits=0)
+            APyFixedArray([  1,   2,   6,  24, 120, 720], int_bits=56, frac_bits=0)
 
             >>> a.cumprod(0)
             APyFixedArray([[ 1,  2,  3],
@@ -1191,7 +1198,7 @@ void bind_fixed_array(nb::module_& m)
 
             >>> a.cumprod(1)
             APyFixedArray([[  1,   2,   6],
-                           [  4,  20, 120]], int_bits=30, frac_bits=0)
+                           [  4,  20, 120]], int_bits=29, frac_bits=0)
 
             Returns
             -------

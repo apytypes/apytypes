@@ -2703,7 +2703,7 @@ APyCFixedArray::prod(const std::optional<PyShapeParam_t>& py_axis) const
         );
     } else {
         // Non-empty array
-        int int_bits = _int_bits * n_elems + n_elems - 1;
+        int int_bits = (_int_bits - 1) * n_elems + 2 + (n_elems + 1) / 2;
         int frac_bits = (_bits - _int_bits) * n_elems;
         int bits = int_bits + frac_bits;
         std::size_t res_itemsize = 2 * bits_to_limbs(bits);
@@ -2737,7 +2737,8 @@ APyCFixedArray APyCFixedArray::cumprod(std::optional<nb::int_> py_axis) const
     std::size_t n_elems = axis.has_value() ? _shape[*axis] : _nitems;
 
     // Compute the result word length
-    int int_bits = std::max(int(_int_bits * n_elems + n_elems - 1), _int_bits);
+    int int_bits
+        = std::max(int((_int_bits - 1) * n_elems + 2 + (n_elems + 1) / 2), _int_bits);
     int frac_bits = std::max(int((_bits - _int_bits) * n_elems), _bits - _int_bits);
     int bits = int_bits + frac_bits;
     std::size_t res_itemsize = 2 * bits_to_limbs(bits);
