@@ -372,17 +372,17 @@ void bind_fixed(nb::module_& m)
             Truncation (2.0)
 
             >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
-            APyFixed(8, bits=5, int_bits=3)
+            APyFixed(8, int_bits=3, frac_bits=2)
 
             Rounding (2.25)
 
             >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
-            APyFixed(9, bits=5, int_bits=3)
+            APyFixed(9, int_bits=3, frac_bits=2)
 
             Two's complement overflowing (-1.875)
 
             >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
-            APyFixed(17, bits=5, int_bits=2)
+            APyFixed(17, int_bits=2, frac_bits=3)
 
             Returns
             -------
@@ -525,7 +525,7 @@ void bind_fixed(nb::module_& m)
             rounded to 1.25 as it is the closest representable number
 
             >>> fx_a
-            APyFixed(5, bits=4, int_bits=2)
+            APyFixed(5, int_bits=2, frac_bits=2)
             >>> str(fx_a)
             '1.25'
 

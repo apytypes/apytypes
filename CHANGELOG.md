@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complex-real fixed-point multiplications now produce results with one less.
   integer bit compared to earlier, i.e., the number of bits one would expect.
   This also holds for operations with Python integers and floats.
+- Scalar fixed-point types `APyFixed` and `APyCFixed` get their `repr`
+  bit-specifiers changed to `int_bits, frac_bits` from `bits, int_bits`.
 
 ### Removed
 

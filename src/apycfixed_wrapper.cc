@@ -464,17 +464,17 @@ void bind_cfixed(nb::module_& m)
             Truncation: 2.0 + 1.5j
 
             >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
-            APyCFixed((8, 6), bits=5, int_bits=3)
+            APyCFixed((8, 6), int_bits=3, frac_bits=2)
 
             Fixed-point rounding: 2.25 + 1.75j
 
             >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
-            APyCFixed((9, 7), bits=5, int_bits=3)
+            APyCFixed((9, 7), int_bits=3, frac_bits=2)
 
             Two's complement overflowing: -1.875 + 1.625j
 
             >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
-            APyCFixed((17, 13), bits=5, int_bits=2)
+            APyCFixed((17, 13), int_bits=2, frac_bits=3)
 
             Returns
             -------
@@ -553,7 +553,7 @@ void bind_cfixed(nb::module_& m)
             >>> import apytypes as apy
             >>> fx_a = apy.APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
             >>> fx_a
-            APyCFixed((5, 2), bits=4, int_bits=2)
+            APyCFixed((5, 2), int_bits=2, frac_bits=2)
             >>> print(fx_a)
             (1.25+0.5j)
 

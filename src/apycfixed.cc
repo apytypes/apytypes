@@ -920,12 +920,12 @@ APyCFixed& APyCFixed::operator>>=(const int shift_val)
 
 std::string APyCFixed::repr() const
 {
-    std::stringstream ss {};
-    ss << "APyCFixed((";
-    ss << bit_pattern_to_string_dec() << "), ";
-    ss << "bits=" << bits() << ", ";
-    ss << "int_bits=" << int_bits() << ")";
-    return ss.str();
+    return fmt::format(
+        "APyCFixed(({}), int_bits={}, frac_bits={})",
+        bit_pattern_to_string_dec(),
+        int_bits(),
+        frac_bits()
+    );
 }
 
 std::string APyCFixed::latex() const
