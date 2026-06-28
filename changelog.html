@@ -331,16 +331,18 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Proper nesting using multiple levels of APyTypes contexts</p></li>
-<li><p>Utility functions <code class="docutils literal notranslate"><span class="pre">fp</span></code> and <code class="docutils literal notranslate"><span class="pre">fx</span></code> automatically detect complex-valued arrays</p></li>
-<li><p>Correct output bias for logical operations on <code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">APyFixedArray.to_bits</span></code> for 64-bit NumPy arrays on 32-bit systems</p></li>
+<li><p>Proper nesting using multiple levels of APyTypes contexts.</p></li>
+<li><p>Utility functions <code class="docutils literal notranslate"><span class="pre">fp</span></code> and <code class="docutils literal notranslate"><span class="pre">fx</span></code> automatically detect complex-valued arrays.</p></li>
+<li><p>Correct output bias for logical operations on <code class="docutils literal notranslate"><span class="pre">APyFloat</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">APyFixedArray.to_bits</span></code> for 64-bit NumPy arrays on 32-bit systems.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prod</span></code> and <code class="docutils literal notranslate"><span class="pre">cumprod</span></code> are using fewer bits for fixed-point arrays, see the
+documentation for exact expressions.</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Complex-real fixed-point multiplications now produce results with one less
+<li><p>Complex-real fixed-point multiplications now produce results with one less.
 integer bit compared to earlier, i.e., the number of bits one would expect.
 This also holds for operations with Python integers and floats.</p></li>
 </ul>
