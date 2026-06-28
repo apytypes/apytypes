@@ -844,10 +844,10 @@ std::string APyFixed::bit_pattern_to_string_dec() const
 std::string APyFixed::repr() const
 {
     return fmt::format(
-        "APyFixed({}, bits={}, int_bits={})",
+        "APyFixed({}, int_bits={}, frac_bits={})",
         bit_pattern_to_string_dec(),
-        bits(),
-        int_bits()
+        int_bits(),
+        frac_bits()
     );
 }
 
