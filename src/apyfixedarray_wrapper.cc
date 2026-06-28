@@ -640,7 +640,7 @@ void bind_fixed_array(nb::module_& m)
             Examples
             --------
             >>> import apytypes as apy
-            >>> a = apy.fx([[1, 2, 3]], bits=5, frac_bits=0)
+            >>> a = apy.fx([[1, 2, 3]], int_bits=5, frac_bits=0)
             >>> a
             APyFixedArray([[1, 2, 3]], int_bits=5, frac_bits=0)
             >>> a.swapaxes(0,1)
@@ -650,7 +650,7 @@ void bind_fixed_array(nb::module_& m)
 
             >>> b = apy.fx(
             ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
-            ...     bits=5,
+            ...     int_bits=5,
             ...     frac_bits=0
             ... )
             >>> b
@@ -700,7 +700,7 @@ void bind_fixed_array(nb::module_& m)
             >>> a = apy.fx(
             ...     [[1.0, 2.0, 3.0],
             ...      [4.0, 5.0, 6.0]],
-            ...     bits=5,
+            ...     int_bits=5,
             ...     frac_bits=0
             ... )
             >>> a
@@ -711,7 +711,7 @@ void bind_fixed_array(nb::module_& m)
                            [2, 5],
                            [3, 6]], int_bits=5, frac_bits=0)
 
-            >>> b = apy.ones((1, 2, 3), bits=5, frac_bits=0)
+            >>> b = apy.ones((1, 2, 3), int_bits=5, frac_bits=0)
             >>> b.transpose((1, 0, 2)).shape
             (2, 1, 3)
             >>> b.transpose((-2, -3, -1)).shape
@@ -878,7 +878,7 @@ void bind_fixed_array(nb::module_& m)
             ...     frac_bits=0
             ... )
             >>> a.sum()
-            APyFixed(21, bits=13, int_bits=13)
+            APyFixed(21, int_bits=13, frac_bits=0)
 
             Returns
             -------
@@ -1010,7 +1010,7 @@ void bind_fixed_array(nb::module_& m)
                            [4, 5, 6]], int_bits=10, frac_bits=0)
 
             >>> a.max()
-            APyFixed(6, bits=10, int_bits=10)
+            APyFixed(6, int_bits=10, frac_bits=0)
 
             >>> a.max(0)
             APyFixedArray([4, 5, 6], int_bits=10, frac_bits=0)
@@ -1051,7 +1051,7 @@ void bind_fixed_array(nb::module_& m)
                            [4, 5, 6]], int_bits=10, frac_bits=0)
 
             >>> a.min()
-            APyFixed(1, bits=10, int_bits=10)
+            APyFixed(1, int_bits=10, frac_bits=0)
 
             >>> a.min(0)
             APyFixedArray([1, 2, 3], int_bits=10, frac_bits=0)
@@ -1150,7 +1150,7 @@ void bind_fixed_array(nb::module_& m)
             ...     frac_bits=0
             ... )
             >>> a.prod()
-            APyFixed(720, bits=56, int_bits=56)
+            APyFixed(720, int_bits=56, frac_bits=0)
 
             Returns
             -------
@@ -1338,7 +1338,7 @@ void bind_fixed_array(nb::module_& m)
             ...         [1.0, 2.0, 3.0],
             ...         [4.0, 5.0, 6.0],
             ...     ],
-            ...     bits=5,
+            ...     int_bits=5,
             ...     frac_bits=0
             ... )
             >>> b

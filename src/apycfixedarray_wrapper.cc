@@ -572,7 +572,7 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
             >>> import apytypes as apy
-            >>> a = apy.APyCFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
+            >>> a = apy.APyCFixedArray.from_float([[1, 2, 3]], int_bits=5, frac_bits=0)
             >>> print(a)
             [[1+0j, 2+0j, 3+0j]]
             >>> print(a.swapaxes(0,1))
@@ -582,7 +582,7 @@ void bind_cfixed_array(nb::module_& m)
 
             >>> b = apy.APyCFixedArray.from_float(
             ...         [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
-            ...         bits=5,
+            ...         int_bits=5,
             ...         frac_bits=0
             ...     )
             >>> print(b)
@@ -634,7 +634,7 @@ void bind_cfixed_array(nb::module_& m)
             >>> a = apy.APyCFixedArray.from_float(
             ...         [[1.0,   2.0,  3.0],
             ...          [-4.0, -5.0, -6.0]],
-            ...         bits=5,
+            ...         int_bits=5,
             ...         frac_bits=0
             ...     )
             >>> print(a)
@@ -647,7 +647,7 @@ void bind_cfixed_array(nb::module_& m)
 
             >>> b = apy.APyCFixedArray.from_float(
             ...         [1.0] * 6,
-            ...         bits=5,
+            ...         int_bits=5,
             ...         frac_bits=0
             ...     ).reshape((1, 2, 3))
             >>> b.transpose((1, 0, 2)).shape
@@ -815,7 +815,7 @@ void bind_cfixed_array(nb::module_& m)
             ...     frac_bits=0
             ... )
             >>> a.sum()
-            APyCFixed((21, 0), bits=13, int_bits=13)
+            APyCFixed((21, 0), int_bits=13, frac_bits=0)
 
             Returns
             -------
@@ -960,7 +960,7 @@ void bind_cfixed_array(nb::module_& m)
             ...     frac_bits=0
             ... )
             >>> a.prod()
-            APyCFixed((576460752303422093, 576460752303423263), bits=59, int_bits=59)
+            APyCFixed((576460752303422093, 576460752303423263), int_bits=59, frac_bits=0)
             >>> print(a.prod())
             (-1395-225j)
 
@@ -1158,7 +1158,7 @@ void bind_cfixed_array(nb::module_& m)
             ...             [1.0 + 1.0j, 2.0 - 3.0j, 3.0 - 1.0j],
             ...             [4.0 - 2.0j, 5.0 + 2.0j, 6.0 + 1j],
             ...         ],
-            ...         bits=5,
+            ...         int_bits=5,
             ...         frac_bits=0
             ...     )
             >>> print(b)

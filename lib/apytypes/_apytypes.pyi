@@ -655,17 +655,17 @@ class APyCFixed:
         Truncation: 2.0 + 1.5j
 
         >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
-        APyCFixed((8, 6), bits=5, int_bits=3)
+        APyCFixed((8, 6), int_bits=3, frac_bits=2)
 
         Fixed-point rounding: 2.25 + 1.75j
 
         >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
-        APyCFixed((9, 7), bits=5, int_bits=3)
+        APyCFixed((9, 7), int_bits=3, frac_bits=2)
 
         Two's complement overflowing: -1.875 + 1.625j
 
         >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
-        APyCFixed((17, 13), bits=5, int_bits=2)
+        APyCFixed((17, 13), int_bits=2, frac_bits=3)
 
         Returns
         -------
@@ -729,7 +729,7 @@ class APyCFixed:
         >>> import apytypes as apy
         >>> fx_a = apy.APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
         >>> fx_a
-        APyCFixed((5, 2), bits=4, int_bits=2)
+        APyCFixed((5, 2), int_bits=2, frac_bits=2)
         >>> print(fx_a)
         (1.25+0.5j)
 
@@ -1183,7 +1183,7 @@ class APyCFixedArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> a = apy.APyCFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
+        >>> a = apy.APyCFixedArray.from_float([[1, 2, 3]], int_bits=5, frac_bits=0)
         >>> print(a)
         [[1+0j, 2+0j, 3+0j]]
         >>> print(a.swapaxes(0, 1))
@@ -1192,7 +1192,7 @@ class APyCFixedArray:
          [3+0j]]
 
         >>> b = apy.APyCFixedArray.from_float(
-        ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], bits=5, frac_bits=0
+        ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], int_bits=5, frac_bits=0
         ... )
         >>> print(b)
         [[[0+0j, 1+0j],
@@ -1237,7 +1237,7 @@ class APyCFixedArray:
         --------
         >>> import apytypes as apy
         >>> a = apy.APyCFixedArray.from_float(
-        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], bits=5, frac_bits=0
+        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], int_bits=5, frac_bits=0
         ... )
         >>> print(a)
         [[ 1+0j,  2+0j,  3+0j],
@@ -1247,9 +1247,9 @@ class APyCFixedArray:
          [ 2+0j, -5+0j],
          [ 3+0j, -6+0j]]
 
-        >>> b = apy.APyCFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0).reshape(
-        ...     (1, 2, 3)
-        ... )
+        >>> b = apy.APyCFixedArray.from_float(
+        ...     [1.0] * 6, int_bits=5, frac_bits=0
+        ... ).reshape((1, 2, 3))
         >>> b.transpose((1, 0, 2)).shape
         (2, 1, 3)
         >>> b.transpose((-2, -3, -1)).shape
@@ -1394,7 +1394,7 @@ class APyCFixedArray:
         >>> import apytypes as apy
         >>> a = apy.APyCFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
         >>> a.sum()
-        APyCFixed((21, 0), bits=13, int_bits=13)
+        APyCFixed((21, 0), int_bits=13, frac_bits=0)
 
         Returns
         -------
@@ -1520,7 +1520,7 @@ class APyCFixedArray:
         ...     [1, 2 + 1j, 3 + 3j, -4 + 1j, 5 - 2j, 6 - 3j], int_bits=10, frac_bits=0
         ... )
         >>> a.prod()
-        APyCFixed((576460752303422093, 576460752303423263), bits=59, int_bits=59)
+        APyCFixed((576460752303422093, 576460752303423263), int_bits=59, frac_bits=0)
         >>> print(a.prod())
         (-1395-225j)
 
@@ -1697,7 +1697,7 @@ class APyCFixedArray:
         ...         [1.0 + 1.0j, 2.0 - 3.0j, 3.0 - 1.0j],
         ...         [4.0 - 2.0j, 5.0 + 2.0j, 6.0 + 1j],
         ...     ],
-        ...     bits=5,
+        ...     int_bits=5,
         ...     frac_bits=0,
         ... )
         >>> print(b)
@@ -4274,17 +4274,17 @@ class APyFixed:
         Truncation (2.0)
 
         >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
-        APyFixed(8, bits=5, int_bits=3)
+        APyFixed(8, int_bits=3, frac_bits=2)
 
         Rounding (2.25)
 
         >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
-        APyFixed(9, bits=5, int_bits=3)
+        APyFixed(9, int_bits=3, frac_bits=2)
 
         Two's complement overflowing (-1.875)
 
         >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
-        APyFixed(17, bits=5, int_bits=2)
+        APyFixed(17, int_bits=2, frac_bits=3)
 
         Returns
         -------
@@ -4414,7 +4414,7 @@ class APyFixed:
         rounded to 1.25 as it is the closest representable number
 
         >>> fx_a
-        APyFixed(5, bits=4, int_bits=2)
+        APyFixed(5, int_bits=2, frac_bits=2)
         >>> str(fx_a)
         '1.25'
 
@@ -4972,7 +4972,7 @@ class APyFixedArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> a = apy.fx([[1, 2, 3]], bits=5, frac_bits=0)
+        >>> a = apy.fx([[1, 2, 3]], int_bits=5, frac_bits=0)
         >>> a
         APyFixedArray([[1, 2, 3]], int_bits=5, frac_bits=0)
         >>> a.swapaxes(0, 1)
@@ -4980,7 +4980,7 @@ class APyFixedArray:
                        [2],
                        [3]], int_bits=5, frac_bits=0)
 
-        >>> b = apy.fx([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], bits=5, frac_bits=0)
+        >>> b = apy.fx([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], int_bits=5, frac_bits=0)
         >>> b
         APyFixedArray([[[0, 1],
                         [2, 3]],
@@ -5022,7 +5022,7 @@ class APyFixedArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> a = apy.fx([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], bits=5, frac_bits=0)
+        >>> a = apy.fx([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], int_bits=5, frac_bits=0)
         >>> a
         APyFixedArray([[1, 2, 3],
                        [4, 5, 6]], int_bits=5, frac_bits=0)
@@ -5031,7 +5031,7 @@ class APyFixedArray:
                        [2, 5],
                        [3, 6]], int_bits=5, frac_bits=0)
 
-        >>> b = apy.ones((1, 2, 3), bits=5, frac_bits=0)
+        >>> b = apy.ones((1, 2, 3), int_bits=5, frac_bits=0)
         >>> b.transpose((1, 0, 2)).shape
         (2, 1, 3)
         >>> b.transpose((-2, -3, -1)).shape
@@ -5175,7 +5175,7 @@ class APyFixedArray:
         >>> import apytypes as apy
         >>> a = apy.APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
         >>> a.sum()
-        APyFixed(21, bits=13, int_bits=13)
+        APyFixed(21, int_bits=13, frac_bits=0)
 
         Returns
         -------
@@ -5293,7 +5293,7 @@ class APyFixedArray:
                        [4, 5, 6]], int_bits=10, frac_bits=0)
 
         >>> a.max()
-        APyFixed(6, bits=10, int_bits=10)
+        APyFixed(6, int_bits=10, frac_bits=0)
 
         >>> a.max(0)
         APyFixedArray([4, 5, 6], int_bits=10, frac_bits=0)
@@ -5332,7 +5332,7 @@ class APyFixedArray:
                        [4, 5, 6]], int_bits=10, frac_bits=0)
 
         >>> a.min()
-        APyFixed(1, bits=10, int_bits=10)
+        APyFixed(1, int_bits=10, frac_bits=0)
 
         >>> a.min(0)
         APyFixedArray([1, 2, 3], int_bits=10, frac_bits=0)
@@ -5421,7 +5421,7 @@ class APyFixedArray:
         >>> import apytypes as apy
         >>> a = apy.APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
         >>> a.prod()
-        APyFixed(720, bits=56, int_bits=56)
+        APyFixed(720, int_bits=56, frac_bits=0)
 
         Returns
         -------
@@ -5590,7 +5590,7 @@ class APyFixedArray:
         ...         [1.0, 2.0, 3.0],
         ...         [4.0, 5.0, 6.0],
         ...     ],
-        ...     bits=5,
+        ...     int_bits=5,
         ...     frac_bits=0,
         ... )
         >>> b

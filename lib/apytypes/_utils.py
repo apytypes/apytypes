@@ -352,7 +352,7 @@ def fn(
     >>> import math
     >>> a = apy.APyFixed(19, 1, 5)
     >>> apy.fn(math.sin, a)
-    APyFixed(18, bits=6, int_bits=1)
+    APyFixed(18, int_bits=1, frac_bits=5)
 
     Returns
     -------
