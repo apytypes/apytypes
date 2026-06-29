@@ -1301,7 +1301,9 @@ APyFloatArray APyFloatArray::from_numbers(
     check_mantissa_format(man_bits, "APyFloatArray.from_float");
 
     APyFloatArray result(
-        python_iterable_extract_shape(number_seq, "APyFloatArray.from_float"),
+        python_iterable_extract_shape<false, nb::float_, nb::int_, APyFixed, APyFloat>(
+            number_seq, "APyFloatArray.from_float"
+        ),
         exp_bits,
         man_bits,
         bias

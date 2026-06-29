@@ -198,7 +198,15 @@ APyCFloatArray APyCFloatArray::from_numbers(
     }
 
     APyCFloatArray result(
-        python_iterable_extract_shape(number_seq, "APyCFloatArray.from_complex"),
+        python_iterable_extract_shape<
+            false,
+            std::complex<double>,
+            nb::float_,
+            nb::int_,
+            APyFixed,
+            APyFloat,
+            APyCFixed,
+            APyCFloat>(number_seq, "APyCFloatArray.from_complex"),
         exp_bits,
         man_bits,
         bias

@@ -457,6 +457,209 @@ nb::int_ APyFloat::to_bits() const
     return apyfloat_to_bits({ sign, exp, man }, exp_bits, man_bits);
 }
 
+int APyFloat::hdl_slice_bound_or_default(
+    const nb::object& bound, int default_value, const char* bound_name
+)
+{
+    if (bound.is_none()) {
+        return default_value;
+    }
+
+    try {
+        return nb::cast<int>(bound);
+    } catch (const nb::cast_error&) {
+        PyErr_Format(
+            PyExc_TypeError,
+            "APyFloat.__getitem__: slice %s must be int or None",
+            bound_name
+        );
+        throw nb::python_error();
+    }
+}
+
+int APyFloat::get_bit_value(int index) const
+{
+    if (index < -man_bits || index > exp_bits) {
+        PyErr_Format(
+            PyExc_IndexError,
+            "APyFloat bit index %d out of range [%d, %d]",
+            index,
+            -man_bits,
+            exp_bits
+        );
+        throw nb::python_error();
+    }
+
+    if (index < 0) {
+        const int mantissa_bit_index = index + man_bits;
+        return (man >> mantissa_bit_index) & man_t(1);
+    }
+
+    if (index == exp_bits) {
+        return sign;
+    }
+
+    return (exp >> index) & exp_t(1);
+}
+
+nb::int_ APyFloat::get_hdl_bit_range(const nb::slice& index) const
+{
+    nb::object start_obj = index.attr("start");
+    nb::object stop_obj = index.attr("stop");
+    nb::object step_obj = index.attr("step");
+
+    if (!step_obj.is_none()) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "APyFloat.__getitem__: HDL-style slices do not support an explicit step"
+        );
+        throw nb::python_error();
+    }
+
+    const int min_index = -man_bits;
+    const int max_index = exp_bits;
+
+    const int msb = hdl_slice_bound_or_default(start_obj, max_index, "start");
+    const int lsb = hdl_slice_bound_or_default(stop_obj, min_index, "stop");
+
+    if (msb < min_index || msb > max_index) {
+        PyErr_Format(
+            PyExc_IndexError,
+            "APyFloat slice start %d out of range [%d, %d]",
+            msb,
+            min_index,
+            max_index
+        );
+        throw nb::python_error();
+    }
+
+    if (lsb < min_index || lsb > max_index) {
+        PyErr_Format(
+            PyExc_IndexError,
+            "APyFloat slice stop %d out of range [%d, %d]",
+            lsb,
+            min_index,
+            max_index
+        );
+        throw nb::python_error();
+    }
+
+    if (msb < lsb) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "APyFloat.__getitem__: invalid HDL-style slice [%d:%d], expected start >= "
+            "stop",
+            msb,
+            lsb
+        );
+        throw nb::python_error();
+    }
+
+    const int result_bits = msb - lsb + 1;
+    const int source_lsb_raw = lsb + man_bits;
+
+    // Build the raw bit layout directly from APyFloat fields:
+    // [mantissa (LSBs)] [exponent] [sign]
+    const std::uint64_t man_field = std::uint64_t(man & man_mask());
+    const std::uint64_t exp_field = std::uint64_t(exp & exp_mask());
+    std::uint64_t raw_lo64 = man_field;
+    std::uint64_t raw_hi64 = 0;
+
+    // man_bits is always <= 61
+    raw_lo64 |= exp_field << man_bits;
+    if ((man_bits + exp_bits) > 64) {
+        raw_hi64 |= exp_field >> (64 - man_bits);
+    }
+
+    const int sign_raw_index = man_bits + exp_bits;
+    if (sign) {
+        if (sign_raw_index < 64) {
+            raw_lo64 |= std::uint64_t(1) << sign_raw_index;
+        } else {
+            raw_hi64 |= std::uint64_t(1) << (sign_raw_index - 64);
+        }
+    }
+
+#if COMPILER_LIMB_SIZE == 64
+    const auto mask_nbits = [](int n) -> std::uint64_t {
+        if (n >= 64) {
+            return ~std::uint64_t(0);
+        }
+        return (std::uint64_t(1) << n) - 1;
+    };
+
+    const auto extract_u64 = [&](int source_lsb, int width) -> std::uint64_t {
+        if (source_lsb < 64) {
+            const std::uint64_t lo = raw_lo64 >> source_lsb;
+            if (source_lsb + width <= 64) {
+                return lo & mask_nbits(width);
+            }
+            const std::uint64_t hi = raw_hi64 << (64 - source_lsb);
+            return (lo | hi) & mask_nbits(width);
+        }
+
+        return (raw_hi64 >> (source_lsb - 64)) & mask_nbits(width);
+    };
+
+    // APyFloat has at most 97 bits, so the result fits in at most two 64-bit limbs.
+    if (result_bits <= 64) {
+        return nb::int_(extract_u64(source_lsb_raw, result_bits));
+    }
+
+    std::vector<apy_limb_t> result(2, apy_limb_t(0));
+    result[0] = apy_limb_t(extract_u64(source_lsb_raw, 64));
+    result[1] = apy_limb_t(extract_u64(source_lsb_raw + 64, result_bits - 64));
+
+    return python_limb_vec_to_long(
+        result.begin(), result.end(), false, static_cast<unsigned>(result_bits)
+    );
+#elif COMPILER_LIMB_SIZE == 32
+    const auto mask_nbits = [](int n) -> std::uint64_t {
+        if (n >= 64) {
+            return ~std::uint64_t(0);
+        }
+        return (std::uint64_t(1) << n) - 1;
+    };
+
+    const auto extract_u64 = [&](int source_lsb, int width) -> std::uint64_t {
+        if (source_lsb < 64) {
+            const std::uint64_t lo = raw_lo64 >> source_lsb;
+            if (source_lsb + width <= 64) {
+                return lo & mask_nbits(width);
+            }
+            const std::uint64_t hi = raw_hi64 << (64 - source_lsb);
+            return (lo | hi) & mask_nbits(width);
+        }
+
+        return (raw_hi64 >> (source_lsb - 64)) & mask_nbits(width);
+    };
+
+    // APyFloat has at most 97 bits, so the result fits in at most four 32-bit limbs.
+    if (result_bits <= 32) {
+        return nb::int_(std::uint32_t(extract_u64(source_lsb_raw, result_bits)));
+    }
+
+    if (result_bits <= 64) {
+        return nb::int_(extract_u64(source_lsb_raw, result_bits));
+    }
+
+    const std::uint64_t lo64 = extract_u64(source_lsb_raw, 64);
+    const std::uint64_t hi64 = extract_u64(source_lsb_raw + 64, result_bits - 64);
+
+    std::vector<apy_limb_t> result(4, apy_limb_t(0));
+    result[0] = apy_limb_t(lo64 & 0xFFFFFFFFu);
+    result[1] = apy_limb_t(lo64 >> 32);
+    result[2] = apy_limb_t(hi64 & 0xFFFFFFFFu);
+    result[3] = apy_limb_t(hi64 >> 32);
+
+    return python_limb_vec_to_long(
+        result.begin(), result.end(), false, static_cast<unsigned>(result_bits)
+    );
+#else
+#error "APyFloat.__getitem__: unsupported limb size configuration"
+#endif
+}
+
 std::string APyFloat::str() const
 {
     // NOTE: Python, unlike C++, unconditionally encodes the string of a floating-point

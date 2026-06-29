@@ -305,6 +305,52 @@ void bind_float(nb::module_& m)
             --------
             from_bits
             )pbdoc")
+        .def(
+            "__getitem__",
+            &APyFloat::get_bit_value,
+            nb::arg("index"),
+            R"pbdoc(
+            Get a single raw bit from the floating-point bit pattern.
+
+            Index ``0`` corresponds to the least-significant exponent bit. Negative
+            indices correspond to mantissa bits, where index ``-1`` is the
+            most-significant mantissa bit. The sign bit is at index ``exp_bits``.
+
+            Parameters
+            ----------
+            index : :class:`int`
+                Bit index in the floating-point storage domain.
+
+            Returns
+            -------
+            :class:`int`
+                Either ``0`` or ``1``.
+            )pbdoc"
+        )
+        .def(
+            "__getitem__",
+            &APyFloat::get_hdl_bit_range,
+            nb::arg("index"),
+            R"pbdoc(
+            Get an inclusive HDL-style bit range from the floating-point bit pattern.
+
+            The slice syntax is interpreted as ``msb:lsb`` (inclusive), unlike
+            regular Python slicing. Open-ended bounds are allowed:
+
+            - ``x[3:]`` returns bits from index ``3`` down to the least-significant bit.
+            - ``x[:3]`` returns bits from the sign bit down to and including index ``3``.
+
+            Parameters
+            ----------
+            index : :class:`slice`
+                HDL-style inclusive bit range with ``start >= stop``.
+
+            Returns
+            -------
+            :class:`int`
+                The extracted bit range as an unsigned integer.
+            )pbdoc"
+        )
         .def("to_fraction", &APyFloat::to_fraction, R"pbdoc(
             Get the exact rational value of the :class:`APyFloat`.
 

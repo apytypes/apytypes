@@ -236,6 +236,99 @@ def test_long_python_integer():
     assert a.to_bits() == val
 
 
+def test_getitem():
+    a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+
+    assert a[-2] == 0
+    assert a[-1] == 1
+    assert a[0] == 1
+    assert a[1] == 1
+    assert a[2] == 1
+    assert a[3] == 1
+    assert a[4] == 0
+    assert a[5] == 1
+
+    with pytest.raises(
+        IndexError, match=r"APyFloat bit index -3 out of range \[-2, 5\]"
+    ):
+        _ = a[-3]
+
+    with pytest.raises(
+        IndexError, match=r"APyFloat bit index 6 out of range \[-2, 5\]"
+    ):
+        _ = a[6]
+
+    with pytest.raises(TypeError):
+        _ = a[3.0]
+
+
+def test_getitem_bit_range_hdl_style():
+    a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+
+    # Inclusive HDL-style bit slicing: msb:lsb
+    assert a[5:0] == 0b101111
+    assert a[4:-1] == 0b011111
+    assert a[1:-2] == 0b1110
+
+    # Open-ended ranges
+    assert a[3:] == 0b111110
+    assert a[:3] == 0b101
+    assert a[:-1] == 0b1011111
+
+
+def test_getitem_bit_range_hdl_style_errors():
+    a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+
+    with pytest.raises(ValueError, match=r"invalid HDL-style slice"):
+        _ = a[0:3]
+
+    with pytest.raises(IndexError, match=r"APyFloat slice start 6 out of range"):
+        _ = a[6:0]
+
+    with pytest.raises(IndexError, match=r"APyFloat slice stop -3 out of range"):
+        _ = a[3:-3]
+
+    with pytest.raises(ValueError, match=r"do not support an explicit step"):
+        _ = a[3:0:1]
+
+
+def test_getitem_bit_range_hdl_style_word_length_combinations():
+    exp_bits = 27
+    man_bits = 40
+    sign = 1
+    exp = 0x5A5A5A5 & ((1 << exp_bits) - 1)
+    man = 0xABCDEFFF11
+    raw_bits = man | (exp << man_bits) | (sign << (exp_bits + man_bits))
+    a = APyFloat.from_bits(raw_bits, exp_bits=exp_bits, man_bits=man_bits)
+
+    def expected_for_slice(msb: int, lsb: int) -> int:
+        source_lsb_raw = lsb + man_bits
+        width = msb - lsb + 1
+        return (raw_bits >> source_lsb_raw) & ((1 << width) - 1)
+
+    # Within low 64-bit word (small width)
+    assert a[-11:-30] == expected_for_slice(-11, -30)
+
+    # Within low 64-bit word (medium width)
+    assert a[9:-30] == expected_for_slice(9, -30)
+
+    # Exactly 64-bit wide range from raw bit 0
+    assert a[23:-40] == expected_for_slice(23, -40)
+
+    # Crosses raw_lo64/raw_hi64 boundary with narrow width
+    assert a[27:20] == expected_for_slice(27, 20)
+
+    # Entirely in high 64-bit word
+    assert a[27:24] == expected_for_slice(27, 24)
+
+    # Wider than 64 bits (multi-limb conversion path)
+    assert a[27:-40] == expected_for_slice(27, -40)
+
+    # Open-ended variants on this wider format
+    assert a[10:] == expected_for_slice(10, -40)
+    assert a[:10] == expected_for_slice(27, 10)
+
+
 @pytest.mark.parametrize(
     ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
 )

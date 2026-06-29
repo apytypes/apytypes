@@ -15,6 +15,109 @@ def test_to_bits():
     )
 
 
+def test_getitem_bit_indexing():
+    fx = APyFixed(0xA4, int_bits=4, frac_bits=4)
+
+    # Integer bits (index 0 is the LSB integer bit)
+    assert fx[0] == 0
+    assert fx[1] == 1
+    assert fx[2] == 0
+    assert fx[3] == 1
+
+    # Fractional bits (negative indices)
+    assert fx[-1] == 0
+    assert fx[-2] == 1
+    assert fx[-3] == 0
+    assert fx[-4] == 0
+
+
+def test_getitem_bit_indexing_out_of_range():
+    fx = APyFixed(0xA4, int_bits=4, frac_bits=4)
+
+    with pytest.raises(IndexError):
+        _ = fx[4]
+
+    with pytest.raises(IndexError):
+        _ = fx[-5]
+
+
+def test_getitem_bit_range_hdl_style():
+    fx = APyFixed(0xA4, int_bits=4, frac_bits=4)
+
+    # Inclusive HDL-style bit slicing: msb:lsb
+    assert fx[3:0] == 0b1010
+    assert fx[3:-1] == 0b10100
+    assert fx[0:-3] == 0b0010
+    assert fx[3:-4] == 0b10100100
+
+    # Open-ended ranges
+    assert fx[2:] == 0b0100100
+    assert fx[:3] == 0b1
+    assert fx[:-1] == 0b10100
+
+
+def test_getitem_bit_range_hdl_style_errors():
+    fx = APyFixed(0xA4, int_bits=4, frac_bits=4)
+
+    with pytest.raises(ValueError, match="invalid HDL-style"):
+        _ = fx[0:3]
+
+    with pytest.raises(IndexError):
+        _ = fx[4:0]
+
+    with pytest.raises(IndexError):
+        _ = fx[3:-5]
+
+    with pytest.raises(ValueError, match="HDL-style slices do"):
+        _ = fx[3:0:1]
+
+    with pytest.raises(TypeError):
+        _ = fx[3.0]
+
+
+def test_getitem_bit_range_hdl_style_multi_limb_input_output():
+    # 140 total bits => multi-limb input for both 64-bit and 32-bit limb builds.
+    int_bits = 70
+    frac_bits = 70
+    raw_bits = (
+        (1 << 139)
+        | (1 << 130)
+        | (1 << 111)
+        | (1 << 97)
+        | (1 << 64)
+        | (1 << 45)
+        | (1 << 33)
+        | (1 << 17)
+        | (1 << 5)
+        | 0b10101
+    )
+    fx = APyFixed(raw_bits, int_bits=int_bits, frac_bits=frac_bits)
+
+    def expected_for_slice(msb: int, lsb: int) -> int:
+        source_lsb_raw = lsb + frac_bits
+        width = msb - lsb + 1
+        return (raw_bits >> source_lsb_raw) & ((1 << width) - 1)
+
+    # Full range roundtrip from a multi-limb input.
+    assert fx[69:-70] == raw_bits
+
+    # Width 30:
+    assert fx[20:-9] == expected_for_slice(20, -9)
+
+    # Width 33: single-limb on 64-bit builds, multi-limb on 32-bit builds.
+    assert fx[-10:-42] == expected_for_slice(-10, -42)
+
+    # Width 65: multi-limb output on both 64-bit and 32-bit builds.
+    assert fx[20:-44] == expected_for_slice(20, -44)
+
+    # Wider multi-limb output path.
+    assert fx[35:-60] == expected_for_slice(35, -60)
+
+    # Open-ended HDL ranges on multi-limb input.
+    assert fx[40:] == expected_for_slice(40, -70)
+    assert fx[:-5] == expected_for_slice(69, -5)
+
+
 @pytest.mark.parametrize("APyFix", [APyFixed, APyCFixed])
 def test_bit_specifier_getters(APyFix):
     """

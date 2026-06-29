@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parameter for `seed` in `APyFloatAccumulatorContext`.
 - Utility function `from_bits`.
 - Iterators for complex arrays.
+- Extract bits for `APyFixed` and `APyFloat` using "HDL-style", inclusive,
+  MSB-first indexing.
 
 ### Fixed
 

@@ -825,6 +825,148 @@ nb::int_ APyFixed::to_bits() const
     );
 }
 
+int APyFixed::hdl_slice_bound_or_default(
+    const nb::object& bound, int default_value, const char* bound_name
+)
+{
+    if (bound.is_none()) {
+        return default_value;
+    }
+
+    try {
+        return nb::cast<int>(bound);
+    } catch (const nb::cast_error&) {
+        PyErr_Format(
+            PyExc_TypeError,
+            "APyFixed.__getitem__: slice %s must be int or None",
+            bound_name
+        );
+        throw nb::python_error();
+    }
+}
+
+int APyFixed::get_bit_value(int index) const
+{
+    if (index < -frac_bits() || index >= int_bits()) {
+        PyErr_Format(
+            PyExc_IndexError,
+            "APyFixed bit index %d out of range [%d, %d]",
+            index,
+            -frac_bits(),
+            int_bits() - 1
+        );
+        throw nb::python_error();
+    }
+
+    const int raw_bit_index = index + frac_bits();
+    const std::size_t limb_index = raw_bit_index / APY_LIMB_SIZE_BITS;
+    const unsigned bit_offset = raw_bit_index % APY_LIMB_SIZE_BITS;
+
+    return (_data[limb_index] >> bit_offset) & apy_limb_t(1);
+}
+
+nb::int_ APyFixed::get_hdl_bit_range(const nb::slice& index) const
+{
+    nb::object start_obj = index.attr("start");
+    nb::object stop_obj = index.attr("stop");
+    nb::object step_obj = index.attr("step");
+
+    if (!step_obj.is_none()) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "APyFixed.__getitem__: HDL-style slices do not support an explicit step"
+        );
+        throw nb::python_error();
+    }
+
+    const int min_index = -frac_bits();
+    const int max_index = int_bits() - 1;
+
+    const int msb = hdl_slice_bound_or_default(start_obj, max_index, "start");
+    const int lsb = hdl_slice_bound_or_default(stop_obj, min_index, "stop");
+
+    if (msb < min_index || msb > max_index) {
+        PyErr_Format(
+            PyExc_IndexError,
+            "APyFixed slice start %d out of range [%d, %d]",
+            msb,
+            min_index,
+            max_index
+        );
+        throw nb::python_error();
+    }
+
+    if (lsb < min_index || lsb > max_index) {
+        PyErr_Format(
+            PyExc_IndexError,
+            "APyFixed slice stop %d out of range [%d, %d]",
+            lsb,
+            min_index,
+            max_index
+        );
+        throw nb::python_error();
+    }
+
+    if (msb < lsb) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "APyFixed.__getitem__: invalid HDL-style slice [%d:%d], expected start >= "
+            "stop",
+            msb,
+            lsb
+        );
+        throw nb::python_error();
+    }
+
+    const int result_bits = msb - lsb + 1;
+
+    if (result_bits <= int(APY_LIMB_SIZE_BITS)) {
+        const int raw_lsb = lsb + frac_bits();
+        const std::size_t src_limb_index = raw_lsb / APY_LIMB_SIZE_BITS;
+        const unsigned src_bit_offset = raw_lsb % APY_LIMB_SIZE_BITS;
+
+        const apy_limb_t lower = _data[src_limb_index] >> src_bit_offset;
+        apy_limb_t result = lower;
+
+        // Range crosses a limb boundary when the offset + width exceeds one limb.
+        if (src_bit_offset != 0
+            && (src_bit_offset + unsigned(result_bits)) > APY_LIMB_SIZE_BITS) {
+            const apy_limb_t upper = _data[src_limb_index + 1];
+            result |= upper << (APY_LIMB_SIZE_BITS - src_bit_offset);
+        }
+
+        if (result_bits < int(APY_LIMB_SIZE_BITS)) {
+            const apy_limb_t mask = (apy_limb_t(1) << result_bits) - 1;
+            result &= mask;
+        }
+
+        return nb::int_(result);
+    }
+
+    std::vector<apy_limb_t> result(bits_to_limbs(result_bits), apy_limb_t(0));
+
+    for (int source_index = lsb; source_index <= msb; ++source_index) {
+        const int raw_source_index = source_index + frac_bits();
+        const std::size_t src_limb_index = raw_source_index / APY_LIMB_SIZE_BITS;
+        const unsigned src_bit_offset = raw_source_index % APY_LIMB_SIZE_BITS;
+
+        const bool bit_is_set
+            = (_data[src_limb_index] >> src_bit_offset) & apy_limb_t(1);
+        if (!bit_is_set) {
+            continue;
+        }
+
+        const int dst_bit_index = source_index - lsb;
+        const std::size_t dst_limb_index = dst_bit_index / APY_LIMB_SIZE_BITS;
+        const unsigned dst_bit_offset = dst_bit_index % APY_LIMB_SIZE_BITS;
+        result[dst_limb_index] |= apy_limb_t(1) << dst_bit_offset;
+    }
+
+    return python_limb_vec_to_long(
+        result.begin(), result.end(), false, static_cast<unsigned>(result_bits)
+    );
+}
+
 std::string APyFixed::bit_pattern_to_string_dec() const
 {
     std::stringstream ss {};

@@ -54,6 +54,21 @@ def test_from_complex():
         [APyFixed(13, int_bits=2, frac_bits=3)], int_bits=2, frac_bits=2
     ).is_identical(APyCFixedArray([7], int_bits=2, frac_bits=2))  # Rounds to (1.75, 0)
 
+    # From a sequence of APyFixed (must be treated as scalar elements, not iterables)
+    assert APyCFixedArray.from_complex(
+        [
+            APyFixed(13, int_bits=2, frac_bits=3),
+            APyFixed(3, int_bits=2, frac_bits=3),
+            APyFixed(15, int_bits=2, frac_bits=3),
+        ],
+        int_bits=2,
+        frac_bits=2,
+    ).is_identical(
+        APyCFixedArray.from_complex(
+            [1.75 + 0j, 0.5 + 0j, 2.0 + 0j], int_bits=2, frac_bits=2
+        )
+    )
+
     # From APyFloat
     assert APyCFixedArray.from_complex(
         [APyFloat(1, 15, 2, 5, 2)], bits=4, int_bits=3

@@ -20,6 +20,10 @@ class APyFloat {
      * ****************************************************************************** */
 
 private:
+    static int hdl_slice_bound_or_default(
+        const nb::object& bound, int default_value, const char* bound_name
+    );
+
     // Bit specifiers and exponent bias
     std::uint8_t exp_bits, man_bits;
     exp_t bias;
@@ -184,6 +188,13 @@ public:
 
     //! Convert the underlying bit pattern to a Python long integer
     nanobind::int_ to_bits() const;
+
+    //! Return a single raw bit from the floating-point bit pattern
+    int get_bit_value(int index) const;
+
+    //! Get an inclusive HDL-style bit range where the slice is interpreted as
+    //! msb:lsb and both bounds are included.
+    nb::int_ get_hdl_bit_range(const nb::slice& index) const;
 
     //! Convert to Fraction
     nb::object to_fraction() const;
