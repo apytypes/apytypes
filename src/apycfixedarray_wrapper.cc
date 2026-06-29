@@ -940,7 +940,7 @@ void bind_cfixed_array(nb::module_& m)
             R"pbdoc(
             Return the product of the elements along specified axis/axes.
 
-            The number of integer bits of the product is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil`,
+            The number of integer bits of the product is :math:`\texttt{int\_bits}_{\texttt{result}} = N \times (\texttt{int\_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil`,
             where :math:`N` is the number of elements in the product.
 
 
@@ -983,8 +983,8 @@ void bind_cfixed_array(nb::module_& m)
             R"pbdoc(
             Return the cumulative product of the elements along a given axes.
 
-            For the cumulative product, the number of integer bits is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil` and
-            the number of fractional bits is :math:`\text{frac_bits}_{\text{result}} = \max\{N \times \text{frac_bits}, \text{frac_bits}\}`,
+            For the cumulative product, the number of integer bits is :math:`\texttt{int\_bits}_{\texttt{result}} = N \times (\texttt{int\_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil` and
+            the number of fractional bits is :math:`\texttt{frac\_bits}_{\texttt{result}} = \max\{N \times \texttt{frac\_bits}, \texttt{frac\_bits}\}`,
             where :math:`N` is the number of elements in the product.
 
             Parameters
