@@ -92,7 +92,7 @@ def fx(
 
     depending on `value`. Returns :class:`APyFixed` when `value` is :class:`int` or
     :class:`float`. Returns :class:`APyCFixed` when `value` is :class:`complex` or when
-    *force_complex* is True. Returns :class:`APyFixedArray` or :class:`APyCFixedArray`
+    *force_complex* is :code:`True`. Returns :class:`APyFixedArray` or :class:`APyCFixedArray`
     when `value` is a sequence of numbers.
 
     .. versionadded:: 0.3
@@ -107,8 +107,8 @@ def fx(
         Number of fractional bits in the created fixed-point object.
     bits : :class:`int`, optional
         Total number of bits in the created fixed-point object.
-    force_complex : :class:`bool`, default: False
-        If True, force the return value to be :class:`APyCFixed` or
+    force_complex : :class:`bool`, default: :code:`False`
+        If :code:`True`, force the return value to be :class:`APyCFixed` or
         :class:`APyCFixedArray`, even if *value* is real.
 
     Returns
@@ -210,7 +210,7 @@ def fp(
 
     depending on `value`. Returns :class:`APyFloat` when `value` is :class:`int` or
     :class:`float`. Returns :class:`APyCFloat` when `value` is :class:`complex` or when
-    *is_complex* is True. Returns :class:`APyFloatArray` or :class:`APyCFloatArray` when
+    *force_complex* is :code:`True`. Returns :class:`APyFloatArray` or :class:`APyCFloatArray` when
     `value` is a sequence of numbers.
 
     .. versionadded:: 0.3
@@ -225,8 +225,8 @@ def fp(
         Number of mantissa bits.
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
-    force_complex : :class:`bool`, default: False
-        If True, force the return value to be :class:`APyCFloat` or
+    force_complex : :class:`bool`, default: :code:`False`
+        If :code:`True`, force the return value to be :class:`APyCFloat` or
         :class:`APyCFloatArray`, even if *value* is real.
 
     Returns

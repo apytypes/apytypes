@@ -281,7 +281,6 @@ void bind_cfixed(nb::module_& m)
             show its bit pattern (real, imag)
 
             >>> import apytypes as apy
-            >>>
             >>> fx_a = apy.fx(-5.75 + 2j, int_bits=4, frac_bits=4)
             >>> fx_a.to_bits()
             (164, 32)

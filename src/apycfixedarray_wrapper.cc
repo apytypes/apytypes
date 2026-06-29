@@ -437,13 +437,33 @@ void bind_cfixed_array(nb::module_& m)
             R"pbdoc(
             Return the underlying bit representations.
 
-            When `numpy` is true, the bit representations are returned in a
-            :class:`numpy.ndarray`. Otherwise, they are returned in a
-            :class:`list`.
+            Parameters
+            ----------
+            numpy : :class:`bool`, default: :code:`False`
+                If :code:`True`, the bit representations are returned in a :class:`numpy.ndarray`,
+                where the innermost dimension is of size 2, representing the real and imaginary parts.
+                If :code:`False`, a :class:`list` of tuples is returned.
+
+            Raises
+            ------
+            :class:`ValueError`
+                If *numpy* is :code:`True` and the total number of bits is more than 64.
+
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> a = apy.APyCFixedArray.from_complex([2+1j, 3-1j, 4+2j, 5-3j], int_bits=5, frac_bits=0)
+            >>> a.to_bits()
+            [(2, 1), (3, 31), (4, 2), (5, 29)]
+            >>> a.to_bits(numpy=True)
+            array([[ 2,  1],
+                   [ 3, 31],
+                   [ 4,  2],
+                   [ 5, 29]], dtype=uint8)
 
             Returns
             -------
-            :class:`list` or :class:`numpy.ndarray`
+            :class:`list` of :class:`tuple` of :class:`int` or :class:`numpy.ndarray`
             )pbdoc"
         )
 
@@ -469,20 +489,20 @@ void bind_cfixed_array(nb::module_& m)
             --------
 
             >>> import apytypes as apy
-            >>> a = apy.APyCFixedArray([2, 3, 4, 5], int_bits=5, frac_bits=0)
+            >>> a = apy.APyCFixedArray.from_complex([2+1j, 3-1j, 4+2j, 5-3j], int_bits=5, frac_bits=0)
             >>> print(a)
-            [2+0j, 3+0j, 4+0j, 5+0j]
+            [2+1j, 3-1j, 4+2j, 5-3j]
             >>> print(a.reshape((2, 2)))
-            [[2+0j, 3+0j],
-             [4+0j, 5+0j]]
+            [[2+1j, 3-1j],
+             [4+2j, 5-3j]]
             >>> print(a.reshape((4, 1)))
-            [[2+0j],
-             [3+0j],
-             [4+0j],
-             [5+0j]]
+            [[2+1j],
+             [3-1j],
+             [4+2j],
+             [5-3j]]
             >>> print(a.reshape((2, -1)))
-            [[2+0j, 3+0j],
-             [4+0j, 5+0j]]
+            [[2+1j, 3-1j],
+             [4+2j, 5-3j]]
 
             Returns
             -------
@@ -496,14 +516,14 @@ void bind_cfixed_array(nb::module_& m)
             --------
             >>> import apytypes as apy
             >>> a = apy.APyCFixedArray.from_complex(
-            ...     [[2, 3],
-            ...      [4, 5]], int_bits=7, frac_bits=0
+            ...     [[2+1j, 3-1j],
+            ...      [4+2j, 5-3j]], int_bits=7, frac_bits=0
             ... )
             >>> a
-            APyCFixedArray([[(2, 0), (3, 0)],
-                            [(4, 0), (5, 0)]], int_bits=7, frac_bits=0)
+            APyCFixedArray([[  (2, 1), (3, 127)],
+                            [  (4, 2), (5, 125)]], int_bits=7, frac_bits=0)
             >>> a.flatten()
-            APyCFixedArray([(2, 0), (3, 0), (4, 0), (5, 0)], int_bits=7, frac_bits=0)
+            APyCFixedArray([  (2, 1), (3, 127),   (4, 2), (5, 125)], int_bits=7, frac_bits=0)
 
             Returns
             -------
@@ -518,15 +538,14 @@ void bind_cfixed_array(nb::module_& m)
             --------
             >>> import apytypes as apy
             >>> a = apy.APyCFixedArray.from_complex(
-            ...     [[2, 3],
-            ...      [4, 5]], int_bits=7, frac_bits=0
+            ...     [[2+1j, 3-1j],
+            ...      [4+2j, 5-3j]], int_bits=7, frac_bits=0
             ... )
             >>> a
-            APyCFixedArray([[(2, 0), (3, 0)],
-                            [(4, 0), (5, 0)]], int_bits=7, frac_bits=0)
-
+            APyCFixedArray([[  (2, 1), (3, 127)],
+                            [  (4, 2), (5, 125)]], int_bits=7, frac_bits=0)
             >>> a.ravel()
-            APyCFixedArray([(2, 0), (3, 0), (4, 0), (5, 0)], int_bits=7, frac_bits=0)
+            APyCFixedArray([  (2, 1), (3, 127),   (4, 2), (5, 125)], int_bits=7, frac_bits=0)
 
             Returns
             -------
@@ -572,31 +591,31 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
             >>> import apytypes as apy
-            >>> a = apy.APyCFixedArray.from_float([[1, 2, 3]], int_bits=5, frac_bits=0)
+            >>> a = apy.APyCFixedArray.from_complex([[1-1j, 2+1j, 3-1j]], int_bits=5, frac_bits=0)
             >>> print(a)
-            [[1+0j, 2+0j, 3+0j]]
+            [[1-1j, 2+1j, 3-1j]]
             >>> print(a.swapaxes(0,1))
-            [[1+0j],
-             [2+0j],
-             [3+0j]]
+            [[1-1j],
+             [2+1j],
+             [3-1j]]
 
-            >>> b = apy.APyCFixedArray.from_float(
-            ...         [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
+            >>> b = apy.APyCFixedArray.from_complex(
+            ...         [[[0+1j, 1+2j], [2-1j, 3+1j]], [[4+2j, 5-2j], [6+2j, 7+0j]]],
             ...         int_bits=5,
             ...         frac_bits=0
             ...     )
             >>> print(b)
-            [[[0+0j, 1+0j],
-              [2+0j, 3+0j]],
+            [[[0+1j, 1+2j],
+              [2-1j, 3+1j]],
             <BLANKLINE>
-             [[4+0j, 5+0j],
-              [6+0j, 7+0j]]]
+             [[4+2j, 5-2j],
+              [6+2j, 7+0j]]]
             >>> print(b.swapaxes(0,2))
-            [[[0+0j, 4+0j],
-              [2+0j, 6+0j]],
+            [[[0+1j, 4+2j],
+              [2-1j, 6+2j]],
             <BLANKLINE>
-             [[1+0j, 5+0j],
-              [3+0j, 7+0j]]]
+             [[1+2j, 5-2j],
+              [3+1j, 7+0j]]]
 
             Returns
             -------
@@ -631,22 +650,22 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
             >>> import apytypes as apy
-            >>> a = apy.APyCFixedArray.from_float(
-            ...         [[1.0,   2.0,  3.0],
-            ...          [-4.0, -5.0, -6.0]],
+            >>> a = apy.APyCFixedArray.from_complex(
+            ...         [[1.0-1.0j,   2.0+1.0j,  3.0-1.0j],
+            ...          [-4.0+0.0j, -5.0+0.0j, -6.0+0.0j]],
             ...         int_bits=5,
             ...         frac_bits=0
             ...     )
             >>> print(a)
-            [[ 1+0j,  2+0j,  3+0j],
+            [[ 1-1j,  2+1j,  3-1j],
              [-4+0j, -5+0j, -6+0j]]
             >>> print(a.transpose())
-            [[ 1+0j, -4+0j],
-             [ 2+0j, -5+0j],
-             [ 3+0j, -6+0j]]
+            [[ 1-1j, -4+0j],
+             [ 2+1j, -5+0j],
+             [ 3-1j, -6+0j]]
 
-            >>> b = apy.APyCFixedArray.from_float(
-            ...         [1.0] * 6,
+            >>> b = apy.APyCFixedArray.from_complex(
+            ...         [1.0-1.0j] * 6,
             ...         int_bits=5,
             ...         frac_bits=0
             ...     ).reshape((1, 2, 3))
@@ -1478,6 +1497,23 @@ void bind_cfixed_array(nb::module_& m)
             overflows.
 
             .. versionadded:: 0.5
+
+                        Examples
+            --------
+            >>> import apytypes as apy
+            >>> a = apy.APyCFixedArray.from_complex(
+            ...         [[1.0-1.0j,   2.0+1.0j,  3.0-1.0j],
+            ...          [-4.0+2.0j, -5.0+3.0j, -6.0-3.0j]],
+            ...         int_bits=5,
+            ...         frac_bits=0
+            ...     )
+            >>> print(a)
+            [[ 1-1j,  2+1j,  3-1j],
+             [-4+2j, -5+3j, -6-3j]]
+            >>> print(a.hermitian_transpose())
+            [[ 1+1j, -4-2j],
+             [ 2-1j, -5-3j],
+             [ 3+1j, -6+3j]]
 
             Returns
             -------

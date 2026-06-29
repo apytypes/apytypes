@@ -410,7 +410,6 @@ void bind_cfloat(nb::module_& m)
             show its bit pattern (real, imag).
 
             >>> import apytypes as apy
-            >>>
             >>> a = apy.fp(-5.75 + 2j, exp_bits=5, man_bits=4)
             >>> a.to_bits()
             (791, 256)

@@ -507,12 +507,31 @@ void bind_fixed_array(nb::module_& m)
             R"pbdoc(
             Return the underlying bit representations.
 
-            When `numpy` is true, the bit representations are returned in a
-            :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+            Parameters
+            ----------
+            numpy : :class:`bool`, default: :code:`False`
+                If :code:`True`, return the bit representations in a :class:`numpy.ndarray`.
+                If :code:`False`, return the bit representations in a :class:`list`.
+
+            Raises
+            ------
+            :class:`ValueError`
+                If *numpy* is :code:`True` and the total number of bits is more than 64.
+
+            Examples
+            --------
+            >>> from apytypes import fx
+            >>> a = fx([2, 3, 4, 5], int_bits=5, frac_bits=1)
+            >>> a
+            APyFixedArray([ 4,  6,  8, 10], int_bits=5, frac_bits=1)
+            >>> a.to_bits()
+            [4, 6, 8, 10]
+            >>> a.to_bits(numpy=True)
+            array([ 4,  6,  8, 10], dtype=uint8)
 
             Returns
             -------
-            :class:`list` or :class:`numpy.ndarray`
+            :class:`list` of :class:`int` or :class:`numpy.ndarray`
             )pbdoc"
         )
         .def(
