@@ -47,7 +47,7 @@ bits) must be supplied.
  .. code-block:: none
 
 
-    APyFixed(7, bits=6, int_bits=4)
+    APyFixed(7, int_bits=4, frac_bits=2)
 
 
 
@@ -71,7 +71,7 @@ Create a APyFixed from a floating-point number
  .. code-block:: none
 
 
-    APyFixed(23, bits=5, int_bits=3)
+    APyFixed(23, int_bits=3, frac_bits=2)
 
 
 
@@ -95,7 +95,7 @@ There is also a convenience method that does this
  .. code-block:: none
 
 
-    APyFixed(23, bits=5, int_bits=3)
+    APyFixed(23, int_bits=3, frac_bits=2)
 
 
 
@@ -115,7 +115,7 @@ There is also a convenience method that does this
  .. code-block:: none
 
 
-    APyFixed(30, bits=6, int_bits=3)
+    APyFixed(30, int_bits=3, frac_bits=3)
 
 
 
@@ -140,7 +140,7 @@ A single integer bit is added to make sure that the computation does not overflo
  .. code-block:: none
 
 
-    APyFixed(126, bits=7, int_bits=5)
+    APyFixed(126, int_bits=5, frac_bits=2)
 
 
 
@@ -164,7 +164,7 @@ integer bits and fractional bits of the included operands, respectively.
  .. code-block:: none
 
 
-    APyFixed(210, bits=12, int_bits=7)
+    APyFixed(210, int_bits=7, frac_bits=5)
 
 
 
@@ -234,7 +234,7 @@ automatically casting the number to the same format of the APyType-object
  .. code-block:: none
 
 
-    APyFixed(5, bits=6, int_bits=4)
+    APyFixed(5, int_bits=4, frac_bits=2)
 
 
 
@@ -257,7 +257,7 @@ Which is equivalent to
  .. code-block:: none
 
 
-    APyFixed(5, bits=6, int_bits=4)
+    APyFixed(5, int_bits=4, frac_bits=2)
 
 
 
@@ -281,7 +281,7 @@ it is not recommended as it can yield unexpected results. Consider the expressio
  .. code-block:: none
 
 
-    APyFixed(9, bits=6, int_bits=5)
+    APyFixed(9, int_bits=5, frac_bits=1)
 
 
 
@@ -304,7 +304,7 @@ which would yield a different result from
  .. code-block:: none
 
 
-    APyFixed(10, bits=7, int_bits=6)
+    APyFixed(10, int_bits=6, frac_bits=1)
 
 
 
@@ -326,14 +326,14 @@ To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can b
  .. code-block:: none
 
 
-    APyFixed(124, bits=7, int_bits=4)
+    APyFixed(124, int_bits=4, frac_bits=3)
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.001 seconds)
+   **Total running time of the script:** (0 minutes 0.003 seconds)
 
 
 .. _sphx_glr_download_examples_apyfixed.py:

@@ -500,7 +500,7 @@ three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits<
 <p>Fixed-point <cite>fx_a</cite>, initialized from the floating-point value 1.234,
 rounded to 1.25 as it is the closest representable number</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span>
-<span class="go">APyFixed(5, bits=4, int_bits=2)</span>
+<span class="go">APyFixed(5, int_bits=2, frac_bits=2)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">fx_a</span><span class="p">)</span>
 <span class="go">&#39;1.25&#39;</span>
 </pre></div>
@@ -599,17 +599,17 @@ to be set.</p>
 </div>
 <p>Truncation (2.0)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">apy</span><span class="o">.</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">TRN</span><span class="p">)</span>
-<span class="go">APyFixed(8, bits=5, int_bits=3)</span>
+<span class="go">APyFixed(8, int_bits=3, frac_bits=2)</span>
 </pre></div>
 </div>
 <p>Rounding (2.25)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">apy</span><span class="o">.</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">RND</span><span class="p">)</span>
-<span class="go">APyFixed(9, bits=5, int_bits=3)</span>
+<span class="go">APyFixed(9, int_bits=3, frac_bits=2)</span>
 </pre></div>
 </div>
 <p>Two’s complement overflowing (-1.875)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="n">apy</span><span class="o">.</span><span class="n">OverflowMode</span><span class="o">.</span><span class="n">WRAP</span><span class="p">)</span>
-<span class="go">APyFixed(17, bits=5, int_bits=2)</span>
+<span class="go">APyFixed(17, int_bits=2, frac_bits=3)</span>
 </pre></div>
 </div>
 </dd></dl>
