@@ -1,6 +1,6 @@
 import pytest
 
-from apytypes import APyCFloatArray, APyFloatArray
+from apytypes import APyCFloatArray, APyFixed, APyFloatArray
 
 
 @pytest.mark.float_array
@@ -129,6 +129,21 @@ def test_from_float():
             5,
             2,
         )
+    )
+
+
+@pytest.mark.float_array
+def test_from_float_sequence_of_apyfixed():
+    vals = [
+        APyFixed(3, int_bits=2, frac_bits=1),
+        APyFixed(7, int_bits=3, frac_bits=2),
+    ]
+
+    arr = APyFloatArray.from_float(vals, exp_bits=6, man_bits=8)
+
+    assert arr.shape == (2,)
+    assert arr.is_identical(
+        APyFloatArray.from_float([1.5, 1.75], exp_bits=6, man_bits=8)
     )
 
 

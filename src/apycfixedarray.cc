@@ -2857,7 +2857,14 @@ APyCFixedArray APyCFixedArray::from_complex(
     }
 
     APyCFixedArray result(
-        python_iterable_extract_shape(cplx_seq, "APyCFixedArray.from_complex"),
+        python_iterable_extract_shape<
+            false,
+            nb::float_,
+            nb::int_,
+            APyFixed,
+            APyFloat,
+            APyCFixed,
+            std::complex<double>>(cplx_seq, "APyCFixedArray.from_complex"),
         int_bits,
         frac_bits,
         bits

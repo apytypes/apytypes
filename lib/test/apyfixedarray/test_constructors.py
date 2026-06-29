@@ -147,6 +147,15 @@ def test_array_floating_point_construction(fixed_array: type[APyCFixedArray]):
     ).is_identical(fixed_array([7], int_bits=2, frac_bits=2))  # Rounds to 1.75
 
 
+def test_from_float_sequence_of_apyfixed_scalars():
+    vals = [
+        APyFixed(3, bits=3, int_bits=2),
+        APyFixed(13, bits=4, int_bits=3),
+    ]
+    arr = APyFixedArray.from_float(vals, bits=6, int_bits=4)
+    assert arr.is_identical(APyFixedArray.from_float([1.5, -1.5], bits=6, int_bits=4))
+
+
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 @pytest.mark.parametrize(
     "dt",

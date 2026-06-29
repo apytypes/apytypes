@@ -394,6 +394,7 @@ is_iterable_and_exclude(const nanobind::handle& obj)
  * Return the sequence of a python sequence object through recursive descent along the
  * dimensions.
  */
+template <typename... ExcludedPyTypes>
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
 _python_iterable_extract_shape_recursive_descent(
     const nanobind::iterable& sequence, std::string_view err_prefix
@@ -407,7 +408,11 @@ _python_iterable_extract_shape_recursive_descent(
     if (sequence.begin() == sequence.end()) {
         // An empty sequence constitutes one dimension with shape zero
         return { 0 };
-    } else if (is_iterable_and_exclude<nb::str, nb::set, nb::dict>(*sequence.begin())) {
+    } else if (
+        is_iterable_and_exclude<nb::str, nb::set, nb::dict, ExcludedPyTypes...>(
+            *sequence.begin()
+        )
+    ) {
         // First element along this dimension is another sequence. Make sure all
         // elements along this dimensions are also sequences and recursively evaluate
         // their shapes.
@@ -419,7 +424,9 @@ _python_iterable_extract_shape_recursive_descent(
 
             auto next = nb::cast<nb::iterable>(element);
             shapes.emplace_back(
-                _python_iterable_extract_shape_recursive_descent(next, err_prefix)
+                _python_iterable_extract_shape_recursive_descent<ExcludedPyTypes...>(
+                    next, err_prefix
+                )
             );
         }
 
@@ -439,7 +446,9 @@ _python_iterable_extract_shape_recursive_descent(
         // along this dimension are non-sequence.
         std::size_t sequence_len = 0;
         for (auto&& element : sequence) {
-            if (is_iterable_and_exclude<nb::str, nb::set, nb::dict>(element)) {
+            if (is_iterable_and_exclude<nb::str, nb::set, nb::dict, ExcludedPyTypes...>(
+                    element
+                )) {
                 throw inhomogenous_shape_err();
             }
             sequence_len++;
@@ -455,7 +464,7 @@ _python_iterable_extract_shape_recursive_descent(
  * `IS_COMPLEX_COLLAPSE` is true, the last dimension is truncated if it is exactly
  * equal to two.
  */
-template <bool IS_COMPLEX_COLLAPSE = false>
+template <bool IS_COMPLEX_COLLAPSE = false, typename... ExcludedPyTypes>
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
 python_iterable_extract_shape(
     const nanobind::iterable& seq, std::string_view err_prefix
@@ -476,7 +485,9 @@ python_iterable_extract_shape(
         }
         assert(result.size());
     } else {
-        result = _python_iterable_extract_shape_recursive_descent(seq, err_prefix);
+        result = _python_iterable_extract_shape_recursive_descent<ExcludedPyTypes...>(
+            seq, err_prefix
+        );
         assert(result.size());
     }
 

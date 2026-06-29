@@ -53,6 +53,10 @@ class APyFixed {
      * ****************************************************************************** */
 
 private:
+    static int hdl_slice_bound_or_default(
+        const nb::object& bound, int default_value, const char* bound_name
+    );
+
     int _bits;
     int _int_bits;
     ScratchVector<apy_limb_t> _data;
@@ -259,6 +263,14 @@ public:
 
     //! Convert the underlying bit pattern to a Python long integer
     nb::int_ to_bits() const;
+
+    //! Get the raw bit value at index where 0 is LSB integer bit and negative
+    //! indices address fractional bits.
+    int get_bit_value(int index) const;
+
+    //! Get an inclusive HDL-style bit range where the slice is interpreted as
+    //! msb:lsb and both bounds are included.
+    nb::int_ get_hdl_bit_range(const nb::slice& index) const;
 
     //! Convert to Fraction
     nb::object to_fraction() const;
