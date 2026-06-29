@@ -14,3 +14,14 @@ Evaluate functions
 ------------------
 
 .. autofunction:: apytypes.fn
+
+Enum types
+----------
+
+.. autoclass:: apytypes.ConvolutionMode
+
+    .. autoattribute:: FULL
+
+    .. autoattribute:: SAME
+
+    .. autoattribute:: VALID

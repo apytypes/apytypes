@@ -978,7 +978,7 @@ void bind_cfloat_array(nb::module_& m)
             >>> x = apy.fp(range(3), exp_bits=5, man_bits=10, force_complex=True)
             >>> y = apy.fp(range(4, 7), exp_bits=5, man_bits=10, force_complex=True)
             >>> xx, yy = apy.meshgrid(x, y)
-            >>> xx
+            >>>
             APyCFloatArray(
                 [[ (0, 0),  (0, 0),  (0, 0)],
                 [ (0, 0),  (0, 0),  (0, 0)],
@@ -1045,12 +1045,34 @@ void bind_cfloat_array(nb::module_& m)
             R"pbdoc(
             Return the underlying bit representations.
 
-            When `numpy` is true, the bit representations are returned in a
-            :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+            Parameters
+            ----------
+            numpy : :class:`bool`, default: :code:`False`
+                If :code:`True`, the bit representations are returned in a :class:`numpy.ndarray`,
+                where the innermost dimension is of size 2, representing the real and imaginary parts.
+                If :code:`False`, a :class:`list` of tuples is returned.
+
+            Raises
+            ------
+            :class:`ValueError`
+                If *numpy* is :code:`True` and the total number of bits is more than 64.
+
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> a = apy.APyCFloatArray.from_complex(
+            ...     [1.0+1.0j, -2.0, 3.0-1.0j], exp_bits=5, man_bits=4
+            ... )
+            >>> a.to_bits()
+            [(240, 240), (768, 0), (264, 752)]
+            >>> a.to_bits(numpy=True)
+            array([[240, 240],
+                   [768,   0],
+                   [264, 752]], dtype=uint16)
 
             Returns
             -------
-            :class:`list` or :class:`numpy.ndarray`
+            :class:`list` of :class:`tuple` of :class:`int` or :class:`numpy.ndarray`
             )pbdoc"
         )
 

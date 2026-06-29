@@ -327,12 +327,29 @@ void bind_float_array(nb::module_& m)
             R"pbdoc(
             Return the underlying bit representations.
 
-            When `numpy` is true, the bit representations are returned in a
-            :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+            Parameters
+            ----------
+            numpy : :class:`bool`, default: :code:`False`
+                If :code:`True`, return the bit representations in a :class:`numpy.ndarray`.
+                If :code:`False`, return the bit representations in a :class:`list`.
+
+            Raises
+            ------
+            :class:`ValueError`
+                If *numpy* is :code:`True` and the total number of bits is more than 64.
+
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> a = apy.fp([1.0, 0.25, -1.5], exp_bits=5, man_bits=5)
+            >>> a.to_bits()
+            [480, 416, 1520]
+            >>> a.to_bits(numpy=True)
+            array([ 480,  416, 1520], dtype=uint16)
 
             Returns
             -------
-            :class:`list` or :class:`numpy.ndarray`
+            :class:`list` of :class:`int` or :class:`numpy.ndarray`
             )pbdoc"
         )
         .def("reshape", &APyFloatArray::python_reshape, nb::arg("new_shape"), R"pbdoc(
