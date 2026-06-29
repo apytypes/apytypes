@@ -1502,7 +1502,7 @@ class APyCFixedArray:
         r"""
         Return the product of the elements along specified axis/axes.
 
-        The number of integer bits of the product is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil`,
+        The number of integer bits of the product is :math:`\texttt{int\_bits}_{\texttt{result}} = N \times (\texttt{int\_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil`,
         where :math:`N` is the number of elements in the product.
 
 
@@ -1539,8 +1539,8 @@ class APyCFixedArray:
         r"""
         Return the cumulative product of the elements along a given axes.
 
-        For the cumulative product, the number of integer bits is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil` and
-        the number of fractional bits is :math:`\text{frac_bits}_{\text{result}} = \max\{N \times \text{frac_bits}, \text{frac_bits}\}`,
+        For the cumulative product, the number of integer bits is :math:`\texttt{int\_bits}_{\texttt{result}} = N \times (\texttt{int\_bits} - 1) + 2 + \left\lceil \frac{N}{2} \right\rceil` and
+        the number of fractional bits is :math:`\texttt{frac\_bits}_{\texttt{result}} = \max\{N \times \texttt{frac\_bits}, \texttt{frac\_bits}\}`,
         where :math:`N` is the number of elements in the product.
 
         Parameters
@@ -5407,7 +5407,7 @@ class APyFixedArray:
         r"""
         Return the product of the elements along specified axis/axes.
 
-        The number of integer bits of the product is :math:`\text{int_bits}_{\text{result}} = N \times (\text{int_bits} - 1) + 2`
+        The number of integer bits of the product is :math:`\texttt{int\_bits}_{\texttt{result}} = N \times (\texttt{int\_bits} - 1) + 2`
         where :math:`N` is the number of elements in the product.
 
         Parameters
@@ -5438,8 +5438,8 @@ class APyFixedArray:
         r"""
         Return the cumulative product of the elements along a given axes.
 
-        The number of bits of the cumulative product is calculated as :math:`\text{int_bits}_{\text{result}} = \max\{N \times (\text{int_bits} - 1) + 2, \text{int_bits}\}` and
-        :math:`\text{frac_bits}_{\text{result}} = \max\{N \times \text{frac_bits}, \text{frac_bits}\}`
+        The number of bits of the cumulative product is calculated as :math:`\texttt{int\_bits}_{\texttt{result}} = \max\{N \times (\texttt{int\_bits} - 1) + 2, \texttt{int\_bits}\}` and
+        :math:`\texttt{frac\_bits}_{\texttt{result}} = \max\{N \times \texttt{frac\_bits}, \texttt{frac\_bits}\}`
         where :math:`N` is the number of elements in the product.
 
         Parameters
