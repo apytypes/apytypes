@@ -21,7 +21,7 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: "3.12"
       # - uses: nickg/setup-nvc@40dcbd31cf07b60479a31f94a5df70c0bfbb9ce5  # v1v1
@@ -78,7 +78,7 @@ jobs:
           git checkout -- src/apytypes_context.h src/apybuffer.h src/apyfloat.h src/apyfixed.h src/apytypes_common.h src/apytypes_util.h src/ieee754.h src/nanobind_util.h src/python_util.h src/apyfloatarray.h src/apyfixedarray.h src/apyfloat_util.h src/broadcast.h src/array_utils.h src/apyfixed_util.h src/apycfixed.h src/apycfixedarray.h src/apycfloat.h src/apycfloatarray.h src/apytypes_mp.h src/apycfixed_util.h src/apytypes_intrinsics.h src/apycfloat_util.h
       # Download previous benchmark result from cache (if exists)
       - name: Download previous benchmark data
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ./cache
           key: ${{ runner.os }}-benchmark
