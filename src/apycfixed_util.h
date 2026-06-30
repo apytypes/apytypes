@@ -65,6 +65,73 @@ static APY_INLINE void complex_multiplication_1_1_2(
 #endif
 }
 
+static APY_INLINE void complex_multiplication_addition_1_1_2(
+    apy_limb_t* res, const apy_limb_t* src0, const apy_limb_t* src1
+)
+{
+#if COMPILER_LIMB_SIZE == 64
+#if defined(__SIZEOF_INT128__)
+    // GCC and Clang
+    __int128 re0 = (__int128)apy_limb_signed_t(src0[0]);
+    __int128 im0 = (__int128)apy_limb_signed_t(src0[1]);
+    __int128 re1 = (__int128)apy_limb_signed_t(src1[0]);
+    __int128 im1 = (__int128)apy_limb_signed_t(src1[1]);
+    unsigned __int128 acc_re = (unsigned __int128)(res[0])
+        | ((unsigned __int128)(res[1]) << APY_LIMB_SIZE_BITS);
+    unsigned __int128 acc_im = (unsigned __int128)(res[2])
+        | ((unsigned __int128)(res[3]) << APY_LIMB_SIZE_BITS);
+    acc_re += (unsigned __int128)(re0 * re1 - im0 * im1);
+    acc_im += (unsigned __int128)(re0 * im1 + im0 * re1);
+    res[0] = apy_limb_t(acc_re);
+    res[1] = apy_limb_t(acc_re >> APY_LIMB_SIZE_BITS);
+    res[2] = apy_limb_t(acc_im);
+    res[3] = apy_limb_t(acc_im >> APY_LIMB_SIZE_BITS);
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    auto [p0_high, p0_low] = long_signed_mult(src0[0], src1[0]);
+    auto [p1_high, p1_low] = long_signed_mult(src0[1], src1[1]);
+    auto [p2_high, p2_low] = long_signed_mult(src0[0], src1[1]);
+    auto [p3_high, p3_low] = long_signed_mult(src0[1], src1[0]);
+    apy_limb_t p0_low_tmp = p0_low - p1_low;
+    p0_high -= (p0_low < p0_low_tmp) + p1_high;
+    p2_low += p3_low;
+    p2_high += (p2_low < p3_low) + p3_high;
+    apy_limb_t prod_re[2] = { p0_low_tmp, p0_high };
+    apy_limb_t prod_im[2] = { p2_low, p2_high };
+    apy_inplace_addition_length_two(res + 0, prod_re);
+    apy_inplace_addition_length_two(res + 2, prod_im);
+#else
+    // No 128-bit multiplication intrinsic found. We could implement this function,
+    // but fail for now so we can clearly see which systems are missing out on these
+    // intrinsics.
+    static_assert(
+        false,
+        "complex_multiplication_addition_1_1_2(): No intrinsic available on your "
+        "compiler. Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with "
+        "information about the compiler and platform and we will be happy to add "
+        "support for it."
+    );
+#endif
+#else
+    // COMPILER_LIMB_SIZE = 32
+    std::int64_t re0 = (std::int64_t)apy_limb_signed_t(src0[0]);
+    std::int64_t im0 = (std::int64_t)apy_limb_signed_t(src0[1]);
+    std::int64_t re1 = (std::int64_t)apy_limb_signed_t(src1[0]);
+    std::int64_t im1 = (std::int64_t)apy_limb_signed_t(src1[1]);
+    std::uint64_t acc_re
+        = (std::uint64_t)(res[0]) | ((std::uint64_t)(res[1]) << APY_LIMB_SIZE_BITS);
+    std::uint64_t acc_im
+        = (std::uint64_t)(res[2]) | ((std::uint64_t)(res[3]) << APY_LIMB_SIZE_BITS);
+    acc_re += (std::uint64_t)(re0 * re1 - im0 * im1);
+    acc_im += (std::uint64_t)(re0 * im1 + im0 * re1);
+    res[0] = apy_limb_t(acc_re);
+    res[1] = apy_limb_t(acc_re >> APY_LIMB_SIZE_BITS);
+    res[2] = apy_limb_t(acc_im);
+    res[3] = apy_limb_t(acc_im >> APY_LIMB_SIZE_BITS);
+#endif
+}
+
 static APY_INLINE void complex_multiplication_1_2_2(
     apy_limb_t* res, const apy_limb_t* src0, const apy_limb_t* src1
 )
@@ -914,44 +981,13 @@ private:
 
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + 2 * N * m;
-#if (COMPILER_LIMB_SIZE == 64)
-            // Use optimized complex_multiplication_1_1_2 for 64-bit limbs
-            std::array<apy_limb_t, 4> prod;
             auto acc = dst + m * 4 * DST_STEP;
             std::fill_n(acc, 4, 0);
             for (std::size_t n = 0; n < N; n++) {
-                // Multiply two 1-limb complex numbers using optimized helper
-                complex_multiplication_1_1_2(
-                    prod.data(),
-                    &A_it[2 * n], // src0: A[n] = A_it[2*n] + A_it[2*n+1]*i
-                    &src2[2 * n]  // src1: src2[n] = src2[2*n] + src2[2*n+1]*i
+                complex_multiplication_addition_1_1_2(
+                    &acc[0], &A_it[2 * n], &src2[2 * n]
                 );
-                // Accumulate the 2-limb complex result
-                apy_inplace_addition_length_two(&acc[0], &prod[0]); // real part
-                apy_inplace_addition_length_two(&acc[2], &prod[2]); // imag part
             }
-#elif (COMPILER_LIMB_SIZE == 32)
-            // Use 64-bit accumulation for 32-bit limbs
-            std::int64_t acc_re = 0;
-            std::int64_t acc_im = 0;
-            for (std::size_t n = 0; n < N; n++) {
-                std::int64_t z1_re = apy_limb_signed_t(A_it[2 * n + 0]);
-                std::int64_t z1_im = apy_limb_signed_t(A_it[2 * n + 1]);
-                std::int64_t z2_re = apy_limb_signed_t(src2[2 * n + 0]);
-                std::int64_t z2_im = apy_limb_signed_t(src2[2 * n + 1]);
-                std::int64_t ac = z1_re * z2_re;
-                std::int64_t bd = z1_im * z2_im;
-                std::int64_t bc = z1_im * z2_re;
-                std::int64_t ad = z1_re * z2_im;
-                acc_re += ac - bd;
-                acc_im += bc + ad;
-            }
-            dst[4 * m * DST_STEP + 0] = apy_limb_t(acc_re >> 0);
-            dst[4 * m * DST_STEP + 1] = apy_limb_t(acc_re >> 32);
-            dst[4 * m * DST_STEP + 2] = apy_limb_t(acc_im >> 0);
-            dst[4 * m * DST_STEP + 3] = apy_limb_t(acc_im >> 32);
-
-#endif
         }
     }
 
