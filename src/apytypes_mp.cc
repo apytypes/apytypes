@@ -224,12 +224,7 @@ apy_limb_t apy_unsigned_square(
     }
 
     // Phase 2: double the cross-term sum.
-    apy_limb_t shift_carry = 0;
-    for (std::size_t k = 0; k < 2 * src_limbs; k++) {
-        apy_limb_t new_carry = dest[k] >> (APY_LIMB_SIZE_BITS - 1);
-        dest[k] = (dest[k] << 1) | shift_carry;
-        shift_carry = new_carry;
-    }
+    apy_inplace_left_shift(dest, 2 * src_limbs, 1);
 
     // Phase 3: add diagonal terms src[i]^2 at dest[2i..2i+1].
     unsigned __int128 add_carry = 0;
@@ -263,12 +258,7 @@ apy_limb_t apy_unsigned_square(
     }
 
     // Phase 2: double the cross-term sum.
-    apy_limb_t shift_carry = 0;
-    for (std::size_t k = 0; k < 2 * src_limbs; k++) {
-        apy_limb_t new_carry = dest[k] >> (APY_LIMB_SIZE_BITS - 1);
-        dest[k] = (dest[k] << 1) | shift_carry;
-        shift_carry = new_carry;
-    }
+    apy_inplace_left_shift(dest, 2 * src_limbs, 1);
 
     // Phase 3: add diagonal terms src[i]^2 at dest[2i..2i+1].
     std::uint64_t add_carry = 0;
@@ -301,12 +291,7 @@ apy_limb_t apy_unsigned_square(
     }
 
     // Phase 2: Double the cross-term sum (left-shift by 1 bit)
-    apy_limb_t shift_carry = 0;
-    for (std::size_t k = 0; k < 2 * src_limbs; k++) {
-        apy_limb_t new_carry = dest[k] >> (APY_LIMB_SIZE_BITS - 1);
-        dest[k] = (dest[k] << 1) | shift_carry;
-        shift_carry = new_carry;
-    }
+    apy_inplace_left_shift(dest, 2 * src_limbs, 1);
 
     // Phase 3: Add the diagonal terms src[i]^2 at positions dest[2i..2i+1]
     apy_limb_t add_carry = 0;

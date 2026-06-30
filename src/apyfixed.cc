@@ -110,13 +110,15 @@ APyFixed::APyFixed(int bits, int int_bits, const ScratchVector<apy_limb_t>& data
 template <class base_op, class ripple_carry_op>
 inline APyFixed APyFixed::_apyfixed_base_add_sub(const APyFixed& rhs) const
 {
+    auto f_bits = frac_bits();
+    auto rhs_f_bits = rhs.frac_bits();
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
-    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_frac_bits = std::max(rhs_f_bits, f_bits);
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+    auto lhs_shift_amount = unsigned(res_frac_bits - f_bits);
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs_f_bits);
 
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native operation
@@ -741,7 +743,8 @@ void APyFixed::set_from_string_dec(const std::string& str)
 
     // Multiply BCD number by 2^(frac_bits() + 1) (extra bit for quantization)
     auto bcd_list_size_prev = bcd_list.size();
-    for (int i = 0; i < frac_bits() + 1; i++) {
+    auto frac_bits_plus_one = frac_bits() + 1;
+    for (int i = 0; i < frac_bits_plus_one; i++) {
         bcd_mul2(bcd_list);
     }
 
@@ -767,8 +770,8 @@ void APyFixed::set_from_string_dec(const std::string& str)
     );
 
     // Adjust limb vector if negative fractional bits are present
-    if (frac_bits() + 1 < 0) {
-        limb_vector_asr(data.begin(), data.end(), -(frac_bits() + 1));
+    if (frac_bits_plus_one < 0) {
+        limb_vector_asr(data.begin(), data.end(), -frac_bits_plus_one);
     }
 
     // Copy the data into the result vector
@@ -847,18 +850,19 @@ int APyFixed::hdl_slice_bound_or_default(
 
 int APyFixed::get_bit_value(int index) const
 {
-    if (index < -frac_bits() || index >= int_bits()) {
+    auto f_bits = frac_bits();
+    if (index < -f_bits || index >= int_bits()) {
         PyErr_Format(
             PyExc_IndexError,
             "APyFixed bit index %d out of range [%d, %d]",
             index,
-            -frac_bits(),
+            -f_bits,
             int_bits() - 1
         );
         throw nb::python_error();
     }
 
-    const int raw_bit_index = index + frac_bits();
+    const int raw_bit_index = index + f_bits;
     const std::size_t limb_index = raw_bit_index / APY_LIMB_SIZE_BITS;
     const unsigned bit_offset = raw_bit_index % APY_LIMB_SIZE_BITS;
 
@@ -879,7 +883,8 @@ nb::int_ APyFixed::get_hdl_bit_range(const nb::slice& index) const
         throw nb::python_error();
     }
 
-    const int min_index = -frac_bits();
+    const int f_bits = frac_bits();
+    const int min_index = -f_bits;
     const int max_index = int_bits() - 1;
 
     const int msb = hdl_slice_bound_or_default(start_obj, max_index, "start");
@@ -921,7 +926,7 @@ nb::int_ APyFixed::get_hdl_bit_range(const nb::slice& index) const
     const int result_bits = msb - lsb + 1;
 
     if (result_bits <= int(APY_LIMB_SIZE_BITS)) {
-        const int raw_lsb = lsb + frac_bits();
+        const int raw_lsb = lsb + f_bits;
         const std::size_t src_limb_index = raw_lsb / APY_LIMB_SIZE_BITS;
         const unsigned src_bit_offset = raw_lsb % APY_LIMB_SIZE_BITS;
 
@@ -946,7 +951,7 @@ nb::int_ APyFixed::get_hdl_bit_range(const nb::slice& index) const
     std::vector<apy_limb_t> result(bits_to_limbs(result_bits), apy_limb_t(0));
 
     for (int source_index = lsb; source_index <= msb; ++source_index) {
-        const int raw_source_index = source_index + frac_bits();
+        const int raw_source_index = source_index + f_bits;
         const std::size_t src_limb_index = raw_source_index / APY_LIMB_SIZE_BITS;
         const unsigned src_bit_offset = raw_source_index % APY_LIMB_SIZE_BITS;
 

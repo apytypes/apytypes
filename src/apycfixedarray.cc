@@ -197,24 +197,24 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
         } else if (frac_bits() <= rhs.frac_bits()) {
             // Right-hand side has more fractional bits. Upsize `*this`
             _cast_no_quantize_no_overflow(
-                std::begin(_data),               // src
-                std::begin(result._data),        // dst
-                _itemsize / 2,                   // src_limbs
-                result._itemsize / 2,            // dst_limbs
-                2 * _nitems,                     // n_items
-                result.frac_bits() - frac_bits() // left_shift_amount
+                std::begin(_data),          // src
+                std::begin(result._data),   // dst
+                _itemsize / 2,              // src_limbs
+                result._itemsize / 2,       // dst_limbs
+                2 * _nitems,                // n_items
+                res_frac_bits - frac_bits() // left_shift_amount
             );
             src1_ptr = result._data.data();
             src2_ptr = rhs._data.data();
         } else {
             // Left-hand side has more fractional bits. Upsize `rhs`
             _cast_no_quantize_no_overflow(
-                std::begin(rhs._data),               // src
-                std::begin(result._data),            // dst
-                rhs._itemsize / 2,                   // src_limbs
-                result._itemsize / 2,                // dst_limbs
-                2 * rhs._nitems,                     // n_items
-                result.frac_bits() - rhs.frac_bits() // left_shift_amount
+                std::begin(rhs._data),          // src
+                std::begin(result._data),       // dst
+                rhs._itemsize / 2,              // src_limbs
+                result._itemsize / 2,           // dst_limbs
+                2 * rhs._nitems,                // n_items
+                res_frac_bits - rhs.frac_bits() // left_shift_amount
             );
             src1_ptr = _data.data();
             src2_ptr = result._data.data();
@@ -233,20 +233,20 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
     // Most general case: Works in any situation, but is slowest
     APyCFixedArray imm(_shape, res_bits, res_int_bits);
     _cast_no_quantize_no_overflow(
-        std::begin(_data),               // src
-        std::begin(result._data),        // dst
-        _itemsize / 2,                   // src_limbs
-        result._itemsize / 2,            // dst_limbs
-        2 * _nitems,                     // n_items
-        result.frac_bits() - frac_bits() // left_shift_amount
+        std::begin(_data),          // src
+        std::begin(result._data),   // dst
+        _itemsize / 2,              // src_limbs
+        result._itemsize / 2,       // dst_limbs
+        2 * _nitems,                // n_items
+        res_frac_bits - frac_bits() // left_shift_amount
     );
     _cast_no_quantize_no_overflow(
-        std::begin(rhs._data),            // src
-        std::begin(imm._data),            // dst
-        rhs._itemsize / 2,                // src_limbs
-        imm._itemsize / 2,                // dst_limbs
-        2 * rhs._nitems,                  // n_items
-        imm.frac_bits() - rhs.frac_bits() // left_shift_amount
+        std::begin(rhs._data),          // src
+        std::begin(imm._data),          // dst
+        rhs._itemsize / 2,              // src_limbs
+        imm._itemsize / 2,              // dst_limbs
+        2 * rhs._nitems,                // n_items
+        res_frac_bits - rhs.frac_bits() // left_shift_amount
     );
 
     // Perform ripple-carry operation for each element
