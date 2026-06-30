@@ -650,6 +650,18 @@
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8APyFixed13get_bit_valueEi">
+<span id="_CPPv3NK8APyFixed13get_bit_valueEi"></span><span id="_CPPv2NK8APyFixed13get_bit_valueEi"></span><span id="APyFixed::get_bit_value__iC"></span><span class="target" id="classAPyFixed_1a157e5c12b25f4ad98b8263bdd66728b6"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_bit_value</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8APyFixed13get_bit_valueEi" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Get the raw bit value at index where 0 is LSB integer bit and negative indices address fractional bits. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8APyFixed17get_hdl_bit_rangeERKN2nb5sliceE">
+<span id="_CPPv3NK8APyFixed17get_hdl_bit_rangeERKN2nb5sliceE"></span><span id="_CPPv2NK8APyFixed17get_hdl_bit_rangeERKN2nb5sliceE"></span><span id="APyFixed::get_hdl_bit_range__nb::sliceCRC"></span><span class="target" id="classAPyFixed_1aa1c35e646864da57c5b699839dd17657"></span><span class="n"><span class="pre">nb</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int_</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_hdl_bit_range</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">nb</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">slice</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8APyFixed17get_hdl_bit_rangeERKN2nb5sliceE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Get an inclusive HDL-style bit range where the slice is interpreted as msb:lsb and both bounds are included. </p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK8APyFixed11to_fractionEv">
 <span id="_CPPv3NK8APyFixed11to_fractionEv"></span><span id="_CPPv2NK8APyFixed11to_fractionEv"></span><span id="APyFixed::to_fractionC"></span><span class="target" id="classAPyFixed_1a4560c4917f30f25d1f945e77cc35abcd"></span><span class="n"><span class="pre">nb</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">object</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">to_fraction</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8APyFixed11to_fractionEv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Convert to Fraction. </p>
@@ -1038,6 +1050,8 @@
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed7is_zeroEv"><code class="docutils literal notranslate"><span class="pre">is_zero()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8APyFixed13increment_lsbEv"><code class="docutils literal notranslate"><span class="pre">increment_lsb()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed7to_bitsEv"><code class="docutils literal notranslate"><span class="pre">to_bits()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8APyFixed13get_bit_valueEi"><code class="docutils literal notranslate"><span class="pre">get_bit_value()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8APyFixed17get_hdl_bit_rangeERKN2nb5sliceE"><code class="docutils literal notranslate"><span class="pre">get_hdl_bit_range()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed11to_fractionEv"><code class="docutils literal notranslate"><span class="pre">to_fraction()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed16as_integer_ratioEv"><code class="docutils literal notranslate"><span class="pre">as_integer_ratio()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed25bit_pattern_to_string_decEv"><code class="docutils literal notranslate"><span class="pre">bit_pattern_to_string_dec()</span></code></a></li>
