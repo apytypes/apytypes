@@ -259,6 +259,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/vectorrotation.html">Fixed-point vector rotation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/reciprocal_lookup.html">Reciprocal lookup table</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/test_fp8_mul.html">cocotb integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/ldlt_matrix_inversion.html">LDLT matrix inversion</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../playground.html">APyTypes Playground</a></li>
@@ -331,7 +332,7 @@
 </ul>
 <p>depending on <cite>value</cite>. Returns <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a> when <cite>value</cite> is <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or
 <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>. Returns <a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a> when <cite>value</cite> is <a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></a> or when
-<em>force_complex</em> is True. Returns <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a>
+<em>force_complex</em> is <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Returns <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a>
 when <cite>value</cite> is a sequence of numbers.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.3.</span></p>
@@ -347,7 +348,7 @@ when <cite>value</cite> is a sequence of numbers.</p>
 </dd>
 <dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits in the created fixed-point object.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: False</span></dt><dd><p>If True, force the return value to be <a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a> or
+<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, force the return value to be <a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a> or
 <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a>, even if <em>value</em> is real.</p>
 </dd>
 </dl>
@@ -382,7 +383,7 @@ when <cite>value</cite> is a sequence of numbers.</p>
 </ul>
 <p>depending on <cite>value</cite>. Returns <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> when <cite>value</cite> is <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or
 <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>. Returns <a class="reference internal" href="apycfloat.html#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a> when <cite>value</cite> is <a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">complex</span></code></a> or when
-<em>is_complex</em> is True. Returns <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a> when
+<em>force_complex</em> is <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Returns <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a> when
 <cite>value</cite> is a sequence of numbers.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.3.</span></p>
@@ -398,7 +399,7 @@ when <cite>value</cite> is a sequence of numbers.</p>
 </dd>
 <dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**(exp_bits</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: False</span></dt><dd><p>If True, force the return value to be <a class="reference internal" href="apycfloat.html#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a> or
+<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, force the return value to be <a class="reference internal" href="apycfloat.html#apytypes.APyCFloat" title="apytypes.APyCFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloat</span></code></a> or
 <a class="reference internal" href="apycfloatarray.html#apytypes.APyCFloatArray" title="apytypes.APyCFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a>, even if <em>value</em> is real.</p>
 </dd>
 </dl>
@@ -515,6 +516,29 @@ perform, e.g., <code class="docutils literal notranslate"><span class="pre">sin<
 </dd></dl>
 
 </section>
+<section id="enum-types">
+<h2>Enum types<a class="headerlink" href="#enum-types" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="apytypes.ConvolutionMode">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">ConvolutionMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.ConvolutionMode" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.ConvolutionMode.FULL">
+<span class="sig-name descname"><span class="pre">FULL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#apytypes.ConvolutionMode.FULL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.ConvolutionMode.SAME">
+<span class="sig-name descname"><span class="pre">SAME</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#apytypes.ConvolutionMode.SAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.ConvolutionMode.VALID">
+<span class="sig-name descname"><span class="pre">VALID</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></span><a class="headerlink" href="#apytypes.ConvolutionMode.VALID" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 
         </article>
@@ -588,6 +612,15 @@ perform, e.g., <code class="docutils literal notranslate"><span class="pre">sin<
 </li>
 <li><a class="reference internal" href="#evaluate-functions">Evaluate functions</a><ul>
 <li><a class="reference internal" href="#apytypes.fn"><code class="docutils literal notranslate"><span class="pre">fn()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#enum-types">Enum types</a><ul>
+<li><a class="reference internal" href="#apytypes.ConvolutionMode"><code class="docutils literal notranslate"><span class="pre">ConvolutionMode</span></code></a><ul>
+<li><a class="reference internal" href="#apytypes.ConvolutionMode.FULL"><code class="docutils literal notranslate"><span class="pre">ConvolutionMode.FULL</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.ConvolutionMode.SAME"><code class="docutils literal notranslate"><span class="pre">ConvolutionMode.SAME</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.ConvolutionMode.VALID"><code class="docutils literal notranslate"><span class="pre">ConvolutionMode.VALID</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

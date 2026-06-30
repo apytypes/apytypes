@@ -1,0 +1,199 @@
+"""
+LDLT matrix inversion
+=====================
+
+This example demonstrates how to invert a matrix using the LDLT decomposition.
+It illustrates that an algorithm written for NumPy can be directly applied to APyTypes objects,
+which is useful for determining the required word length, testing, and verification of hardware implementations.
+
+First, we define the LDLT decomposition and matrix inversion functions using NumPy arrays.
+"""
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+import apytypes as apy
+
+
+def ldl_decomposition(
+    A: np.ndarray | apy.APyFloatArray,
+) -> tuple[np.ndarray | apy.APyFloatArray, np.ndarray | apy.APyFloatArray]:
+    """
+    LDL^T decomposition without pivoting.
+    A must be square and symmetric.
+    Returns L (unit lower-triangular) and D (diagonal stored as 1D array).
+    """
+    n = A.shape[0]
+
+    if A.ndim != 2 or A.shape[0] != A.shape[1]:
+        raise ValueError("A must be a square matrix.")
+
+    # Symmetry check with plain loops (no np.allclose)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if abs(float(A[i, j] - A[j, i])) > 1e-12:
+                raise ValueError("A must be symmetric for LDL^T decomposition.")
+
+    if isinstance(A, apy.APyFloatArray):
+        # Use APyTypes arrays for storage/results
+        L = apy.zeros_like(A)
+        D = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+    else:
+        # Use numpy arrays only for storage/results
+        L = np.zeros((n, n), dtype=float)
+        D = np.zeros(n, dtype=float)
+
+    for i in range(n):
+        if isinstance(A, apy.APyFloatArray):
+            L[i, i] = apy.fp(1.0, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+        else:
+            L[i, i] = 1.0
+
+    for j in range(n):
+        # D[j] = A[j,j] - sum_{k=0..j-1} L[j,k]^2 * D[k]
+        s = 0.0
+        for k in range(j):
+            s += L[j, k] * L[j, k] * D[k]
+        D[j] = A[j, j] - s
+
+        if abs(D[j]) < 1e-15:
+            raise np.linalg.LinAlgError(
+                "Zero (or near-zero) pivot encountered in D; matrix may be singular "
+                "or pivoting is required."
+            )
+
+        # L[i,j] = (A[i,j] - sum_{k=0..j-1} L[i,k]L[j,k]D[k]) / D[j], for i>j
+        for i in range(j + 1, n):
+            s = 0.0
+            for k in range(j):
+                s += L[i, k] * L[j, k] * D[k]
+            L[i, j] = (A[i, j] - s) / D[j]
+
+    return L, D
+
+
+def inverse_from_ldl(
+    A: np.ndarray | apy.APyFloatArray,
+) -> np.ndarray | apy.APyFloatArray:
+    """
+    Invert A using LDL^T decomposition and triangular solves:
+    A = L D L^T
+    A^{-1} columns are solutions of A x = e_i.
+    """
+    L, D = ldl_decomposition(A)
+    n = A.shape[0]
+    if isinstance(A, apy.APyFloatArray):
+        Ainv = apy.zeros_like(A)
+    else:
+        Ainv = np.zeros((n, n), dtype=float)
+
+    for col in range(n):
+        # e_col
+        e = np.zeros(n, dtype=float)
+        e[col] = 1.0
+
+        # Solve L z = e (forward substitution)
+        if isinstance(A, apy.APyFloatArray):
+            z = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+        else:
+            z = np.zeros(n, dtype=float)
+        for i in range(n):
+            if isinstance(A, apy.APyFloatArray):
+                s = apy.fp(0.0, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+            else:
+                s = 0.0
+            for k in range(i):
+                s += L[i, k] * z[k]
+            z[i] = e[i] - s  # since diag(L)=1
+
+        # Solve D y = z (diagonal solve)
+        if isinstance(A, apy.APyFloatArray):
+            y = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+        else:
+            y = np.zeros(n, dtype=float)
+        for i in range(n):
+            if abs(D[i]) < 1e-15:
+                raise np.linalg.LinAlgError("Singular diagonal entry in D.")
+            y[i] = z[i] / D[i]
+
+        # Solve L^T x = y (back substitution)
+        if isinstance(A, apy.APyFloatArray):
+            x = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+        else:
+            x = np.zeros(n, dtype=float)
+        for i in range(n - 1, -1, -1):
+            s = 0.0
+            for k in range(i + 1, n):
+                s += L[k, i] * x[k]  # L^T[i,k] = L[k,i]
+            x[i] = y[i] - s  # diag(L^T)=1
+
+        # Put solution as column `col`
+        for i in range(n):
+            Ainv[i, col] = x[i]
+
+    return Ainv
+
+
+# %%
+# Define a symmetric positive definite matrix and compute its inverse using NumPy for reference.
+#
+# Ideally one should run over a range of matrices, but for demonstration purposes we will use a single matrix here.
+A = np.array([[4.0, 1.0, 1.25], [1.0, 3.0, -2.5], [1.25, -2.5, 5.0]], dtype=float)
+
+reference = np.linalg.inv(A)
+numpy_ldlt = inverse_from_ldl(A)
+
+error_numpy = np.linalg.norm(numpy_ldlt - reference)
+
+# %%
+# Now we will test the LDLT inversion using APyTypes with various configurations of exponent bits, mantissa bits, and bias offsets.
+man_bits_range = range(10, 41, 2)
+exp_bits_range = range(2, 5)
+bias_offset_range = range(-2, 3)
+no_man_bits = len(man_bits_range)
+no_exp_bits = len(exp_bits_range)
+no_bias_offsets = len(bias_offset_range)
+error_apytypes = np.empty((no_exp_bits, no_man_bits, no_bias_offsets), dtype=float)
+exp_bits_apytypes = np.empty((no_exp_bits, no_man_bits, no_bias_offsets), dtype=int)
+man_bits_apytypes = np.empty((no_exp_bits, no_man_bits, no_bias_offsets), dtype=int)
+bias_offsets_apytypes = np.empty((no_exp_bits, no_man_bits, no_bias_offsets), dtype=int)
+print("Starting APyTypes LDLT inverse tests...")
+for i, exp_bits in enumerate(exp_bits_range):
+    for j, man_bits in enumerate(man_bits_range):
+        for k, bias_offset in enumerate(bias_offset_range):
+            standard_bias = (1 << (exp_bits - 1)) - 1
+            bias = standard_bias + bias_offset
+            apy_A = apy.fp(A, exp_bits=exp_bits, man_bits=man_bits, bias=max(bias, 0))
+            apy_ldlt = inverse_from_ldl(apy_A)
+            error_apytypes[i, j, k] = np.linalg.norm(apy_ldlt.to_numpy() - reference)
+            exp_bits_apytypes[i, j, k] = exp_bits
+            man_bits_apytypes[i, j, k] = man_bits
+            bias_offsets_apytypes[i, j, k] = bias_offset
+
+# %%
+# Plot the errors for different configurations of exponent bits, mantissa bits, and bias offsets
+
+
+fig, ax = plt.subplots()
+linestyles = ["-", "--", ":"]
+for i, exp_bits in enumerate(exp_bits_range):
+    for j, bias_offset in enumerate(bias_offset_range):
+        vals = error_apytypes[i, :, j]
+        if np.isnan(vals).any():  # Check for NaN values
+            print(
+                f"Skipping plot for exp_bits={exp_bits}, bias_offset={bias_offset} due to NaN values."
+            )
+        else:
+            ax.plot(
+                man_bits_range,
+                vals,
+                linestyle=linestyles[i % len(linestyles)],
+                color=f"C{j}",
+                label=f"exp_bits={exp_bits}, bias_offset={bias_offset}",
+            )
+ax.set_xlabel("Mantissa bits")
+ax.set_ylabel("Error (L2 norm)")
+ax.set_title("Error of LDLT matrix inversion with APyTypes")
+ax.set_yscale("log")
+ax.legend()
+plt.show()

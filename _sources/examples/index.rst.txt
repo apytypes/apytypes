@@ -156,6 +156,23 @@ These are examples of how APyTypes can be used.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to invert a matrix using the LDLT decomposition. It illustrates that an algorithm written for NumPy can be directly applied to APyTypes objects, which is useful for determining the required word length, testing, and verification of hardware implementations.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_ldlt_matrix_inversion_thumb.png
+    :alt:
+
+  :doc:`/examples/ldlt_matrix_inversion`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">LDLT matrix inversion</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -174,6 +191,7 @@ These are examples of how APyTypes can be used.
    /examples/vectorrotation
    /examples/reciprocal_lookup
    /examples/test_fp8_mul
+   /examples/ldlt_matrix_inversion
 
 
 .. only:: html

@@ -257,6 +257,7 @@
 <li class="toctree-l2"><a class="reference internal" href="examples/vectorrotation.html">Fixed-point vector rotation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/reciprocal_lookup.html">Reciprocal lookup table</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/test_fp8_mul.html">cocotb integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/ldlt_matrix_inversion.html">LDLT matrix inversion</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="playground.html">APyTypes Playground</a></li>
@@ -301,7 +302,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
 </section>
 <section id="_" class="genindex-section">
   <h2>_</h2>
@@ -1886,7 +1887,11 @@
 </li>
         </ul></li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv415ConvolutionMode">ConvolutionMode (C++ enum)</a>
+
+        <ul>
+          <li><a href="api/utils.html#apytypes.ConvolutionMode">(class in apytypes)</a>
 </li>
+        </ul></li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv4N15ConvolutionMode4FULLE">ConvolutionMode::FULL (C++ enumerator)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv4N15ConvolutionMode4SAMEE">ConvolutionMode::SAME (C++ enumerator)</a>
@@ -2171,10 +2176,10 @@
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4N25FloatingPointInnerProduct11add_generalE">FloatingPointInnerProduct::add_general (C++ member)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4N25FloatingPointInnerProduct11add_same_wlE">FloatingPointInnerProduct::add_same_wl (C++ member)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4N25FloatingPointInnerProduct1fE">FloatingPointInnerProduct::f (C++ member)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4N25FloatingPointInnerProduct25FloatingPointInnerProductERK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">FloatingPointInnerProduct::FloatingPointInnerProduct (C++ function)</a>
@@ -2306,6 +2311,8 @@
 </li>
         </ul></li>
         <li><a href="api/apyfixed.html#apytypes.APyFixed.from_str">from_str() (apytypes.APyFixed method)</a>
+</li>
+        <li><a href="api/utils.html#apytypes.ConvolutionMode.FULL">FULL (apytypes.ConvolutionMode attribute)</a>
 </li>
         <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.full">full() (apytypes.APyCFixedArray method)</a>
 
@@ -3047,6 +3054,8 @@
   <h2>S</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/utils.html#apytypes.ConvolutionMode.SAME">SAME (apytypes.ConvolutionMode attribute)</a>
+</li>
         <li><a href="api/quantizationoverflow.html#apytypes.OverflowMode.SAT">SAT (apytypes.OverflowMode attribute)</a>
 </li>
         <li><a href="cpp_api/apytypes_scratch_vector.html#_CPPv4I0_NSt6size_tE0E13ScratchVector">ScratchVector (C++ class)</a>
@@ -3179,10 +3188,10 @@
 </li>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv44simd">simd (C++ type)</a>
 </li>
-        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE11add_functor10vector_add">simd::CREATE_FUNCTOR_FROM_FUNC (C++ function)</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE11sub_functor10vector_sub">[1]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17add_const_functor16vector_add_const">[2]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17shift_add_functor16vector_shift_add">[3]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17shift_sub_functor16vector_shift_sub">[4]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17sub_const_functor16vector_sub_const">[5]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE23shift_add_const_functor22vector_shift_add_const">[6]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE23shift_sub_const_functor22vector_shift_sub_const">[7]</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE11add_functor10vector_add">simd::CREATE_FUNCTOR_FROM_FUNC (C++ function)</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE11sub_functor10vector_sub">[1]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17add_const_functor16vector_add_const">[2]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17shift_add_functor16vector_shift_add">[3]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17shift_sub_functor16vector_shift_sub">[4]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17sub_const_functor16vector_sub_const">[5]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE23shift_add_const_functor22vector_shift_add_const">[6]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE23shift_sub_const_functor22vector_shift_sub_const">[7]</a>
+</li>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd20get_simd_version_strEv">simd::get_simd_version_str (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd10vector_absEN9APyBufferI10apy_limb_tE11vector_type8iteratorEN9APyBufferI10apy_limb_tE11vector_type14const_iteratorENSt6size_tE">simd::vector_abs (C++ function)</a>
@@ -3498,6 +3507,16 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#c.UINT64_TO_LIMB">UINT64_TO_LIMB (C macro)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/utils.html#apytypes.ConvolutionMode.VALID">VALID (apytypes.ConvolutionMode attribute)</a>
 </li>
     </ul></td>
   </tr></table>

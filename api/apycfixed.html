@@ -259,6 +259,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/vectorrotation.html">Fixed-point vector rotation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/reciprocal_lookup.html">Reciprocal lookup table</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/test_fp8_mul.html">cocotb integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/ldlt_matrix_inversion.html">LDLT matrix inversion</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../playground.html">APyTypes Playground</a></li>
@@ -568,7 +569,6 @@ needs to be set.</p>
 <p>Create complex-valued fixed-point number <cite>fx_a</cite> of value -5.75 + 2j and
 show its bit pattern (real, imag)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="o">-</span><span class="mf">5.75</span> <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
 <span class="go">(164, 32)</span>
