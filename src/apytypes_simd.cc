@@ -67,6 +67,102 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
+    HWY_ATTR void _hwy_vector_shift_add_const_even_odd(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t even_constant,
+        apy_limb_t odd_constant,
+        unsigned src1_shift_amount,
+        unsigned src2_shift_amount,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
+
+        auto shifted_even_constant = even_constant << src2_shift_amount;
+        auto shifted_odd_constant = odd_constant << src2_shift_amount;
+        const auto even = (hn::Set(d, shifted_even_constant));
+        const auto odd = (hn::Set(d, shifted_odd_constant));
+        const auto constants_even_start = hn::OddEven(odd, even);
+        std::size_t i = 0;
+        if ((lanes & 1U) == 0U) {
+            for (; i < size_simd; i += lanes) {
+                const auto v1
+                    = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+                const auto res = hn::Add(v1, constants_even_start);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i += 2) {
+                dst[i] = (src1[i] << src1_shift_amount) + shifted_even_constant;
+                dst[i + 1] = (src1[i + 1] << src1_shift_amount) + shifted_odd_constant;
+            }
+        } else {
+            const auto constants_odd_start = hn::OddEven(even, odd);
+            for (; i < size_simd; i += lanes) {
+                const auto constants
+                    = (i & 1) ? constants_odd_start : constants_even_start;
+                const auto v1
+                    = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+                const auto res = hn::Add(v1, constants);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i++) {
+                dst[i] = (src1[i] << src1_shift_amount)
+                    + (((i & 1) ? shifted_odd_constant : shifted_even_constant));
+            }
+        }
+    }
+
+    HWY_ATTR void _hwy_vector_shift_sub_const_even_odd(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t even_constant,
+        apy_limb_t odd_constant,
+        unsigned src1_shift_amount,
+        unsigned src2_shift_amount,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
+
+        auto shifted_even_constant = even_constant << src2_shift_amount;
+        auto shifted_odd_constant = odd_constant << src2_shift_amount;
+        const auto even = hn::Set(d, shifted_even_constant);
+        const auto odd = hn::Set(d, shifted_odd_constant);
+        const auto constants_even_start = hn::OddEven(odd, even);
+        std::size_t i = 0;
+        if ((lanes & 1U) == 0U) {
+            for (; i < size_simd; i += lanes) {
+                const auto v1
+                    = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+                const auto res = hn::Sub(v1, constants_even_start);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i += 2) {
+                dst[i] = (src1[i] << src1_shift_amount) - shifted_even_constant;
+                dst[i + 1] = (src1[i + 1] << src1_shift_amount) - shifted_odd_constant;
+            }
+        } else {
+            const auto constants_odd_start = hn::OddEven(even, odd);
+            for (; i < size_simd; i += lanes) {
+                const auto constants
+                    = (i & 1) ? constants_odd_start : constants_even_start;
+                const auto v1
+                    = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+                const auto res = hn::Sub(v1, constants);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i++) {
+                dst[i] = (src1[i] << src1_shift_amount)
+                    - (((i & 1) ? shifted_odd_constant : shifted_even_constant));
+            }
+        }
+    }
+
     HWY_ATTR void _hwy_vector_shift_sub(
         apy_limb_t* HWY_RESTRICT dst,
         const apy_limb_t* HWY_RESTRICT src1,
@@ -355,6 +451,48 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
+    HWY_ATTR void _hwy_vector_add_const_even_odd(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t even_constant,
+        apy_limb_t odd_constant,
+        const std::size_t size
+    )
+    {
+        assert(size & 1U == 0U && "size must be even for vector_add_const_even_odd");
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
+
+        const auto even = hn::Set(d, even_constant);
+        const auto odd = hn::Set(d, odd_constant);
+        const auto constants_even_start = hn::OddEven(odd, even);
+        std::size_t i = 0;
+        if ((lanes & 1U) == 0U) {
+            for (; i < size_simd; i += lanes) {
+                const auto v1 = hn::LoadU(d, src1 + i);
+                const auto res = hn::Add(v1, constants_even_start);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i += 2) {
+                dst[i] = src1[i] + even_constant;
+                dst[i + 1] = src1[i + 1] + odd_constant;
+            }
+        } else {
+            const auto constants_odd_start = hn::OddEven(even, odd);
+            for (; i < size_simd; i += lanes) {
+                const auto constants
+                    = (i & 1) ? constants_odd_start : constants_even_start;
+                const auto v1 = hn::LoadU(d, src1 + i);
+                const auto res = hn::Add(v1, constants);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i++) {
+                dst[i] = src1[i] + ((i & 1) ? odd_constant : even_constant);
+            }
+        }
+    }
+
     HWY_ATTR void _hwy_vector_sub_const(
         apy_limb_t* HWY_RESTRICT dst,
         const apy_limb_t* HWY_RESTRICT src1,
@@ -445,6 +583,48 @@ namespace HWY_NAMESPACE { // required: unique per target
         return sum;
     }
 
+    HWY_ATTR void _hwy_vector_sub_const_even_odd(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t even_constant,
+        apy_limb_t odd_constant,
+        const std::size_t size
+    )
+    {
+        assert(size & 1U == 0U && "size must be even for vector_sub_const_even_odd");
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
+
+        const auto even = hn::Set(d, even_constant);
+        const auto odd = hn::Set(d, odd_constant);
+        const auto constants_even_start = hn::OddEven(odd, even);
+        std::size_t i = 0;
+        if ((lanes & 1U) == 0U) {
+            for (; i < size_simd; i += lanes) {
+                const auto v1 = hn::LoadU(d, src1 + i);
+                const auto res = hn::Sub(v1, constants_even_start);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i += 2) {
+                dst[i] = src1[i] - even_constant;
+                dst[i + 1] = src1[i + 1] - odd_constant;
+            }
+        } else {
+            const auto constants_odd_start = hn::OddEven(even, odd);
+            for (; i < size_simd; i += lanes) {
+                const auto constants
+                    = (i & 1) ? constants_odd_start : constants_even_start;
+                const auto v1 = hn::LoadU(d, src1 + i);
+                const auto res = hn::Sub(v1, constants);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i++) {
+                dst[i] = src1[i] - ((i & 1) ? odd_constant : even_constant);
+            }
+        }
+    }
+
     HWY_ATTR bool
     _hwy_vector_any_zero(const apy_limb_t* HWY_RESTRICT src, const std::size_t size)
     {
@@ -469,6 +649,48 @@ namespace HWY_NAMESPACE { // required: unique per target
             }
         }
         return false;
+    }
+
+    HWY_ATTR void _hwy_vector_rsub_const_even_odd(
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t even_constant,
+        apy_limb_t odd_constant,
+        const std::size_t size
+    )
+    {
+        assert(size & 1U == 0U && "size must be even for vector_rsub_const_even_odd");
+        constexpr const hn::ScalableTag<apy_limb_t> d;
+        const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
+
+        const auto even = hn::Set(d, even_constant);
+        const auto odd = hn::Set(d, odd_constant);
+        const auto constants_even_start = hn::OddEven(odd, even);
+        std::size_t i = 0;
+        if ((lanes & 1U) == 0U) {
+            for (; i < size_simd; i += lanes) {
+                const auto v1 = hn::LoadU(d, src1 + i);
+                const auto res = hn::Sub(constants_even_start, v1);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i += 2) {
+                dst[i] = even_constant - src1[i];
+                dst[i + 1] = odd_constant - src1[i + 1];
+            }
+        } else {
+            const auto constants_odd_start = hn::OddEven(even, odd);
+            for (; i < size_simd; i += lanes) {
+                const auto constants
+                    = (i & 1) ? constants_odd_start : constants_even_start;
+                const auto v1 = hn::LoadU(d, src1 + i);
+                const auto res = hn::Sub(constants, v1);
+                hn::StoreU(res, d, dst + i);
+            }
+            for (; i < size; i++) {
+                dst[i] = ((i & 1) ? odd_constant : even_constant) - src1[i];
+            }
+        }
     }
 
     HWY_ATTR std::string _hwy_simd_version_str()
@@ -498,8 +720,10 @@ HWY_EXPORT(_hwy_simd_version_str);
 
 HWY_EXPORT(_hwy_vector_shift_add);
 HWY_EXPORT(_hwy_vector_shift_add_const);
+HWY_EXPORT(_hwy_vector_shift_add_const_even_odd);
 HWY_EXPORT(_hwy_vector_shift_sub);
 HWY_EXPORT(_hwy_vector_shift_sub_const);
+HWY_EXPORT(_hwy_vector_shift_sub_const_even_odd);
 HWY_EXPORT(_hwy_vector_shift_div_signed);
 HWY_EXPORT(_hwy_vector_shift_div_const_signed);
 HWY_EXPORT(_hwy_vector_mul);
@@ -511,8 +735,11 @@ HWY_EXPORT(_hwy_vector_conj);
 HWY_EXPORT(_hwy_vector_abs);
 HWY_EXPORT(_hwy_vector_not);
 HWY_EXPORT(_hwy_vector_add_const);
+HWY_EXPORT(_hwy_vector_add_const_even_odd);
 HWY_EXPORT(_hwy_vector_sub_const);
+HWY_EXPORT(_hwy_vector_sub_const_even_odd);
 HWY_EXPORT(_hwy_vector_rsub_const);
+HWY_EXPORT(_hwy_vector_rsub_const_even_odd);
 HWY_EXPORT(_hwy_vector_rdiv_const_signed);
 HWY_EXPORT(_hwy_vector_multiply_accumulate);
 HWY_EXPORT(_hwy_vector_any_zero);
@@ -554,6 +781,27 @@ void vector_shift_add_const(
     );
 }
 
+void vector_shift_add_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_add_const_even_odd)(
+        &*dst_begin,
+        &*src1_begin,
+        even_constant,
+        odd_constant,
+        src1_shift_amount,
+        src2_shift_amount,
+        size
+    );
+}
+
 void vector_shift_sub(
     APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
     APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
@@ -583,6 +831,27 @@ void vector_shift_sub_const(
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_sub_const)(
         &*dst_begin, &*src1_begin, constant, src1_shift_amount, size
+    );
+}
+
+void vector_shift_sub_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_sub_const_even_odd)(
+        &*dst_begin,
+        &*src1_begin,
+        even_constant,
+        odd_constant,
+        src1_shift_amount,
+        src2_shift_amount,
+        size
     );
 }
 
@@ -732,6 +1001,19 @@ void vector_add_const(
     );
 }
 
+void vector_add_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_add_const_even_odd)(
+        &*dst_begin, &*src1_begin, even_constant, odd_constant, size
+    );
+}
+
 void vector_sub_const(
     APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
     apy_limb_t constant,
@@ -744,6 +1026,19 @@ void vector_sub_const(
     );
 }
 
+void vector_sub_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_sub_const_even_odd)(
+        &*dst_begin, &*src1_begin, even_constant, odd_constant, size
+    );
+}
+
 void vector_rsub_const(
     APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
     apy_limb_t constant,
@@ -753,6 +1048,19 @@ void vector_rsub_const(
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_rsub_const)(
         &*dst_begin, &*src1_begin, constant, size
+    );
+}
+
+void vector_rsub_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_rsub_const_even_odd)(
+        &*dst_begin, &*src1_begin, even_constant, odd_constant, size
     );
 }
 

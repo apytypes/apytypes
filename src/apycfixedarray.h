@@ -140,7 +140,7 @@ private:
     inline APyCFixedArray _apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const;
 
     //! Base addition/subtraction routine for `APyCFixedArray` with `APyCFixed`
-    template <class op, class ripple_carry_op>
+    template <class op, class ripple_carry_op, class simd_op>
     inline APyCFixedArray _apycfixed_base_add_sub(const APyCFixed& rhs) const;
 
 public:
