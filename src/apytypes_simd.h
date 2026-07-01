@@ -50,6 +50,24 @@ void vector_shift_add_const(
 /*!
  * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
  * * Shift element in `src1_begin` left by `src1_shift_amount`
+ * * Shift `even_constant` / `odd_constant` left by `src2_shift_amount`
+ * * Add shifted element to alternating constants:
+ *   `even_constant` for even lanes, `odd_constant` for odd lanes
+ * * Store the result in `dst_begin`
+ */
+void vector_shift_add_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+);
+
+/*!
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Shift element in `src1_begin` left by `src1_shift_amount`
  * * Shift element in `src2_begin` left by `src2_shift_amount`
  * * Subtract shifted values and store in `dst_begin`
  */
@@ -72,6 +90,24 @@ void vector_shift_sub_const(
     apy_limb_t constant,
     APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
+    std::size_t size
+);
+
+/*!
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Shift element in `src1_begin` left by `src1_shift_amount`
+ * * Shift `even_constant` / `odd_constant` left by `src2_shift_amount`
+ * * Subtract alternating constants from shifted element:
+ *   `even_constant` for even lanes, `odd_constant` for odd lanes
+ * * Store the result in `dst_begin`
+ */
+void vector_shift_sub_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
     std::size_t size
 );
 
@@ -148,12 +184,38 @@ void vector_add_const(
 );
 
 /*!
+ * Perform addition of the elements in `src1_begin` with alternating constants,
+ * using `even_constant` for even lanes and `odd_constant` for odd lanes, and
+ * store the result in `dst_begin`, for `size` number of elements.
+ */
+void vector_add_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
  * Perform subtraction of the elements in `src1_begin` with a constant `constant`
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_sub_const(
     APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
     apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * Perform subtraction of the elements in `src1_begin` with alternating constants,
+ * using `even_constant` for even lanes and `odd_constant` for odd lanes, and
+ * store the result in `dst_begin`, for `size` number of elements.
+ */
+void vector_sub_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
     APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
@@ -218,6 +280,18 @@ void vector_rsub_const(
 );
 
 /*!
+ * Perform reverse subtraction of alternating constants with the elements in
+ * `src1_begin` and store the result in `dst_begin`, for `size` number of elements.
+ */
+void vector_rsub_const_even_odd(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t even_constant,
+    apy_limb_t odd_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
  * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
  * * Divide `constant` (numerator) by the element in `src1_begin` (signed)
  * * Store the result in `dst_begin`
@@ -252,11 +326,20 @@ bool vector_any_zero(
 CREATE_FUNCTOR_FROM_FUNC(add_functor, vector_add);
 CREATE_FUNCTOR_FROM_FUNC(sub_functor, vector_sub);
 CREATE_FUNCTOR_FROM_FUNC(add_const_functor, vector_add_const);
+CREATE_FUNCTOR_FROM_FUNC(add_const_even_odd_functor, vector_add_const_even_odd);
 CREATE_FUNCTOR_FROM_FUNC(sub_const_functor, vector_sub_const);
+CREATE_FUNCTOR_FROM_FUNC(sub_const_even_odd_functor, vector_sub_const_even_odd);
+CREATE_FUNCTOR_FROM_FUNC(rsub_const_even_odd_functor, vector_rsub_const_even_odd);
 CREATE_FUNCTOR_FROM_FUNC(shift_add_functor, vector_shift_add);
 CREATE_FUNCTOR_FROM_FUNC(shift_sub_functor, vector_shift_sub);
 CREATE_FUNCTOR_FROM_FUNC(shift_add_const_functor, vector_shift_add_const);
+CREATE_FUNCTOR_FROM_FUNC(
+    shift_add_const_even_odd_functor, vector_shift_add_const_even_odd
+);
 CREATE_FUNCTOR_FROM_FUNC(shift_sub_const_functor, vector_shift_sub_const);
+CREATE_FUNCTOR_FROM_FUNC(
+    shift_sub_const_even_odd_functor, vector_shift_sub_const_even_odd
+);
 
 }; // namespace simd
 

@@ -261,7 +261,7 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
     return result;
 }
 
-template <class op, class ripple_carry_op>
+template <class ripple_carry_op, class simd_op, class simd_shift_op>
 inline APyCFixedArray
 APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs) const
 {
@@ -277,23 +277,25 @@ APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs) const
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         if (frac_bits() == rhs.frac_bits()) {
             // Operands have equally many fractional bits.
-            for (std::size_t i = 0; i < _nitems * 2; i += 2) {
-                result._data[i + 0] = op {}(_data[i + 0], rhs._data[0]);
-                result._data[i + 1] = op {}(_data[i + 1], rhs._data[1]);
-            }
+            simd_op()(
+                _data.begin(),
+                rhs._data[0],
+                rhs._data[1],
+                result._data.begin(),
+                _nitems * 2
+            );
         } else {
             auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
             auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-            for (std::size_t i = 0; i < _nitems * 2; i += 2) {
-                result._data[i + 0] = op {}(
-                    (_data[i + 0] << lhs_shift_amount),
-                    (rhs._data[0] << rhs_shift_amount)
-                );
-                result._data[i + 1] = op {}(
-                    (_data[i + 1] << lhs_shift_amount),
-                    (rhs._data[1] << rhs_shift_amount)
-                );
-            }
+            simd_shift_op()(
+                _data.begin(),
+                rhs._data[0],
+                rhs._data[1],
+                result._data.begin(),
+                lhs_shift_amount,
+                rhs_shift_amount,
+                _nitems * 2
+            );
         }
         return result; // early exit
     }
@@ -357,7 +359,10 @@ APyCFixedArray APyCFixedArray::operator+(const APyCFixedArray& rhs) const
 
 APyCFixedArray APyCFixedArray::operator+(const APyCFixed& rhs) const
 {
-    return _apycfixed_base_add_sub<std::plus<>, apy_add_n_functor<>>(rhs);
+    return _apycfixed_base_add_sub<
+        apy_add_n_functor<>,
+        simd::add_const_even_odd_functor<>,
+        simd::shift_add_const_even_odd_functor<>>(rhs);
 }
 
 APyCFixedArray APyCFixedArray::operator-(const APyCFixedArray& rhs) const
@@ -374,7 +379,10 @@ APyCFixedArray APyCFixedArray::operator-(const APyCFixedArray& rhs) const
 
 APyCFixedArray APyCFixedArray::operator-(const APyCFixed& rhs) const
 {
-    return _apycfixed_base_add_sub<std::minus<>, apy_sub_n_functor<>>(rhs);
+    return _apycfixed_base_add_sub<
+        apy_sub_n_functor<>,
+        simd::sub_const_even_odd_functor<>,
+        simd::shift_sub_const_even_odd_functor<>>(rhs);
 }
 
 APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
@@ -390,11 +398,13 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
     // Special case #1: Operands and result fit in single limb
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         if (frac_bits() == lhs.frac_bits()) {
-            // Operands have equally many fractional bits.
-            for (std::size_t i = 0; i < _nitems * 2; i += 2) {
-                result._data[i + 0] = lhs._data[0] - _data[i + 0];
-                result._data[i + 1] = lhs._data[1] - _data[i + 1];
-            }
+            simd::vector_rsub_const_even_odd(
+                _data.begin(),
+                lhs._data[0],
+                lhs._data[1],
+                result._data.begin(),
+                _nitems * 2
+            );
         } else {
             auto rhs_shift_amount = unsigned(res_frac_bits - frac_bits());
             auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());

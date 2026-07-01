@@ -398,12 +398,12 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
     // Adjust binary point
     APyFixedArray result(_shape, res_bits, res_int_bits);
     _cast_no_quantize_no_overflow(
-        std::begin(_data),               // src
-        std::begin(result._data),        // dst
-        _itemsize,                       // src_limbs
-        result._itemsize,                // dst_limbs
-        _nitems,                         // n_items
-        result.frac_bits() - frac_bits() // left_shift_amount
+        std::begin(_data),          // src
+        std::begin(result._data),   // dst
+        _itemsize,                  // src_limbs
+        result._itemsize,           // dst_limbs
+        _nitems,                    // n_items
+        res_frac_bits - frac_bits() // left_shift_amount
     );
     auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
