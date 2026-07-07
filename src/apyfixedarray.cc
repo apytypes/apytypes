@@ -1904,6 +1904,38 @@ APyFixedArray APyFixedArray::abs() const
     return result;
 }
 
+APyFixedArray APyFixedArray::next_up() const
+{
+    APyFixedArray result = *this;
+    const APyFixed max_val = APyFixed::get_max(_bits, _int_bits);
+    auto it_begin = result._data.begin();
+    for (std::size_t i = 0; i < result._nitems; i++) {
+        auto it_end = it_begin + result._itemsize;
+        // Do not overflow past the maximum positive value
+        if (!std::equal(it_begin, it_end, max_val.read_data().begin())) {
+            limb_vector_add_one_lsb_inplace(it_begin, it_end);
+        }
+        it_begin = it_end;
+    }
+    return result;
+}
+
+APyFixedArray APyFixedArray::next_down() const
+{
+    APyFixedArray result = *this;
+    const APyFixed min_val = APyFixed::get_min(_bits, _int_bits);
+    auto it_begin = result._data.begin();
+    for (std::size_t i = 0; i < result._nitems; i++) {
+        auto it_end = it_begin + result._itemsize;
+        // Do not underflow past the maximum negative value
+        if (!std::equal(it_begin, it_end, min_val.read_data().begin())) {
+            apy_inplace_subtraction_single_limb(it_begin, it_end, 1);
+        }
+        it_begin = it_end;
+    }
+    return result;
+}
+
 APyFixedArray APyFixedArray::operator-() const
 {
     // Increase word length of result by one

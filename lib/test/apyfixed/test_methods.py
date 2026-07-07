@@ -15,6 +15,41 @@ def test_to_bits():
     )
 
 
+def test_next_up_down():
+    fx = APyFixed.from_float(1.0, int_bits=4, frac_bits=2)
+    assert fx.next_up().is_identical(APyFixed.from_float(1.25, int_bits=4, frac_bits=2))
+    assert fx.next_down().is_identical(
+        APyFixed.from_float(0.75, int_bits=4, frac_bits=2)
+    )
+
+
+def test_next_up_down_saturates_at_bounds():
+    # Maximum positive value (0111): next_up must not overflow to the minimum
+    # negative value.
+    max_val = APyFixed(0b0111, int_bits=4, frac_bits=0)
+    assert max_val.next_up().is_identical(max_val)
+    # One step below max should still increment normally.
+    assert APyFixed(0b0110, int_bits=4, frac_bits=0).next_up().is_identical(max_val)
+
+    # Minimum negative value (1000): next_down must not underflow to the maximum
+    # positive value.
+    min_val = APyFixed(0b1000, int_bits=4, frac_bits=0)
+    assert min_val.next_down().is_identical(min_val)
+    # One step above min should still decrement normally.
+    assert APyFixed(0b1001, int_bits=4, frac_bits=0).next_down().is_identical(min_val)
+
+
+def test_next_up_down_saturates_multi_limb():
+    # Use a bit-width large enough to require multiple limbs on both 32- and
+    # 64-bit builds.
+    bits = 200
+    max_val = APyFixed((1 << (bits - 1)) - 1, int_bits=bits, frac_bits=0)
+    assert max_val.next_up().is_identical(max_val)
+
+    min_val = APyFixed(-(1 << (bits - 1)), int_bits=bits, frac_bits=0)
+    assert min_val.next_down().is_identical(min_val)
+
+
 def test_getitem_bit_indexing():
     fx = APyFixed(0xA4, int_bits=4, frac_bits=4)
 

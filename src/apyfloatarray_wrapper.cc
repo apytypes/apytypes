@@ -162,6 +162,8 @@ void bind_float_array(nb::module_& m)
         .def(nb::self <= nb::self, CMP("__le__", "APyFloatArray"))
         .def(nb::self >= nb::self, CMP("__ge__", "APyFloatArray"))
         .def("__abs__", &APyFloatArray::abs)
+        .def("next_up", &APyFloatArray::next_up)
+        .def("next_down", &APyFloatArray::next_down)
 
         /*
          * Arithmetic operators with integers

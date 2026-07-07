@@ -560,6 +560,28 @@ apy_limb_t APyFixed::increment_lsb() noexcept
     );
 }
 
+APyFixed APyFixed::next_up() const
+{
+    if (*this == get_max(_bits, _int_bits)) {
+        // Already at the maximum positive value, do not overflow
+        return *this;
+    }
+    APyFixed result = *this;
+    result.increment_lsb();
+    return result;
+}
+
+APyFixed APyFixed::next_down() const
+{
+    if (*this == get_min(_bits, _int_bits)) {
+        // Already at the maximum negative value, do not underflow
+        return *this;
+    }
+    APyFixed result = *this;
+    apy_inplace_subtraction_single_limb(result._data.begin(), result._data.end(), 1);
+    return result;
+}
+
 // Function to create a Python fractions.Fraction object
 nb::object APyFixed::to_fraction() const
 {

@@ -21,6 +21,45 @@ def test_ndim(fixed_array: type[APyCFixedArray]):
     assert fixed_array([range(3), range(3)], bits=1, int_bits=0).ndim == 2
 
 
+def test_next_up_down_fixed_array():
+    a = APyFixedArray.from_float([1.0, -2.0, 3.5], int_bits=6, frac_bits=2)
+
+    up = a.next_up()
+    down = a.next_down()
+
+    for i in range(len(a)):
+        assert up[i].is_identical(a[i].next_up())
+        assert down[i].is_identical(a[i].next_down())
+
+
+def test_next_up_down_fixed_array_saturates_at_bounds():
+    int_bits, frac_bits = 4, 0
+    max_val = APyFixed(0b0111, int_bits=int_bits, frac_bits=frac_bits)
+    min_val = APyFixed(0b1000, int_bits=int_bits, frac_bits=frac_bits)
+
+    a = APyFixedArray(
+        [0b0111, 0b0110, 0b1000, 0b1001], int_bits=int_bits, frac_bits=frac_bits
+    )
+    up = a.next_up()
+    down = a.next_down()
+
+    # Max positive stays fixed on next_up; other elements step normally.
+    assert up[0].is_identical(max_val)
+    assert up[1].is_identical(max_val)
+    assert up[2].is_identical(min_val.next_up())
+    assert up[3].is_identical(
+        APyFixed(0b1001, int_bits=int_bits, frac_bits=frac_bits).next_up()
+    )
+
+    # Max negative stays fixed on next_down; other elements step normally.
+    assert down[0].is_identical(max_val.next_down())
+    assert down[1].is_identical(
+        APyFixed(0b0110, int_bits=int_bits, frac_bits=frac_bits).next_down()
+    )
+    assert down[2].is_identical(min_val)
+    assert down[3].is_identical(min_val)
+
+
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 def test_squeeze(fixed_array: type[APyCFixedArray]):
     a = fixed_array([[1], [2], [3]], bits=2, int_bits=2)

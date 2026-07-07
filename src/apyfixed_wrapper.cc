@@ -556,6 +556,8 @@ void bind_fixed(nb::module_& m)
          * Dunder methods
          */
         .def("__abs__", &APyFixed::abs)
+        .def("next_up", &APyFixed::next_up)
+        .def("next_down", &APyFixed::next_down)
         .def("__float__", &APyFixed::operator double)
         .def("__repr__", &APyFixed::repr)
         .def("__str__", &APyFixed::to_string, nb::arg("base") = 10)
