@@ -87,6 +87,17 @@ def test_python_deepcopy(
     assert not a.is_identical(c)
 
 
+def test_next_up_down_float_array():
+    a = APyFloatArray.from_float([1.0, 2.0, -3.0], exp_bits=8, man_bits=7)
+
+    up = a.next_up()
+    down = a.next_down()
+
+    for i in range(len(a)):
+        assert up[i].is_identical(a[i].next_up())
+        assert down[i].is_identical(a[i].next_down())
+
+
 @pytest.mark.float_array
 @pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
 def test_array_from_float_raises(float_array: type[APyCFloatArray]):

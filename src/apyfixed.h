@@ -261,6 +261,12 @@ public:
     //! Increment the LSB without making the fixed-point number wider. Return carry out
     apy_limb_t increment_lsb() noexcept;
 
+    //! Get the next representable fixed-point number in the same format.
+    APyFixed next_up() const;
+
+    //! Get the previous representable fixed-point number in the same format.
+    APyFixed next_down() const;
+
     //! Convert the underlying bit pattern to a Python long integer
     nb::int_ to_bits() const;
 

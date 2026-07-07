@@ -1854,6 +1854,8 @@ void bind_fixed_array(nb::module_& m)
         )
         .def("__repr__", &APyFixedArray::repr)
         .def("__abs__", &APyFixedArray::abs)
+        .def("next_up", &APyFixedArray::next_up)
+        .def("next_down", &APyFixedArray::next_down)
         .def("__str__", &APyFixedArray::to_string, nb::arg("base") = 10)
 
         // Iteration and friends

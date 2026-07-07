@@ -222,6 +222,28 @@ APyFloatArray APyFloatArray::abs() const
     return res;
 }
 
+APyFloatArray APyFloatArray::next_up() const
+{
+    APyFloatArray result(_shape, exp_bits, man_bits, bias);
+    APyFloat element(exp_bits, man_bits, bias);
+    for (std::size_t i = 0; i < _nitems; i++) {
+        element.set_data(_data[i]);
+        result._data[i] = element.next_up().get_data();
+    }
+    return result;
+}
+
+APyFloatArray APyFloatArray::next_down() const
+{
+    APyFloatArray result(_shape, exp_bits, man_bits, bias);
+    APyFloat element(exp_bits, man_bits, bias);
+    for (std::size_t i = 0; i < _nitems; i++) {
+        element.set_data(_data[i]);
+        result._data[i] = element.next_down().get_data();
+    }
+    return result;
+}
+
 APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 {
     if (_shape != rhs._shape) {

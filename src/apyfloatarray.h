@@ -142,6 +142,13 @@ public:
 
     //! Absolute value
     APyFloatArray abs() const;
+
+    //! Elementwise next representable value in the same format.
+    APyFloatArray next_up() const;
+
+    //! Elementwise previous representable value in the same format.
+    APyFloatArray next_down() const;
+
     //! Elementwise R-division with floating-point scalar
     APyFloatArray rdiv(const APyFloat& lhs) const;
 
