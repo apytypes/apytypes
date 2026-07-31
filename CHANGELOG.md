@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   This also holds for operations with Python integers and floats.
 - Scalar fixed-point types `APyFixed` and `APyCFixed` get their `repr`
   bit-specifiers changed to `int_bits, frac_bits` from `bits, int_bits`.
+- Updated [nanobind](https://github.com/wjakob/nanobind) from v2.12.0 to v2.13.0.
 
 ### Removed
 
