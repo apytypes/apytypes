@@ -146,6 +146,7 @@ ignore = [
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments in function definition
     "PLR0915", # Too many statements
+    "PLR0917", # Too many positional arguments (would be nice to get rid of)
     "PLR2004", # Compare to constants
     "PLR5501", # Use `elif` instead of `else` then `if`: good for readability
     "RET505", # Else after return statement

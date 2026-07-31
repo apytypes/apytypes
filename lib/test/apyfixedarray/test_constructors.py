@@ -36,7 +36,7 @@ def test_homogeneous_shape(fixed_array: type[APyCFixedArray]):
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 @pytest.mark.parametrize("vals", [[1], [1, -2, 3], [[1, -3, 1], [-4, -2, 0]]])
 def test_simple_constructor(
-    dt: None | str, fixed_array: type[APyCFixedArray], vals: list[list[int] | int]
+    dt: str | None, fixed_array: type[APyCFixedArray], vals: list[list[int] | int]
 ):
     if dt is None:
         assert fixed_array(vals, int_bits=20, frac_bits=0).is_identical(
