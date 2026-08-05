@@ -2847,6 +2847,67 @@ def outer(a: APyArray, b: APyArray) -> APyArray:
     return outer(b)
 
 
+@overload
+def nextafter(
+    x1: APyFloatArray, x2: APyFloatArray | APyFloat | float | int
+) -> APyFloatArray: ...
+@overload
+def nextafter(
+    x1: APyFixedArray, x2: APyFixedArray | APyFixed | float | int
+) -> APyFixedArray: ...
+
+
+def nextafter(
+    x1: APyFloatArray | APyFixedArray,
+    x2: APyFloatArray | APyFixedArray | APyFloat | APyFixed | float | int,
+) -> APyFloatArray | APyFixedArray:
+    """
+    Return the next representable value of `x1` in the direction of `x2`, element-wise.
+    `x1` and `x2` do not need to be of the same type.
+    If `x1.shape` != `x2.shape`, they must be broadcastable to a common shape
+    (which becomes the shape of the output).
+
+    .. versionadded:: 0.6
+
+    Parameters
+    ----------
+    x1 : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Values to get the next representable value of.
+    x2 : :class:`APyFloatArray`, :class:`APyFixedArray`, :class:`APyFixed`, :class:`APyFloat`, :class:`int`, or :class:`float`
+        Direction in which to get the next representable value.
+
+    Returns
+    -------
+    :class:`APyArray`
+        Same type as `x1`.
+    """
+    if not isinstance(x1, APyFloatArray | APyFixedArray):
+        raise TypeError(f"nextafter: x1 must be a real APyArray, got {type(x1)}")
+
+    try:
+        nextafter_impl = x1._nextafter
+    except AttributeError:
+        raise TypeError(f"Type {type(x1)} has no attribute `_nextafter`")
+
+    if type(x2) is not type(x1):
+        if isinstance(x2, int | float | APyFixed | APyFloat):
+            if isinstance(x1, APyFixedArray):
+                x2 = type(x1).from_float(
+                    [x2], int_bits=x1.int_bits, frac_bits=x1.frac_bits
+                )
+            else:
+                x2 = type(x1).from_float(
+                    [x2], exp_bits=x1.exp_bits, man_bits=x1.man_bits, bias=x1.bias
+                )
+        else:
+            raise TypeError(
+                "nextafter: x2 must be an array of the same type as x1, or one of "
+                f"`int`, `float`, `APyFixed`, `APyFloat`, got {type(x2)}"
+            )
+
+    return nextafter_impl(x1, x2)
+
+
 # =============================================================================
 # Helpers
 # =============================================================================

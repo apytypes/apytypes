@@ -22,6 +22,7 @@ from apytypes import (
     identity,
     meshgrid,
     moveaxis,
+    nextafter,
     ones,
     ones_like,
     ravel,
@@ -549,6 +550,116 @@ def test_meshgrid(array_type):
     assert yy.is_identical(yy_ref)
     assert zz.is_identical(zz_ref)
     assert ww.is_identical(ww_ref)
+
+
+def test_nextafter_float_array_elementwise():
+    x1 = APyFloatArray.from_float([1.0, 2.0, 3.0], exp_bits=5, man_bits=10)
+    x2 = APyFloatArray.from_float([2.0, 1.0, 3.0], exp_bits=5, man_bits=10)
+
+    y = nextafter(x1, x2)
+
+    assert y[0].is_identical(x1[0].next_up())
+    assert y[1].is_identical(x1[1].next_down())
+    assert y[2].is_identical(x2[2])
+
+
+@pytest.mark.parametrize("start_sign", [0, 1])
+@pytest.mark.parametrize("direction_sign", [0, 1])
+def test_nextafter_float_array_signed_zero(start_sign, direction_sign):
+    x1 = APyFloatArray([start_sign], [0], [0], exp_bits=5, man_bits=10)
+    x2 = APyFloatArray([direction_sign], [0], [0], exp_bits=5, man_bits=10)
+
+    assert nextafter(x1, x2).is_identical(x2)
+
+
+def test_nextafter_float_array_broadcasting():
+    x1 = APyFloatArray.from_float([[1.0], [2.0]], exp_bits=5, man_bits=10)
+    x2 = APyFloatArray.from_float([[0.0, 1.0, 3.0]], exp_bits=5, man_bits=10)
+
+    y = nextafter(x1, x2)
+
+    assert y.shape == (2, 3)
+    assert y[0, 0].is_identical(x1[0, 0].next_down())
+    assert y[0, 1].is_identical(x2[0, 1])
+    assert y[0, 2].is_identical(x1[0, 0].next_up())
+    assert y[1, 0].is_identical(x1[1, 0].next_down())
+    assert y[1, 1].is_identical(x1[1, 0].next_down())
+    assert y[1, 2].is_identical(x1[1, 0].next_up())
+
+
+def test_nextafter_fixed_array_elementwise():
+    x1 = APyFixedArray.from_float([1.0, 2.0, 3.0], int_bits=6, frac_bits=4)
+    x2 = APyFixedArray.from_float([2.0, 1.0, 3.0], int_bits=6, frac_bits=4)
+
+    y = nextafter(x1, x2)
+
+    assert y[0].is_identical(x1[0].next_up())
+    assert y[1].is_identical(x1[1].next_down())
+    assert y[2].is_identical(x2[2])
+
+
+def test_nextafter_complex_float_array_raises():
+    x1 = APyCFloatArray.from_complex([1.0 + 1.0j, 2.0 - 1.0j], exp_bits=5, man_bits=10)
+    x2 = APyCFloatArray.from_complex([2.0 - 1.0j, 1.0 + 1.0j], exp_bits=5, man_bits=10)
+
+    assert not hasattr(x1, "_nextafter")
+    with pytest.raises(TypeError, match="nextafter: x1 must be a real APyArray"):
+        _ = nextafter(x1, x2)
+
+
+def test_nextafter_complex_fixed_array_raises():
+    x1 = APyCFixedArray.from_complex([1.0 + 1.0j, 2.0 - 1.0j], int_bits=6, frac_bits=4)
+    x2 = APyCFixedArray.from_complex([2.0 - 1.0j, 1.0 + 1.0j], int_bits=6, frac_bits=4)
+
+    assert not hasattr(x1, "_nextafter")
+    with pytest.raises(TypeError, match="nextafter: x1 must be a real APyArray"):
+        _ = nextafter(x1, x2)
+
+
+@pytest.mark.parametrize("array_type", [APyFloatArray, APyFixedArray])
+@pytest.mark.parametrize(
+    "direction",
+    [
+        2.0 + 0.0j,
+        APyCFloat.from_complex(2.0 + 1.0j, exp_bits=5, man_bits=10),
+        APyCFixed.from_complex(2.0 + 1.0j, int_bits=6, frac_bits=4),
+        APyCFloatArray.from_complex([2.0 + 1.0j], exp_bits=5, man_bits=10),
+        APyCFixedArray.from_complex([2.0 + 1.0j], int_bits=6, frac_bits=4),
+    ],
+)
+def test_nextafter_complex_direction_raises(array_type, direction):
+    x1 = array_type.from_float([1.0], 5, 10)
+
+    with pytest.raises(
+        TypeError, match="nextafter: x2 must be an array of the same type as x1"
+    ):
+        _ = nextafter(x1, direction)
+
+
+@pytest.mark.parametrize("array_type", [APyFloatArray, APyFixedArray])
+@pytest.mark.parametrize(
+    "direction",
+    [
+        2,
+        2.0,
+        APyFloat.from_float(2.0, exp_bits=5, man_bits=10),
+        APyFixed.from_float(2.0, int_bits=6, frac_bits=4),
+    ],
+)
+def test_nextafter_real_direction(array_type, direction):
+    x1 = array_type.from_float([1.0], 5, 10)
+
+    assert nextafter(x1, direction).is_identical(x1.next_up())
+
+
+def test_nextafter_type_raises():
+    fp = APyFloatArray.from_float([1.0], exp_bits=5, man_bits=10)
+    fx = APyFixedArray.from_float([1.0], int_bits=5, frac_bits=5)
+
+    with pytest.raises(
+        TypeError, match="nextafter: x2 must be an array of the same type as x1"
+    ):
+        _ = nextafter(fp, fx)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])

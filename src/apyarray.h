@@ -30,6 +30,7 @@ namespace nb = nanobind;
 #include <set>         // std::set
 #include <string>      // std::string
 #include <string_view> // std::string_view
+#include <type_traits> // std::is_same_v
 #include <utility>     // std::in_place_type
 #include <variant>     // std::variant
 
@@ -1273,6 +1274,52 @@ public:
         }
 
         return array_vec;
+    }
+
+private:
+    //! Compute the next representable value of `x1` in the direction of `x2` for a
+    //! real-valued scalar type (`APyFloat` or `APyFixed`).
+    template <typename REAL_SCALAR_TYPE>
+    static REAL_SCALAR_TYPE
+    real_nextafter(const REAL_SCALAR_TYPE& x1, const REAL_SCALAR_TYPE& x2)
+    {
+        if (x1 < x2) {
+            return x1.next_up();
+        } else if (x2 < x1) {
+            return x1.next_down();
+        } else {
+            return x2;
+        }
+    }
+
+public:
+    //! Compute the next representable value of `x1` in the direction of `x2`,
+    //! element-wise, broadcasting `x1` and `x2` to a common shape.
+    static ARRAY_TYPE nextafter(ARRAY_TYPE x1, ARRAY_TYPE x2)
+    {
+        using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
+
+        const auto broadcast_shape = smallest_broadcastable_shape(x1._shape, x2._shape);
+        x1 = x1.broadcast_to(broadcast_shape);
+        x2 = x2.broadcast_to(broadcast_shape);
+
+        ARRAY_TYPE result = x1.create_array(broadcast_shape);
+        SCALAR_TYPE sx1 = x1.create_scalar();
+        SCALAR_TYPE sx2 = x2.create_scalar();
+        SCALAR_TYPE sres = x1.create_scalar();
+
+        for (std::size_t i = 0; i < result._nitems; ++i) {
+            sx1.copy_n_from(std::begin(x1._data) + i * x1._itemsize, x1._itemsize);
+            sx2.copy_n_from(std::begin(x2._data) + i * x2._itemsize, x2._itemsize);
+
+            sres = real_nextafter(sx1, sx2);
+
+            sres.copy_n_to(
+                std::begin(result._data) + i * result._itemsize, result._itemsize
+            );
+        }
+
+        return result;
     }
 
     /* ****************************************************************************** *
