@@ -1834,6 +1834,9 @@ void bind_fixed_array(nb::module_& m)
                            [6, 6, 6]], int_bits=5, frac_bits=0)
             )pbdoc"
         )
+        .def_static(
+            "_nextafter", &APyFixedArray::nextafter, nb::arg("x1"), nb::arg("x2")
+        )
 
         /*
          * Dunder methods

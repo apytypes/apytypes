@@ -1070,6 +1070,9 @@ void bind_float_array(nb::module_& m)
                            [6, 6, 6]], exp_bits=5, man_bits=10)
             )pbdoc"
         )
+        .def_static(
+            "_nextafter", &APyFloatArray::nextafter, nb::arg("x1"), nb::arg("x2")
+        )
 
         /*
          * Dunder methods

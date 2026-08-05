@@ -59,3 +59,5 @@ Array utility functions
 .. autofunction:: apytypes.outer
 
 .. autofunction:: apytypes.shape
+
+.. autofunction:: apytypes.nextafter
