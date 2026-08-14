@@ -453,15 +453,22 @@ template <typename QNTZ_FUNC_SIGNATURE>
         }
 
         const int MAN_BITS_DELTA = 1 - exp + (src_spec.man_bits - dst_spec.man_bits);
-        const man_t LEADING_ONE = (1ULL << src_spec.man_bits);
-        man |= (1ULL << src_spec.man_bits); // Add the hidden one
+        const man_t SRC_LEADING_ONE = (1ULL << src_spec.man_bits);
+        man |= SRC_LEADING_ONE; // Add the hidden one
         if (MAN_BITS_DELTA <= 0) {
             return { src.sign, 0, (man << -MAN_BITS_DELTA) };
         } else { /* man_bits_delta > 0 */
             const man_t STICKY = (1ULL << (MAN_BITS_DELTA - 1)) - 1;
             APyFloatData res = { src.sign, 0, man };
+            const man_t DST_LEADING_ONE = (1ULL << dst_spec.man_bits);
             qntz_func(
-                res.man, res.exp, MAX_EXP, MAN_BITS_DELTA, res.sign, LEADING_ONE, STICKY
+                res.man,
+                res.exp,
+                MAX_EXP,
+                MAN_BITS_DELTA,
+                res.sign,
+                DST_LEADING_ONE,
+                STICKY
             );
             return res;
         }
