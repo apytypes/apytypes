@@ -340,6 +340,8 @@ MSB-first indexing.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">APyFixedArray.to_bits</span></code> for 64-bit NumPy arrays on 32-bit systems.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">prod</span></code> and <code class="docutils literal notranslate"><span class="pre">cumprod</span></code> are using fewer bits for fixed-point arrays, see the
 documentation for exact expressions.</p></li>
+<li><p>Bug in floating-point cast for values between the largest subnormal and
+the smallest normal value of the destination format.</p></li>
 </ul>
 </section>
 <section id="changed">
