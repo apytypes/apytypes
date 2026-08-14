@@ -499,6 +499,11 @@ def test_cast_special_cases():
     a = a.cast(4, 3)
     assert a.is_identical(APyFloat(0, 0, 0, 4, 3))
 
+    # Result is tentatively a subnormal but becomes the smallest normal
+    a = APyFloat(0, 12, 31, 5, 5)
+    a = a.cast(3, 4)
+    assert a.is_identical(APyFloat(0, 1, 0, 3, 4))
+
 
 def test_casting_special_numbers():
     # Cast -0 to -0
