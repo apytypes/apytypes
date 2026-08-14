@@ -14,6 +14,7 @@
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
+#include "simd_hints.h"
 
 #include <algorithm>
 #include <array>
@@ -805,16 +806,15 @@ static APY_INLINE void _cast_no_quantize_no_overflow(
      * Specialization #1: `src` and `dst` have equally many limbs
      */
     if (src_limbs == dst_limbs) {
-
-        // Copy data into the result
-        std::copy_n(src, src_limbs * n_items, dst);
-
         if (left_shift_amount > 0) {
             if (src_limbs == 1) { /* src_limbs == dst_limbs == 1 */
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < n_items; i++) {
                     dst[i] = src[i] << left_shift_amount;
                 }
             } else { /* src_limbs == dst_limbs > 1 */
+                // Copy data into the result
+                std::copy_n(src, src_limbs * n_items, dst);
                 unsigned limb_skip = left_shift_amount / APY_LIMB_SIZE_BITS;
                 unsigned limb_shift = left_shift_amount % APY_LIMB_SIZE_BITS;
                 for (std::size_t i = 0; i < n_items; i++) {
@@ -826,6 +826,9 @@ static APY_INLINE void _cast_no_quantize_no_overflow(
                     );
                 }
             }
+        } else {
+            // Copy data into the result
+            std::copy_n(src, src_limbs * n_items, dst);
         }
 
         return; // early return specialization #1

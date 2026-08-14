@@ -6,6 +6,7 @@
 #include "apytypes_common.h"
 #include "apytypes_intrinsics.h"
 #include "apytypes_util.h"
+#include "simd_hints.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -40,6 +41,7 @@ APyCFloatArray::APyCFloatArray(const APyFloatArray& rhs)
     , man_bits(rhs.get_man_bits())
     , bias(rhs.get_bias())
 {
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < _nitems; i++) {
         _data[2 * i] = rhs._data[i];
     }
@@ -284,6 +286,7 @@ APyCFloatArray APyCFloatArray::from_array(
     }
 
     std::vector<std::size_t> shape(ndarray.ndim(), 0);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < ndarray.ndim(); i++) {
         shape[i] = ndarray.shape(i);
     }
@@ -501,6 +504,7 @@ APyCFloatArray APyCFloatArray::from_bits(
 
         assert(ndarray.ndim() > 0);
         std::vector<std::size_t> shape(ndarray.ndim(), 0);
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < ndarray.ndim(); i++) {
             shape[i] = ndarray.shape(i);
         }
@@ -895,6 +899,7 @@ void APyCFloatArray::python_unpickle(
 APyCFloatArray APyCFloatArray::conj() const
 {
     APyCFloatArray res = *this;
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < _nitems; i++) {
         res._data[2 * i + 1].sign ^= true;
     }
@@ -905,6 +910,7 @@ APyCFloatArray APyCFloatArray::conj() const
 APyCFloatArray APyCFloatArray::hermitian_transpose() const
 {
     APyCFloatArray res = transpose(std::nullopt);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < _nitems; i++) {
         res._data[2 * i + 1].sign ^= true;
     }
@@ -915,6 +921,7 @@ APyCFloatArray APyCFloatArray::hermitian_transpose() const
 APyFloatArray APyCFloatArray::get_real() const
 {
     APyFloatArray res(_shape, exp_bits, man_bits, bias);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < _nitems; i++) {
         res._data[i] = _data[2 * i];
     }
@@ -925,6 +932,7 @@ APyFloatArray APyCFloatArray::get_real() const
 APyFloatArray APyCFloatArray::get_imag() const
 {
     APyFloatArray res(_shape, exp_bits, man_bits, bias);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < _nitems; i++) {
         res._data[i] = _data[2 * i + 1];
     }

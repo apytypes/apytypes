@@ -17,6 +17,7 @@
 #include "apytypes_util.h"
 #include "array_utils.h"
 #include "python_util.h"
+#include "simd_hints.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -280,6 +281,7 @@ inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) 
     if (result._itemsize == 2 && result._itemsize == _itemsize
         && unsigned(rhs.bits()) > APY_LIMB_SIZE_BITS
         && frac_bits() == rhs.frac_bits()) {
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < _nitems; i++) {
             two_limb_op {}(
                 result._data.data() + i * 2, // dst
@@ -466,6 +468,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
         && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS
     ) {
         // Special case #2: Both arguments are single limb, result two limbs
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < _nitems; i++) {
             auto [high, low] = long_signed_mult(_data[i], rhs._data[i]);
             result._data[i * 2 + 1] = high;
@@ -475,6 +478,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
         // Special case #3: The resulting number of bits fit in two limbs.
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             // Left-hand side is single limb, right-hand side is two limbs
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 auto [high, low]
                     = long_signed_unsigned_mult(_data[i], rhs._data[i * 2]);
@@ -486,6 +490,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
         } else {
             assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
             // Left-hand side is two limbs, right-hand side is single limb
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 auto [high, low]
                     = long_signed_unsigned_mult(rhs._data[i], _data[i * 2]);
@@ -533,6 +538,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     // Special case #2: Both arguments are single limb, result two limbs
     if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
         && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < _nitems; i++) {
             auto [high, low] = long_signed_mult(_data[i], rhs._data[0]);
             result._data[i * 2 + 1] = high;
@@ -619,6 +625,7 @@ APyCFixedArray APyFixedArray::operator*(const APyCFixed& rhs) const
 
     // Special case #1: The resulting number of bits fit in a single limb
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < _nitems; i++) {
             result._data[2 * i + 0]
                 = (apy_limb_signed_t)_data[i] * (apy_limb_signed_t)rhs.real_begin()[0];
@@ -633,6 +640,7 @@ APyCFixedArray APyFixedArray::operator*(const APyCFixed& rhs) const
 
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     complex_real_multiplication_1_1_2(
                         result._data.data() + i * 4, // dst
@@ -643,6 +651,7 @@ APyCFixedArray APyFixedArray::operator*(const APyCFixed& rhs) const
                 return result;
             } else {
                 // Left-hand side is single limb, right-hand side (complex) is two limbs
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     complex_real_multiplication_2_1_2(
                         result._data.data() + i * 4, // dst
@@ -655,6 +664,7 @@ APyCFixedArray APyFixedArray::operator*(const APyCFixed& rhs) const
         } else {
             assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
             // Left-hand side is two limbs, right-hand side is single limb
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 complex_real_multiplication_1_2_2(
                     result._data.data() + i * 4, // dst
@@ -815,6 +825,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
         __int128 denominator;
         if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (__int128)(apy_limb_signed_t)rhs._data[i];
                     // No need to check if denominator is zero, as this is already
@@ -826,6 +837,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
                     result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
                 }
             } else {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (__int128)(apy_limb_signed_t)rhs._data[i];
                     // No need to check if denominator is zero, as this is already
@@ -841,6 +853,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
             }
         } else {
             assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 denominator = (__int128)rhs._data[2 * i];
                 denominator |= (__int128)(apy_limb_signed_t)rhs._data[2 * i + 1]
@@ -868,6 +881,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
         std::int64_t denominator;
         if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[i];
                     // No need to check if denominator is zero, as this is already
@@ -879,6 +893,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
                     result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
                 }
             } else {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[i];
                     // No need to check if denominator is zero, as this is already
@@ -894,6 +909,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
             }
         } else {
             assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
 
                 denominator = (std::int64_t)rhs._data[2 * i];
@@ -980,6 +996,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
                 << APY_LIMB_SIZE_BITS;
         }
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 __int128 numerator = (__int128)(apy_limb_signed_t)_data[i];
                 numerator <<= rhs.bits();
@@ -988,6 +1005,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
                 result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
             }
         } else {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 __int128 numerator = (__int128)_data[2 * i];
                 numerator |= ((__int128)(apy_limb_signed_t)_data[2 * i + 1])
@@ -1014,6 +1032,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
                 << APY_LIMB_SIZE_BITS;
         }
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 std::int64_t numerator = (std::int64_t)(apy_limb_signed_t)(_data[i]);
                 numerator <<= rhs.bits();
@@ -1022,6 +1041,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
                 result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
             }
         } else {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 std::int64_t numerator = std::int64_t(_data[2 * i]);
                 numerator |= (std::int64_t)(apy_limb_signed_t)_data[2 * i + 1]
@@ -1144,6 +1164,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
         }
         numerator <<= bits();
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 __int128 denominator = (__int128)(apy_limb_signed_t)_data[i];
                 // No need to check if denominator is zero, as this is already checked
@@ -1153,6 +1174,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
                 result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
             }
         } else {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 __int128 denominator = (__int128)_data[2 * i];
                 denominator |= ((__int128)(apy_limb_signed_t)_data[2 * i + 1])
@@ -1185,6 +1207,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
         }
         numerator <<= bits();
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 std::int64_t denominator = (std::int64_t)(apy_limb_signed_t)(_data[i]);
                 // No need to check if denominator is zero, as this is already checked
@@ -1194,6 +1217,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
                 result._data[2 * i + 1] = apy_limb_t(tmp_res >> APY_LIMB_SIZE_BITS);
             }
         } else {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 std::int64_t denominator = std::int64_t(_data[2 * i]);
                 denominator |= (std::int64_t)(apy_limb_signed_t)_data[2 * i + 1]
@@ -1514,7 +1538,9 @@ APyFixedArray APyFixedArray::outer_product(const APyFixedArray& rhs) const
 
     // Special case #1: single-limb product
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        VECTORIZE_LOOP
         for (std::size_t y = 0; y < _shape[0]; y++) {
+            VECTORIZE_LOOP
             for (std::size_t x = 0; x < rhs._shape[0]; x++) {
                 res._data[y * rhs._shape[0] + x] = _data[y] * rhs._data[x];
             }
@@ -1525,7 +1551,9 @@ APyFixedArray APyFixedArray::outer_product(const APyFixedArray& rhs) const
     // Special case #2: both operands are single limb and product has two limbs
     if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
         && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+        VECTORIZE_LOOP
         for (std::size_t y = 0; y < _shape[0]; y++) {
+            VECTORIZE_LOOP
             for (std::size_t x = 0; x < rhs._shape[0]; x++) {
                 auto [high, low] = long_signed_mult(_data[y], rhs._data[x]);
                 res._data[2 * (y * rhs._shape[0] + x) + 0] = low;

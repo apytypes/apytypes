@@ -8,6 +8,7 @@
 #include "array_utils.h"
 #include "ieee754.h"
 #include "python_util.h"
+#include "simd_hints.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -203,6 +204,7 @@ APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
 APyFloatArray APyFloatArray::operator-() const
 {
     auto res = *this;
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < res._data.size(); i++) {
         res._data[i].sign = !res._data[i].sign;
     }
@@ -212,6 +214,7 @@ APyFloatArray APyFloatArray::operator-() const
 APyFloatArray APyFloatArray::abs() const
 {
     auto res = *this;
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < res._data.size(); i++) {
         res._data[i].sign = false;
     }
@@ -493,6 +496,7 @@ APyFloatArray APyFloatArray::operator~() const
     auto res = *this;
     auto exp_mask = ((1ULL << exp_bits) - 1);
     auto man_mask = ((1ULL << man_bits) - 1);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < res._data.size(); i++) {
         res._data[i].sign = !res._data[i].sign;
         res._data[i].exp = (~res._data[i].exp) & exp_mask;
@@ -1354,6 +1358,7 @@ APyFloatArray APyFloatArray::from_array(
     }
 
     std::vector<std::size_t> shape(ndarray.ndim(), 0);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < ndarray.ndim(); i++) {
         shape[i] = ndarray.shape(i);
     }
@@ -1429,6 +1434,7 @@ APyFloatArray APyFloatArray::from_bits(
 
         assert(ndarray.ndim() > 0);
         std::vector<std::size_t> shape(ndarray.ndim(), 0);
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < ndarray.ndim(); i++) {
             shape[i] = ndarray.shape(i);
         }
