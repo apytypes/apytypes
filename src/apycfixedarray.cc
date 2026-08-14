@@ -16,6 +16,7 @@
 #include "apytypes_util.h"
 #include "array_utils.h"
 #include "python_util.h"
+#include "simd_hints.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -136,6 +137,7 @@ APyCFixedArray::APyCFixedArray(const APyFixedArray& rhs)
     , _bits { rhs.bits() }
     , _int_bits { rhs.int_bits() }
 {
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < _nitems; i++) {
         std::copy_n(
             std::begin(rhs._data) + i * rhs._itemsize,
@@ -408,11 +410,22 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
         } else {
             auto rhs_shift_amount = unsigned(res_frac_bits - frac_bits());
             auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
-            for (std::size_t i = 0; i < _nitems * 2; i += 2) {
-                result._data[i + 0] = (lhs._data[0] << lhs_shift_amount)
-                    - (_data[i + 0] << rhs_shift_amount);
-                result._data[i + 1] = (lhs._data[1] << lhs_shift_amount)
-                    - (_data[i + 1] << rhs_shift_amount);
+            if (rhs_shift_amount) {
+                VECTORIZE_LOOP
+                for (std::size_t i = 0; i < _nitems * 2; i += 2) {
+                    result._data[i + 0]
+                        = lhs._data[0] - (_data[i + 0] << rhs_shift_amount);
+                    result._data[i + 1]
+                        = lhs._data[1] - (_data[i + 1] << rhs_shift_amount);
+                }
+            } else {
+                auto lhs_real = lhs._data[0] << lhs_shift_amount;
+                auto lhs_imag = lhs._data[1] << lhs_shift_amount;
+                VECTORIZE_LOOP
+                for (std::size_t i = 0; i < _nitems * 2; i += 2) {
+                    result._data[i + 0] = lhs_real - _data[i + 0];
+                    result._data[i + 1] = lhs_imag - _data[i + 1];
+                }
             }
         }
         return result; // early exit
@@ -477,6 +490,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
             result._data[i + 0]
                 = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 0])
@@ -492,6 +506,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                     complex_multiplication_1_1_2(
                         result._data.data() + 2 * i,
@@ -501,6 +516,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
                 }
             } else {
                 // Right-hand side does not fit in single limb, but left-hand side does.
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                     complex_multiplication_1_2_2(
                         result._data.data() + 2 * i,
@@ -512,6 +528,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
         } else {
             assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
             // Left-hand side does not fit in single limb, but right-hand side does.
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                 complex_multiplication_1_2_2(
                     result._data.data() + 2 * i,
@@ -567,6 +584,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixedArray& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < result._nitems; i++) {
             result._data[2 * i + 0]
                 = apy_limb_signed_t(_data[2 * i + 0]) * apy_limb_signed_t(rhs._data[i]);
@@ -580,6 +598,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixedArray& rhs) const
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
             && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                 complex_real_multiplication_1_1_2(
                     &result._data[2 * i], &_data[i], &rhs._data[i / 2]
@@ -588,6 +607,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixedArray& rhs) const
             return result; // early exit
         } else if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             // Left-hand side fits in one limb, right-hand side uses two limbs.
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems; i++) {
                 complex_real_multiplication_1_2_2(
                     &result._data[i * result._itemsize],
@@ -598,6 +618,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixedArray& rhs) const
             return result; // early exit
         } else {
             // Left-hand side uses two limbs, right-hand side fits in one limb.
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems; i++) {
                 complex_real_multiplication_2_1_2(
                     &result._data[i * result._itemsize],
@@ -649,6 +670,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
             result._data[i + 0]
                 = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[0])
@@ -664,6 +686,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                     complex_multiplication_1_1_2(
                         result._data.data() + 2 * i, _data.data() + i, rhs._data.data()
@@ -671,6 +694,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
                 }
             } else {
                 // Right-hand side does not fit in single limb, but left-hand side does.
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                     complex_multiplication_1_2_2(
                         result._data.data() + 2 * i, _data.data() + i, rhs._data.data()
@@ -680,6 +704,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
         } else {
             assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
             // Left-hand side does not fit in single limb, but right-hand side does.
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                 complex_multiplication_1_2_2(
                     result._data.data() + 2 * i, rhs._data.data(), _data.data() + 2 * i
@@ -740,6 +765,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixed& rhs) const
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
             && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems; i++) {
                 complex_real_multiplication_1_1_2(
                     &result._data[i * result._itemsize],
@@ -749,6 +775,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixed& rhs) const
             }
             return result; // early exit
         } else if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems; i++) {
                 complex_real_multiplication_1_2_2(
                     &result._data[i * result._itemsize],
@@ -759,6 +786,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixed& rhs) const
             return result; // early exit
         } else {
             assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems; i++) {
                 complex_real_multiplication_2_1_2(
                     &result._data[i * result._itemsize],
@@ -820,6 +848,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         const int rhs_bits = rhs.bits();
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < result._nitems; i += 1) {
             apy_limb_signed_t den = rhs._data[i];
             // No need to check if den is zero as SIMD check above is done
@@ -841,6 +870,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
         __int128 denominator;
         if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (__int128)(apy_limb_signed_t)rhs._data[i];
                     // No need to check if denominator is zero, as this is already
@@ -860,6 +890,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
                         = apy_limb_t(tmp_res_imag >> APY_LIMB_SIZE_BITS);
                 }
             } else {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (__int128)(apy_limb_signed_t)rhs._data[i];
                     // No need to check if denominator is zero, as this is already
@@ -918,6 +949,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
         std::int64_t denominator;
         if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[i];
                     // No need to check if denominator is zero, as this is already
@@ -938,6 +970,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
                         = apy_limb_t(tmp_res_imag >> APY_LIMB_SIZE_BITS);
                 }
             } else {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < _nitems; i++) {
                     denominator = (std::int64_t)(apy_limb_signed_t)rhs._data[i];
                     // No need to check if denominator is zero, as this is already
@@ -1055,6 +1088,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         const int rhs_bits = rhs.bits();
         apy_limb_signed_t den = rhs._data[0];
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < 2 * result._nitems; i += 2) {
             result._data[i + 0] = ((apy_limb_signed_t)_data[i + 0] << rhs_bits) / den;
             result._data[i + 1] = ((apy_limb_signed_t)_data[i + 1] << rhs_bits) / den;
@@ -1075,6 +1109,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
         }
         int rhs_bits = rhs.bits();
         if (unsigned(bits()) <= COMPILER_LIMB_SIZE) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < 2 * result._nitems; i += 2) {
                 __int128 real
                     = ((__int128)apy_limb_signed_t(_data[i + 0]) << rhs_bits) / den;
@@ -1086,6 +1121,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
                 result._data[2 * i + 3] = apy_limb_t(imag >> COMPILER_LIMB_SIZE);
             }
         } else {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < 4 * result._nitems; i += 4) {
                 __int128 real = (__int128)apy_limb_signed_t(_data[i + 1])
                         << COMPILER_LIMB_SIZE
@@ -1114,6 +1150,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
         }
         int rhs_bits = rhs.bits();
         if (unsigned(bits()) <= COMPILER_LIMB_SIZE) {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < 2 * result._nitems; i += 2) {
                 std::int64_t real
                     = ((std::int64_t)apy_limb_signed_t(_data[i + 0]) << rhs_bits) / den;
@@ -1125,6 +1162,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
                 result._data[2 * i + 3] = apy_limb_t(imag >> COMPILER_LIMB_SIZE);
             }
         } else {
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < 4 * result._nitems; i += 4) {
                 std::int64_t real = (std::int64_t)apy_limb_signed_t(_data[i + 1])
                         << COMPILER_LIMB_SIZE
@@ -1235,8 +1273,8 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
         //          = (1 + int_bits() + rhs.int_bits()) + (frac_bits() +
-        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) + 2 *
-        //          rhs.bits()
+        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) +
+        //          2 * rhs.bits()
         // Denominator is always single limb, so we can use 128-bit integer for
         // intermediate result without overflow
         assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
@@ -1292,8 +1330,8 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                 }
             }
         } else {
-            // If left-hand side does not fit in single limb, then result also cannot
-            // fit in single limb.
+            // If left-hand side does not fit in single limb, then result also
+            // cannot fit in single limb.
             assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
             for (std::size_t i = 0; i < result._nitems * 4; i += 4) {
                 __int128 den_real
@@ -1331,8 +1369,8 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
         //          = (1 + int_bits() + rhs.int_bits()) + (frac_bits() +
-        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) + 2 *
-        //          rhs.bits()
+        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) +
+        //          2 * rhs.bits()
         // Denominator is always single limb, so we can use 128-bit integer for
         // intermediate result without overflow
         assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
@@ -1392,8 +1430,8 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                 }
             }
         } else {
-            // If left-hand side does not fit in single limb, then result also cannot
-            // fit in single limb.
+            // If left-hand side does not fit in single limb, then result also
+            // cannot fit in single limb.
             assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
             for (std::size_t i = 0; i < result._nitems * 4; i += 4) {
                 std::int64_t den_real
@@ -1505,6 +1543,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
         apy_limb_signed_t den
             = apy_limb_signed_t(rhs._data[0]) * apy_limb_signed_t(rhs._data[0])
             + apy_limb_signed_t(rhs._data[1]) * apy_limb_signed_t(rhs._data[1]);
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
             apy_limb_signed_t real
                 = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[0])
@@ -1525,8 +1564,8 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
         //          = (1 + int_bits() + rhs.int_bits()) + (frac_bits() +
-        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) + 2 *
-        //          rhs.bits()
+        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) +
+        //          2 * rhs.bits()
         // Denominator is always single limb, so we can use 128-bit integer for
         // intermediate result without overflow
         assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
@@ -1538,6 +1577,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
             if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
                 // Left-hand side and result fit in single limb, but right-hand side
                 // does not.
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                     __int128 num_real = (__int128)apy_limb_signed_t(_data[i + 0]);
                     __int128 num_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
@@ -1547,6 +1587,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
                     result._data[i + 1] = apy_limb_signed_t((imag << rhs_bits) / den);
                 }
             } else {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < result._nitems * 4; i += 4) {
                     __int128 num_real
                         = (__int128)apy_limb_signed_t(_data[(i >> 1) + 0]);
@@ -1565,9 +1606,10 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
                 }
             }
         } else {
-            // If left-hand side does not fit in single limb, then result also cannot
-            // fit in single limb.
+            // If left-hand side does not fit in single limb, then result also
+            // cannot fit in single limb.
             assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems * 4; i += 4) {
                 __int128 num_real = (__int128)(_data[i + 0])
                     | (__int128)apy_limb_signed_t(_data[i + 1]) << APY_LIMB_SIZE_BITS;
@@ -1593,8 +1635,8 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
         //          = (1 + int_bits() + rhs.int_bits()) + (frac_bits() +
-        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) + 2 *
-        //          rhs.bits()
+        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) +
+        //          2 * rhs.bits()
         // Denominator is always single limb, so we can use 128-bit integer for
         // intermediate result without overflow
         assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
@@ -1606,6 +1648,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
             if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
                 // Left-hand side and result fit in single limb, but right-hand side
                 // does not.
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                     std::int64_t num_real
                         = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
@@ -1617,6 +1660,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
                     result._data[i + 1] = apy_limb_signed_t((imag << rhs_bits) / den);
                 }
             } else {
+                VECTORIZE_LOOP
                 for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                     std::int64_t num_real
                         = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
@@ -1635,9 +1679,10 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
                 }
             }
         } else {
-            // If left-hand side does not fit in single limb, then result also cannot
-            // fit in single limb.
+            // If left-hand side does not fit in single limb, then result also
+            // cannot fit in single limb.
             assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
+            VECTORIZE_LOOP
             for (std::size_t i = 0; i < result._nitems * 4; i += 4) {
                 std::int64_t num_real = (std::int64_t)(_data[i + 0])
                     | (std::int64_t)apy_limb_signed_t(_data[i + 1])
@@ -2029,8 +2074,8 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
         //          = (1 + int_bits() + rhs.int_bits()) + (frac_bits() +
-        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) + 2 *
-        //          rhs.bits()
+        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) +
+        //          2 * rhs.bits()
         // Denominator is always single limb, so we can use 128-bit integer for
         // intermediate result without overflow
         assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
@@ -2079,8 +2124,8 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                 }
             }
         } else {
-            // If left-hand side does not fit in single limb, then result also cannot
-            // fit in single limb.
+            // If left-hand side does not fit in single limb, then result also
+            // cannot fit in single limb.
             assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
             __int128 num_real = (__int128)(lhs._data[0])
                 | (__int128)apy_limb_signed_t(lhs._data[1]) << APY_LIMB_SIZE_BITS;
@@ -2119,8 +2164,8 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         // div_bits = num_int_bits + num_frac_bits + rhs.bits()
         //          = (1 + int_bits() + rhs.int_bits()) + (frac_bits() +
-        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) + 2 *
-        //          rhs.bits()
+        //          rhs.frac_bits()) + rhs.bits() = 1 + (int_bits() + frac_bits()) +
+        //          2 * rhs.bits()
         // Denominator is always single limb, so we can use 128-bit integer for
         // intermediate result without overflow
         assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
@@ -2173,8 +2218,8 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                 }
             }
         } else {
-            // If left-hand side does not fit in single limb, then result also cannot
-            // fit in single limb.
+            // If left-hand side does not fit in single limb, then result also
+            // cannot fit in single limb.
             assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
             std::int64_t num_real = (std::int64_t)(lhs._data[0])
                 | (std::int64_t)apy_limb_signed_t(lhs._data[1]) << APY_LIMB_SIZE_BITS;
@@ -2775,6 +2820,7 @@ APyCFixedArray APyCFixedArray::cumprod(std::optional<nb::int_> py_axis) const
 APyFixedArray APyCFixedArray::get_real() const
 {
     APyFixedArray result(_shape, _bits, _int_bits);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < _nitems; i++) {
         std::copy_n(
             real_begin() + i * _itemsize,
@@ -2789,6 +2835,7 @@ APyFixedArray APyCFixedArray::get_real() const
 APyFixedArray APyCFixedArray::get_imag() const
 {
     APyFixedArray result(_shape, _bits, _int_bits);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < _nitems; i++) {
         std::copy_n(
             imag_begin() + i * _itemsize,
@@ -2996,6 +3043,7 @@ APyCFixedArray APyCFixedArray::from_array(
         );
     }
     std::vector<std::size_t> shape(ndim, 0);
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < ndim; i++) {
         shape[i] = ndarray.shape(i);
     }
@@ -3053,8 +3101,8 @@ void APyCFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& nda
 
     // Each `_check_and_set_bits_from_ndarray` checks the dtype of `ndarray` and
     // converts all the data if it matches. If successful,
-    // `_check_and_set_bits_from_ndarray` returns true. Otherwise, the next attempted
-    // conversion will take place
+    // `_check_and_set_bits_from_ndarray` returns true. Otherwise, the next
+    // attempted conversion will take place
     if (_check_and_set_bits_from_ndarray<std::int64_t>(ndarray))
         return;
     if (_check_and_set_bits_from_ndarray<std::int32_t>(ndarray))
@@ -3259,8 +3307,8 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
     } while (0)
 
     // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
-    // converts all the data if it matches. If successful, the macro returns. Otherwise,
-    // the next attempted conversion will take place.
+    // converts all the data if it matches. If successful, the macro returns.
+    // Otherwise, the next attempted conversion will take place.
     CHECK_AND_SET_VALUES_FROM_COMPLEX_NPTYPE(std::complex<double>);
     CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE(double);
     CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE(float);
@@ -3484,6 +3532,7 @@ APyCFixedArray::rmatmul(const APyFixedArray& lhs) const
             std::vector<apy_limb_t> current_col(2 * bits_to_limbs(_bits) * _shape[0]);
 
             for (std::size_t x = 0; x < res_cols; x++) {
+                VECTORIZE_LOOP
                 for (std::size_t row = 0; row < _shape[0]; row++) {
                     std::copy_n(
                         _data.begin() + (x + row * res_cols) * _itemsize,
@@ -3533,6 +3582,7 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
     // Special case #1: single-limb product
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t y = 0; y < _shape[0]; y++) {
+            VECTORIZE_LOOP
             for (std::size_t x = 0; x < rhs._shape[0]; x++) {
                 apy_limb_signed_t a_re = _data[2 * y + 0];
                 apy_limb_signed_t a_im = _data[2 * y + 1];
@@ -3551,6 +3601,7 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
             if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
                 // Both operands fit in one limb.
                 for (std::size_t y = 0; y < _shape[0]; y++) {
+                    VECTORIZE_LOOP
                     for (std::size_t x = 0; x < rhs._shape[0]; x++) {
                         const apy_limb_t* a = _data.data() + _itemsize * y;
                         const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
@@ -3562,6 +3613,7 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
             } else {
                 // Left operand fits in one limb, right operand uses two limbs.
                 for (std::size_t y = 0; y < _shape[0]; y++) {
+                    VECTORIZE_LOOP
                     for (std::size_t x = 0; x < rhs._shape[0]; x++) {
                         const apy_limb_t* a = _data.data() + _itemsize * y;
                         const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
@@ -3575,6 +3627,7 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
             assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
             // Left operand uses two limbs, right operand fits in one limb.
             for (std::size_t y = 0; y < _shape[0]; y++) {
+                VECTORIZE_LOOP
                 for (std::size_t x = 0; x < rhs._shape[0]; x++) {
                     const apy_limb_t* a = _data.data() + _itemsize * y;
                     const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
@@ -3649,9 +3702,7 @@ APyCFixed APyCFixedArray::checked_inner_product(
     );
 
     APyCFixed res(res_bits, res_int_bits);
-    for (std::size_t i = 0; i < res_arr._data.size(); i++) {
-        res._data[i] = res_arr._data[i];
-    }
+    std::copy(res_arr._data.begin(), res_arr._data.end(), res._data.begin());
     return res;
 }
 
@@ -3679,9 +3730,7 @@ APyCFixed APyCFixedArray::checked_inner_product(
     );
 
     APyCFixed res(res_bits, res_int_bits);
-    for (std::size_t i = 0; i < res_arr._data.size(); i++) {
-        res._data[i] = res_arr._data[i];
-    }
+    std::copy(res_arr._data.begin(), res_arr._data.end(), res._data.begin());
     return res;
 }
 
@@ -3861,8 +3910,8 @@ APyCFixedArray APyCFixedArray::convolve(
     APyCFixedArray b_cpy = swap ? *this : other;
     multi_limb_reverse(std::begin(b_cpy._data), std::end(b_cpy._data), b_cpy._itemsize);
 
-    // Let `a` be a pointer to the longer array, and let `b` be a pointer to the reverse
-    // copy of the shorter array.
+    // Let `a` be a pointer to the longer array, and let `b` be a pointer to the
+    // reverse copy of the shorter array.
     const APyCFixedArray* a = swap ? &other : this;
     const APyCFixedArray* b = &b_cpy;
 

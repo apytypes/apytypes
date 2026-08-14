@@ -29,6 +29,7 @@
 #include "apytypes_common.h"
 #include "apytypes_fwd.h"
 #include "apytypes_mp.h"
+#include "simd_hints.h"
 
 /*!
  * Type trait removing const-volatile qualifiers and reference of `T`. Equivalent to the
@@ -510,12 +511,8 @@ template <class RANDOM_ACCESS_ITERATOR>
         std::fill(it_begin, it_end, sign_limb);
         return; // early return
     } else if (limb_skip) {
-        for (auto it = it_begin; it < it_end - limb_skip; ++it) {
-            *it = *(it + limb_skip);
-        }
-        for (auto it = it_end - limb_skip; it < it_end; ++it) {
-            *it = sign_limb;
-        }
+        std::copy(it_begin + limb_skip, it_end, it_begin);
+        std::fill(it_end - limb_skip, it_end, sign_limb);
     }
 
     // Perform the in-limb shifting
@@ -554,12 +551,8 @@ template <class RANDOM_ACCESS_ITERATOR>
         std::fill(it_begin, it_end, 0);
         return; // early return
     } else if (limb_skip) {
-        for (auto it = it_begin; it < it_end - limb_skip; ++it) {
-            *it = *(it + limb_skip);
-        }
-        for (auto it = it_end - limb_skip; it < it_end; ++it) {
-            *it = 0;
-        }
+        std::copy(it_begin + limb_skip, it_end, it_begin);
+        std::fill(it_end - limb_skip, it_end, 0);
     }
 
     unsigned limb_shift = shift_amnt % APY_LIMB_SIZE_BITS;
@@ -585,12 +578,8 @@ static APY_INLINE void limb_vector_lsl_inner(
     assert(it_begin < it_end);
 
     if (limb_skip) {
-        for (auto it = it_end - 1; it != it_begin + limb_skip - 1; --it) {
-            *it = *(it - limb_skip);
-        }
-        for (auto it = it_begin; it != it_begin + limb_skip; ++it) {
-            *it = 0;
-        }
+        std::copy_backward(it_begin, it_end - limb_skip, it_end);
+        std::fill(it_begin, it_begin + limb_skip, 0);
     }
 
     // Perform the in-limb shifting
@@ -650,13 +639,11 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     // In the remaining limbs, test if any bit at all is set
-    for (std::size_t i = limb_idx + 1; i < n_limbs; i++) {
-        if (it_begin[i]) {
-            return true;
-        }
-    }
-
-    return false;
+    bool found
+        = std::any_of(it_begin + limb_idx + 1, it_begin + n_limbs, [](apy_limb_t l) {
+              return l != 0;
+          });
+    return found;
 }
 
 //! Test if the two's complement value of `src1` is smaller than that of `src2`
@@ -803,10 +790,11 @@ template <class RANDOM_ACCESS_ITERATOR>
 
     // The full limbs can be reduced as full integers
     const unsigned full_limbs = n / APY_LIMB_SIZE_BITS;
-    for (auto limb_it = cbegin_it; limb_it != cbegin_it + full_limbs; ++limb_it) {
-        if (*limb_it != 0) {
-            return true;
-        }
+    bool found = std::any_of(cbegin_it, cbegin_it + full_limbs, [](apy_limb_t l) {
+        return l != 0;
+    });
+    if (found) {
+        return true;
     }
 
     const unsigned last_limb_bits = n % APY_LIMB_SIZE_BITS;
@@ -920,13 +908,7 @@ template <class RANDOM_ACCESS_ITERATOR>
         // One or more bits in the masked first limb are non-zero
         return false;
     } else {
-        // Test if remaining limbs are all full zero limbs
-        for (auto it = cbegin_it + 1; it != cend_it; ++it) {
-            if (*it != 0) {
-                return false;
-            }
-        }
-        return true; // All zeros
+        return std::all_of(cbegin_it + 1, cend_it, [](auto l) { return l == 0; });
     }
 }
 
@@ -943,12 +925,9 @@ template <class RANDOM_ACCESS_ITERATOR>
         return false;
     } else {
         // Test if remaining limbs are all full one limbs
-        for (auto it = cbegin_it + 1; it != cend_it; ++it) {
-            if (*it != apy_limb_t(-1)) {
-                return false;
-            }
-        }
-        return true; // All ones
+        return std::all_of(cbegin_it + 1, cend_it, [](auto l) {
+            return l == apy_limb_t(-1);
+        });
     }
 }
 
@@ -1019,6 +998,7 @@ limb_vector_to_u64_vec(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it)
     } else { /* APY_LIMB_SIZE_BITS == 32 */
         std::size_t src_nitems = std::distance(begin_it, end_it);
         std::vector<uint64_t> limb64_vec(src_nitems / 2 + src_nitems % 2);
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < src_nitems / 2; i++) {
             std::uint64_t limb64_hi = std::uint64_t(*(begin_it + 2 * i + 1)) << 32;
             std::uint64_t limb64_lo = std::uint64_t(*(begin_it + 2 * i + 0)) << 0;
@@ -1044,6 +1024,7 @@ limb_vector_from_u64_vec(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it)
     } else {
         std::size_t n_limbs = 2 * std::distance(begin_it, end_it);
         VEC_RETURN_TYPE res(n_limbs);
+        VECTORIZE_LOOP
         for (std::size_t i = 0; i < n_limbs / 2; i++) {
             res[2 * i + 0] = (*(begin_it + i)) >> 0;
             res[2 * i + 1] = (*(begin_it + i)) >> 32;
@@ -1114,6 +1095,7 @@ template <typename RANDOM_ACCESS_ITERATOR_INOUT>
     std::size_t itemsize
 )
 {
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < itemsize; i++) {
         std::swap(*(a_it + i), *(b_it + i));
     }
@@ -1129,6 +1111,7 @@ template <typename RANDOM_ACCESS_ITERATOR_INOUT>
 {
     assert(begin_it <= end_it);
     auto n_items = std::distance(begin_it, end_it) / itemsize;
+    VECTORIZE_LOOP
     for (std::size_t i = 0; i < (n_items + 1) / 2; i++) {
         auto it1 = begin_it + (i * itemsize);
         auto it2 = begin_it + itemsize * (n_items - i - 1);
