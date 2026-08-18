@@ -3582,10 +3582,10 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
     // Special case #1: single-limb product
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t y = 0; y < _shape[0]; y++) {
+            apy_limb_signed_t a_re = _data[2 * y + 0];
+            apy_limb_signed_t a_im = _data[2 * y + 1];
             VECTORIZE_LOOP
             for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-                apy_limb_signed_t a_re = _data[2 * y + 0];
-                apy_limb_signed_t a_im = _data[2 * y + 1];
                 apy_limb_signed_t b_re = rhs._data[2 * x + 0];
                 apy_limb_signed_t b_im = rhs._data[2 * x + 1];
                 res._data[2 * (y * rhs._shape[0] + x) + 0] = a_re * b_re - a_im * b_im;
@@ -3600,25 +3600,27 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
                 // Both operands fit in one limb.
+                auto size = res._itemsize * rhs._shape[0];
                 for (std::size_t y = 0; y < _shape[0]; y++) {
+                    const apy_limb_t* a = _data.data() + _itemsize * y;
+                    const auto dst_tmp = y * size + res._data.data();
                     VECTORIZE_LOOP
                     for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-                        const apy_limb_t* a = _data.data() + _itemsize * y;
                         const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
-                        apy_limb_t* dst = res._data.data()
-                            + res._itemsize * (y * rhs._shape[0] + x);
+                        apy_limb_t* dst = dst_tmp + res._itemsize * x;
                         complex_multiplication_1_1_2(dst, a, b);
                     }
                 }
             } else {
                 // Left operand fits in one limb, right operand uses two limbs.
+                auto size = res._itemsize * rhs._shape[0];
                 for (std::size_t y = 0; y < _shape[0]; y++) {
+                    const apy_limb_t* a = _data.data() + _itemsize * y;
+                    const auto dst_tmp = y * size + res._data.data();
                     VECTORIZE_LOOP
                     for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-                        const apy_limb_t* a = _data.data() + _itemsize * y;
                         const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
-                        apy_limb_t* dst = res._data.data()
-                            + res._itemsize * (y * rhs._shape[0] + x);
+                        apy_limb_t* dst = dst_tmp + res._itemsize * x;
                         complex_multiplication_1_2_2(dst, a, b);
                     }
                 }
@@ -3626,13 +3628,14 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
         } else {
             assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
             // Left operand uses two limbs, right operand fits in one limb.
+            auto size = res._itemsize * rhs._shape[0];
             for (std::size_t y = 0; y < _shape[0]; y++) {
+                const apy_limb_t* a = _data.data() + _itemsize * y;
+                const auto dst_tmp = y * size + res._data.data();
                 VECTORIZE_LOOP
                 for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-                    const apy_limb_t* a = _data.data() + _itemsize * y;
                     const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
-                    apy_limb_t* dst
-                        = res._data.data() + res._itemsize * (y * rhs._shape[0] + x);
+                    apy_limb_t* dst = dst_tmp + res._itemsize * x;
                     complex_multiplication_1_2_2(dst, b, a);
                 }
             }
@@ -3652,12 +3655,13 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
     auto op1_abs_begin = std::begin(scratch);
     auto op2_abs_begin = op1_abs_begin + _itemsize / 2;
     auto prod_imm_begin = op2_abs_begin + rhs._itemsize / 2;
-
+    auto size = res._itemsize * rhs._shape[0];
     for (std::size_t y = 0; y < _shape[0]; y++) {
+        const apy_limb_t* a = _data.data() + _itemsize * y;
+        const auto dst_tmp = y * size + res._data.data();
         for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-            const apy_limb_t* a = _data.data() + _itemsize * y;
             const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
-            auto* dst = res._data.data() + res._itemsize * (y * rhs._shape[0] + x);
+            auto* dst = dst_tmp + res._itemsize * x;
             complex_fixed_point_product(
                 a,                 // src1
                 b,                 // src2

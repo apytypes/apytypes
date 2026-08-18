@@ -1540,9 +1540,10 @@ APyFixedArray APyFixedArray::outer_product(const APyFixedArray& rhs) const
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         VECTORIZE_LOOP
         for (std::size_t y = 0; y < _shape[0]; y++) {
+            const auto offset = y * rhs._shape[0];
             VECTORIZE_LOOP
             for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-                res._data[y * rhs._shape[0] + x] = _data[y] * rhs._data[x];
+                res._data[offset + x] = _data[y] * rhs._data[x];
             }
         }
         return res; // early exit
@@ -1553,11 +1554,12 @@ APyFixedArray APyFixedArray::outer_product(const APyFixedArray& rhs) const
         && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
         VECTORIZE_LOOP
         for (std::size_t y = 0; y < _shape[0]; y++) {
+            const auto offset = y * rhs._shape[0];
             VECTORIZE_LOOP
             for (std::size_t x = 0; x < rhs._shape[0]; x++) {
                 auto [high, low] = long_signed_mult(_data[y], rhs._data[x]);
-                res._data[2 * (y * rhs._shape[0] + x) + 0] = low;
-                res._data[2 * (y * rhs._shape[0] + x) + 1] = high;
+                res._data[2 * (offset + x) + 0] = low;
+                res._data[2 * (offset + x) + 1] = high;
             }
         }
         return res; // early exit
@@ -1567,11 +1569,13 @@ APyFixedArray APyFixedArray::outer_product(const APyFixedArray& rhs) const
     ScratchVector<apy_limb_t, 8> op1_abs(_itemsize);
     ScratchVector<apy_limb_t, 8> op2_abs(rhs._itemsize);
     ScratchVector<apy_limb_t, 16> prod_abs(_itemsize + rhs._itemsize);
+    const auto size = rhs._shape[0] * res._itemsize;
     for (std::size_t y = 0; y < _shape[0]; y++) {
+        const apy_limb_t* a = _data.data() + _itemsize * y;
+        const auto dst_tmp = y * size + res._data.data();
         for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-            const apy_limb_t* a = _data.data() + _itemsize * y;
             const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
-            auto* dst = res._data.data() + res._itemsize * (y * rhs._shape[0] + x);
+            auto* dst = dst_tmp + res._itemsize * x;
             fixed_point_product(
                 a,                   // src1
                 b,                   // src2

@@ -758,6 +758,62 @@ def test_outer_product(exp_bits: int, man_bits: int, force_complex: bool):
     )
 
 
+@pytest.mark.parametrize("exp_bits", [5, 10, 20, 30])
+@pytest.mark.parametrize("man_bits", [10, 20, 50, 60])
+@pytest.mark.parametrize("exp_bits2", [5, 10, 20, 30])
+@pytest.mark.parametrize("man_bits2", [10, 20, 50, 60])
+@pytest.mark.parametrize("force_complex", [False, True])
+def test_outer_product_diff_wl(
+    exp_bits: int, man_bits: int, exp_bits2: int, man_bits2: int, force_complex: bool
+):
+    a = fp(
+        [1, 1.25, 0, 4, -3.25, 0, 99],
+        exp_bits=exp_bits,
+        man_bits=man_bits,
+        force_complex=force_complex,
+    )
+    b = fp(
+        [-1, 1.25, 0, -4, -3.25],
+        exp_bits=exp_bits2,
+        man_bits=man_bits2,
+        force_complex=force_complex,
+    )
+
+    assert outer(a, b).is_identical(
+        fp(
+            [
+                [-1.0, 1.25, 0.0, -4.0, -3.25],
+                [-1.25, 1.5625, 0.0, -5.0, -4.0625],
+                [-0.0, 0.0, 0.0, -0.0, -0.0],
+                [-4.0, 5.0, 0.0, -16.0, -13.0],
+                [3.25, -4.0625, -0.0, 13.0, 10.5625],
+                [-0.0, 0.0, 0.0, -0.0, -0.0],
+                [-99.0, 123.75, 0.0, -396.0, -321.75],
+            ],
+            exp_bits=max(exp_bits, exp_bits2),
+            man_bits=max(man_bits, man_bits2),
+            force_complex=force_complex,
+        ),
+        ignore_zero_sign=True,
+    )
+
+    assert outer(b, a).is_identical(
+        fp(
+            [
+                [-1, -1.25, 0, -4, 3.25, 0, -99],
+                [1.25, 1.5625, 0, 5, -4.0625, 0, 123.75],
+                [0, 0, 0, 0, 0, 0, 0],
+                [-4, -5, 0, -16, 13, 0, -396],
+                [-3.25, -4.0625, 0, -13, 10.5625, 0, -321.75],
+            ],
+            exp_bits=max(exp_bits, exp_bits2),
+            man_bits=max(man_bits, man_bits2),
+            force_complex=force_complex,
+        ),
+        ignore_zero_sign=True,
+    )
+
+
 def test_outer_product_raises():
     a = fp([[1, 1.25, 0, 4, -3.25, 0, 99]], exp_bits=10, man_bits=10)
     b = fp([-1, 1.25, 0, -4, -3.25], exp_bits=10, man_bits=10)
