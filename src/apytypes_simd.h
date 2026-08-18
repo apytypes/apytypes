@@ -151,6 +151,92 @@ void vector_mul(
 );
 
 /*!
+ * Perform element-wise complex multiplication of interleaved real and imaginary
+ * elements in `src1_begin` and `src2_begin`, storing the result in `dst_begin`.
+ */
+void vector_mul_complex(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * Perform element-wise complex multiplication of interleaved real and imaginary
+ * elements in `src_begin` with an interleaved complex constant, storing the result
+ * in `dst_begin`.
+ */
+void vector_mul_complex_const(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    apy_limb_t real_constant,
+    apy_limb_t imag_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * Perform element-wise multiplication of interleaved complex elements in
+ * `src_begin` with real elements in `real_src_begin`, storing the result in
+ * `dst_begin`.
+ */
+void vector_mul_complex_real(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator real_src_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * Divide interleaved complex elements in `src_begin` by real elements in
+ * `real_src_begin` after shifting the numerator, storing the result in `dst_begin`.
+ */
+void vector_shift_div_complex_real(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator real_src_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src_shift_amount,
+    std::size_t size
+);
+
+/*!
+ * Divide interleaved complex elements in `src_begin` by a complex constant after
+ * multiplying by its conjugate and shifting the numerator.
+ */
+void vector_shift_div_complex_const(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    apy_limb_t real_constant,
+    apy_limb_t imag_constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src_shift_amount,
+    std::size_t size
+);
+
+/*!
+ * Divide interleaved complex elements in `src1_begin` by interleaved complex
+ * elements in `src2_begin` after conjugate multiplication and numerator shifting.
+ */
+void vector_shift_div_complex(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src_shift_amount,
+    std::size_t size
+);
+
+/*!
+ * Divide a real constant by interleaved complex elements after multiplying by
+ * their conjugates and shifting the numerator.
+ */
+void vector_shift_rdiv_complex(
+    apy_limb_t real_constant,
+    apy_limb_t imag_constant,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src_shift_amount,
+    std::size_t size
+);
+
+/*!
  * Perform addition of the elements in `src1_begin` with `src2_begin`
  * and store the result in `dst_begin`, for `size` number of elements.
  */
@@ -317,6 +403,14 @@ apy_limb_t vector_multiply_accumulate(
  * Return true if any element in [ `src_begin`, `src_begin + size` ) is zero.
  */
 bool vector_any_zero(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin, std::size_t size
+);
+
+/*!
+ * Return true if any complex pair in [ `src_begin`, `src_begin + size` ) is zero
+ * in both its real and imaginary components.
+ */
+bool vector_any_zero_pairwise(
     APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin, std::size_t size
 );
 

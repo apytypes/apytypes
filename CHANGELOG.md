@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Iterators for complex arrays.
 - Extract bits for `APyFixed` and `APyFloat` using "HDL-style", inclusive,
   MSB-first indexing.
+- SIMD for single-limb fixed-point complex array multiplication and division.
 
 ### Fixed
 
