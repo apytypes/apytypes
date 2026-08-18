@@ -490,15 +490,12 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        VECTORIZE_LOOP
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            result._data[i + 0]
-                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 0])
-                - apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 1]);
-            result._data[i + 1]
-                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 0])
-                + apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 1]);
-        }
+        simd::vector_mul_complex(
+            std::begin(_data),        // src1
+            std::begin(rhs._data),    // src2
+            std::begin(result._data), // dst
+            result._data.size()       // elements
+        );
         return result; // early exit
     }
 
@@ -584,13 +581,12 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixedArray& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        VECTORIZE_LOOP
-        for (std::size_t i = 0; i < result._nitems; i++) {
-            result._data[2 * i + 0]
-                = apy_limb_signed_t(_data[2 * i + 0]) * apy_limb_signed_t(rhs._data[i]);
-            result._data[2 * i + 1]
-                = apy_limb_signed_t(_data[2 * i + 1]) * apy_limb_signed_t(rhs._data[i]);
-        }
+        simd::vector_mul_complex_real(
+            std::begin(_data),        // complex source
+            std::begin(rhs._data),    // real source
+            std::begin(result._data), // destination
+            result._data.size()       // interleaved elements
+        );
         return result; // early exit
     }
 
@@ -670,15 +666,13 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        VECTORIZE_LOOP
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            result._data[i + 0]
-                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[0])
-                - apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[1]);
-            result._data[i + 1]
-                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[0])
-                + apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[1]);
-        }
+        simd::vector_mul_complex_const(
+            std::begin(_data),        // src
+            rhs._data[0],             // real constant
+            rhs._data[1],             // imaginary constant
+            std::begin(result._data), // dst
+            result._data.size()       // elements
+        );
         return result; // early exit
     }
 
@@ -847,18 +841,13 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        const int rhs_bits = rhs.bits();
-        VECTORIZE_LOOP
-        for (std::size_t i = 0; i < result._nitems; i += 1) {
-            apy_limb_signed_t den = rhs._data[i];
-            // No need to check if den is zero as SIMD check above is done
-            apy_limb_signed_t real
-                = (apy_limb_signed_t(_data[2 * i + 0]) << rhs_bits) / den;
-            apy_limb_signed_t imag
-                = (apy_limb_signed_t(_data[2 * i + 1]) << rhs_bits) / den;
-            result._data[2 * i + 0] = real;
-            result._data[2 * i + 1] = imag;
-        }
+        simd::vector_shift_div_complex_real(
+            std::begin(_data),        // complex numerator
+            std::begin(rhs._data),    // real denominator
+            std::begin(result._data), // destination
+            rhs.bits(),               // numerator shift
+            result._data.size()       // interleaved elements
+        );
         return result; // early exit
     }
 
@@ -1087,12 +1076,13 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixed& rhs) const
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         const int rhs_bits = rhs.bits();
-        apy_limb_signed_t den = rhs._data[0];
-        VECTORIZE_LOOP
-        for (std::size_t i = 0; i < 2 * result._nitems; i += 2) {
-            result._data[i + 0] = ((apy_limb_signed_t)_data[i + 0] << rhs_bits) / den;
-            result._data[i + 1] = ((apy_limb_signed_t)_data[i + 1] << rhs_bits) / den;
-        }
+        simd::vector_shift_div_const_signed(
+            std::begin(_data),        // complex numerator
+            rhs._data[0],             // real denominator
+            std::begin(result._data), // destination
+            rhs_bits,                 // numerator shift
+            result._data.size()       // interleaved elements
+        );
         return result; // early exit
     }
 
@@ -1242,28 +1232,20 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Single limb specialization
-    if (unsigned(div_bits) <= APY_LIMB_SIZE_BITS) {
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            apy_limb_signed_t den = apy_limb_signed_t(rhs._data[i + 0])
-                    * apy_limb_signed_t(rhs._data[i + 0])
-                + apy_limb_signed_t(rhs._data[i + 1])
-                    * apy_limb_signed_t(rhs._data[i + 1]);
-            if (den == 0) {
-                PyErr_SetString(
-                    PyExc_ZeroDivisionError, "fixed-point division by zero"
-                );
-                throw nb::python_error();
-            }
-            apy_limb_signed_t real
-                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 0])
-                + apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 1]);
-            apy_limb_signed_t imag
-                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 0])
-                - apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 1]);
-
-            result._data[i + 0] = (apy_limb_signed_t(real << (rhs.bits())) / den);
-            result._data[i + 1] = (apy_limb_signed_t(imag << (rhs.bits())) / den);
+    if (std::size_t(div_bits) <= APY_LIMB_SIZE_BITS) {
+        // SIMD check for pairwise-zero complex denominators
+        if (simd::vector_any_zero_pairwise(rhs._data.begin(), rhs._data.size())) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
         }
+
+        simd::vector_shift_div_complex(
+            std::begin(_data),        // complex numerator
+            std::begin(rhs._data),    // complex denominator
+            std::begin(result._data), // destination
+            rhs.bits(),               // numerator shift
+            result._data.size()       // interleaved elements
+        );
         return result; // early exit
     }
 
@@ -1279,20 +1261,20 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
         // intermediate result without overflow
         assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
         auto rhs_bits = unsigned(rhs.bits());
+        // Check for pairwise-zero complex denominators
+        if (simd::vector_any_zero_pairwise(rhs._data.begin(), rhs._data.size())) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
+        }
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
                 // Left-hand side and result fit in single limb, but right-hand side
                 // does not.
+
                 for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
                     __int128 den_real = (__int128)apy_limb_signed_t(rhs._data[i + 0]);
                     __int128 den_imag = (__int128)apy_limb_signed_t(rhs._data[i + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
-                    if (den == 0) {
-                        PyErr_SetString(
-                            PyExc_ZeroDivisionError, "fixed-point division by zero"
-                        );
-                        throw nb::python_error();
-                    }
                     __int128 num_real = (__int128)apy_limb_signed_t(_data[i + 0]);
                     __int128 num_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                     __int128 real = num_real * den_real + num_imag * den_imag;
@@ -1307,12 +1289,6 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                     __int128 den_imag
                         = (__int128)apy_limb_signed_t(rhs._data[(i >> 1) + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
-                    if (den == 0) {
-                        PyErr_SetString(
-                            PyExc_ZeroDivisionError, "fixed-point division by zero"
-                        );
-                        throw nb::python_error();
-                    }
                     __int128 num_real
                         = (__int128)apy_limb_signed_t(_data[(i >> 1) + 0]);
                     __int128 num_imag
@@ -1339,12 +1315,6 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                 __int128 den_imag
                     = (__int128)apy_limb_signed_t(rhs._data[(i >> 1) + 1]);
                 std::int64_t den = den_real * den_real + den_imag * den_imag;
-                if (den == 0) {
-                    PyErr_SetString(
-                        PyExc_ZeroDivisionError, "fixed-point division by zero"
-                    );
-                    throw nb::python_error();
-                }
                 __int128 num_real = (__int128)(_data[i + 0])
                     | (__int128)apy_limb_signed_t(_data[i + 1]) << APY_LIMB_SIZE_BITS;
                 __int128 num_imag = (__int128)(_data[i + 2])
@@ -1375,6 +1345,11 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
         // intermediate result without overflow
         assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
         auto rhs_bits = unsigned(rhs.bits());
+        // Check for pairwise-zero complex denominators
+        if (simd::vector_any_zero_pairwise(rhs._data.begin(), rhs._data.size())) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
+        }
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
                 // Left-hand side and result fit in single limb, but right-hand side
@@ -1385,12 +1360,6 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                     std::int64_t den_imag
                         = (std::int64_t)apy_limb_signed_t(rhs._data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
-                    if (den == 0) {
-                        PyErr_SetString(
-                            PyExc_ZeroDivisionError, "fixed-point division by zero"
-                        );
-                        throw nb::python_error();
-                    }
                     std::int64_t num_real
                         = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
                     std::int64_t num_imag
@@ -1407,12 +1376,6 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                     std::int64_t den_imag
                         = (std::int64_t)apy_limb_signed_t(rhs._data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
-                    if (den == 0) {
-                        PyErr_SetString(
-                            PyExc_ZeroDivisionError, "fixed-point division by zero"
-                        );
-                        throw nb::python_error();
-                    }
                     std::int64_t num_real
                         = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
                     std::int64_t num_imag
@@ -1439,12 +1402,6 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
                 std::int64_t den_imag
                     = (std::int64_t)apy_limb_signed_t(rhs._data[(i >> 1) + 1]);
                 std::int64_t den = den_real * den_real + den_imag * den_imag;
-                if (den == 0) {
-                    PyErr_SetString(
-                        PyExc_ZeroDivisionError, "fixed-point division by zero"
-                    );
-                    throw nb::python_error();
-                }
                 std::int64_t num_real = (std::int64_t)(_data[i + 0])
                     | (std::int64_t)apy_limb_signed_t(_data[i + 1])
                         << APY_LIMB_SIZE_BITS;
@@ -1540,21 +1497,14 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
 
     // Single limb specialization
     if (unsigned(div_bits) <= APY_LIMB_SIZE_BITS) {
-        apy_limb_signed_t den
-            = apy_limb_signed_t(rhs._data[0]) * apy_limb_signed_t(rhs._data[0])
-            + apy_limb_signed_t(rhs._data[1]) * apy_limb_signed_t(rhs._data[1]);
-        VECTORIZE_LOOP
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            apy_limb_signed_t real
-                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[0])
-                + apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[1]);
-            apy_limb_signed_t imag
-                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[0])
-                - apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[1]);
-
-            result._data[i + 0] = (apy_limb_signed_t(real << (rhs.bits())) / den);
-            result._data[i + 1] = (apy_limb_signed_t(imag << (rhs.bits())) / den);
-        }
+        simd::vector_shift_div_complex_const(
+            std::begin(_data),        // complex numerator
+            rhs._data[0],             // real denominator
+            rhs._data[1],             // imaginary denominator
+            std::begin(result._data), // destination
+            rhs.bits(),               // numerator shift
+            result._data.size()       // interleaved elements
+        );
         return result; // early exit
     }
 
@@ -2044,27 +1994,21 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Single limb specialization
-    if (unsigned(div_bits) <= APY_LIMB_SIZE_BITS) {
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            apy_limb_signed_t den
-                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(_data[i + 0])
-                + apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(_data[i + 1]);
-            if (den == 0) {
-                PyErr_SetString(
-                    PyExc_ZeroDivisionError, "fixed-point division by zero"
-                );
-                throw nb::python_error();
-            }
-            apy_limb_signed_t real
-                = apy_limb_signed_t(lhs._data[0]) * apy_limb_signed_t(_data[i + 0])
-                + apy_limb_signed_t(lhs._data[1]) * apy_limb_signed_t(_data[i + 1]);
-            apy_limb_signed_t imag
-                = apy_limb_signed_t(lhs._data[1]) * apy_limb_signed_t(_data[i + 0])
-                - apy_limb_signed_t(lhs._data[0]) * apy_limb_signed_t(_data[i + 1]);
-
-            result._data[i + 0] = (apy_limb_signed_t(real << (bits())) / den);
-            result._data[i + 1] = (apy_limb_signed_t(imag << (bits())) / den);
+    if (std::size_t(div_bits) <= APY_LIMB_SIZE_BITS) {
+        // SIMD check for pairwise-zero complex denominators
+        if (simd::vector_any_zero_pairwise(_data.begin(), _data.size())) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
         }
+
+        simd::vector_shift_rdiv_complex(
+            lhs._data[0],
+            lhs._data[1],
+            std::begin(_data),
+            std::begin(result._data),
+            bits(),
+            result._data.size()
+        );
         return result; // early exit
     }
 
@@ -2079,6 +2023,11 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
         // Denominator is always single limb, so we can use 128-bit integer for
         // intermediate result without overflow
         assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+        // Check for pairwise-zero complex denominators
+        if (simd::vector_any_zero_pairwise(_data.begin(), _data.size())) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
+        }
         if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
             __int128 num_real = (__int128)apy_limb_signed_t(lhs._data[0]);
             __int128 num_imag = (__int128)apy_limb_signed_t(lhs._data[1]);
@@ -2089,12 +2038,6 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                     __int128 den_real = (__int128)apy_limb_signed_t(_data[i + 0]);
                     __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
-                    if (den == 0) {
-                        PyErr_SetString(
-                            PyExc_ZeroDivisionError, "fixed-point division by zero"
-                        );
-                        throw nb::python_error();
-                    }
                     __int128 real = num_real * den_real + num_imag * den_imag;
                     __int128 imag = num_imag * den_real - num_real * den_imag;
                     result._data[i + 0] = apy_limb_signed_t((real << bits()) / den);
@@ -2105,12 +2048,6 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                     __int128 den_real = (__int128)apy_limb_signed_t(_data[i + 0]);
                     __int128 den_imag = (__int128)apy_limb_signed_t(_data[i + 1]);
                     __int128 den = den_real * den_real + den_imag * den_imag;
-                    if (den == 0) {
-                        PyErr_SetString(
-                            PyExc_ZeroDivisionError, "fixed-point division by zero"
-                        );
-                        throw nb::python_error();
-                    }
                     __int128 real = num_real * den_real + num_imag * den_imag;
                     __int128 imag = num_imag * den_real - num_real * den_imag;
                     __int128 res_real = (real << bits()) / den;
@@ -2169,6 +2106,11 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
         // Denominator is always single limb, so we can use 128-bit integer for
         // intermediate result without overflow
         assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+        // Check for pairwise-zero complex denominators
+        if (simd::vector_any_zero_pairwise(_data.begin(), _data.size())) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+            throw nb::python_error();
+        }
         if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
             std::int64_t num_real = (std::int64_t)apy_limb_signed_t(lhs._data[0]);
             std::int64_t num_imag = (std::int64_t)apy_limb_signed_t(lhs._data[1]);
@@ -2181,12 +2123,6 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                     std::int64_t den_imag
                         = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
-                    if (den == 0) {
-                        PyErr_SetString(
-                            PyExc_ZeroDivisionError, "fixed-point division by zero"
-                        );
-                        throw nb::python_error();
-                    }
                     std::int64_t real = num_real * den_real + num_imag * den_imag;
                     std::int64_t imag = num_imag * den_real - num_real * den_imag;
                     result._data[i + 0] = apy_limb_signed_t((real << bits()) / den);
@@ -2199,12 +2135,6 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                     std::int64_t den_imag
                         = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                     std::int64_t den = den_real * den_real + den_imag * den_imag;
-                    if (den == 0) {
-                        PyErr_SetString(
-                            PyExc_ZeroDivisionError, "fixed-point division by zero"
-                        );
-                        throw nb::python_error();
-                    }
                     std::int64_t real = num_real * den_real + num_imag * den_imag;
                     std::int64_t imag = num_imag * den_real - num_real * den_imag;
                     std::int64_t res_real = (real << bits()) / den;
@@ -2230,12 +2160,6 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
                 std::int64_t den_real = (std::int64_t)apy_limb_signed_t(_data[i + 0]);
                 std::int64_t den_imag = (std::int64_t)apy_limb_signed_t(_data[i + 1]);
                 std::int64_t den = den_real * den_real + den_imag * den_imag;
-                if (den == 0) {
-                    PyErr_SetString(
-                        PyExc_ZeroDivisionError, "fixed-point division by zero"
-                    );
-                    throw nb::python_error();
-                }
                 std::int64_t real = num_real * den_real + num_imag * den_imag;
                 std::int64_t imag = num_imag * den_real - num_real * den_imag;
                 std::int64_t res_real = (real << bits()) / den;
@@ -3582,15 +3506,13 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
     // Special case #1: single-limb product
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t y = 0; y < _shape[0]; y++) {
-            apy_limb_signed_t a_re = _data[2 * y + 0];
-            apy_limb_signed_t a_im = _data[2 * y + 1];
-            VECTORIZE_LOOP
-            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-                apy_limb_signed_t b_re = rhs._data[2 * x + 0];
-                apy_limb_signed_t b_im = rhs._data[2 * x + 1];
-                res._data[2 * (y * rhs._shape[0] + x) + 0] = a_re * b_re - a_im * b_im;
-                res._data[2 * (y * rhs._shape[0] + x) + 1] = a_im * b_re + a_re * b_im;
-            }
+            simd::vector_mul_complex_const(
+                std::begin(rhs._data),
+                _data[2 * y + 0],
+                _data[2 * y + 1],
+                std::begin(res._data) + 2 * y * rhs._shape[0],
+                2 * rhs._shape[0]
+            );
         }
         return res; // early exit
     }
