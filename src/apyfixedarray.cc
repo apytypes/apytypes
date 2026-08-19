@@ -1541,10 +1541,12 @@ APyFixedArray APyFixedArray::outer_product(const APyFixedArray& rhs) const
         VECTORIZE_LOOP
         for (std::size_t y = 0; y < _shape[0]; y++) {
             const auto offset = y * rhs._shape[0];
-            VECTORIZE_LOOP
-            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-                res._data[offset + x] = _data[y] * rhs._data[x];
-            }
+            simd::vector_mul_const(
+                std::begin(rhs._data),
+                _data[y],
+                std::begin(res._data) + offset,
+                rhs._shape[0]
+            );
         }
         return res; // early exit
     }
