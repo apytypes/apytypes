@@ -31,7 +31,7 @@ APyCFloatArray::APyCFloatArray(
     : APyArray(shape, /* itemsize= */ 2)
     , exp_bits(exp_bits)
     , man_bits(man_bits)
-    , bias(bias.value_or(ieee_bias(exp_bits)))
+    , bias(bias ? *bias : ieee_bias(exp_bits))
 {
 }
 
@@ -67,7 +67,7 @@ APyCFloatArray::APyCFloatArray(
       )
     , exp_bits { check_exponent_format(exp_bits, "APyCFloatArray.__init__") }
     , man_bits { check_mantissa_format(man_bits, "APyCFloatArray.__init__") }
-    , bias { bias.value_or(ieee_bias(exp_bits)) }
+    , bias { bias ? *bias : ieee_bias(exp_bits) }
 {
     constexpr std::string_view NAME = "APyCFloatArray.__init__";
 
@@ -1168,33 +1168,41 @@ APyCFloatArray APyCFloatArray::cast(
     return _cast(
         actual_exp_bits,
         actual_man_bits,
-        new_bias.value_or(APyFloat::ieee_bias(actual_exp_bits)),
-        quantization.value_or(get_float_quantization_mode())
+        new_bias ? *new_bias : APyFloat::ieee_bias(actual_exp_bits),
+        quantization ? *quantization : get_float_quantization_mode()
     );
 }
 
 APyCFloatArray
 APyCFloatArray::cast_to_double(std::optional<QuantizationMode> quantization) const
 {
-    return _cast(11, 52, 1023, quantization.value_or(get_float_quantization_mode()));
+    return _cast(
+        11, 52, 1023, quantization ? *quantization : get_float_quantization_mode()
+    );
 }
 
 APyCFloatArray
 APyCFloatArray::cast_to_single(std::optional<QuantizationMode> quantization) const
 {
-    return _cast(8, 23, 127, quantization.value_or(get_float_quantization_mode()));
+    return _cast(
+        8, 23, 127, quantization ? *quantization : get_float_quantization_mode()
+    );
 }
 
 APyCFloatArray
 APyCFloatArray::cast_to_half(std::optional<QuantizationMode> quantization) const
 {
-    return _cast(5, 10, 15, quantization.value_or(get_float_quantization_mode()));
+    return _cast(
+        5, 10, 15, quantization ? *quantization : get_float_quantization_mode()
+    );
 }
 
 APyCFloatArray
 APyCFloatArray::cast_to_bfloat16(std::optional<QuantizationMode> quantization) const
 {
-    return _cast(8, 7, 127, quantization.value_or(get_float_quantization_mode()));
+    return _cast(
+        8, 7, 127, quantization ? *quantization : get_float_quantization_mode()
+    );
 }
 
 APyCFloatArray APyCFloatArray::_cast(

@@ -57,7 +57,7 @@ APyFloatArray::APyFloatArray(
     : APyArray(python_iterable_extract_shape(sign_seq, "APyFloatArray.__init__"))
     , exp_bits { exp_bits }
     , man_bits { man_bits }
-    , bias { bias.value_or(ieee_bias(exp_bits)) }
+    , bias { bias ? *bias : ieee_bias(exp_bits) }
 {
     constexpr std::string_view caller_name = "APyFloatArray.__init__";
 
@@ -123,7 +123,7 @@ APyFloatArray::APyFloatArray(
     : APyArray(shape)
     , exp_bits(exp_bits)
     , man_bits(man_bits)
-    , bias(bias.value_or(APyFloat::ieee_bias(exp_bits)))
+    , bias(bias ? *bias : APyFloat::ieee_bias(exp_bits))
 {
 }
 
@@ -1671,8 +1671,8 @@ APyFloatArray APyFloatArray::cast(
     return _cast(
         actual_exp_bits,
         actual_man_bits,
-        new_bias.value_or(APyFloat::ieee_bias(actual_exp_bits)),
-        quantization.value_or(get_float_quantization_mode())
+        new_bias ? *new_bias : APyFloat::ieee_bias(actual_exp_bits),
+        quantization ? *quantization : get_float_quantization_mode()
     );
 }
 
@@ -1687,7 +1687,7 @@ APyFloatArray APyFloatArray::_cast(
         new_exp_bits,
         new_man_bits,
         new_bias,
-        quantization.value_or(get_float_quantization_mode())
+        quantization ? *quantization : get_float_quantization_mode()
     );
 }
 
