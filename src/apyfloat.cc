@@ -47,7 +47,7 @@ APyFloat::APyFloat(
 )
     : exp_bits(exp_bits)
     , man_bits(man_bits)
-    , bias(bias.value_or(ieee_bias()))
+    , bias(bias ? *bias : ieee_bias())
     , sign(sign)
     , exp(exp)
     , man(man)
@@ -76,7 +76,7 @@ APyFloat::APyFloat(
 )
     : exp_bits(exp_bits)
     , man_bits(man_bits)
-    , bias(bias.value_or(ieee_bias()))
+    , bias(bias ? *bias : ieee_bias())
     , sign(false)
     , exp(0)
     , man(0)
@@ -149,7 +149,7 @@ APyFloat APyFloat::from_double(
         sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
     return apytypes_double.cast_from_double(
-        exp_bits, man_bits, bias.value_or(APyFloat::ieee_bias(exp_bits))
+        exp_bits, man_bits, bias ? *bias : APyFloat::ieee_bias(exp_bits)
     );
 }
 
@@ -161,7 +161,7 @@ APyFloat APyFloat::from_integer(
     check_mantissa_format(man_bits, "APyFloat.from_integer");
 
     APyFixed apyfixed = APyFixed::from_unspecified_integer(value);
-    const exp_t bias = opt_bias.value_or(ieee_bias(exp_bits));
+    const exp_t bias = opt_bias ? *opt_bias : ieee_bias(exp_bits);
     APyFloatData data = floating_point_from_fixed_point(
         std::begin(apyfixed._data), // src_cbegin
         std::end(apyfixed._data),   // src_cend_it
@@ -182,7 +182,7 @@ APyFloat APyFloat::from_fixed(
     check_exponent_format(exp_bits, "APyFloat.from_fixed");
     check_mantissa_format(man_bits, "APyFloat.from_fixed");
 
-    const exp_t bias = opt_bias.value_or(APyFloat::ieee_bias(exp_bits));
+    const exp_t bias = opt_bias ? *opt_bias : APyFloat::ieee_bias(exp_bits);
     APyFloatData data = floating_point_from_fixed_point(
         std::begin(apyfixed._data), // src_cbegin
         std::end(apyfixed._data),   // src_cend_it
@@ -205,8 +205,8 @@ APyFloat APyFloat::cast(
 {
     const auto actual_exp_bits = new_exp_bits.value_or(exp_bits);
     const auto actual_man_bits = new_man_bits.value_or(man_bits);
-    const auto actual_bias = new_bias.value_or(ieee_bias(actual_exp_bits));
-    const auto qntz = arg_qntz.value_or(get_float_quantization_mode());
+    const auto actual_bias = new_bias ? *new_bias : ieee_bias(actual_exp_bits);
+    const auto qntz = arg_qntz ? *arg_qntz : get_float_quantization_mode();
 
     check_exponent_format(actual_exp_bits, "APyFloat.cast");
     check_mantissa_format(actual_man_bits, "APyFloat.cast");
@@ -399,7 +399,7 @@ APyFloat APyFloat::from_bits(
 APyFloat
 APyFloat::one(std::uint8_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias)
 {
-    const exp_t res_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+    const exp_t res_bias = bias ? *bias : APyFloat::ieee_bias(exp_bits);
     return APyFloat(0, res_bias, 0, exp_bits, man_bits, res_bias);
 }
 
@@ -1357,22 +1357,22 @@ APyFloat APyFloat::normalized() const
  */
 APyFloat APyFloat::cast_to_double(std::optional<QuantizationMode> qntz) const
 {
-    return checked_cast(11, 52, 1023, qntz.value_or(get_float_quantization_mode()));
+    return checked_cast(11, 52, 1023, qntz ? *qntz : get_float_quantization_mode());
 }
 
 APyFloat APyFloat::cast_to_single(std::optional<QuantizationMode> qntz) const
 {
-    return checked_cast(8, 23, 127, qntz.value_or(get_float_quantization_mode()));
+    return checked_cast(8, 23, 127, qntz ? *qntz : get_float_quantization_mode());
 }
 
 APyFloat APyFloat::cast_to_half(std::optional<QuantizationMode> qntz) const
 {
-    return checked_cast(5, 10, 15, qntz.value_or(get_float_quantization_mode()));
+    return checked_cast(5, 10, 15, qntz ? *qntz : get_float_quantization_mode());
 }
 
 APyFloat APyFloat::cast_to_bfloat16(std::optional<QuantizationMode> qntz) const
 {
-    return checked_cast(8, 7, 127, qntz.value_or(get_float_quantization_mode()));
+    return checked_cast(8, 7, 127, qntz ? *qntz : get_float_quantization_mode());
 }
 
 APyFloat APyFloat::next_up() const

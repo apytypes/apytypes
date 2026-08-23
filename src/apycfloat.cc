@@ -173,7 +173,7 @@ APyCFloat APyCFloat::from_number(
     const nb::object& py_obj, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
 {
-    exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
+    exp_t res_bias = bias ? *bias : ieee_bias(exp_bits);
     if (nb::isinstance<nb::int_>(py_obj)) {
         const nb::int_& val = nb::cast<nb::int_>(py_obj);
         return APyCFloat::from_integer(val, exp_bits, man_bits, res_bias);
@@ -251,7 +251,7 @@ APyCFloat APyCFloat::from_double(
         sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
 
-    const exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
+    const exp_t res_bias = bias ? *bias : ieee_bias(exp_bits);
     return APyCFloat(
         real.cast_from_double(exp_bits, man_bits, res_bias).get_data(),
         exp_bits,
@@ -267,7 +267,7 @@ APyCFloat APyCFloat::from_integer(
     check_exponent_format(exp_bits, "APyCFloat.from_integer");
     check_mantissa_format(man_bits, "APyCFloat.from_integer");
 
-    const exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
+    const exp_t res_bias = bias ? *bias : ieee_bias(exp_bits);
     return APyCFloat(
         APyFloat::from_integer(value, exp_bits, man_bits, res_bias).get_data(),
         exp_bits,
@@ -292,7 +292,7 @@ APyCFloat APyCFloat::from_complex(
         sign_of_double(imag), exp_of_double(imag), man_of_double(imag), 11, 52, 1023
     );
 
-    const exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
+    const exp_t res_bias = bias ? *bias : ieee_bias(exp_bits);
     return APyCFloat(
         apy_real.cast_from_double(exp_bits, man_bits, res_bias).get_data(),
         apy_imag.cast_from_double(exp_bits, man_bits, res_bias).get_data(),
@@ -309,7 +309,7 @@ APyCFloat APyCFloat::from_fixed(
     check_exponent_format(exp_bits, "APyCFloat.from_fixed");
     check_mantissa_format(man_bits, "APyCFloat.from_fixed");
 
-    const exp_t bias = opt_bias.value_or(ieee_bias(exp_bits));
+    const exp_t bias = opt_bias ? *opt_bias : ieee_bias(exp_bits);
     APyFloatData re = floating_point_from_fixed_point(
         fixed.real_cbegin(), // src_cbegin
         fixed.real_cend(),   // src_cend
@@ -339,7 +339,7 @@ APyCFloat APyCFloat::from_fixed(
     check_exponent_format(exp_bits, "APyCFloat.from_fixed");
     check_mantissa_format(man_bits, "APyCFloat.from_fixed");
 
-    const exp_t bias = opt_bias.value_or(ieee_bias(exp_bits));
+    const exp_t bias = opt_bias ? *opt_bias : ieee_bias(exp_bits);
     APyFloatData re = floating_point_from_fixed_point(
         std::begin(fixed._data), // src_cbegin_it
         std::end(fixed._data),   // src_cend_it
@@ -362,7 +362,7 @@ APyCFloat APyCFloat::from_bits(
 {
     check_exponent_format(exp_bits, "APyCFloat.from_bits");
     check_mantissa_format(man_bits, "APyCFloat.from_bits");
-    const exp_t bias = opt_bias.value_or(ieee_bias(exp_bits));
+    const exp_t bias = opt_bias ? *opt_bias : ieee_bias(exp_bits);
 
     APyFloatData real, imag {};
 
@@ -648,29 +648,29 @@ APyCFloat APyCFloat::cast(
     return checked_cast(
         actual_exp_bits,
         actual_man_bits,
-        new_bias.value_or(ieee_bias(actual_exp_bits)),
-        quantization.value_or(get_float_quantization_mode())
+        new_bias ? *new_bias : ieee_bias(actual_exp_bits),
+        quantization ? *quantization : get_float_quantization_mode()
     );
 }
 
 APyCFloat APyCFloat::cast_to_double(std::optional<QuantizationMode> qntz) const
 {
-    return checked_cast(11, 52, 1023, qntz.value_or(get_float_quantization_mode()));
+    return checked_cast(11, 52, 1023, qntz ? *qntz : get_float_quantization_mode());
 }
 
 APyCFloat APyCFloat::cast_to_single(std::optional<QuantizationMode> qntz) const
 {
-    return checked_cast(8, 23, 127, qntz.value_or(get_float_quantization_mode()));
+    return checked_cast(8, 23, 127, qntz ? *qntz : get_float_quantization_mode());
 }
 
 APyCFloat APyCFloat::cast_to_half(std::optional<QuantizationMode> qntz) const
 {
-    return checked_cast(5, 10, 15, qntz.value_or(get_float_quantization_mode()));
+    return checked_cast(5, 10, 15, qntz ? *qntz : get_float_quantization_mode());
 }
 
 APyCFloat APyCFloat::cast_to_bfloat16(std::optional<QuantizationMode> qntz) const
 {
-    return checked_cast(8, 7, 127, qntz.value_or(get_float_quantization_mode()));
+    return checked_cast(8, 7, 127, qntz ? *qntz : get_float_quantization_mode());
 }
 
 APyCFloat APyCFloat::checked_cast(
@@ -835,7 +835,7 @@ APyFloat APyCFloat::get_imag() const
 APyCFloat
 APyCFloat::one(std::uint8_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias)
 {
-    const exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
+    const exp_t res_bias = bias ? *bias : ieee_bias(exp_bits);
     return APyCFloat({ 0, res_bias, 0 }, { 0, 0, 0 }, exp_bits, man_bits, res_bias);
 }
 

@@ -15,7 +15,7 @@ APyFloatQuantizationContext::APyFloatQuantizationContext(
     const QuantizationMode& new_mode, std::optional<std::uint64_t> seed
 )
     : context_mode { new_mode }
-    , context_seed { seed.value_or(std::random_device {}()) }
+    , context_seed { seed ? *seed : std::random_device {}() }
     , context_engine { context_seed }
 {
     // Previous state must be captured on `enter_context()`
@@ -99,8 +99,9 @@ APyFloatAccumulatorContext::APyFloatAccumulatorContext(
     new_mode.exp_bits = exp_bits.value();
     new_mode.man_bits = man_bits.value();
     new_mode.bias = bias;
-    new_mode.quantization = quantization.value_or(get_float_quantization_mode());
-    new_mode.seed = seed.value_or(std::random_device {}());
+    new_mode.quantization
+        = quantization ? *quantization : get_float_quantization_mode();
+    new_mode.seed = seed ? *seed : std::random_device {}();
     new_mode.rng_engine = std::mt19937_64(new_mode.seed);
 
     // Setup the context mode
