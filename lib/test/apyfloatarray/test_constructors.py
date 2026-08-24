@@ -7,24 +7,24 @@ from apytypes import APyCFloatArray, APyFixed, APyFloatArray
 def test_constructor_raises():
     with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: shape mismatch"):
         _ = APyFloatArray([1], [5, 2], [4], 10, 10)
-    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyFloatArray\.__init__: unexpected type"):
         _ = APyFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
-    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyFloatArray\.__init__: unexpected type"):
         _ = APyFloatArray(["foo"], [5], [4], 10, 10)
-    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyFloatArray\.__init__: unexpected type"):
         _ = APyFloatArray([1], ["foo"], [4], 10, 10)
-    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyFloatArray\.__init__: unexpected type"):
         _ = APyFloatArray([1], [5], ["foo"], 10, 10)
     with pytest.raises(
-        ValueError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
+        TypeError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyFloatArray([1.0], [4], [4], 10, 10)
     with pytest.raises(
-        ValueError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
+        TypeError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyFloatArray([True], [range], [4], 10, 10)
     with pytest.raises(
-        ValueError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
+        TypeError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyFloatArray([True], [4], [APyFloatArray], 10, 10)
     with pytest.raises(
@@ -213,7 +213,7 @@ def test_special_value_numpy_from_double():
 def test_from_numpy_raises():
     np = pytest.importorskip("numpy")
     a = np.asarray([[1e-323, float("inf")], [float("nan"), 0.0]], dtype="half")
-    with pytest.raises(TypeError, match="APyFloatArray::_set_values_from_ndarray"):
+    with pytest.raises(TypeError, match=r"APyFloatArray::from_array\(\): unsupported"):
         APyFloatArray.from_float(a, 14, 60)
 
 

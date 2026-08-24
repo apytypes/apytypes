@@ -125,7 +125,7 @@ def test_array_from_float_raises(float_array: type[APyCFloatArray]):
         _ = float_array.from_float([0], 5, -300)
 
     with pytest.raises(
-        ValueError,
+        TypeError,
         match=r"APyC?FloatArray\.from_(float)|(complex): "
         + r"unexpected type when traversing iterable sequence: <class 'str'>",
     ):
@@ -323,12 +323,12 @@ def test_from_bits():
         APyFloatArray.from_bits([0], 300, 5)
 
     with pytest.raises(
-        ValueError, match=r"APyFloatArray\.from_bits: unexpected type when traversing"
+        TypeError, match=r"APyFloatArray\.from_bits: unexpected type when traversing"
     ):
         APyFloatArray.from_bits(["0"], 5, 10)
 
     with pytest.raises(
-        ValueError,
+        TypeError,
         match="Invalid",
     ):
         APyFloatArray.from_bits([1, 10, 1.0, 5], 5, 10)

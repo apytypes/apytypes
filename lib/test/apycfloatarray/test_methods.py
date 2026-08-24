@@ -13,7 +13,7 @@ def test_from_bits():
         APyCFloatArray.from_bits([0], 300, 5)
 
     with pytest.raises(
-        ValueError, match=r"APyCFloatArray\.from_bits: unexpected type when traversing"
+        TypeError, match=r"APyCFloatArray\.from_bits: unexpected type when traversing"
     ):
         APyCFloatArray.from_bits(["0"], 5, 10)
 

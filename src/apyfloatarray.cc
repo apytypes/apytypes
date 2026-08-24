@@ -65,13 +65,14 @@ APyFloatArray::APyFloatArray(
     const auto exps_shape = python_iterable_extract_shape(exp_seq, caller_name);
     const auto mans_shape = python_iterable_extract_shape(man_seq, caller_name);
     if (!((signs_shape == exps_shape) && (signs_shape == mans_shape))) {
-        throw std::domain_error(
+        throw nb::value_error(
             fmt::format(
                 "APyFloatArray.__init__: shape mismatch, sign: {}, exp: {}, man: {}",
                 tuple_string_from_vec(signs_shape),
                 tuple_string_from_vec(exps_shape),
                 tuple_string_from_vec(mans_shape)
             )
+                .c_str()
         );
     }
 
@@ -88,7 +89,7 @@ APyFloatArray::APyFloatArray(
 
             return; // initialization completed
         }
-        throw std::domain_error(
+        throw nb::value_error(
             "APyFloatArray.__init__: if any input iterable is ndarray, than all input "
             "iterables must be ndarray"
         );
@@ -444,12 +445,13 @@ APyFloatArray::matmul(const APyFloatArray& rhs) const
     }
 
     // Unsupported `__matmul__` dimensionality, raise exception
-    throw std::length_error(
+    throw nb::value_error(
         fmt::format(
             "APyFloatArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
             tuple_string_from_vec(_shape),
             tuple_string_from_vec(rhs._shape)
         )
+            .c_str()
     );
 }
 
@@ -592,7 +594,7 @@ APyFloatArray APyFloatArray::fullrange(
     const APyFloat apy_stop = APyFloat::from_number(stop, exp_bits, man_bits, bias);
 
     if (apy_start.is_nan() || apy_stop.is_nan()) {
-        throw nanobind::value_error(
+        throw nb::value_error(
             "APyFloatArray.fullrange: start or stop is NaN, cannot compute range"
         );
     }
@@ -1414,8 +1416,7 @@ void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
     // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
     // find out how this can be achieved.
     throw nb::type_error(
-        "APyFloatArray::_set_values_from_ndarray(): "
-        "unsupported `dtype` expecting integer/float"
+        "APyFloatArray::from_array(): unsupported `dtype` expecting integer/float"
     );
 }
 
@@ -1461,7 +1462,7 @@ APyFloatArray APyFloatArray::from_bits(
             result._data[i]
                 = f.update_from_bits(nb::cast<nb::int_>(py_obj[i])).get_data();
         } else {
-            throw std::domain_error("Invalid Python objects in sequence");
+            throw nb::type_error("Invalid Python objects in sequence");
         }
     }
 

@@ -123,7 +123,7 @@ def fx(
         else:
             try:
                 return APyFixedArray.from_float(value, int_bits, frac_bits, bits)
-            except ValueError:
+            except TypeError:
                 return APyCFixedArray.from_complex(value, int_bits, frac_bits, bits)
     else:
         if isinstance(value, complex):
@@ -241,7 +241,7 @@ def fp(
         else:
             try:
                 return APyFloatArray.from_float(value, exp_bits, man_bits, bias)
-            except ValueError:
+            except TypeError:
                 return APyCFloatArray.from_float(value, exp_bits, man_bits, bias)
     else:
         if isinstance(value, complex):
