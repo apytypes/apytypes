@@ -102,18 +102,44 @@ def test_fp():
 
 def test_fx_numpy():
     np = pytest.importorskip("numpy")
-    a = np.array([[0.1, 0.2], [0.3, 0.4]])
-    assert fx(a, 0, 9).is_identical(APyFixedArray.from_array(a, 0, 9))
+    a_real = np.array([[0.1, 0.2], [0.3, 0.4]])
+    assert fx(a_real, 0, 9).is_identical(APyFixedArray.from_array(a_real, 0, 9))
+    assert fx(a_real[0, 0], 0, 9).is_identical(APyFixed.from_float(a_real[0, 0], 0, 9))
+    assert fx(a_real[0, 0], 0, 9, force_complex=True).is_identical(
+        APyCFixed.from_float(a_real[0, 0], 0, 9)
+    )
 
-    assert fx(a[0, 0], 0, 9).is_identical(APyFixed.from_float(a[0, 0], 0, 9))
+    a_cplx = np.array([[0.1 + 0.2j, 2j], [-1, -0.25j]])
+    assert fx(a_cplx, 0, 9).is_identical(APyCFixedArray.from_complex(a_cplx, 0, 9))
+    assert fx(a_cplx[0, 0], 0, 9).is_identical(
+        APyCFixed.from_complex(a_cplx[0, 0], 0, 9)
+    )
+    assert fx(a_cplx[1, 0], 0, 9).is_identical(APyCFixed.from_float(a_cplx[1, 0], 0, 9))
+    assert fx(a_cplx[1, 0], 0, 9, force_complex=True).is_identical(
+        APyCFixed.from_complex(a_cplx[1, 0], 0, 9)
+    )
 
 
 def test_fp_numpy():
     np = pytest.importorskip("numpy")
     a = np.array([[0.1, 0.2], [0.3, 0.4]])
     assert fp(a, 3, 9).is_identical(APyFloatArray.from_array(a, 3, 9))
-
     assert fp(a[0, 0], 3, 9).is_identical(APyFloat.from_float(a[0, 0], 3, 9))
+    assert fp(a[0, 0], 3, 9, force_complex=True).is_identical(
+        APyCFloat.from_float(a[0, 0], 3, 9)
+    )
+
+    a_cplx = np.array([[0.1 + 0.2j, 2j], [-1, -0.25j]])
+    assert fp(a_cplx, 3, 9).is_identical(APyCFloatArray.from_complex(a_cplx, 3, 9))
+    assert fp(a_cplx[0, 0], 3, 9).is_identical(
+        APyCFloat.from_complex(a_cplx[0, 0], 3, 9)
+    )
+    assert fp(a_cplx[1, 0], 3, 9).is_identical(
+        APyCFloat.from_float(a_cplx[1, 0].real, 3, 9)
+    )
+    assert fp(a_cplx[1, 0], 3, 9, force_complex=True).is_identical(
+        APyCFloat.from_complex(a_cplx[1, 0], 3, 9)
+    )
 
 
 def test_fn():

@@ -7,24 +7,24 @@ from apytypes import APyCFixed, APyCFloat, APyCFloatArray, APyFixed, APyFloat
 def test_constructor_raises():
     with pytest.raises(ValueError, match=r"APyCFloatArray\.__init__: shape mismatch"):
         _ = APyCFloatArray([1], [5, 2, 5], [4], 10, 10)
-    with pytest.raises(ValueError, match=r"APyCFloatArray\.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyCFloatArray\.__init__: unexpected type"):
         _ = APyCFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
-    with pytest.raises(ValueError, match=r"APyCFloatArray\.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyCFloatArray\.__init__: unexpected type"):
         _ = APyCFloatArray(["foo"], [5], [4], 10, 10)
-    with pytest.raises(ValueError, match=r"APyCFloatArray\.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyCFloatArray\.__init__: unexpected type"):
         _ = APyCFloatArray([1], ["foo"], [4], 10, 10)
-    with pytest.raises(ValueError, match=r"APyCFloatArray\.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyCFloatArray\.__init__: unexpected type"):
         _ = APyCFloatArray([1], [5], ["foo"], 10, 10)
     with pytest.raises(
-        ValueError, match=r"APyCFloatArray\.__init__: unexpected type when traversing"
+        TypeError, match=r"APyCFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyCFloatArray([1.0], [4], [4], 10, 10)
     with pytest.raises(
-        ValueError, match=r"APyCFloatArray\.__init__: unexpected type when traversing"
+        TypeError, match=r"APyCFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyCFloatArray([True], [range], [4], 10, 10)
     with pytest.raises(
-        ValueError, match=r"APyCFloatArray\.__init__: unexpected type when traversing"
+        TypeError, match=r"APyCFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyCFloatArray([True], [4], [APyCFloatArray], 10, 10)
     with pytest.raises(

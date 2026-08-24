@@ -23,7 +23,7 @@ def test_homogeneous_shape(fixed_array: type[APyCFixedArray]):
         _ = fixed_array([range(3), [3, 4, 5], (7, 8)], bits=10, int_bits=10)
     with pytest.raises(ValueError, match=r"APyC?FixedArray.__init__: inhomogeneous"):
         _ = fixed_array([range(4), [3, 4, 5], (6, 7, 8)], bits=10, int_bits=10)
-    with pytest.raises(ValueError, match=r"APyC?FixedArray.__init__: unexpected type"):
+    with pytest.raises(TypeError, match=r"APyC?FixedArray.__init__: unexpected type"):
         _ = fixed_array(["a", 5], bits=10, int_bits=10)
     with pytest.raises(ValueError, match=r"APyC?FixedArray.__init__: inhomogeneous"):
         _ = fixed_array([1, 2, 3, [4, 5]], bits=10, int_bits=10)
@@ -60,7 +60,7 @@ def test_array_floating_point_construction(fixed_array: type[APyCFixedArray]):
     a = fixed_array.from_float([-1.0, -1.25, -2.99], bits=4, frac_bits=1)
     assert a.is_identical(fixed_array([-2, -3, -6], bits=4, frac_bits=1))
 
-    with pytest.raises(ValueError, match=r"APyC?FixedArray.from_[a-z]+: unexpected"):
+    with pytest.raises(TypeError, match=r"APyC?FixedArray.from_[a-z]+: unexpected"):
         _ = fixed_array.from_float([1.0, 2.0, None], int_bits=13, frac_bits=12)
 
     a = fixed_array.from_float([-1.0, -2.0, -3.0, -4.0], bits=4, frac_bits=0)

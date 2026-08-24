@@ -508,7 +508,7 @@ python_iterable_extract_shape(
  * store handles to them them in a `std::vector<nb::object>`. The sequence is walked in
  * a depth-first manner and all elements must match `(nb::isinstance<PyTypes> || ...)`.
  * If any object in the sequence `py_seq` does not match any `PyTypes` (or another
- * Python sequence) a `std::domain_error` exception is raised.
+ * Python sequence) a `nb::type_error` exception is raised.
  */
 template <typename... PyTypes>
 [[maybe_unused]] static std::vector<nanobind::object>
@@ -548,7 +548,7 @@ python_iterable_walk(const nanobind::iterable& py_seq, std::string_view err_pref
                     err_prefix,
                     nb::repr(nb::cast<nb::type_object>(err_obj.type())).c_str()
                 );
-                throw std::domain_error(err_msg);
+                throw nb::type_error(err_msg.c_str());
             }
         }
     }
