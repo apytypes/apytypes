@@ -24,7 +24,6 @@ namespace nb = nanobind;
 
 // Standard header includes
 #include <algorithm> // std::copy, std::max, std::transform, etc...
-#include <cassert>   // assert()
 #include <cmath>     // std::isinf, std::isnan
 #include <cstring>   // std::memcpy
 #include <iterator>  // std::back_inserter
@@ -130,8 +129,8 @@ template <typename _IT>
 APyCFixed::APyCFixed(int bits, int int_bits, _IT begin, _IT end)
     : APyCFixed(bits, int_bits)
 {
-    assert(std::distance(begin, end) >= 0);
-    assert(std::distance(begin, end) <= 2 * ptrdiff_t(bits_to_limbs(bits)));
+    APY_ASSERT(std::distance(begin, end) >= 0);
+    APY_ASSERT(std::distance(begin, end) <= 2 * ptrdiff_t(bits_to_limbs(bits)));
 
     // Copy data into resulting vector
     std::copy(begin, end, _data.begin());
@@ -323,7 +322,7 @@ APyCFixed APyCFixed::operator/(const APyCFixed& rhs) const
         __int128 rhs_real, rhs_imag;
         // div_bits = bits() + 2 * rhs.bits() + 1, so rhs.bits() is guaranteed to be <=
         // APY_LIMB_SIZE_BITS
-        assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+        APY_ASSERT(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
         rhs_real = (__int128)apy_limb_signed_t(rhs._data[0]);
         rhs_imag = (__int128)apy_limb_signed_t(rhs._data[1]);
         __int128 lhs_real, lhs_imag;
@@ -359,7 +358,7 @@ APyCFixed APyCFixed::operator/(const APyCFixed& rhs) const
         std::int64_t rhs_real, rhs_imag;
         // div_bits = bits() + 2 * rhs.bits() + 1, so rhs.bits() is guaranteed to be <=
         // APY_LIMB_SIZE_BITS
-        assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+        APY_ASSERT(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
         rhs_real = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
         rhs_imag = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
         std::int64_t lhs_real, lhs_imag;
@@ -699,7 +698,7 @@ APyCFixed APyCFixed::rdiv(const APyFixed& lhs) const
 #if (COMPILER_LIMB_SIZE == 64)
 #if defined(__SIZEOF_INT128__)
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
-        assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+        APY_ASSERT(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
         if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
             __int128 num = (__int128)apy_limb_signed_t(lhs._data[0]);
             __int128 den_real = (__int128)apy_limb_signed_t(_data[0]);
@@ -719,7 +718,7 @@ APyCFixed APyCFixed::rdiv(const APyFixed& lhs) const
                 result._data[3] = apy_limb_t(res_imag >> APY_LIMB_SIZE_BITS);
             }
         } else {
-            assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
+            APY_ASSERT(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
             __int128 num = (__int128)(lhs._data[0])
                 | ((__int128)apy_limb_signed_t(lhs._data[1]) << APY_LIMB_SIZE_BITS);
             __int128 den_real = (__int128)apy_limb_signed_t(_data[0]);
@@ -740,7 +739,7 @@ APyCFixed APyCFixed::rdiv(const APyFixed& lhs) const
 #endif
 #if (COMPILER_LIMB_SIZE == 32)
     if (unsigned(div_bits) <= 2 * APY_LIMB_SIZE_BITS) {
-        assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+        APY_ASSERT(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
         if (unsigned(lhs.bits()) <= APY_LIMB_SIZE_BITS) {
             std::int64_t num = (std::int64_t)apy_limb_signed_t(lhs._data[0]);
             std::int64_t den_real = (std::int64_t)apy_limb_signed_t(_data[0]);
@@ -760,7 +759,7 @@ APyCFixed APyCFixed::rdiv(const APyFixed& lhs) const
                 result._data[3] = apy_limb_t(res_imag >> APY_LIMB_SIZE_BITS);
             }
         } else {
-            assert(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
+            APY_ASSERT(unsigned(res_bits) > APY_LIMB_SIZE_BITS);
             std::int64_t num = (std::int64_t)(lhs._data[0])
                 | ((std::int64_t)apy_limb_signed_t(lhs._data[1]) << APY_LIMB_SIZE_BITS);
             std::int64_t den_real = (std::int64_t)apy_limb_signed_t(_data[0]);
@@ -1317,8 +1316,8 @@ APyCFixed APyCFixed::from_double(
         int frac_bits = result.frac_bits();
         result._data[0] = fixed_point_from_double_single_limb(value, frac_bits, shift);
     } else {
-        assert(result._data.size() >= 4);
-        assert(result._data.size() % 2 == 0);
+        APY_ASSERT(result._data.size() >= 4);
+        APY_ASSERT(result._data.size() % 2 == 0);
         fixed_point_from_double(
             value,
             result.real_begin(),
@@ -1376,8 +1375,8 @@ APyCFixed APyCFixed::from_complex(
         result._data[0] = fixed_point_from_double_single_limb(real, frac_bits, shift);
         result._data[1] = fixed_point_from_double_single_limb(imag, frac_bits, shift);
     } else {
-        assert(result._data.size() >= 4);
-        assert(result._data.size() % 2 == 0);
+        APY_ASSERT(result._data.size() >= 4);
+        APY_ASSERT(result._data.size() % 2 == 0);
         fixed_point_from_double(
             real, result.real_begin(), result.real_end(), result._bits, result._int_bits
         );

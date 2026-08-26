@@ -482,8 +482,8 @@ struct ComplexRealFixedPointInnerProduct {
         op2_abs = ScratchVector<apy_limb_t, 8>(src2_limbs);
 
         if (acc_mode.has_value()) {
-            assert(acc_mode->bits == dst_spec.bits);
-            assert(acc_mode->int_bits == dst_spec.int_bits);
+            APY_ASSERT(acc_mode->bits == dst_spec.bits);
+            APY_ASSERT(acc_mode->int_bits == dst_spec.int_bits);
             product_bits = src1_spec.bits + src2_spec.bits;
             product_int_bits = src1_spec.int_bits + src2_spec.int_bits;
             f = &F::inner_product</*is_acc_context=*/true>;
@@ -512,9 +512,9 @@ private:
         CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
-        assert(src1_limbs == 1);
-        assert(src2_limbs == 1);
-        assert(dst_limbs == 1);
+        APY_ASSERT(src1_limbs == 1);
+        APY_ASSERT(src2_limbs == 1);
+        APY_ASSERT(dst_limbs == 1);
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + 2 * N * m;
             auto b_it = src2;
@@ -532,9 +532,9 @@ private:
         CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
-        assert(src1_limbs == 1);
-        assert(src2_limbs == 1);
-        assert(dst_limbs == 2);
+        APY_ASSERT(src1_limbs == 1);
+        APY_ASSERT(src2_limbs == 1);
+        APY_ASSERT(dst_limbs == 2);
 
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + 2 * N * m;
@@ -854,8 +854,8 @@ struct ComplexFixedPointInnerProduct {
 
         if (acc_mode.has_value()) {
             // Accumulator mode set, use the accumulator inner product
-            assert(acc_mode->bits == dst_spec.bits);
-            assert(acc_mode->int_bits == dst_spec.int_bits);
+            APY_ASSERT(acc_mode->bits == dst_spec.bits);
+            APY_ASSERT(acc_mode->int_bits == dst_spec.int_bits);
             product_bits = src1_spec.bits + src2_spec.bits;
             product_int_bits = src1_spec.int_bits + src2_spec.int_bits;
             f = &F::inner_product</*is_acc_context=*/true>;
@@ -887,9 +887,9 @@ private:
         CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
-        assert(src1_limbs == 1);
-        assert(src2_limbs == 1);
-        assert(dst_limbs == 1);
+        APY_ASSERT(src1_limbs == 1);
+        APY_ASSERT(src2_limbs == 1);
+        APY_ASSERT(dst_limbs == 1);
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + 2 * N * m;
             auto acc = dst + m * 2 * DST_STEP;
@@ -908,9 +908,9 @@ private:
         CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
-        assert(src1_limbs == 1);
-        assert(src2_limbs == 1);
-        assert(dst_limbs == 2);
+        APY_ASSERT(src1_limbs == 1);
+        APY_ASSERT(src2_limbs == 1);
+        APY_ASSERT(dst_limbs == 2);
 
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + 2 * N * m;

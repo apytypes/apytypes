@@ -20,19 +20,36 @@ if get_option('limb_size') == 'native'
         '-DCOMPILER_LIMB_SIZE=NATIVE',
         language: ['cpp', 'c'],
     )
-endif
-if get_option('limb_size') == '32'
+elif get_option('limb_size') == '32'
     add_project_arguments(
         '-DCOMPILER_LIMB_SIZE=32',
         language: ['cpp', 'c'],
     )
-endif
-if get_option('limb_size') == '64'
+elif get_option('limb_size') == '64'
     add_project_arguments(
         '-DCOMPILER_LIMB_SIZE=64',
         language: ['cpp', 'c'],
     )
+else
+    error('APyTypes option `limb_size` not properly set')
 endif
+
+# Specify the APyTypes assertion style. Exactly one of `python_exception` or
+# `c_assertion`
+if get_option('assertion_style') == 'python_exception'
+    add_project_arguments(
+        '-DASSERTION_STYLE=1',
+        language: ['cpp', 'c'],
+    )
+elif get_option('assertion_style') == 'c_assertion'
+    add_project_arguments(
+        '-DASSERTION_STYLE=2',
+        language: ['cpp', 'c'],
+    )
+else
+    error('APyTypes option `assertion_style` not properly set')
+endif
+
 
 # Disable nanobind leak warnings on release builds
 if get_option('buildtype') == 'release'

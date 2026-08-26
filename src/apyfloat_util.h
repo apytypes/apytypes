@@ -938,7 +938,7 @@ APyFloatData floating_point_from_fixed_point(
     QuantizationMode q_mode = QuantizationMode::RND_CONV
 )
 {
-    assert(std::distance(cbegin_it, cend_it) == ptrdiff_t(bits_to_limbs(bits)));
+    APY_ASSERT(std::distance(cbegin_it, cend_it) == ptrdiff_t(bits_to_limbs(bits)));
 
     if (limb_vector_is_zero(cbegin_it, cend_it)) {
         return { 0, 0, 0 };
@@ -951,7 +951,7 @@ APyFloatData floating_point_from_fixed_point(
 
     // Extract leading zeros in the fixed-point number
     std::size_t fx_lz = limb_vector_leading_zeros(std::begin(fx_abs), std::end(fx_abs));
-    assert(fx_lz > 0);
+    APY_ASSERT(fx_lz > 0);
     std::size_t bits_last_limb = ((bits - 1) % APY_LIMB_SIZE_BITS) + 1;
     fx_lz -= (APY_LIMB_SIZE_BITS - bits_last_limb);
 
@@ -973,7 +973,7 @@ APyFloatData floating_point_from_fixed_point(
     // `fixed_point_cast_unsafe` is safe to use because `fx_man` is guaranteed have as
     // many limbs as `fx_abs`.
     ScratchVector<apy_limb_t, 8> fx_man(bits_to_limbs(std::max(3 + man_bits, bits)));
-    assert(fx_man.size() >= fx_abs.size());
+    APY_ASSERT(fx_man.size() >= fx_abs.size());
     fixed_point_cast_unsafe(
         std::begin(fx_abs), // src_begin
         std::end(fx_abs),   // src_end

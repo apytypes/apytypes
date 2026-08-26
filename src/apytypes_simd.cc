@@ -690,7 +690,9 @@ namespace HWY_NAMESPACE { // required: unique per target
         const std::size_t size
     )
     {
-        assert((size & 1U) == 0U && "size must be even for vector_add_const_even_odd");
+        APY_ASSERT(
+            (size & 1U) == 0U && "size must be even for vector_add_const_even_odd"
+        );
         constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t lanes = hn::Lanes(d);
         const std::size_t size_simd = size - size % lanes;
@@ -822,7 +824,9 @@ namespace HWY_NAMESPACE { // required: unique per target
         const std::size_t size
     )
     {
-        assert((size & 1U == 0U) && "size must be even for vector_sub_const_even_odd");
+        // APY_ASSERT(
+        //     (size & 1U) == 0U && "size must be even for vector_sub_const_even_odd"
+        // );
         constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t lanes = hn::Lanes(d);
         const std::size_t size_simd = size - size % lanes;
@@ -920,7 +924,9 @@ namespace HWY_NAMESPACE { // required: unique per target
         const std::size_t size
     )
     {
-        assert((size & 1U) == 0U && "size must be even for vector_rsub_const_even_odd");
+        APY_ASSERT(
+            (size & 1U) == 0U && "size must be even for vector_rsub_const_even_odd"
+        );
         constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t lanes = hn::Lanes(d);
         const std::size_t size_simd = size - size % lanes;

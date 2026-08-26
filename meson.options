@@ -1,1 +1,32 @@
-option('limb_size', type : 'combo', choices : ['native', '32', '64'], value : 'native')
+#
+# Specify the size, in bits, of limbs used throughout APyTypes for multi-precision
+# arithmetic. If the setting `native` is used, the build process tries to determine the
+# best suitable limb size automatically.
+#
+option(
+  'limb_size',
+  type : 'combo',
+  choices : ['native', '32', '64'],
+  value : 'native'
+)
+
+#
+# Specify the `APY_ASSERT()` assertion style used in the build of APyTypes. Choices are,
+#
+# (*) `python_exception` :
+#        This setting makes APyTypes throw a Python `RuntimeError` on assertion failure.
+#        This is useful, for example, in the APyTypes Pytest test suite, as assertion
+#        failures show up as a regular failed tests with the assertion error message.
+# (*) `c_assertion` :
+#        This setting makes APyTypes assertions use default C-style assertion defined in
+#        the header file `cassert` (`assert.h`).
+#
+# Regardless of option, the assertions are only ever armed if APyTypes is built with the
+# Meson option `b_ndebug == false`.
+#
+option(
+  'assertion_style',
+  type : 'combo',
+  choices : [ 'python_exception', 'c_assertion' ],
+  value: 'python_exception'
+)

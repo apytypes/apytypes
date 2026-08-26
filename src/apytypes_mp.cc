@@ -11,9 +11,9 @@ apy_limb_t apy_inplace_left_shift(
     apy_limb_t* dest, const std::size_t limbs, const unsigned int shift_amount
 )
 {
-    assert(limbs > 0);
-    assert(shift_amount > 0);
-    assert(shift_amount < APY_LIMB_SIZE_BITS);
+    APY_ASSERT(limbs > 0);
+    APY_ASSERT(shift_amount > 0);
+    APY_ASSERT(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
     std::size_t n = limbs - 1;
@@ -34,9 +34,9 @@ apy_limb_t apy_inplace_right_shift(
     apy_limb_t* dest, const std::size_t limbs, const unsigned int shift_amount
 )
 {
-    assert(limbs > 0);
-    assert(shift_amount > 0);
-    assert(shift_amount < APY_LIMB_SIZE_BITS);
+    APY_ASSERT(limbs > 0);
+    APY_ASSERT(shift_amount > 0);
+    APY_ASSERT(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
     apy_limb_t low_limb = dest[0];
@@ -59,9 +59,9 @@ apy_limb_t apy_left_shift(
     const unsigned int shift_amount
 )
 {
-    assert(limbs > 0);
-    assert(shift_amount > 0);
-    assert(shift_amount < APY_LIMB_SIZE_BITS);
+    APY_ASSERT(limbs > 0);
+    APY_ASSERT(shift_amount > 0);
+    APY_ASSERT(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
     std::size_t n = limbs - 1;
@@ -87,9 +87,9 @@ apy_limb_t apy_rshift(
     const unsigned int shift_amount
 )
 {
-    assert(limbs > 0);
-    assert(shift_amount > 0);
-    assert(shift_amount < APY_LIMB_SIZE_BITS);
+    APY_ASSERT(limbs > 0);
+    APY_ASSERT(shift_amount > 0);
+    APY_ASSERT(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
     apy_limb_t low_limb = *src++;
@@ -115,7 +115,7 @@ apy_limb_t apy_submul_single_limb(
     apy_limb_t* dest, const apy_limb_t* src0, std::size_t limbs, apy_limb_t src1
 )
 {
-    assert(limbs > 0);
+    APY_ASSERT(limbs > 0);
 
     // TODO: Rewrite to use __int128 on supported architectures
     auto [carry, subtrahend] = long_unsigned_mult(src0[0], src1);
@@ -140,8 +140,8 @@ apy_limb_t apy_unsigned_multiplication(
     const std::size_t src1_limbs
 )
 {
-    assert(src0_limbs >= src1_limbs);
-    assert(src1_limbs > 0);
+    APY_ASSERT(src0_limbs >= src1_limbs);
+    APY_ASSERT(src1_limbs > 0);
 
 #if COMPILER_LIMB_SIZE == 64 && defined(__SIZEOF_INT128__)
     std::memset(dest, 0, (src0_limbs + src1_limbs) * sizeof(*dest));
@@ -198,7 +198,7 @@ apy_limb_t apy_unsigned_square(
     apy_limb_t* dest, const apy_limb_t* src, const std::size_t src_limbs
 )
 {
-    assert(src_limbs > 0);
+    APY_ASSERT(src_limbs > 0);
 
     // Zero the output buffer
     std::memset(dest, 0, 2 * src_limbs * sizeof(*dest));
@@ -451,10 +451,10 @@ APyDivInverse::APyDivInverse(
     const apy_limb_t* denominator, const std::size_t denominator_limbs
 )
 {
-    assert(denominator_limbs > 0);
+    APY_ASSERT(denominator_limbs > 0);
     switch (denominator_limbs) {
     case 1:
-        assert(denominator[0] > 0);
+        APY_ASSERT(denominator[0] > 0);
         norm_shift = leading_zeros(denominator[0]);
         norm_denominator_1 = denominator[0] << norm_shift;
         norm_denominator_0 = 0;
@@ -462,7 +462,7 @@ APyDivInverse::APyDivInverse(
     case 2:
         norm_denominator_1 = denominator[1];
         norm_denominator_0 = denominator[0];
-        assert(norm_denominator_1 > 0);
+        APY_ASSERT(norm_denominator_1 > 0);
         norm_shift = leading_zeros(norm_denominator_1);
         if (norm_shift > 0) {
             norm_denominator_1 = (norm_denominator_1 << norm_shift)
@@ -473,7 +473,7 @@ APyDivInverse::APyDivInverse(
     default:
         norm_denominator_1 = denominator[denominator_limbs - 1];
         norm_denominator_0 = denominator[denominator_limbs - 2];
-        assert(norm_denominator_1 > 0);
+        APY_ASSERT(norm_denominator_1 > 0);
         norm_shift = leading_zeros(norm_denominator_1);
         if (norm_shift > 0) {
             norm_denominator_1 = (norm_denominator_1 << norm_shift)
@@ -493,7 +493,7 @@ apy_limb_t apy_division_single_limb_preinverted(
     const APyDivInverse* inv
 )
 {
-    assert(quotient != NULL);
+    APY_ASSERT(quotient != NULL);
 
     apy_limb_t remainder;
 
@@ -613,10 +613,10 @@ void apy_division_multiple_limbs_preinverted(
     const APyDivInverse* inv
 )
 {
-    assert(denominator_limbs > 2);
-    assert(numerator_limbs >= denominator_limbs);
-    assert(quotient != NULL);
-    assert((inv->norm_denominator_1 & APY_LIMB_MSBWEIGHT) != 0);
+    APY_ASSERT(denominator_limbs > 2);
+    APY_ASSERT(numerator_limbs >= denominator_limbs);
+    APY_ASSERT(quotient != NULL);
+    APY_ASSERT((inv->norm_denominator_1 & APY_LIMB_MSBWEIGHT) != 0);
 
     const bool needs_norm = inv->norm_shift > 0;
 
@@ -682,7 +682,7 @@ void apy_division_multiple_limbs_preinverted(
     if (needs_norm) {
         apy_limb_t carry
             = apy_inplace_right_shift(numerator, denominator_limbs, inv->norm_shift);
-        assert(carry == 0);
+        APY_ASSERT(carry == 0);
         (void)carry; // Avoid unused-warning
     }
 }

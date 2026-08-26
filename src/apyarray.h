@@ -95,7 +95,7 @@ public:
     std::vector<std::size_t>
     compute_slice_shape(const std::vector<std::variant<nb::int_, nb::slice>>& key) const
     {
-        assert(key.size() <= _shape.size());
+        APY_ASSERT(key.size() <= _shape.size());
         std::vector<std::size_t> shape;
 
         // Elements in the key tuple
@@ -306,7 +306,7 @@ public:
     std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
     get_item_tuple(const std::vector<std::variant<nb::int_, nb::slice>>& tuple) const
     {
-        assert(tuple.size() <= _shape.size());
+        APY_ASSERT(tuple.size() <= _shape.size());
         using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
         using RESULT_TYPE = std::variant<ARRAY_TYPE, SCALAR_TYPE>;
 
@@ -329,7 +329,7 @@ public:
             SCALAR_TYPE result = static_cast<const ARRAY_TYPE*>(this)->create_scalar();
             std::size_t item_idx = 0;
             for (std::size_t i = 0; i < tuple.size(); i++) {
-                assert(std::holds_alternative<nb::int_>(tuple[i]));
+                APY_ASSERT(std::holds_alternative<nb::int_>(tuple[i]));
                 auto axis = static_cast<std::ptrdiff_t>(std::get<nb::int_>(tuple[i]));
                 axis = adjust_integer_index(axis, i, "__getitem__");
                 item_idx += strides[i] * axis;
@@ -559,7 +559,7 @@ public:
         const std::vector<std::variant<nb::int_, nb::slice>>& key, const ARRAY_TYPE& val
     )
     {
-        assert(key.size() <= _shape.size());
+        APY_ASSERT(key.size() <= _shape.size());
 
         // Make sure that all bit specifiers in `*this` and `val` are equal.
         if (!static_cast<const ARRAY_TYPE*>(this)->is_same_spec(val)) {
@@ -569,7 +569,7 @@ public:
             );
             throw nb::value_error(error_msg.c_str());
         }
-        assert(_itemsize == val._itemsize);
+        APY_ASSERT(_itemsize == val._itemsize);
 
         // Compute the slice shape
         std::vector<std::size_t> slice_shape = compute_slice_shape(key);
@@ -683,9 +683,9 @@ public:
             );
             throw nb::value_error(err_msg.c_str());
         }
-        assert(_itemsize == val._itemsize);
-        assert(_shape.size() > 0);
-        assert(val._shape.size() > 0);
+        APY_ASSERT(_itemsize == val._itemsize);
+        APY_ASSERT(_shape.size() > 0);
+        APY_ASSERT(val._shape.size() > 0);
 
         // Compute the slice `ndim`
         std::size_t slice_ndim = _ndim - key.ndim() + 1;
@@ -1564,8 +1564,8 @@ private:
         std::string_view summary_sep = "..."
     ) const
     {
-        assert(n_cols > 0);
-        assert(axis < _shape.size());
+        APY_ASSERT(n_cols > 0);
+        APY_ASSERT(axis < _shape.size());
 
         // Is this dimension going to be summarized?
         bool is_summary_dim = is_summary && (_shape[axis] > 2 * edge_items);
@@ -1668,7 +1668,7 @@ public:
         std::size_t summary_edge_items = 3
     ) const
     {
-        assert(formatters.size());
+        APY_ASSERT(formatters.size());
         if (_nitems == 0) {
             using VEC_T = std::vector<std::vector<std::string>>;
             std::string brackets = std::string(_ndim, '[') + std::string(_ndim, ']');
@@ -1685,14 +1685,14 @@ public:
         std::vector<std::vector<std::string>> formats {};
         for (auto&& formatter : formatters) {
             auto format = _array_format_apply_formatter(formatter, padding);
-            assert(format.size() == _nitems);
+            APY_ASSERT(format.size() == _nitems);
             formats.emplace_back(std::move(format));
         }
-        assert(formats.size() == formatters.size());
+        APY_ASSERT(formats.size() == formatters.size());
 
         // Determine number of elements to display on each line (number of columns)
         std::size_t element_width = formats[0][0].length();
-        assert(element_width > 0);
+        APY_ASSERT(element_width > 0);
 
         // Determine if summary view should be used
         bool is_summary = is_summary_allow && (_nitems > summary_threshold_nitems);

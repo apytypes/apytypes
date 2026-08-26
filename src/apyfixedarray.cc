@@ -488,7 +488,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
                 result._data[i * 2 + 1] = high + high2;
             }
         } else {
-            assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            APY_ASSERT(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
             // Left-hand side is two limbs, right-hand side is single limb
             VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
@@ -662,7 +662,7 @@ APyCFixedArray APyFixedArray::operator*(const APyCFixed& rhs) const
                 return result;
             }
         } else {
-            assert(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
+            APY_ASSERT(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
             // Left-hand side is two limbs, right-hand side is single limb
             VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
@@ -852,7 +852,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
                 }
             }
         } else {
-            assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+            APY_ASSERT(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
             VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
                 denominator = (__int128)rhs._data[2 * i];
@@ -908,7 +908,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
                 }
             }
         } else {
-            assert(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
+            APY_ASSERT(unsigned(bits()) <= APY_LIMB_SIZE_BITS);
             VECTORIZE_LOOP
             for (std::size_t i = 0; i < _nitems; i++) {
 
@@ -1067,8 +1067,8 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     std::size_t den_significant_limbs
         = significant_limbs(std::begin(abs_den), std::end(abs_den));
 
-    assert(den_significant_limbs > 0);
-    assert(result._itemsize >= den_significant_limbs);
+    APY_ASSERT(den_significant_limbs > 0);
+    APY_ASSERT(result._itemsize >= den_significant_limbs);
 
     // Absolute value left-shifted numerator
     ScratchVector<apy_limb_t> abs_num(result._itemsize);
@@ -1081,7 +1081,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
         apy_limb_t carry = apy_inplace_left_shift(
             abs_den.begin(), abs_den.begin() + den_significant_limbs, inv.norm_shift
         );
-        assert(carry == 0);
+        APY_ASSERT(carry == 0);
         (void)carry; // Avoid unused-warning
     }
     for (std::size_t i = 0; i < _nitems; i++) {
@@ -1476,8 +1476,8 @@ ThirdPartyArray<bool> APyFixedArray::is_zero() const
 std::variant<APyFixedArray, APyFixed>
 APyFixedArray::matmul(const APyFixedArray& rhs) const
 {
-    assert(ndim() >= 1);
-    assert(rhs.ndim() >= 1);
+    APY_ASSERT(ndim() >= 1);
+    APY_ASSERT(rhs.ndim() >= 1);
 
     using RESULT_TYPE = std::variant<APyFixedArray, APyFixed>;
     if (ndim() == 1 && rhs.ndim() == 1) {
@@ -2223,7 +2223,7 @@ APyFixedArray APyFixedArray::from_numbers(
                 = fixed_point_from_double_single_limb(val, res.frac_bits(), shift);
         };
     } else { /* result._itemsize > 1 */
-        assert(result._itemsize > 1);
+        APY_ASSERT(result._itemsize > 1);
         from_fp = [](APyFixedArray& res, std::size_t i, double val, unsigned) {
             fixed_point_from_double(
                 val,

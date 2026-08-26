@@ -45,7 +45,7 @@ public:
     {
         using iterator_value_type = typename RANDOM_ACCESS_ITERATOR::value_type;
         static_assert(std::is_same_v<iterator_value_type, APyFloatData>);
-        assert(n == 1);
+        APY_ASSERT(n == 1);
         sign = src_it->sign;
         man = src_it->man;
         exp = src_it->exp;
@@ -59,7 +59,7 @@ public:
     {
         using iterator_value_type = typename RANDOM_ACCESS_ITERATOR::value_type;
         static_assert(std::is_same_v<iterator_value_type, APyFloatData>);
-        assert(n == 1);
+        APY_ASSERT(n == 1);
         dst_it->sign = sign;
         dst_it->man = man;
         dst_it->exp = exp;
