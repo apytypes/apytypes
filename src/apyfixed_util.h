@@ -485,7 +485,7 @@ static APY_INLINE void _quantize_stoch_weighted(
             limb_vector_asr(it_begin, it_end, bits_to_qntz);
         } else {
             // General path, can quantize infinitely many limbs
-            assert(limbs_to_qntz > 1);
+            APY_ASSERT(limbs_to_qntz > 1);
             ScratchVector<apy_limb_t> rnd_words(limbs_to_qntz);
             for (auto&& rnd_word : rnd_words) {
                 rnd_word = get_random_uint64();
@@ -706,7 +706,7 @@ static APY_INLINE void fixed_point_cast_unsafe(
     OverflowMode v_mode
 )
 {
-    assert(std::distance(src_begin, src_end) <= std::distance(dst_begin, dst_end));
+    APY_ASSERT(std::distance(src_begin, src_end) <= std::distance(dst_begin, dst_end));
 
     // Copy data into the result region and sign extend
     limb_vector_copy_sign_extend(src_begin, src_end, dst_begin, dst_end);
@@ -972,8 +972,8 @@ static APY_INLINE void fixed_point_division_precomputed_denominator(
     ScratchVector<apy_limb_t, 16>& scratch
 )
 {
-    assert(den_significant_limbs > 0);
-    assert(quotient_limbs >= std::distance(numerator_begin, numerator_end));
+    APY_ASSERT(den_significant_limbs > 0);
+    APY_ASSERT(quotient_limbs >= std::distance(numerator_begin, numerator_end));
 
     // Compute absolute value of numerator
     auto abs_num_begin = std::begin(scratch);
@@ -1103,8 +1103,8 @@ struct FixedPointInnerProduct {
             if (dst_limbs == 1) {
                 // Specialization #1: the resulting number of limbs is exactly one and
                 // no accumulator mode has been set. Use the SIMD inner product.
-                assert(src1_limbs == 1);
-                assert(src2_limbs == 1);
+                APY_ASSERT(src1_limbs == 1);
+                APY_ASSERT(src2_limbs == 1);
                 f = &FixedPointInnerProduct::inner_product_simd;
                 return;
             } else if (dst_limbs == 2 && src1_limbs == 1 && src2_limbs == 1) {
@@ -1123,8 +1123,8 @@ struct FixedPointInnerProduct {
 
         if (acc_mode.has_value()) {
             // Accumulator mode set, use the accumulator inner product
-            assert(acc_mode->bits == dst_spec.bits);
-            assert(acc_mode->int_bits == dst_spec.int_bits);
+            APY_ASSERT(acc_mode->bits == dst_spec.bits);
+            APY_ASSERT(acc_mode->int_bits == dst_spec.int_bits);
             product_bits = src1_spec.bits + src2_spec.bits;
             product_int_bits = src1_spec.int_bits + src2_spec.int_bits;
             if (dst_limbs <= src1_limbs + src2_limbs) {
@@ -1164,9 +1164,9 @@ private:
         CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
-        assert(src1_limbs == 1);
-        assert(src2_limbs == 1);
-        assert(dst_limbs == 1);
+        APY_ASSERT(src1_limbs == 1);
+        APY_ASSERT(src2_limbs == 1);
+        APY_ASSERT(dst_limbs == 1);
         for (std::size_t m = 0; m < M; m++) {
             dst[m * DST_STEP] = simd::vector_multiply_accumulate(src1 + m * N, src2, N);
         }
@@ -1176,9 +1176,9 @@ private:
         CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
     ) const
     {
-        assert(src1_limbs == 1);
-        assert(src2_limbs == 1);
-        assert(dst_limbs == 2);
+        APY_ASSERT(src1_limbs == 1);
+        APY_ASSERT(src2_limbs == 1);
+        APY_ASSERT(dst_limbs == 2);
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + src1_limbs * N * m;
 #if (COMPILER_LIMB_SIZE == 64)
@@ -1398,7 +1398,7 @@ void fixed_point_from_double(
          * Limb vector size is *NOT* wide enough to accommodate the full mantissa of a
          * double-precision floating point number.
          */
-        assert(std::distance(begin_it, end_it) >= 2);
+        APY_ASSERT(std::distance(begin_it, end_it) >= 2);
         if (left_shift_amnt >= 0) {
             *(begin_it + 0) = (man & 0xFFFFFFFF);
             *(begin_it + 1) = (man >> 32);
@@ -1465,7 +1465,7 @@ private:
     template <std::size_t CONSTEXPR_N_LIMBS>
     double to_double_direct(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it) const
     {
-        assert(std::distance(begin_it, end_it) == CONSTEXPR_N_LIMBS);
+        APY_ASSERT(std::distance(begin_it, end_it) == CONSTEXPR_N_LIMBS);
 
         // Unused argument...
         (void)end_it;
@@ -1644,7 +1644,7 @@ void fixed_point_from_integer(
 )
 {
     static_assert(std::is_integral_v<INT_TYPE>, "`INT_TYPE` must be of integer type");
-    assert(begin_it < end_it);
+    APY_ASSERT(begin_it < end_it);
 
     const int frac_bits = bits - int_bits;
     constexpr bool INT_IS_SIGNED = std::is_signed_v<INT_TYPE>;
@@ -1668,7 +1668,7 @@ void fixed_point_from_integer(
         if (std::distance(begin_it, end_it) * APY_LIMB_SIZE_BYTES < sizeof(INT_TYPE)) {
             // The whole integer *does not* fit into the destination limb vector. Shift
             // the data in the temporary array and then copy the result.
-            assert(std::distance(begin_it, end_it) == 1);
+            APY_ASSERT(std::distance(begin_it, end_it) == 1);
             if (frac_bits >= 0) {
                 limb_vector_lsl(std::begin(tmp_arr), std::end(tmp_arr), frac_bits);
             } else {
@@ -1682,7 +1682,7 @@ void fixed_point_from_integer(
         } else {
             // The whole integer fits into the destination limb vector. Copy the data
             // and perform shift on destination limb vector
-            assert(std::distance(begin_it, end_it) >= 2);
+            APY_ASSERT(std::distance(begin_it, end_it) >= 2);
             std::copy_n(std::begin(tmp_arr), 2, begin_it);
             std::fill(begin_it + 2, end_it, limb_fill_val);
             if (frac_bits >= 0) {
@@ -1752,7 +1752,7 @@ static APY_INLINE std::function<
     void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
 fold_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
 {
-    assert(src_limbs >= 1 && acc_limbs >= 1 && acc_limbs >= src_limbs);
+    APY_ASSERT(src_limbs >= 1 && acc_limbs >= 1 && acc_limbs >= src_limbs);
     if (acc_limbs == 1) {
         /* single limb specialization */
         return [](auto acc_it, auto src_it) { *acc_it += *src_it; };
@@ -1816,7 +1816,7 @@ static APY_INLINE std::function<
     void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
 fold_complex_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
 {
-    assert(src_limbs >= 1 && acc_limbs >= 1 && acc_limbs >= src_limbs);
+    APY_ASSERT(src_limbs >= 1 && acc_limbs >= 1 && acc_limbs >= src_limbs);
     if (acc_limbs == 1) {
         /* single limb (one real, one imag) specialization */
         return [](auto acc_it, auto src_it) {

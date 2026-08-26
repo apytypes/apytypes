@@ -5,7 +5,6 @@
 #ifndef __APYTYPES_MP_H__
 #define __APYTYPES_MP_H__
 
-#include <cassert>  // assert
 #include <cstddef>  // std::size_t
 #include <cstdint>  // std::int64_t, std::uint64_t, std::int32_t, std::uint32_t
 #include <iterator> // std::distance
@@ -27,9 +26,11 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN src_end
 )
 {
-    assert(dest_begin < dest_end);
-    assert(src_begin < src_end);
-    assert(std::distance(dest_begin, dest_end) >= std::distance(src_begin, src_end));
+    APY_ASSERT(dest_begin < dest_end);
+    APY_ASSERT(src_begin < src_end);
+    APY_ASSERT(
+        std::distance(dest_begin, dest_end) >= std::distance(src_begin, src_end)
+    );
 
     apy_limb_t carry = 0;
 
@@ -57,7 +58,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     const std::size_t limbs
 )
 {
-    assert(limbs > 0);
+    APY_ASSERT(limbs > 0);
 
     // Specialized first iteration
     apy_limb_t src1_0 = src1[0];
@@ -83,7 +84,7 @@ template <
     RANDOM_ACCESS_ITERATOR_IN2 src1
 )
 {
-    assert(dest_begin < dest_end);
+    APY_ASSERT(dest_begin < dest_end);
 
     // Specialized first iteration
     apy_limb_t src1_0 = *src1;
@@ -143,7 +144,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     const apy_limb_t src
 )
 {
-    assert(begin_it < end_it);
+    APY_ASSERT(begin_it < end_it);
 
     /* src is initial "carry" */
     apy_limb_t carry = src;
@@ -161,7 +162,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     RANDOM_ACCESS_ITERATOR_INOUT begin_it, RANDOM_ACCESS_ITERATOR_INOUT end_it
 )
 {
-    assert(begin_it < end_it);
+    APY_ASSERT(begin_it < end_it);
 
     apy_limb_t carry = 1;
     for (auto it = begin_it; it != end_it && carry; ++it) {
@@ -181,7 +182,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN src_begin
 )
 {
-    assert(dest_begin < dest_end);
+    APY_ASSERT(dest_begin < dest_end);
 
     apy_limb_t carry = 0;
 
@@ -222,7 +223,7 @@ static APY_INLINE apy_limb_t apy_mul_add_accumulate(
     apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs
 )
 {
-    assert(limbs > 0);
+    APY_ASSERT(limbs > 0);
 
     // Specialized first iteration
     dest[0] += src[0];
@@ -254,7 +255,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     RANDOM_ACCESS_ITERATOR_INOUT begin_it, RANDOM_ACCESS_ITERATOR_INOUT end_it
 )
 {
-    assert(begin_it < end_it);
+    APY_ASSERT(begin_it < end_it);
 
     // Carry phase: negate limbs until carry is consumed
     auto it = begin_it;
@@ -282,7 +283,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT dest_begin
 )
 {
-    assert(src_begin < src_end);
+    APY_ASSERT(src_begin < src_end);
 
     auto dest_it = dest_begin;
     auto src_it = src_begin;
@@ -314,7 +315,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     const apy_limb_t src
 )
 {
-    assert(begin_it < end_it);
+    APY_ASSERT(begin_it < end_it);
 
     /* src is initial "carry" */
     apy_limb_t carry = src;
@@ -337,7 +338,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN src_begin
 )
 {
-    assert(dest_begin < dest_end);
+    APY_ASSERT(dest_begin < dest_end);
 
     apy_limb_t carry = 0;
     auto dest_it = dest_begin;
@@ -359,7 +360,7 @@ apy_inplace_reversed_subtraction_same_length(
     RANDOM_ACCESS_ITERATOR_IN src_begin
 )
 {
-    assert(dest_begin < dest_end);
+    APY_ASSERT(dest_begin < dest_end);
 
     // Specialized first iteration
     apy_limb_t carry = 0;
@@ -381,7 +382,7 @@ apy_inplace_reversed_subtraction_same_length(
     const std::size_t limbs
 )
 {
-    assert(limbs > 0);
+    APY_ASSERT(limbs > 0);
 
     // Specialized first iteration
     apy_limb_t carry = (src0[0] < src1[0]);
@@ -439,9 +440,9 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     const unsigned int shift_amount
 )
 {
-    assert(begin_it < end_it);
-    assert(shift_amount > 0);
-    assert(shift_amount < APY_LIMB_SIZE_BITS);
+    APY_ASSERT(begin_it < end_it);
+    APY_ASSERT(shift_amount > 0);
+    APY_ASSERT(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
     auto it = end_it;
@@ -477,9 +478,9 @@ apy_limb_t apy_inplace_right_shift(
     unsigned int shift_amount
 )
 {
-    assert(begin_it < end_it);
-    assert(shift_amount > 0);
-    assert(shift_amount < APY_LIMB_SIZE_BITS);
+    APY_ASSERT(begin_it < end_it);
+    APY_ASSERT(shift_amount > 0);
+    APY_ASSERT(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
     apy_limb_t low_limb = *begin_it;
@@ -546,9 +547,9 @@ void apy_unsigned_division(
 {
     auto denominator_limbs = std::distance(denominator_begin, denominator_end);
     auto numerator_limbs = std::distance(numerator_begin, numerator_end);
-    assert(denominator_begin < denominator_end);
-    assert(numerator_begin < numerator_end);
-    assert(numerator_limbs >= denominator_limbs);
+    APY_ASSERT(denominator_begin < denominator_end);
+    APY_ASSERT(numerator_begin < numerator_end);
+    APY_ASSERT(numerator_limbs >= denominator_limbs);
 
     auto inv = APyDivInverse(denominator_begin.data(), denominator_limbs);
     if (denominator_limbs > 2 && inv.norm_shift > 0) {
@@ -559,7 +560,7 @@ void apy_unsigned_division(
             denominator_limbs,
             inv.norm_shift
         );
-        assert(carry == 0);
+        APY_ASSERT(carry == 0);
         (void)carry; // Avoid unused-warning
         apy_division_multiple_limbs_preinverted(
             &*quotient,
@@ -594,10 +595,10 @@ void apy_unsigned_division_preinverted(
 {
     auto denominator_limbs = std::distance(denominator_begin, denominator_end);
     auto numerator_limbs = std::distance(numerator_begin, numerator_end);
-    assert(numerator_begin < numerator_end);
-    assert(denominator_begin < denominator_end);
-    assert(denominator_limbs > 0);
-    assert(numerator_limbs >= denominator_limbs);
+    APY_ASSERT(numerator_begin < numerator_end);
+    APY_ASSERT(denominator_begin < denominator_end);
+    APY_ASSERT(denominator_limbs > 0);
+    APY_ASSERT(numerator_limbs >= denominator_limbs);
 
     switch (denominator_limbs) {
     case 1:
@@ -639,7 +640,7 @@ void apy_division_double_limbs_preinverted(
     const APyDivInverse* inv
 )
 {
-    assert(std::distance(numerator_begin, numerator_end) >= 2);
+    APY_ASSERT(std::distance(numerator_begin, numerator_end) >= 2);
 
     const bool needs_norm = inv->norm_shift > 0;
 
@@ -664,7 +665,7 @@ void apy_division_double_limbs_preinverted(
 
     // Denormalize numerator back
     if (needs_norm) {
-        assert(
+        APY_ASSERT(
             (numerator_0 & (APY_NUMBER_MASK >> (APY_LIMB_SIZE_BITS - inv->norm_shift)))
             == 0
         );

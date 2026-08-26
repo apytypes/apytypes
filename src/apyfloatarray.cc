@@ -414,8 +414,8 @@ template ComparissonArray APyFloatArray::operator>=(const APyFloat& rhs) const;
 std::variant<APyFloatArray, APyFloat>
 APyFloatArray::matmul(const APyFloatArray& rhs) const
 {
-    assert(ndim() >= 1);
-    assert(rhs.ndim() >= 1);
+    APY_ASSERT(ndim() >= 1);
+    APY_ASSERT(rhs.ndim() >= 1);
 
     using RESULT_TYPE = std::variant<APyFloatArray, APyFloat>;
     if (ndim() == 1 && rhs.ndim() == 1) {
@@ -1433,7 +1433,7 @@ APyFloatArray APyFloatArray::from_bits(
     if (nb::isinstance<nb::ndarray<>>(python_bit_patterns)) { // ndarray
         const auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(python_bit_patterns);
 
-        assert(ndarray.ndim() > 0);
+        APY_ASSERT(ndarray.ndim() > 0);
         std::vector<std::size_t> shape(ndarray.ndim(), 0);
         VECTORIZE_LOOP
         for (std::size_t i = 0; i < ndarray.ndim(); i++) {
@@ -1514,7 +1514,7 @@ void APyFloatArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndar
 
 void APyFloatArray::_set_sign_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
 {
-    assert(array.ndim() == _ndim);
+    APY_ASSERT(array.ndim() == _ndim);
 
     if (_check_and_set_sign_bits_from_ndarray<bool>(array))
         return;
@@ -1547,7 +1547,7 @@ void APyFloatArray::_set_sign_bits_from_ndarray(const nb::ndarray<nb::c_contig>&
 
 void APyFloatArray::_set_exp_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
 {
-    assert(array.ndim() == _ndim);
+    APY_ASSERT(array.ndim() == _ndim);
 
     if (_check_and_set_exp_bits_from_ndarray<std::int64_t>(array))
         return;
@@ -1578,7 +1578,7 @@ void APyFloatArray::_set_exp_bits_from_ndarray(const nb::ndarray<nb::c_contig>& 
 
 void APyFloatArray::_set_man_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
 {
-    assert(array.ndim() == _ndim);
+    APY_ASSERT(array.ndim() == _ndim);
 
     if (_check_and_set_man_bits_from_ndarray<std::int64_t>(array))
         return;

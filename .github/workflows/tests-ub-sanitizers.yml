@@ -43,6 +43,7 @@ jobs:
         git fetch --tags
         python -m pip install .[test] -v              \
           -Csetup-args="-Db_sanitize=undefined"       \
+          -Csetup-args="-Db_ndebug=false"             \
           -Csetup-args="-Dlimb_size=${{ matrix.limb-size }}"
     - name: Test with pytest
       run: |

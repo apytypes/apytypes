@@ -13,6 +13,42 @@
 #include <tuple>
 
 /*
+ * APyTypes debugging assertions
+ */
+
+#ifdef NDEBUG
+
+// When `NDEBUG` is set, `APY_ASSERT(...) will parse the argument list and fail if its
+// expression is semantically erroneous. The compiler will, however, not emit any code
+// after semantically checking the expression.
+#define APY_ASSERT(...) ((void)sizeof(static_cast<bool>(__VA_ARGS__)))
+
+#elif (ASSERTION_STYLE == 1) // 1: python_exception
+
+// When `NDEBUG` is not set and when the `ASSERTION_STYLE` is set to `python_exception`,
+// assertions will throw a std::runtime_error on assertion failure which is translated
+// by nanobind into a `RuntimeError` in the Python environment.
+#define APY_ASSERT(...)                                                                \
+    do {                                                                               \
+        if (!(__VA_ARGS__)) {                                                          \
+            throw std::runtime_error(                                                  \
+                std::string(__FILE__ ":") + std::to_string(__LINE__)                   \
+                + ": assertion failed: " #__VA_ARGS__                                  \
+            );                                                                         \
+        }                                                                              \
+    } while (0)
+
+#else // 2: c_assertion
+
+// When `NDEBUG` is not set and the `ASSERTION_STYLE` is set to `c_assertion`,
+// `APY_ASSERT` will emit regular C assertions that calls `std::abort()` on assertion
+// failure. This will take down the whole Python interpreter.
+#include <cassert>
+#define APY_ASSERT(...) assert((__VA_ARGS__))
+
+#endif
+
+/*
  * Conditional inlining of utility functions if profiling `_APY_PROFILING`
  */
 #ifdef _APY_PROFILING

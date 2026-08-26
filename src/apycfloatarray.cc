@@ -112,8 +112,8 @@ APyCFloatArray::APyCFloatArray(
     auto mans = python_iterable_walk<nb::int_>(man_seq, NAME);
 
     // If the walked sequence of Python integers is
-    assert(signs.size() == exps.size() && signs.size() == mans.size());
-    assert(signs.size() == _nitems || signs.size() == 2 * _nitems);
+    APY_ASSERT(signs.size() == exps.size() && signs.size() == mans.size());
+    APY_ASSERT(signs.size() == _nitems || signs.size() == 2 * _nitems);
     bool is_inner_dim_complex = (signs.size() == 2 * _nitems);
 
     std::size_t complex_multiplier = is_inner_dim_complex ? 1 : 2;
@@ -396,7 +396,7 @@ void APyCFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
 
 void APyCFloatArray::_set_sign_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
 {
-    assert(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
+    APY_ASSERT(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
 
     if (_check_and_set_sign_bits_from_ndarray<bool>(array))
         return;
@@ -429,7 +429,7 @@ void APyCFloatArray::_set_sign_bits_from_ndarray(const nb::ndarray<nb::c_contig>
 
 void APyCFloatArray::_set_exp_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
 {
-    assert(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
+    APY_ASSERT(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
 
     if (_check_and_set_exp_bits_from_ndarray<std::int64_t>(array))
         return;
@@ -460,7 +460,7 @@ void APyCFloatArray::_set_exp_bits_from_ndarray(const nb::ndarray<nb::c_contig>&
 
 void APyCFloatArray::_set_man_bits_from_ndarray(const nb::ndarray<nb::c_contig>& array)
 {
-    assert(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
+    APY_ASSERT(array.ndim() == _ndim || array.ndim() - 1 == _ndim);
 
     if (_check_and_set_man_bits_from_ndarray<std::int64_t>(array))
         return;
@@ -502,7 +502,7 @@ APyCFloatArray APyCFloatArray::from_bits(
     if (nb::isinstance<nb::ndarray<>>(seq)) {
         const auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(seq);
 
-        assert(ndarray.ndim() > 0);
+        APY_ASSERT(ndarray.ndim() > 0);
         std::vector<std::size_t> shape(ndarray.ndim(), 0);
         VECTORIZE_LOOP
         for (std::size_t i = 0; i < ndarray.ndim(); i++) {
@@ -534,7 +534,7 @@ APyCFloatArray APyCFloatArray::from_bits(
     auto python_objs = python_iterable_walk<nb::int_>(seq, "APyCFloatArray.from_bits");
 
     // If the walked sequence of Python integers is
-    assert(
+    APY_ASSERT(
         python_objs.size() == result._nitems || python_objs.size() == 2 * result._nitems
     );
     bool is_inner_dim_complex = (python_objs.size() == 2 * result._nitems);
@@ -1531,8 +1531,8 @@ APyCFloatArray APyCFloatArray::nancumprod(std::optional<nb::int_> py_axis) const
 std::variant<APyCFloatArray, APyCFloat>
 APyCFloatArray::matmul(const APyCFloatArray& rhs) const
 {
-    assert(ndim() >= 1);
-    assert(rhs.ndim() >= 1);
+    APY_ASSERT(ndim() >= 1);
+    APY_ASSERT(rhs.ndim() >= 1);
 
     using RESULT_TYPE = std::variant<APyCFloatArray, APyCFloat>;
     if (ndim() == 1 && rhs.ndim() == 1) {

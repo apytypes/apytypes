@@ -21,6 +21,7 @@
 #include <optional>         // std::optional, std::nullopt
 #include <regex>            // std::regex, std::regex_replace
 #include <sstream>          // std::stringstream
+#include <stdexcept>        // std::runtime_error
 #include <string>           // std::string
 #include <tuple>            // std::tuple
 #include <type_traits>      // std::is_same_v
@@ -61,7 +62,7 @@ template <typename T> using remove_cvref_t = typename remove_cvref<T>::type;
 bits_to_limbs(std::size_t bits)
 {
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
-    assert(bits > 0);
+    APY_ASSERT(bits > 0);
 
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
         return ((bits - 1) >> 6) + 1;
@@ -75,7 +76,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
-    assert(begin <= end);
+    APY_ASSERT(begin <= end);
 
     auto is_non_zero = [](auto n) { return n != 0; };
     auto back_non_zero_it = std::find_if(
@@ -89,7 +90,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
-    assert(begin <= end);
+    APY_ASSERT(begin <= end);
 
     auto is_non_zero = [](auto n) { return n != 0; };
     auto rev_non_zero_it = std::find_if(
@@ -110,7 +111,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_trailing_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
-    assert(begin <= end);
+    APY_ASSERT(begin <= end);
 
     auto is_non_zero = [](auto n) { return n != 0; };
     auto non_zero_it = std::find_if(begin, end, is_non_zero);
@@ -129,7 +130,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_ones(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
-    assert(begin <= end);
+    APY_ASSERT(begin <= end);
 
     auto is_not_all_ones = [](auto n) { return n != apy_limb_t(-1); };
     auto rev_not_all_ones_it = std::find_if(
@@ -497,7 +498,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
-    assert(it_begin < it_end);
+    APY_ASSERT(it_begin < it_end);
 
     // Return early if no shift or no vector
     if (!shift_amnt) {
@@ -538,7 +539,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
-    assert(it_begin < it_end);
+    APY_ASSERT(it_begin < it_end);
 
     // Return early if no shift or no vector
     if (!shift_amnt) {
@@ -575,7 +576,7 @@ static APY_INLINE void limb_vector_lsl_inner(
     unsigned int limb_shift
 )
 {
-    assert(it_begin < it_end);
+    APY_ASSERT(it_begin < it_end);
 
     if (limb_skip) {
         std::copy_backward(it_begin, it_end - limb_skip, it_end);
@@ -598,7 +599,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
-    assert(it_begin < it_end);
+    APY_ASSERT(it_begin < it_end);
 
     // Return early if no shift or no vector
     if (!shift_amnt) {
@@ -621,7 +622,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
-    assert(it_begin <= it_end);
+    APY_ASSERT(it_begin <= it_end);
 
     unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
@@ -654,7 +655,7 @@ template <class RANDOM_ACCESS_ITERATOR1, class RANDOM_ACCESS_ITERATOR2>
 {
     static_assert(std::is_same_v<remove_cvref_t<decltype(*src1)>, apy_limb_t>);
     static_assert(std::is_same_v<remove_cvref_t<decltype(*src2)>, apy_limb_t>);
-    assert(limbs > 0);
+    APY_ASSERT(limbs > 0);
 
     if (src1[limbs - 1] != src2[limbs - 1]) {
         return apy_limb_signed_t(src1[limbs - 1]) < apy_limb_signed_t(src2[limbs - 1]);
@@ -677,7 +678,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
-    assert(it_begin < it_end);
+    APY_ASSERT(it_begin < it_end);
 
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
     std::size_t limbs = std::distance(it_begin, it_end);
@@ -763,7 +764,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cbegin_it;
-    assert(cbegin_it < cend_it);
+    APY_ASSERT(cbegin_it < cend_it);
     return apy_limb_signed_t(*std::prev(cend_it)) < 0;
 }
 
@@ -772,7 +773,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool
 limb_vector_is_zero(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
 {
-    assert(cbegin_it <= cend_it);
+    APY_ASSERT(cbegin_it <= cend_it);
     return std::all_of(cbegin_it, cend_it, [](auto n) { return n == 0; });
 }
 
@@ -785,8 +786,8 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cend_it;
-    assert(cbegin_it < cend_it);
-    assert(std::distance(cbegin_it, cend_it) >= (n ? bits_to_limbs(n) : 0));
+    APY_ASSERT(cbegin_it < cend_it);
+    APY_ASSERT(std::distance(cbegin_it, cend_it) >= (n ? bits_to_limbs(n) : 0));
 
     // The full limbs can be reduced as full integers
     const unsigned full_limbs = n / APY_LIMB_SIZE_BITS;
@@ -818,8 +819,8 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cend_it;
-    assert(cbegin_it < cend_it);
-    assert(std::distance(cbegin_it, cend_it) >= (n ? bits_to_limbs(n) : 0));
+    APY_ASSERT(cbegin_it < cend_it);
+    APY_ASSERT(std::distance(cbegin_it, cend_it) >= (n ? bits_to_limbs(n) : 0));
 
     unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
@@ -836,7 +837,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)end_it;
-    assert(begin_it < end_it);
+    APY_ASSERT(begin_it < end_it);
 
     unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
     unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
@@ -854,7 +855,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
-    assert(cbegin_it < cend_it);
+    APY_ASSERT(cbegin_it < cend_it);
     return apy_negate(cbegin_it, cend_it, res_it);
 }
 
@@ -864,7 +865,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
 )
 {
-    assert(cbegin_it < cend_it);
+    APY_ASSERT(cbegin_it < cend_it);
     return apy_inplace_negate(cbegin_it, cend_it);
 }
 
@@ -874,7 +875,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
     RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
 )
 {
-    assert(cbegin_it < cend_it);
+    APY_ASSERT(cbegin_it < cend_it);
     return apy_inplace_add_one_lsb(cbegin_it, cend_it);
 }
 
@@ -956,8 +957,8 @@ template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OU
     RANDOM_ACCESS_ITERATOR_OUT dst_end
 )
 {
-    assert(src_begin <= src_end);
-    assert(dst_begin <= dst_end);
+    APY_ASSERT(src_begin <= src_end);
+    APY_ASSERT(dst_begin <= dst_end);
     std::size_t src_n = std::distance(src_begin, src_end);
     std::size_t dst_n = std::distance(dst_begin, dst_end);
     limb_vector_copy_n_sign_extend(src_begin, src_n, dst_begin, dst_n);
@@ -991,7 +992,7 @@ template <typename RANDOM_ACCESS_IT>
 limb_vector_to_u64_vec(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it)
 {
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
-    assert(begin_it <= end_it);
+    APY_ASSERT(begin_it <= end_it);
 
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
         return std::vector<uint64_t>(begin_it, end_it);
@@ -1017,7 +1018,7 @@ template <typename VEC_RETURN_TYPE, typename RANDOM_ACCESS_IT>
 limb_vector_from_u64_vec(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it)
 {
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
-    assert(begin_it <= end_it);
+    APY_ASSERT(begin_it <= end_it);
 
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
         return VEC_RETURN_TYPE(begin_it, end_it);
@@ -1109,7 +1110,7 @@ template <typename RANDOM_ACCESS_ITERATOR_INOUT>
     std::size_t itemsize
 )
 {
-    assert(begin_it <= end_it);
+    APY_ASSERT(begin_it <= end_it);
     auto n_items = std::distance(begin_it, end_it) / itemsize;
     VECTORIZE_LOOP
     for (std::size_t i = 0; i < (n_items + 1) / 2; i++) {

@@ -111,7 +111,7 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
     auto data = GET_OB_DIGIT(py_long);
     constexpr std::size_t data_size = sizeof(data[0]);
 
-    assert(data_size * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
+    APY_ASSERT(data_size * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
 
     std::size_t limb_vec_size = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
     std::vector<apy_limb_t> limb_vec = std::vector<apy_limb_t>(limb_vec_size);
@@ -134,45 +134,45 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
         for (std::size_t j = 0; j < WHOLE_BYTES; j++) {
             byte = *dp;
             dp -= endian;
-            assert(lbits < (int)APY_LIMB_SIZE_BITS);
-            assert(limb <= (((apy_limb_t)1) << lbits) - 1);
+            APY_ASSERT(lbits < (int)APY_LIMB_SIZE_BITS);
+            APY_ASSERT(limb <= (((apy_limb_t)1) << lbits) - 1);
 
             limb |= (apy_limb_t)byte << lbits;
             lbits += POSIX_CHAR_BITS;
             if (lbits >= (int)APY_LIMB_SIZE_BITS) {
                 *limb_vec_tmp_ptr++ = limb & APY_NUMBER_MASK;
                 lbits -= APY_LIMB_SIZE_BITS;
-                assert(lbits < POSIX_CHAR_BITS);
+                APY_ASSERT(lbits < POSIX_CHAR_BITS);
                 limb = byte >> (POSIX_CHAR_BITS - lbits);
             }
         }
         // Process remaining bits
-        assert(REMAINING_BITS != 0);
+        APY_ASSERT(REMAINING_BITS != 0);
         byte = *dp & REMAINING_BITS_MASK;
         dp -= endian;
-        assert(lbits < (int)APY_LIMB_SIZE_BITS);
-        assert(limb <= (((apy_limb_t)1) << lbits) - 1);
+        APY_ASSERT(lbits < (int)APY_LIMB_SIZE_BITS);
+        APY_ASSERT(limb <= (((apy_limb_t)1) << lbits) - 1);
 
         limb |= (apy_limb_t)byte << lbits;
         lbits += REMAINING_BITS;
         if (lbits >= (int)APY_LIMB_SIZE_BITS) {
             *limb_vec_tmp_ptr++ = limb & APY_NUMBER_MASK;
             lbits -= APY_LIMB_SIZE_BITS;
-            assert(lbits < REMAINING_BITS);
+            APY_ASSERT(lbits < REMAINING_BITS);
             limb = byte >> (REMAINING_BITS - lbits);
         }
         dp += woffset;
     }
 
     if (lbits != 0) {
-        assert(lbits <= (int)APY_LIMB_SIZE_BITS);
+        APY_ASSERT(lbits <= (int)APY_LIMB_SIZE_BITS);
         *limb_vec_tmp_ptr++ = limb;
     }
 
-    assert(limb_vec_tmp_ptr == limb_vec.data() + limb_vec_size);
+    APY_ASSERT(limb_vec_tmp_ptr == limb_vec.data() + limb_vec_size);
 
     /* low byte of word after most significant */
-    assert(
+    APY_ASSERT(
         dp
         == (unsigned char*)data + count * data_size
             + (endian >= 0 ? (apy_size_t)data_size - 1 : 0)
@@ -285,7 +285,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     std::size_t limb_vec_size = limb_vec_abs.size();
-    assert(limb_vec_size > 0);
+    APY_ASSERT(limb_vec_size > 0);
     // Number of significant bits in the absolute value limb vector
     std::size_t significant_bits
         = APY_LIMB_SIZE_BITS * limb_vec_size - leading_zeros(limb_vec_abs.back());
@@ -302,11 +302,11 @@ template <class RANDOM_ACCESS_ITERATOR>
     // Export the intermediate data to the Python integer
     // Relevant parts from mpz_export
     const std::size_t py_limb_size = sizeof(GET_OB_DIGIT(result)[0]);
-    assert(py_limb_size * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
+    APY_ASSERT(py_limb_size * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
 
     apy_limb_t* limb_vec_tmp_ptr = limb_vec_abs.data();
 
-    assert(limb_vec_tmp_ptr[limb_vec_size - 1] != 0);
+    APY_ASSERT(limb_vec_tmp_ptr[limb_vec_size - 1] != 0);
 
     int endian = HOST_ENDIAN;
 
@@ -336,7 +336,7 @@ template <class RANDOM_ACCESS_ITERATOR>
             dp -= endian;
         }
         // Process remaining bits
-        assert(REMAINING_BITS != 0);
+        APY_ASSERT(REMAINING_BITS != 0);
         if (lbits >= REMAINING_BITS) {
             *dp = limb & REMAINING_BITS_MASK;
             limb >>= REMAINING_BITS;
@@ -358,10 +358,10 @@ template <class RANDOM_ACCESS_ITERATOR>
         dp += woffset;
     }
 
-    assert(limb_vec_tmp_ptr == limb_vec_abs.data() + limb_vec_size);
+    APY_ASSERT(limb_vec_tmp_ptr == limb_vec_abs.data() + limb_vec_size);
 
     /* low byte of word after most significant */
-    assert(
+    APY_ASSERT(
         dp
         == (unsigned char*)&GET_OB_DIGIT(result)[0] + python_digits * py_limb_size
             + (endian >= 0 ? (apy_size_t)py_limb_size - 1 : 0)
@@ -370,7 +370,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     // End of relevant parts from mpz_export
 
     // If this ever triggers, normalize result by removing trailing zero digits
-    assert(GET_OB_DIGIT(result)[python_digits - 1] != 0);
+    APY_ASSERT(GET_OB_DIGIT(result)[python_digits - 1] != 0);
 
     PyLong_SetSignAndDigitCount(result, sign, python_digits);
 
@@ -483,15 +483,15 @@ python_iterable_extract_shape(
         for (std::size_t i = 0; i < ndarray.ndim(); i++) {
             result[i] = ndarray.shape_ptr()[i];
         }
-        assert(result.size());
+        APY_ASSERT(result.size());
     } else {
         result = _python_iterable_extract_shape_recursive_descent<ExcludedPyTypes...>(
             seq, err_prefix
         );
-        assert(result.size());
+        APY_ASSERT(result.size());
     }
 
-    assert(result.size());
+    APY_ASSERT(result.size());
     if constexpr (IS_COMPLEX_COLLAPSE) {
         if (result.back() == 2) {
             result.pop_back();
