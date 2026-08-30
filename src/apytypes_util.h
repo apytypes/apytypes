@@ -17,6 +17,7 @@
 #include <functional>       // std::bit_not
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::distance
+#include <limits>           // std::numeric_limits
 #include <numeric>          // std::accumulate, std::multiplies
 #include <optional>         // std::optional, std::nullopt
 #include <regex>            // std::regex, std::regex_replace
@@ -1058,13 +1059,27 @@ template <typename T> std::string tuple_string_from_vec(const std::vector<T>& ve
     }
 }
 
-//! Fold a shape under multiplication
+//! Multiply two `std::size_t`, throwing `nanobind::value_error` on overflow.
+[[maybe_unused]] static APY_INLINE std::size_t
+checked_size_mul(std::size_t a, std::size_t b)
+{
+    if (a != 0 && b > std::numeric_limits<std::size_t>::max() / a) {
+        throw nanobind::value_error("checked_size_mul: size overflow");
+    }
+    return a * b;
+}
+
+//! Fold a shape under multiplication. Throws `nanobind::value_error` on overflow.
 [[maybe_unused]] static APY_INLINE std::size_t fold_shape(
     std::vector<std::size_t>::const_iterator cbegin,
     std::vector<std::size_t>::const_iterator cend
 )
 {
-    return std::accumulate(cbegin, cend, 1, std::multiplies {});
+    std::size_t result = 1;
+    for (auto it = cbegin; it != cend; ++it) {
+        result = checked_size_mul(result, *it);
+    }
+    return result;
 }
 
 //! Fold a shape under multiplication

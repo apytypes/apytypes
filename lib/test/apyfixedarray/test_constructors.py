@@ -430,3 +430,18 @@ def test_issue_818_mre2(fixed_array: type[APyCFixedArray], int_bits: int, np_dt:
     err_msg = r"APyC?FixedArray\.from_array: zero-dimensional arrays not supported"
     with pytest.raises(ValueError, match=err_msg):
         _ = fixed_array.from_array(np.array(-1, dtype=np_dt), int_bits, frac_bits=0)
+
+
+@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
+def test_shape_overflow_raises(fixed_array: type[APyCFixedArray]):
+    """
+    A shape whose element count overflows `size_t` must raise instead of silently
+    wrapping around into an undersized allocation (regression test for `checked_size_mul`).
+
+    Each dimension is kept well below 2**32 so it survives truncation on platforms
+    with a 32-bit `size_t` (e.g. wasm32), while the product of all dimensions still
+    overflows any `size_t` width (32- or 64-bit).
+    """
+    huge_shape = (1 << 17,) * 4  # product == 2**68
+    with pytest.raises(ValueError, match="size overflow"):
+        _ = fixed_array.zeros(huge_shape, bits=10, int_bits=10)

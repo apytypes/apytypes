@@ -19,7 +19,9 @@ namespace nb = nanobind;
 
 #include <cstddef>     // std::ptrdiff_t
 #include <cstdlib>     // std::malloc
+#include <limits>      // std::numeric_limits
 #include <memory>      // std::allocator
+#include <new>         // std::bad_alloc
 #include <type_traits> // std::true_type
 #include <vector>      // std::vector
 
@@ -38,7 +40,14 @@ template <typename T> struct NoDefaultConstructAllocator {
 
     T* allocate(std::size_t n)
     {
-        return reinterpret_cast<T*>(std::malloc(sizeof(T) * n));
+        if (n > std::numeric_limits<std::size_t>::max() / sizeof(T)) {
+            throw std::bad_alloc();
+        }
+        T* p = reinterpret_cast<T*>(std::malloc(sizeof(T) * n));
+        if (!p && n != 0) {
+            throw std::bad_alloc();
+        }
+        return p;
     }
     T* allocate(std::size_t n, const void* hint)
     {
@@ -89,7 +98,7 @@ protected:
         : _itemsize { itemsize }
         , _shape { shape }
         , _nitems { fold_shape(shape) }
-        , _data(itemsize * _nitems)
+        , _data(checked_size_mul(itemsize, _nitems))
         , _ndim { shape.size() }
         , _strides {} // uninitialized on construction (is initialized on demand)
     {
@@ -135,7 +144,7 @@ protected:
             _itemsize = itemsize;
             _shape = shape;
             _nitems = fold_shape(shape);
-            _data.resize(itemsize * _nitems);
+            _data.resize(checked_size_mul(itemsize, _nitems));
             _ndim = shape.size();
             /* `_strides` are updated on demand */
         }
