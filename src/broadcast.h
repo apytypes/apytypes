@@ -113,8 +113,8 @@ static APY_INLINE std::vector<std::size_t> smallest_broadcastable_shape(
 
     // Reverse the dimensions and return
     std::reverse(std::begin(result), std::end(result));
-    assert(is_broadcastable(shape1, result));
-    assert(is_broadcastable(shape2, result));
+    APY_ASSERT(is_broadcastable(shape1, result));
+    APY_ASSERT(is_broadcastable(shape2, result));
     return result;
 }
 

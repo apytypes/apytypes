@@ -11,11 +11,12 @@
 #ifndef _APYTYPES_SCRATCH_VECTOR_H
 #define _APYTYPES_SCRATCH_VECTOR_H
 
+#include "apytypes_fwd.h"
+
 #include <fmt/format.h>
 
 #include <algorithm>        // std::copy, std::copy_n
 #include <array>            // std::array
-#include <cassert>          // assert
 #include <cstddef>          // std::size_t, std::ptrdiff_t
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::begin, std::end, std::make_reverse_iterator
@@ -247,12 +248,12 @@ public:
     const_reference back() const { return *std::prev(cend()); }
     reference operator[](size_type pos)
     {
-        assert(pos < _size);
+        APY_ASSERT(pos < _size);
         return _ptr[pos];
     }
     const_reference operator[](size_type pos) const
     {
-        assert(pos < _size);
+        APY_ASSERT(pos < _size);
         return _ptr[pos];
     }
 

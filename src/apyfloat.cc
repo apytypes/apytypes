@@ -439,7 +439,7 @@ APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
 
 APyFloat& APyFloat::update_from_bits(std::uint64_t bits)
 {
-    assert((1 + exp_bits + man_bits) <= 64);
+    APY_ASSERT((1 + exp_bits + man_bits) <= 64);
 
     man = bits & man_mask();
     bits >>= man_bits;

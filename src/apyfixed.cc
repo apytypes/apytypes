@@ -24,7 +24,6 @@ namespace nb = nanobind;
 
 // Standard header includes
 #include <algorithm>        // std::copy, std::max, std::transform, etc...
-#include <cassert>          // assert()
 #include <cmath>            // std::isinf, std::isnan
 #include <cstddef>          // std::size_t
 #include <cstring>          // std::memcpy
@@ -78,7 +77,7 @@ template <typename _IT>
 APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     : APyFixed(bits, int_bits)
 {
-    assert(std::distance(begin, end) >= 0);
+    APY_ASSERT(std::distance(begin, end) >= 0);
 
     // Copy data into resulting vector
     std::size_t it_elements = std::distance(begin, end);
@@ -1223,7 +1222,7 @@ APyFixed APyFixed::from_double(
         result._data[0]
             = fixed_point_from_double_single_limb(value, result.frac_bits(), shift);
     } else {
-        assert(result._data.size() > 1);
+        APY_ASSERT(result._data.size() > 1);
         fixed_point_from_double(
             value,
             std::begin(result._data),
