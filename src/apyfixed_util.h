@@ -328,11 +328,16 @@ static APY_INLINE void _quantize_rnd_conv(
     } else {
         unsigned right_shift_amnt = -left_shift_amnt;
         if (right_shift_amnt < unsigned(bits)) {
-            if (limb_vector_test_bit(it_begin, it_end, right_shift_amnt)
-                || limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1)) {
-                limb_vector_add_pow2(it_begin, it_end, right_shift_amnt - 1);
-            }
+            // Round after shifting so the increment cannot overflow a full
+            // signed limb before its high bits have been discarded.
+            bool increment
+                = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1)
+                && (limb_vector_test_bit(it_begin, it_end, right_shift_amnt)
+                    || limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1));
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (increment) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else {
             std::fill(it_begin, it_end, 0);
         }
