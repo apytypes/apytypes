@@ -27,8 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Nearest-even rounding across a full fixed-point limb now preserves the sign
-  for scalar and array casts and for floating-point bit export (#1043).
+- Bug where fixed-point rounding can cause overflow if the number of bits
+  are exactly a multiple of the limb size. In turn, an overflow bug in
+  `from_float` for binary64 floating-point is fixed (#1043).
 - Proper nesting using multiple levels of APyTypes contexts.
 - Utility functions `fp` and `fx` automatically detect complex-valued arrays.
 - Correct output bias for logical operations on `APyFloat`.
