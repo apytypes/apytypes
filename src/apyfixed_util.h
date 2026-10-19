@@ -66,25 +66,20 @@ static APY_INLINE void _quantize_trn_inf(
         limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
         unsigned right_shift_amnt = -left_shift_amnt;
-        if (limb_vector_is_negative(it_begin, it_end)) {
-            if (right_shift_amnt < unsigned(bits)) {
-                if (limb_vector_or_reduce(it_begin, it_end, right_shift_amnt)) {
-                    limb_vector_add_pow2(it_begin, it_end, right_shift_amnt);
-                }
-                limb_vector_asr(it_begin, it_end, right_shift_amnt);
-            } else {
-                std::fill(it_begin, it_end, 0);
+        if (right_shift_amnt < unsigned(bits)) {
+            // Round after shifting so the increment cannot overflow a limb boundary
+            bool inc = limb_vector_or_reduce(it_begin, it_end, right_shift_amnt);
+            limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
             }
-        } else { /* !limb_vector_is_negative(it_begin, it_end) */
-            if (right_shift_amnt < unsigned(bits)) {
-                if (limb_vector_or_reduce(it_begin, it_end, right_shift_amnt)) {
-                    limb_vector_add_pow2(it_begin, it_end, right_shift_amnt);
-                }
-                limb_vector_asr(it_begin, it_end, right_shift_amnt);
-            } else {
+        } else { /* right_shift_amnt >= unsigned(bits) */
+            if (!limb_vector_is_negative(it_begin, it_end)) {
                 apy_limb_t add_one = limb_vector_or_reduce(it_begin, it_end, bits);
                 std::fill(it_begin, it_end, 0);
                 *it_begin = add_one;
+            } else {
+                std::fill(it_begin, it_end, 0);
             }
         }
     }
@@ -111,10 +106,12 @@ static APY_INLINE void _quantize_trn_zero(
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
         } else { /* limb_vector_is_negative(it_begin, it_end) */
             if (right_shift_amnt < unsigned(bits)) {
-                if (limb_vector_or_reduce(it_begin, it_end, right_shift_amnt)) {
-                    limb_vector_add_pow2(it_begin, it_end, right_shift_amnt);
-                }
+                // Round after shifting so the increment cannot overflow a limb boundary
+                bool inc = limb_vector_or_reduce(it_begin, it_end, right_shift_amnt);
                 limb_vector_asr(it_begin, it_end, right_shift_amnt);
+                if (inc) {
+                    limb_vector_add_pow2(it_begin, it_end, 0);
+                }
             } else {
                 std::fill(it_begin, it_end, 0);
             }
@@ -143,8 +140,9 @@ static APY_INLINE void _quantize_trn_mag(
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
         } else { /* limb_vector_is_negative(it_begin, it_end) */
             if (right_shift_amnt < unsigned(bits)) {
-                limb_vector_add_pow2(it_begin, it_end, right_shift_amnt);
+                // Round after shifting so the increment cannot overflow a limb boundary
                 limb_vector_asr(it_begin, it_end, right_shift_amnt);
+                limb_vector_add_pow2(it_begin, it_end, 0);
             } else {
                 std::fill(it_begin, it_end, 0);
             }
@@ -173,10 +171,12 @@ static APY_INLINE void _quantize_trn_away(
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
         } else {
             if (right_shift_amnt < unsigned(bits)) {
-                if (limb_vector_or_reduce(it_begin, it_end, right_shift_amnt)) {
-                    limb_vector_add_pow2(it_begin, it_end, right_shift_amnt);
-                }
+                // Round after shifting so the increment cannot overflow a limb boundary
+                bool inc = limb_vector_or_reduce(it_begin, it_end, right_shift_amnt);
                 limb_vector_asr(it_begin, it_end, right_shift_amnt);
+                if (inc) {
+                    limb_vector_add_pow2(it_begin, it_end, 0);
+                }
             } else {
                 apy_limb_t add_one = limb_vector_or_reduce(it_begin, it_end, bits);
                 std::fill(it_begin, it_end, 0);
@@ -204,8 +204,12 @@ static APY_INLINE void _quantize_rnd(
     } else {
         unsigned right_shift_amnt = -left_shift_amnt;
         if (right_shift_amnt < unsigned(bits)) {
-            limb_vector_add_pow2(it_begin, it_end, right_shift_amnt - 1);
+            // Round after shifting so the increment cannot overflow a limb boundary
+            bool inc = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1);
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else {
             std::fill(it_begin, it_end, 0);
         }
@@ -230,11 +234,15 @@ static APY_INLINE void _quantize_rnd_zero(
     } else {
         unsigned right_shift_amnt = -left_shift_amnt;
         if (right_shift_amnt < unsigned(bits)) {
-            if (limb_vector_is_negative(it_begin, it_end)
-                || limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1)) {
-                limb_vector_add_pow2(it_begin, it_end, right_shift_amnt - 1);
-            }
+            bool negative = limb_vector_is_negative(it_begin, it_end);
+            bool sticky = limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1);
+            bool rnd_bit = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1);
+
+            // Round after shifting so the increment cannot overflow a limb boundary
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (rnd_bit & (negative || sticky)) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else {
             std::fill(it_begin, it_end, 0);
         }
@@ -259,17 +267,25 @@ static APY_INLINE void _quantize_rnd_inf(
     } else {
         unsigned right_shift_amnt = -left_shift_amnt;
         if (right_shift_amnt < unsigned(bits)) {
-            if (!limb_vector_is_negative(it_begin, it_end)
-                || limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1)) {
-                limb_vector_add_pow2(it_begin, it_end, right_shift_amnt - 1);
-            }
+            bool inc = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1)
+                && (!limb_vector_is_negative(it_begin, it_end)
+                    || limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1));
+
+            // Round after shifting so the increment cannot overflow a limb boundary
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else if (right_shift_amnt == unsigned(bits)) {
-            if (limb_vector_is_negative(it_begin, it_end)
-                && limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1)) {
-                limb_vector_add_pow2(it_begin, it_end, right_shift_amnt - 1);
-            }
+            bool inc = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1)
+                && limb_vector_is_negative(it_begin, it_end)
+                && limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1);
+
+            // Round after shifting so the increment cannot overflow a limb boundary
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else {
             std::fill(it_begin, it_end, 0);
         }
@@ -294,16 +310,24 @@ static APY_INLINE void _quantize_rnd_min_inf(
     } else {
         unsigned right_shift_amnt = -left_shift_amnt;
         if (right_shift_amnt < unsigned(bits)) {
-            if (limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1)) {
-                limb_vector_add_pow2(it_begin, it_end, right_shift_amnt - 1);
-            }
+            bool inc = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1)
+                && limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1);
+
+            // Round after shifting so the increment cannot overflow a limb boundary
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else if (right_shift_amnt == unsigned(bits)) {
-            if (limb_vector_is_negative(it_begin, it_end)
-                && limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1)) {
-                limb_vector_add_pow2(it_begin, it_end, right_shift_amnt - 1);
-            }
+            bool inc = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1)
+                && limb_vector_is_negative(it_begin, it_end)
+                && limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1);
+
+            // Round after shifting so the increment cannot overflow a limb boundary
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else {
             std::fill(it_begin, it_end, 0);
         }
@@ -328,14 +352,12 @@ static APY_INLINE void _quantize_rnd_conv(
     } else {
         unsigned right_shift_amnt = -left_shift_amnt;
         if (right_shift_amnt < unsigned(bits)) {
-            // Round after shifting so the increment cannot overflow a full
-            // signed limb before its high bits have been discarded.
-            bool increment
-                = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1)
+            // Round after shifting so the increment cannot overflow a limb boundary
+            bool inc = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1)
                 && (limb_vector_test_bit(it_begin, it_end, right_shift_amnt)
                     || limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1));
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
-            if (increment) {
+            if (inc) {
                 limb_vector_add_pow2(it_begin, it_end, 0);
             }
         } else {
@@ -362,11 +384,14 @@ static APY_INLINE void _quantize_rnd_conv_odd(
     } else {
         unsigned right_shift_amnt = -left_shift_amnt;
         if (right_shift_amnt < unsigned(bits)) {
-            if (!limb_vector_test_bit(it_begin, it_end, right_shift_amnt)
-                || limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1)) {
-                limb_vector_add_pow2(it_begin, it_end, right_shift_amnt - 1);
-            }
+            // Round after shifting so the increment cannot overflow a limb boundary
+            bool inc = limb_vector_test_bit(it_begin, it_end, right_shift_amnt - 1)
+                && (!limb_vector_test_bit(it_begin, it_end, right_shift_amnt)
+                    || limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1));
             limb_vector_asr(it_begin, it_end, right_shift_amnt);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else if (right_shift_amnt == unsigned(bits)) {
             bool fill_neg = limb_vector_is_negative(it_begin, it_end)
                 && !limb_vector_or_reduce(it_begin, it_end, right_shift_amnt - 1);
@@ -450,7 +475,7 @@ static APY_INLINE void _quantize_stoch_equal(
         limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
         /*
-         * Proper 50/50 Bernoulli distribution if `GET_RANDOM_UINT64()` is uniformally
+         * Proper 50/50 Bernoulli distribution if `GET_RANDOM_UINT64()` is uniformly
          * distributed with high entropy.
          */
         limb_vector_asr(it_begin, it_end, -left_shift_amnt);
@@ -481,25 +506,59 @@ static APY_INLINE void _quantize_stoch_weighted(
         unsigned limbs_to_qntz = (bits_to_qntz - 1) / APY_LIMB_SIZE_BITS + 1;
         unsigned qntz_bit_idx = bits_to_qntz % APY_LIMB_SIZE_BITS;
         if (limbs_to_qntz == 1) {
-            // Fast path, only only limb to quantize
+            // Fast path, only one limb to quantize
+            bool inc;
             apy_limb_t rnd_word = get_random_uint64();
+            apy_limb_t ls_limb = *it_begin;
             if (qntz_bit_idx) {
                 rnd_word &= (apy_limb_t(1) << qntz_bit_idx) - 1;
+                ls_limb &= (apy_limb_t(1) << qntz_bit_idx) - 1;
+                inc = (rnd_word + ls_limb) >= (apy_limb_t(1) << qntz_bit_idx);
+            } else {
+                // Increment on carry (unsigned overflow)
+                inc = (rnd_word + ls_limb) < rnd_word;
             }
-            apy_inplace_addition_single_limb(it_begin, it_end, rnd_word);
+
+            // Round after shifting so the increment cannot overflow a limb boundary
             limb_vector_asr(it_begin, it_end, bits_to_qntz);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         } else {
             // General path, can quantize infinitely many limbs
             APY_ASSERT(limbs_to_qntz > 1);
+            bool inc;
             ScratchVector<apy_limb_t> rnd_words(limbs_to_qntz);
-            for (auto&& rnd_word : rnd_words) {
-                rnd_word = get_random_uint64();
+            ScratchVector<apy_limb_t> ls_limbs(limbs_to_qntz);
+            for (std::size_t i = 0; i < limbs_to_qntz; i++) {
+                rnd_words[i] = get_random_uint64();
+                ls_limbs[i] = *(it_begin + i);
             }
             if (qntz_bit_idx) {
                 rnd_words.back() &= (apy_limb_t(1) << qntz_bit_idx) - 1;
+                ls_limbs.back() &= (apy_limb_t(1) << qntz_bit_idx) - 1;
+                apy_inplace_addition(
+                    std::begin(ls_limbs), // dst_begin
+                    std::end(ls_limbs),   // dst_end
+                    rnd_words.begin(),    // src_begin
+                    rnd_words.end()       // src_end
+                );
+                inc = ls_limbs.back() >= (apy_limb_t(1) << qntz_bit_idx);
+            } else {
+                // Increment on carry
+                inc = apy_inplace_addition(
+                    std::begin(ls_limbs), // dst_begin
+                    std::end(ls_limbs),   // dst_end
+                    rnd_words.begin(),    // src_begin
+                    rnd_words.end()       // src_end
+                );
             }
-            apy_inplace_addition(it_begin, it_end, rnd_words.begin(), rnd_words.end());
+
+            // Round after shifting so the increment cannot overflow a limb boundary
             limb_vector_asr(it_begin, it_end, bits_to_qntz);
+            if (inc) {
+                limb_vector_add_pow2(it_begin, it_end, 0);
+            }
         }
     }
 }

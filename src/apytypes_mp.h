@@ -136,7 +136,7 @@ template <
 #endif
 }
 
-//! Add a single limb to a limb vector in place: dest += src
+//! Add a single limb to a limb vector in place: dest += src. Returns carry.
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition_single_limb(
     RANDOM_ACCESS_ITERATOR_INOUT begin_it,
@@ -156,7 +156,7 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     return carry;
 }
 
-//! Add a single one to a limb vector in place: dest++
+//! Add a single one to a limb vector in place: dest++. Returns carry.
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_add_one_lsb(
     RANDOM_ACCESS_ITERATOR_INOUT begin_it, RANDOM_ACCESS_ITERATOR_INOUT end_it
@@ -173,8 +173,8 @@ template <class RANDOM_ACCESS_ITERATOR_INOUT>
     return carry;
 }
 
-//! Add two limb vectors of the same length in place: dest += src, where len(dest)
-//! == len(src)
+//! Add two limb vectors of the same length in place: dest += src, where
+//! len(dest) == len(src). Returns carry.
 template <class RANDOM_ACCESS_ITERATOR_INOUT, class RANDOM_ACCESS_ITERATOR_IN>
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_iterator_addition_same_length(
     RANDOM_ACCESS_ITERATOR_INOUT dest_begin,
