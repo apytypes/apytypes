@@ -841,13 +841,18 @@ APyCFixedArray APyCFixedArray::operator/(const APyFixedArray& rhs) const
 
     // Single limb specialization
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        simd::vector_shift_div_complex_real(
-            std::begin(_data),        // complex numerator
-            std::begin(rhs._data),    // real denominator
-            std::begin(result._data), // destination
-            rhs.bits(),               // numerator shift
-            result._data.size()       // interleaved elements
-        );
+        const int rhs_bits = rhs.bits();
+        VECTORIZE_LOOP
+        for (std::size_t i = 0; i < result._nitems; i += 1) {
+            apy_limb_signed_t den = rhs._data[i];
+            // No need to check if den is zero as SIMD check above is done
+            apy_limb_signed_t real
+                = (apy_limb_signed_t(_data[2 * i + 0]) << rhs_bits) / den;
+            apy_limb_signed_t imag
+                = (apy_limb_signed_t(_data[2 * i + 1]) << rhs_bits) / den;
+            result._data[2 * i + 0] = real;
+            result._data[2 * i + 1] = imag;
+        }
         return result; // early exit
     }
 
@@ -1231,13 +1236,16 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
-    // Single limb specialization
-    if (std::size_t(div_bits) <= APY_LIMB_SIZE_BITS) {
+    if (rhs.bits() <= APY_LIMB_SIZE_BITS) {
         // SIMD check for pairwise-zero complex denominators
         if (simd::vector_any_zero_pairwise(rhs._data.begin(), rhs._data.size())) {
             PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
             throw nb::python_error();
         }
+    }
+
+    // Single limb specialization
+    if (std::size_t(div_bits) <= APY_LIMB_SIZE_BITS) {
 
         simd::vector_shift_div_complex(
             std::begin(_data),        // complex numerator
@@ -1261,11 +1269,6 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
         // intermediate result without overflow
         APY_ASSERT(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
         auto rhs_bits = unsigned(rhs.bits());
-        // Check for pairwise-zero complex denominators
-        if (simd::vector_any_zero_pairwise(rhs._data.begin(), rhs._data.size())) {
-            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
-            throw nb::python_error();
-        }
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
                 // Left-hand side and result fit in single limb, but right-hand side
@@ -1345,11 +1348,6 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
         // intermediate result without overflow
         APY_ASSERT(unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS);
         auto rhs_bits = unsigned(rhs.bits());
-        // Check for pairwise-zero complex denominators
-        if (simd::vector_any_zero_pairwise(rhs._data.begin(), rhs._data.size())) {
-            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
-            throw nb::python_error();
-        }
         if (unsigned(bits()) <= APY_LIMB_SIZE_BITS) {
             if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
                 // Left-hand side and result fit in single limb, but right-hand side

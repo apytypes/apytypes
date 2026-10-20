@@ -442,9 +442,11 @@ namespace HWY_NAMESPACE { // required: unique per target
         auto* signed_dst = reinterpret_cast<apy_limb_signed_t*>(dst);
         const std::size_t lanes = hn::Lanes(d);
         const std::size_t n_complex = size / 2;
+        const std::size_t size_simd
+            = n_complex < lanes ? 0 : 2 * (n_complex - lanes + 1);
 
         std::size_t i = 0;
-        for (; i + lanes <= size && i / 2 + lanes <= n_complex; i += lanes) {
+        for (; i < size_simd; i += lanes) {
             const auto values = hn::LoadU(d, signed_src + i);
             const auto real_values = hn::LoadU(d, signed_real_src + i / 2);
             const auto duplicated_real_values
@@ -456,35 +458,6 @@ namespace HWY_NAMESPACE { // required: unique per target
             const auto real = signed_real_src[i / 2];
             signed_dst[i] = signed_src[i] * real;
             signed_dst[i + 1] = signed_src[i + 1] * real;
-        }
-    }
-
-    HWY_ATTR void _hwy_vector_shift_div_complex_real(
-        apy_limb_signed_t* HWY_RESTRICT dst,
-        const apy_limb_signed_t* HWY_RESTRICT src,
-        const apy_limb_signed_t* HWY_RESTRICT real_src,
-        unsigned src_shift_amount,
-        const std::size_t size
-    )
-    {
-        constexpr const hn::ScalableTag<apy_limb_signed_t> d;
-        const std::size_t lanes = hn::Lanes(d);
-        const std::size_t n_complex = size / 2;
-
-        std::size_t i = 0;
-        for (; i + lanes <= size && i / 2 + lanes <= n_complex; i += lanes) {
-            const auto values = hn::LoadU(d, src + i);
-            const auto real_values = hn::LoadU(d, real_src + i / 2);
-            const auto duplicated_real_values
-                = hn::InterleaveLower(real_values, real_values);
-            const auto shifted_values = hn::ShiftLeftSame(values, src_shift_amount);
-            const auto result = hn::Div(shifted_values, duplicated_real_values);
-            hn::StoreU(result, d, dst + i);
-        }
-        for (; i < size; i += 2) {
-            const auto denominator = real_src[i / 2];
-            dst[i] = (src[i] << src_shift_amount) / denominator;
-            dst[i + 1] = (src[i + 1] << src_shift_amount) / denominator;
         }
     }
 
@@ -504,9 +477,10 @@ namespace HWY_NAMESPACE { // required: unique per target
         const auto constants
             = hn::OddEven(hn::Set(d, imag_constant), hn::Set(d, real_constant));
         const auto denominator_vector = hn::Set(d, denominator);
+        const std::size_t size_simd = size - size % lanes;
 
         std::size_t i = 0;
-        for (; i + lanes <= size; i += lanes) {
+        for (; i < size_simd; i += lanes) {
             const auto values = hn::LoadU(d, src + i);
             const auto product = hn::MulComplexConj(values, constants);
             const auto shifted = hn::ShiftLeftSame(product, src_shift_amount);
@@ -532,9 +506,10 @@ namespace HWY_NAMESPACE { // required: unique per target
     {
         constexpr const hn::ScalableTag<apy_limb_signed_t> d;
         const std::size_t lanes = hn::Lanes(d);
+        const std::size_t size_simd = size - size % lanes;
 
         std::size_t i = 0;
-        for (; i + lanes <= size; i += lanes) {
+        for (; i < size_simd; i += lanes) {
             const auto numerator = hn::LoadU(d, src1 + i);
             const auto denominator = hn::LoadU(d, src2 + i);
             const auto denominator_real = hn::DupEven(denominator);
@@ -569,9 +544,10 @@ namespace HWY_NAMESPACE { // required: unique per target
         const std::size_t lanes = hn::Lanes(d);
         const auto numerator
             = hn::OddEven(hn::Set(d, imag_constant), hn::Set(d, real_constant));
+        const std::size_t size_simd = size - size % lanes;
 
         std::size_t i = 0;
-        for (; i + lanes <= size; i += lanes) {
+        for (; i < size_simd; i += lanes) {
             const auto denominator = hn::LoadU(d, src + i);
             const auto denominator_real = hn::DupEven(denominator);
             const auto denominator_imag = hn::DupOdd(denominator);
@@ -893,17 +869,16 @@ namespace HWY_NAMESPACE { // required: unique per target
         constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t lanes = hn::Lanes(d);
         const std::size_t size_pairwise = size - size % 2;
+        const std::size_t size_simd = size_pairwise - size_pairwise % lanes;
         const auto zeros = hn::Zero(d);
-        const auto ones = hn::Set(d, apy_limb_t(1));
 
         std::size_t i = 0;
-        for (; i + lanes <= size_pairwise; i += lanes) {
+        for (; i < size_simd; i += lanes) {
             const auto v = hn::LoadU(d, src + i);
             const auto even = hn::DupEven(v);
             const auto odd = hn::DupOdd(v);
             const auto is_zero_pair = hn::And(hn::Eq(even, zeros), hn::Eq(odd, zeros));
-            const auto flagged = hn::IfThenElseZero(is_zero_pair, ones);
-            if (hn::ReduceSum(d, flagged) != 0) {
+            if (hn::CountTrue(d, is_zero_pair) != 0) {
                 return true;
             }
         }
@@ -997,7 +972,6 @@ HWY_EXPORT(_hwy_vector_mul);
 HWY_EXPORT(_hwy_vector_mul_complex);
 HWY_EXPORT(_hwy_vector_mul_complex_const);
 HWY_EXPORT(_hwy_vector_mul_complex_real);
-HWY_EXPORT(_hwy_vector_shift_div_complex_real);
 HWY_EXPORT(_hwy_vector_shift_div_complex_const);
 HWY_EXPORT(_hwy_vector_shift_div_complex);
 HWY_EXPORT(_hwy_vector_shift_rdiv_complex);
@@ -1262,23 +1236,6 @@ void vector_mul_complex_real(
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_mul_complex_real)(
         &*dst_begin, &*src_begin, &*real_src_begin, size
-    );
-}
-
-void vector_shift_div_complex_real(
-    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
-    APyBuffer<apy_limb_t>::vector_type::const_iterator real_src_begin,
-    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
-    unsigned src_shift_amount,
-    std::size_t size
-)
-{
-    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_div_complex_real)(
-        reinterpret_cast<apy_limb_signed_t*>(&*dst_begin),
-        reinterpret_cast<const apy_limb_signed_t*>(&*src_begin),
-        reinterpret_cast<const apy_limb_signed_t*>(&*real_src_begin),
-        src_shift_amount,
-        size
     );
 }
 
