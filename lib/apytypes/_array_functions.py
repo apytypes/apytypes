@@ -705,11 +705,6 @@ def zeros(
     *,
     int_bits: int,
     frac_bits: int,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -719,11 +714,6 @@ def zeros(
     *,
     bits: int,
     int_bits: int,
-    frac_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -733,11 +723,6 @@ def zeros(
     *,
     bits: int,
     frac_bits: int,
-    int_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -748,10 +733,6 @@ def zeros(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    force_complex: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -863,11 +844,6 @@ def ones(
     *,
     int_bits: int,
     frac_bits: int,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -877,11 +853,6 @@ def ones(
     *,
     bits: int,
     int_bits: int,
-    frac_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -891,11 +862,6 @@ def ones(
     *,
     bits: int,
     frac_bits: int,
-    int_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -906,10 +872,6 @@ def ones(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    force_complex: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1019,11 +981,6 @@ def eye(
     *,
     int_bits: int,
     frac_bits: int,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1034,11 +991,6 @@ def eye(
     *,
     bits: int,
     int_bits: int,
-    frac_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1049,11 +1001,6 @@ def eye(
     *,
     bits: int,
     frac_bits: int,
-    int_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1065,10 +1012,6 @@ def eye(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
-    bits: None = None,
-    frac_bits: None = None,
-    int_bits: None = None,
-    force_complex: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1178,11 +1121,6 @@ def identity(
     *,
     int_bits: int,
     frac_bits: int,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1192,11 +1130,6 @@ def identity(
     *,
     bits: int,
     int_bits: int,
-    frac_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1206,11 +1139,6 @@ def identity(
     *,
     bits: int,
     frac_bits: int,
-    int_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
-    force_complex: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1221,10 +1149,6 @@ def identity(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
-    int_bits: None = None,
-    bits: None = None,
-    frac_bits: None = None,
-    force_complex: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1350,10 +1274,6 @@ def full(
     *,
     int_bits: int,
     frac_bits: int,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1364,10 +1284,6 @@ def full(
     *,
     bits: int,
     int_bits: int,
-    frac_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1378,10 +1294,6 @@ def full(
     *,
     bits: int,
     frac_bits: int,
-    int_bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1393,9 +1305,6 @@ def full(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1403,13 +1312,6 @@ def full(
 def full(
     shape: tuple[int, ...],
     fill_value: APyFixed,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1417,13 +1319,6 @@ def full(
 def full(
     shape: tuple[int, ...],
     fill_value: APyFloat,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1522,9 +1417,6 @@ def zeros_like(
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1535,9 +1427,6 @@ def zeros_like(
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyCFixedArray: ...
 
 
@@ -1548,9 +1437,6 @@ def zeros_like(
     exp_bits: int | None = None,
     man_bits: int | None = None,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1561,9 +1447,6 @@ def zeros_like(
     exp_bits: int | None = None,
     man_bits: int | None = None,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyCFloatArray: ...
 
 
@@ -1644,9 +1527,6 @@ def ones_like(
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1657,9 +1537,6 @@ def ones_like(
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyCFixedArray: ...
 
 
@@ -1670,9 +1547,6 @@ def ones_like(
     exp_bits: int | None = None,
     man_bits: int | None = None,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1682,10 +1556,7 @@ def ones_like(
     *,
     exp_bits: int | None = None,
     man_bits: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    bias: None = None,
+    bias: int | None = None,
 ) -> APyCFloatArray: ...
 
 
@@ -1896,9 +1767,6 @@ def arange(
     int_bits: int,
     frac_bits: int | None = None,
     bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1911,9 +1779,6 @@ def arange(
     bits: int,
     int_bits: int | None = None,
     frac_bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1926,9 +1791,6 @@ def arange(
     frac_bits: int,
     bits: int | None = None,
     int_bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1941,9 +1803,6 @@ def arange(
     exp_bits: int,
     man_bits: int | None = None,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1956,9 +1815,6 @@ def arange(
     man_bits: int,
     exp_bits: int | None = None,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1971,9 +1827,6 @@ def arange(
     bias: int,
     man_bits: int | None = None,
     exp_bits: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -1982,13 +1835,6 @@ def arange(
     start: APyFixed,
     stop: APyFixed | int | float | None = None,
     step: APyFixed | int | float = 1,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -1997,13 +1843,6 @@ def arange(
     start: APyFixed | int | float,
     stop: APyFixed,
     step: APyFixed | int | float = 1,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -2012,13 +1851,6 @@ def arange(
     start: APyFixed | int | float,
     stop: APyFixed | int | float,
     step: APyFixed,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -2027,13 +1859,6 @@ def arange(
     start: APyFloat,
     stop: APyFloat | int | float | None = None,
     step: APyFloat | int | float = 1,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -2042,13 +1867,6 @@ def arange(
     start: APyFloat | int | float,
     stop: APyFloat,
     step: APyFloat | int | float = 1,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -2057,13 +1875,6 @@ def arange(
     start: APyFloat | int | float,
     stop: APyFloat | int | float,
     step: APyFloat,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -2216,9 +2027,6 @@ def fullrange(
     int_bits: int,
     frac_bits: int | None = None,
     bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -2230,9 +2038,6 @@ def fullrange(
     bits: int,
     int_bits: int | None = None,
     frac_bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -2244,9 +2049,6 @@ def fullrange(
     frac_bits: int,
     bits: int | None = None,
     int_bits: int | None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -2258,9 +2060,6 @@ def fullrange(
     exp_bits: int,
     man_bits: int | None = None,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -2272,9 +2071,6 @@ def fullrange(
     man_bits: int,
     exp_bits: int | None = None,
     bias: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -2286,9 +2082,6 @@ def fullrange(
     bias: int,
     man_bits: int | None = None,
     exp_bits: int | None = None,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -2296,13 +2089,6 @@ def fullrange(
 def fullrange(
     start: APyFixed,
     stop: APyFixed | int | float | None = None,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -2310,13 +2096,6 @@ def fullrange(
 def fullrange(
     start: APyFixed | int | float,
     stop: APyFixed,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFixedArray: ...
 
 
@@ -2324,13 +2103,6 @@ def fullrange(
 def fullrange(
     start: APyFloat,
     stop: APyFloat | int | float | None = None,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFloatArray: ...
 
 
@@ -2338,13 +2110,6 @@ def fullrange(
 def fullrange(
     start: APyFloat | int | float,
     stop: APyFloat,
-    *,
-    int_bits: None = None,
-    frac_bits: None = None,
-    bits: None = None,
-    exp_bits: None = None,
-    man_bits: None = None,
-    bias: None = None,
 ) -> APyFloatArray: ...
 
 
