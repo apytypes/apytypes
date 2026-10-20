@@ -705,7 +705,16 @@ def zeros(
     *,
     int_bits: int,
     frac_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    *,
+    int_bits: int,
+    frac_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -714,7 +723,16 @@ def zeros(
     *,
     bits: int,
     int_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    *,
+    bits: int,
+    int_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -723,7 +741,16 @@ def zeros(
     *,
     bits: int,
     frac_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    *,
+    bits: int,
+    frac_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -733,7 +760,17 @@ def zeros(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
+    force_complex: Literal[False] | None = None,
 ) -> APyFloatArray: ...
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[True],
+) -> APyCFloatArray: ...
 
 
 @overload
@@ -844,7 +881,16 @@ def ones(
     *,
     int_bits: int,
     frac_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def ones(
+    shape: tuple[int, ...],
+    *,
+    int_bits: int,
+    frac_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -853,7 +899,16 @@ def ones(
     *,
     bits: int,
     int_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def ones(
+    shape: tuple[int, ...],
+    *,
+    bits: int,
+    int_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -862,7 +917,16 @@ def ones(
     *,
     bits: int,
     frac_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def ones(
+    shape: tuple[int, ...],
+    *,
+    bits: int,
+    frac_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -872,7 +936,17 @@ def ones(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
+    force_complex: Literal[False] | None = None,
 ) -> APyFloatArray: ...
+@overload
+def ones(
+    shape: tuple[int, ...],
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[True],
+) -> APyCFloatArray: ...
 
 
 @overload
@@ -981,7 +1055,17 @@ def eye(
     *,
     int_bits: int,
     frac_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    *,
+    int_bits: int,
+    frac_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -991,7 +1075,17 @@ def eye(
     *,
     bits: int,
     int_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    *,
+    bits: int,
+    int_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -1001,7 +1095,17 @@ def eye(
     *,
     bits: int,
     frac_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    *,
+    bits: int,
+    frac_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -1012,7 +1116,18 @@ def eye(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
+    force_complex: Literal[False] | None = None,
 ) -> APyFloatArray: ...
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[True],
+) -> APyCFloatArray: ...
 
 
 @overload
@@ -1121,7 +1236,16 @@ def identity(
     *,
     int_bits: int,
     frac_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def identity(
+    n: int,
+    *,
+    int_bits: int,
+    frac_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -1130,7 +1254,16 @@ def identity(
     *,
     bits: int,
     int_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def identity(
+    n: int,
+    *,
+    bits: int,
+    int_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -1139,7 +1272,16 @@ def identity(
     *,
     bits: int,
     frac_bits: int,
+    force_complex: Literal[False] | None = None,
 ) -> APyFixedArray: ...
+@overload
+def identity(
+    n: int,
+    *,
+    bits: int,
+    frac_bits: int,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -1149,7 +1291,17 @@ def identity(
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
+    force_complex: Literal[False] | None = None,
 ) -> APyFloatArray: ...
+@overload
+def identity(
+    n: int,
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[True],
+) -> APyCFloatArray: ...
 
 
 @overload
@@ -1318,8 +1470,22 @@ def full(
 @overload
 def full(
     shape: tuple[int, ...],
+    fill_value: APyCFixed,
+) -> APyCFixedArray: ...
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
     fill_value: APyFloat,
 ) -> APyFloatArray: ...
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyCFloat,
+) -> APyCFloatArray: ...
 
 
 @overload
@@ -2363,16 +2529,51 @@ def import_csv(
     fname: str,
     *,
     delimiter: str = ",",
-    int_bits: int | None = None,
+    int_bits: int,
     frac_bits: int | None = None,
     bits: int | None = None,
-    exp_bits: int | None = None,
-    man_bits: int | None = None,
-    bias: int | None = None,
-    force_complex: bool = False,
     layout: Literal["default", "vunit"] = "default",
     vunit_3d_shape: tuple[int, ...] | None = None,
 ) -> APyFixedArray: ...
+
+
+@overload
+def import_csv(
+    fname: str,
+    *,
+    delimiter: str = ",",
+    bits: int,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    layout: Literal["default", "vunit"] = "default",
+    vunit_3d_shape: tuple[int, ...] | None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def import_csv(
+    fname: str,
+    *,
+    delimiter: str = ",",
+    bits: int,
+    frac_bits: int,
+    int_bits: int | None = None,
+    layout: Literal["default", "vunit"] = "default",
+    vunit_3d_shape: tuple[int, ...] | None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def import_csv(
+    fname: str,
+    *,
+    delimiter: str = ",",
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    layout: Literal["default", "vunit"] = "default",
+    vunit_3d_shape: tuple[int, ...] | None = None,
+) -> APyFloatArray: ...
 
 
 @overload
@@ -2389,7 +2590,7 @@ def import_csv(
     force_complex: bool = False,
     layout: Literal["default", "vunit"] = "default",
     vunit_3d_shape: tuple[int, ...] | None = None,
-) -> APyFloatArray: ...
+) -> APyArray: ...
 
 
 def import_csv(
