@@ -911,6 +911,41 @@ def test_full(shape: tuple[int, int]):
     check_full(APyCFloatArray, fill_value=shape[0] + shape[1], exp_bits=0, man_bits=5)
 
 
+@pytest.mark.parametrize(
+    ("scalar_type", "array_type", "kwargs"),
+    [
+        (APyFixed, APyFixedArray, {"int_bits": 5, "frac_bits": 2}),
+        (APyCFixed, APyCFixedArray, {"int_bits": 5, "frac_bits": 2}),
+        (APyFloat, APyFloatArray, {"exp_bits": 5, "man_bits": 3}),
+        (APyCFloat, APyCFloatArray, {"exp_bits": 5, "man_bits": 3}),
+    ],
+)
+def test_creation_functions_spec(scalar_type, array_type, kwargs):
+    scalar_spec = scalar_type.from_float(0, **kwargs)
+    array_spec = array_type.from_float([0], **kwargs)
+
+    for spec in (scalar_spec, array_spec):
+        assert isinstance(zeros((2, 2), spec=spec), array_type)
+        assert isinstance(ones((2, 2), spec=spec), array_type)
+        assert isinstance(eye(2, spec=spec), array_type)
+        assert isinstance(identity(2, spec=spec), array_type)
+        assert isinstance(full((2, 2), 1, spec=spec), array_type)
+
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        zeros((2, 2), spec=scalar_spec, int_bits=5, frac_bits=2)
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        ones((2, 2), spec=scalar_spec, int_bits=5, frac_bits=2)
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        eye(2, spec=scalar_spec, int_bits=5, frac_bits=2)
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        identity(2, spec=scalar_spec, int_bits=5, frac_bits=2)
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        full((2, 2), 1, spec=scalar_spec, int_bits=5, frac_bits=2)
+
+    with pytest.raises(ValueError, match="fill_value cannot be an APy value"):
+        full((2, 2), scalar_spec, spec=array_spec)
+
+
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
 def test_full_like(shape: tuple[int, int]):
     def check_full_like(

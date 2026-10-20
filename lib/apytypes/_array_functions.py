@@ -685,6 +685,22 @@ def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
 
 @overload
 def zeros(
+    shape: tuple[int, ...], *, spec: APyFixed | APyFixedArray
+) -> APyFixedArray: ...
+@overload
+def zeros(
+    shape: tuple[int, ...], *, spec: APyCFixed | APyCFixedArray
+) -> APyCFixedArray: ...
+@overload
+def zeros(
+    shape: tuple[int, ...], *, spec: APyFloat | APyFloatArray
+) -> APyFloatArray: ...
+@overload
+def zeros(
+    shape: tuple[int, ...], *, spec: APyCFloat | APyCFloatArray
+) -> APyCFloatArray: ...
+@overload
+def zeros(
     shape: tuple[int, ...],
     *,
     int_bits: int,
@@ -763,6 +779,7 @@ def zeros(
     man_bits: int | None = None,
     bias: int | None = None,
     force_complex: bool | None = None,
+    spec: APyScalar | APyArray | None = None,
 ) -> APyArray:
     """
     Create an array of `shape` with all zeros.
@@ -792,12 +809,22 @@ def zeros(
     force_complex : :class:`bool`, optional
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
+    spec : :class:`APyScalar` or :class:`APyArray`, optional
+        Specification object from which to infer array type and bit-specifiers.
+        .. versionadded:: 0.6
 
     Returns
     -------
     result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
         The initialized array with zeros.
     """
+    _validate_spec(
+        spec, int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex
+    )
+    if spec is not None:
+        int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex = (
+            _specifiers_from_spec(spec)
+        )
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
     if a_type is None:
         raise ValueError("zeros: could not determine array type from bit-specifiers")
@@ -814,6 +841,22 @@ def zeros(
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
+@overload
+def ones(
+    shape: tuple[int, ...], *, spec: APyFixed | APyFixedArray
+) -> APyFixedArray: ...
+@overload
+def ones(
+    shape: tuple[int, ...], *, spec: APyCFixed | APyCFixedArray
+) -> APyCFixedArray: ...
+@overload
+def ones(
+    shape: tuple[int, ...], *, spec: APyFloat | APyFloatArray
+) -> APyFloatArray: ...
+@overload
+def ones(
+    shape: tuple[int, ...], *, spec: APyCFloat | APyCFloatArray
+) -> APyCFloatArray: ...
 @overload
 def ones(
     shape: tuple[int, ...],
@@ -894,6 +937,7 @@ def ones(
     man_bits: int | None = None,
     bias: int | None = None,
     force_complex: bool | None = None,
+    spec: APyScalar | APyArray | None = None,
 ) -> APyArray:
     """
     Create an array of `shape` with all ones (stored value).
@@ -929,6 +973,13 @@ def ones(
     result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
         The array initialized filled with ones.
     """
+    _validate_spec(
+        spec, int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex
+    )
+    if spec is not None:
+        int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex = (
+            _specifiers_from_spec(spec)
+        )
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
     if a_type is None:
         raise ValueError("ones: could not determine array type from bit-specifiers")
@@ -945,6 +996,22 @@ def ones(
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
+@overload
+def eye(
+    n: int, m: int | None = None, *, spec: APyFixed | APyFixedArray
+) -> APyFixedArray: ...
+@overload
+def eye(
+    n: int, m: int | None = None, *, spec: APyCFixed | APyCFixedArray
+) -> APyCFixedArray: ...
+@overload
+def eye(
+    n: int, m: int | None = None, *, spec: APyFloat | APyFloatArray
+) -> APyFloatArray: ...
+@overload
+def eye(
+    n: int, m: int | None = None, *, spec: APyCFloat | APyCFloatArray
+) -> APyCFloatArray: ...
 @overload
 def eye(
     n: int,
@@ -1031,6 +1098,7 @@ def eye(
     man_bits: int | None = None,
     bias: int | None = None,
     force_complex: bool | None = None,
+    spec: APyScalar | APyArray | None = None,
 ) -> APyArray:
     """
     Return a 2-D array with ones (stored value) on the main diagonal and zeros
@@ -1063,7 +1131,9 @@ def eye(
     force_complex : :class:`bool`, optional
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
-
+    spec : :class:`APyScalar` or :class:`APyArray`, optional
+        Specification object from which to infer array type and bit-specifiers.
+        .. versionadded:: 0.6
 
     Returns
     -------
@@ -1071,6 +1141,13 @@ def eye(
         An array where all elements are equal to zero, except for the k-th diagonal,
         whose values are equal to one.
     """
+    _validate_spec(
+        spec, int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex
+    )
+    if spec is not None:
+        int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex = (
+            _specifiers_from_spec(spec)
+        )
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
     if a_type is None:
         raise ValueError("eye: could not determine array type from bit-specifiers")
@@ -1087,6 +1164,14 @@ def eye(
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
+@overload
+def identity(n: int, *, spec: APyFixed | APyFixedArray) -> APyFixedArray: ...
+@overload
+def identity(n: int, *, spec: APyCFixed | APyCFixedArray) -> APyCFixedArray: ...
+@overload
+def identity(n: int, *, spec: APyFloat | APyFloatArray) -> APyFloatArray: ...
+@overload
+def identity(n: int, *, spec: APyCFloat | APyCFloatArray) -> APyCFloatArray: ...
 @overload
 def identity(
     n: int,
@@ -1167,6 +1252,7 @@ def identity(
     man_bits: int | None = None,
     bias: int | None = None,
     force_complex: bool | None = None,
+    spec: APyScalar | APyArray | None = None,
 ) -> APyArray:
     """
     Return the identity array.
@@ -1196,6 +1282,9 @@ def identity(
     force_complex : :class:`bool`, optional
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
+    spec : :class:`APyScalar` or :class:`APyArray`, optional
+        Specification object from which to infer array type and bit-specifiers.
+        .. versionadded:: 0.6
 
     Returns
     -------
@@ -1203,6 +1292,13 @@ def identity(
         `n` x `n` array with ones (stored value) on the main diagonal and zeros
         elsewhere.
     """
+    _validate_spec(
+        spec, int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex
+    )
+    if spec is not None:
+        int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex = (
+            _specifiers_from_spec(spec)
+        )
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
     if a_type is None:
         raise ValueError("identity: could not determine array type from bit-specifiers")
@@ -1219,6 +1315,34 @@ def identity(
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    *,
+    spec: APyFixed | APyFixedArray,
+) -> APyFixedArray: ...
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    *,
+    spec: APyCFixed | APyCFixedArray,
+) -> APyCFixedArray: ...
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    *,
+    spec: APyFloat | APyFloatArray,
+) -> APyFloatArray: ...
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    *,
+    spec: APyCFloat | APyCFloatArray,
+) -> APyCFloatArray: ...
 @overload
 def full(
     shape: tuple[int, ...],
@@ -1327,6 +1451,7 @@ def full(
     exp_bits: int | None = None,
     man_bits: int | None = None,
     bias: int | None = None,
+    spec: APyScalar | APyArray | None = None,
 ) -> APyArray:
     """
     Return a new array of given shape and type, filled with `fill_value`.
@@ -1356,6 +1481,9 @@ def full(
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+    spec : :class:`APyScalar` or :class:`APyArray`, optional
+        Specification object from which to infer array type and bit-specifiers.
+        .. versionadded:: 0.6
 
     Returns
     -------
@@ -1363,9 +1491,18 @@ def full(
         Array of all `fill_value` with the given shape.
     """
 
-    fill_value = _determine_fill_value(
-        fill_value, int_bits, frac_bits, bits, exp_bits, man_bits, bias
-    )
+    if spec is not None and isinstance(fill_value, APyScalar):
+        raise ValueError("fill_value cannot be an APy value when spec is provided")
+    _validate_spec(spec, int_bits, frac_bits, bits, exp_bits, man_bits, bias)
+    if spec is not None:
+        int_bits, frac_bits, bits, exp_bits, man_bits, bias, _force_complex = (
+            _specifiers_from_spec(spec)
+        )
+        fill_value = _fill_value_for_spec(fill_value, spec)
+    else:
+        fill_value = _determine_fill_value(
+            fill_value, int_bits, frac_bits, bits, exp_bits, man_bits, bias
+        )
     if isinstance(fill_value, APyFixed):
         return APyFixedArray.full(shape, fill_value)
     elif isinstance(fill_value, APyFloat):
@@ -2733,6 +2870,57 @@ def outer(a: APyArray, b: APyArray) -> APyArray:
 # =============================================================================
 # Helpers
 # =============================================================================
+def _validate_spec(
+    spec: APyScalar | APyArray | None,
+    *specifiers: int | bool | None,
+) -> None:
+    if spec is not None and any(specifier is not None for specifier in specifiers):
+        raise ValueError("spec cannot be used with other specifiers")
+
+
+def _specifiers_from_spec(
+    spec: APyScalar | APyArray,
+) -> tuple[
+    int | None, int | None, int | None, int | None, int | None, int | None, bool
+]:
+    if isinstance(spec, APyFixed | APyCFixed | APyFixedArray | APyCFixedArray):
+        return (
+            spec.int_bits,
+            spec.frac_bits,
+            None,
+            None,
+            None,
+            None,
+            isinstance(spec, APyCFixed | APyCFixedArray),
+        )
+    if isinstance(spec, APyFloat | APyCFloat | APyFloatArray | APyCFloatArray):
+        return (
+            None,
+            None,
+            None,
+            spec.exp_bits,
+            spec.man_bits,
+            spec.bias,
+            isinstance(spec, APyCFloat | APyCFloatArray),
+        )
+    raise TypeError(f"Unsupported spec type: {type(spec)}")
+
+
+def _fill_value_for_spec(
+    fill_value: APyScalar | int | float, spec: APyScalar | APyArray
+) -> APyScalar:
+    int_bits, frac_bits, _, exp_bits, man_bits, bias, force_complex = (
+        _specifiers_from_spec(spec)
+    )
+    if exp_bits is not None:
+        return (APyCFloat if force_complex else APyFloat).from_float(
+            fill_value, exp_bits, man_bits, bias
+        )
+    return (APyCFixed if force_complex else APyFixed).from_float(
+        fill_value, int_bits, frac_bits
+    )
+
+
 def _determine_array_type(
     int_bits: int | None,
     frac_bits: int | None,
