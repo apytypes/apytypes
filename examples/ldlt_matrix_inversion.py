@@ -36,18 +36,12 @@ def ldl_decomposition(
 
     if isinstance(A, apy.APyFloatArray):
         # Use APyTypes arrays for storage/results
-        L = apy.zeros_like(A)
+        L = apy.identity(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
         D = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
     else:
         # Use numpy arrays only for storage/results
-        L = np.zeros((n, n), dtype=float)
+        L = np.identity(n, dtype=float)
         D = np.zeros(n, dtype=float)
-
-    for i in range(n):
-        if isinstance(A, apy.APyFloatArray):
-            L[i, i] = apy.fp(1.0, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
-        else:
-            L[i, i] = 1.0
 
     for j in range(n):
         # D[j] = A[j,j] - sum_{k=0..j-1} L[j,k]^2 * D[k]
