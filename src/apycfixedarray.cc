@@ -1236,7 +1236,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
-    if (rhs.bits() <= APY_LIMB_SIZE_BITS) {
+    if (unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
         // SIMD check for pairwise-zero complex denominators
         if (simd::vector_any_zero_pairwise(rhs._data.begin(), rhs._data.size())) {
             PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
