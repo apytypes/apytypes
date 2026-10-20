@@ -187,18 +187,6 @@ void vector_mul_complex_real(
 );
 
 /*!
- * Divide interleaved complex elements in `src_begin` by real elements in
- * `real_src_begin` after shifting the numerator, storing the result in `dst_begin`.
- */
-void vector_shift_div_complex_real(
-    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
-    APyBuffer<apy_limb_t>::vector_type::const_iterator real_src_begin,
-    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
-    unsigned src_shift_amount,
-    std::size_t size
-);
-
-/*!
  * Divide interleaved complex elements in `src_begin` by a complex constant after
  * multiplying by its conjugate and shifting the numerator.
  */
