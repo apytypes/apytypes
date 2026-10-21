@@ -64,6 +64,38 @@ def test_fx():
     )
 
 
+def test_fx_spec():
+    real_spec = APyFixed.from_float(0, int_bits=5, frac_bits=2)
+    real_array_spec = APyFixedArray.from_float([0], int_bits=5, frac_bits=2)
+    cplx_spec = APyCFixed.from_complex(0, int_bits=5, frac_bits=2)
+    cplx_array_spec = APyCFixedArray.from_complex([0], int_bits=5, frac_bits=2)
+
+    for spec in (real_spec, real_array_spec):
+        assert fx(0.3, spec=spec).is_identical(
+            APyFixed.from_float(0.3, int_bits=5, frac_bits=2)
+        )
+        assert fx([0.3, -0.4], spec=spec).is_identical(
+            APyFixedArray.from_float([0.3, -0.4], int_bits=5, frac_bits=2)
+        )
+        assert fx(0.3j, spec=spec).is_identical(
+            APyCFixed.from_complex(0.3j, int_bits=5, frac_bits=2)
+        )
+
+    for spec in (cplx_spec, cplx_array_spec):
+        assert fx(0.3, spec=spec).is_identical(
+            APyCFixed.from_complex(0.3, int_bits=5, frac_bits=2)
+        )
+        assert fx([0.3, -0.4], spec=spec).is_identical(
+            APyCFixedArray.from_complex([0.3, -0.4], int_bits=5, frac_bits=2)
+        )
+
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        fx(0.3, int_bits=5, frac_bits=2, spec=real_spec)
+
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        fx(0.3, force_complex=True, spec=real_spec)
+
+
 def test_fp():
     assert fp(0.3, 4, 6).is_identical(APyFloat.from_float(0.3, 4, 6))
 
@@ -98,6 +130,38 @@ def test_fp():
     assert fp([0.3j, -0.4], 4, 6, force_complex=True).is_identical(
         APyCFloatArray.from_complex([0.3j, -0.4], 4, 6)
     )
+
+
+def test_fp_spec():
+    real_spec = APyFloat.from_float(0, exp_bits=5, man_bits=3)
+    real_array_spec = APyFloatArray.from_float([0], exp_bits=5, man_bits=3)
+    cplx_spec = APyCFloat.from_complex(0, exp_bits=5, man_bits=3)
+    cplx_array_spec = APyCFloatArray.from_complex([0], exp_bits=5, man_bits=3)
+
+    for spec in (real_spec, real_array_spec):
+        assert fp(0.3, spec=spec).is_identical(
+            APyFloat.from_float(0.3, exp_bits=5, man_bits=3)
+        )
+        assert fp([0.3, -0.4], spec=spec).is_identical(
+            APyFloatArray.from_float([0.3, -0.4], exp_bits=5, man_bits=3)
+        )
+        assert fp(0.3j, spec=spec).is_identical(
+            APyCFloat.from_complex(0.3j, exp_bits=5, man_bits=3)
+        )
+
+    for spec in (cplx_spec, cplx_array_spec):
+        assert fp(0.3, spec=spec).is_identical(
+            APyCFloat.from_complex(0.3, exp_bits=5, man_bits=3)
+        )
+        assert fp([0.3, -0.4], spec=spec).is_identical(
+            APyCFloatArray.from_complex([0.3, -0.4], exp_bits=5, man_bits=3)
+        )
+
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        fp(0.3, exp_bits=5, man_bits=3, spec=real_spec)
+
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        fp(0.3, force_complex=True, spec=real_spec)
 
 
 def test_fx_numpy():
@@ -222,3 +286,52 @@ def test_from_bits():
     assert from_bits(
         [[108, 112], [120, 4224]], exp_bits=8, man_bits=4, force_complex=True
     ).is_identical(APyCFloatArray.from_bits([[108, 112], [120, 4224]], 8, 4))
+
+
+def test_from_bits_spec():
+    fixed_spec = APyFixed.from_float(0, int_bits=5, frac_bits=2)
+    fixed_array_spec = APyFixedArray.from_float([0], int_bits=5, frac_bits=2)
+    cfixed_spec = APyCFixed.from_complex(0, int_bits=5, frac_bits=2)
+    cfixed_array_spec = APyCFixedArray.from_complex([0], int_bits=5, frac_bits=2)
+    float_spec = APyFloat.from_float(0, exp_bits=5, man_bits=3)
+    float_array_spec = APyFloatArray.from_float([0], exp_bits=5, man_bits=3)
+    cfloat_spec = APyCFloat.from_complex(0, exp_bits=5, man_bits=3)
+    cfloat_array_spec = APyCFloatArray.from_complex([0], exp_bits=5, man_bits=3)
+
+    for spec in (fixed_spec, fixed_array_spec):
+        assert from_bits(13, spec=spec).is_identical(
+            APyFixed(13, int_bits=5, frac_bits=2)
+        )
+        assert from_bits([13, 14], spec=spec).is_identical(
+            APyFixedArray([13, 14], int_bits=5, frac_bits=2)
+        )
+
+    for spec in (cfixed_spec, cfixed_array_spec):
+        assert from_bits(13, spec=spec).is_identical(
+            APyCFixed(13, int_bits=5, frac_bits=2)
+        )
+        assert from_bits([13, 14], spec=spec).is_identical(
+            APyCFixedArray([13, 14], int_bits=5, frac_bits=2)
+        )
+
+    for spec in (float_spec, float_array_spec):
+        assert from_bits(0b1_01111_010, spec=spec).is_identical(
+            APyFloat.from_bits(0b1_01111_010, exp_bits=5, man_bits=3)
+        )
+        assert from_bits([60, 61], spec=spec).is_identical(
+            APyFloatArray.from_bits([60, 61], exp_bits=5, man_bits=3)
+        )
+
+    for spec in (cfloat_spec, cfloat_array_spec):
+        # Scalar case is omitted: from_bits() can't produce a scalar APyCFloat from a
+        # plain int, since APyCFloat.from_bits() requires a (real_bits, imag_bits)
+        # tuple. This is a pre-existing bug unrelated to `spec`.
+        assert from_bits([60, 61], spec=spec).is_identical(
+            APyCFloatArray.from_bits([60, 61], exp_bits=5, man_bits=3)
+        )
+
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        from_bits(13, int_bits=5, frac_bits=2, spec=fixed_spec)
+
+    with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):
+        from_bits(13, force_complex=True, spec=fixed_spec)
