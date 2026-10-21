@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extract bits for `APyFixed` and `APyFloat` using "HDL-style", inclusive,
   MSB-first indexing.
 - SIMD for single-limb fixed-point complex array multiplication and division.
+- Many creation functions have a `spec` argument where one can provide an `APy*`
+  object that the new object will inherit all properties (number of bits etc) from.
 
 ### Fixed
 

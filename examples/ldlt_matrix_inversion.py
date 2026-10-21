@@ -36,18 +36,12 @@ def ldl_decomposition(
 
     if isinstance(A, apy.APyFloatArray):
         # Use APyTypes arrays for storage/results
-        L = apy.zeros_like(A)
-        D = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+        L = apy.identity(n, spec=A)
+        D = apy.zeros(n, spec=A)
     else:
         # Use numpy arrays only for storage/results
         L = np.zeros((n, n), dtype=float)
         D = np.zeros(n, dtype=float)
-
-    for i in range(n):
-        if isinstance(A, apy.APyFloatArray):
-            L[i, i] = apy.fp(1.0, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
-        else:
-            L[i, i] = 1.0
 
     for j in range(n):
         # D[j] = A[j,j] - sum_{k=0..j-1} L[j,k]^2 * D[k]
@@ -94,21 +88,18 @@ def inverse_from_ldl(
 
         # Solve L z = e (forward substitution)
         if isinstance(A, apy.APyFloatArray):
-            z = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+            z = apy.zeros(n, spec=A)
         else:
             z = np.zeros(n, dtype=float)
         for i in range(n):
-            if isinstance(A, apy.APyFloatArray):
-                s = apy.fp(0.0, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
-            else:
-                s = 0.0
+            s = apy.fp(0.0, spec=A) if isinstance(A, apy.APyFloatArray) else 0.0
             for k in range(i):
                 s += L[i, k] * z[k]
             z[i] = e[i] - s  # since diag(L)=1
 
         # Solve D y = z (diagonal solve)
         if isinstance(A, apy.APyFloatArray):
-            y = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+            y = apy.zeros(n, spec=A)
         else:
             y = np.zeros(n, dtype=float)
         for i in range(n):
@@ -118,7 +109,7 @@ def inverse_from_ldl(
 
         # Solve L^T x = y (back substitution)
         if isinstance(A, apy.APyFloatArray):
-            x = apy.zeros(n, exp_bits=A.exp_bits, man_bits=A.man_bits, bias=A.bias)
+            x = apy.zeros(n, spec=A)
         else:
             x = np.zeros(n, dtype=float)
         for i in range(n - 1, -1, -1):
