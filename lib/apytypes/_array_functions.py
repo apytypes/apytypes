@@ -830,7 +830,8 @@ def zeros(
     spec : :class:`APyScalar` or :class:`APyArray`, optional
         Specification object from which to infer array type and bit-specifiers. Cannot
         be used together with the other bit-specifier arguments or `force_complex`.
-        .. versionadded:: 0.6
+
+            .. versionadded:: 0.6
 
     Returns
     -------
@@ -1007,7 +1008,8 @@ def ones(
     spec : :class:`APyScalar` or :class:`APyArray`, optional
         Specification object from which to infer array type and bit-specifiers. Cannot
         be used together with the other bit-specifier arguments or `force_complex`.
-        .. versionadded:: 0.6
+
+            .. versionadded:: 0.6
 
     Returns
     -------
@@ -1197,7 +1199,8 @@ def eye(
     spec : :class:`APyScalar` or :class:`APyArray`, optional
         Specification object from which to infer array type and bit-specifiers. Cannot
         be used together with the other bit-specifier arguments or `force_complex`.
-        .. versionadded:: 0.6
+
+            .. versionadded:: 0.6
 
     Returns
     -------
@@ -1367,7 +1370,8 @@ def identity(
     spec : :class:`APyScalar` or :class:`APyArray`, optional
         Specification object from which to infer array type and bit-specifiers. Cannot
         be used together with the other bit-specifier arguments or `force_complex`.
-        .. versionadded:: 0.6
+
+            .. versionadded:: 0.6
 
     Returns
     -------
@@ -1553,7 +1557,8 @@ def full(
         Specification object from which to infer array type and bit-specifiers. Cannot
         be used together with the other bit-specifier arguments, and `fill_value`
         cannot be an APyTypes scalar when `spec` is given.
-        .. versionadded:: 0.6
+
+            .. versionadded:: 0.6
 
     Returns
     -------

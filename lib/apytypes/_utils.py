@@ -159,7 +159,8 @@ def fx(
     spec : :class:`APyFixed`, :class:`APyCFixed`, :class:`APyFixedArray`, or :class:`APyCFixedArray`, optional
         Specification object from which to infer bit-specifiers and complex-valuedness.
         Cannot be used together with `int_bits`, `frac_bits`, `bits`, or `force_complex`.
-        .. versionadded:: 0.6
+
+            .. versionadded:: 0.6
 
     Returns
     -------
@@ -326,7 +327,8 @@ def fp(
     spec : :class:`APyFloat`, :class:`APyCFloat`, :class:`APyFloatArray`, or :class:`APyCFloatArray`, optional
         Specification object from which to infer bit-specifiers and complex-valuedness.
         Cannot be used together with `exp_bits`, `man_bits`, `bias`, or `force_complex`.
-        .. versionadded:: 0.6
+
+            .. versionadded:: 0.6
 
     Returns
     -------
@@ -747,7 +749,8 @@ def from_bits(
     spec : :class:`APyScalar` or :class:`APyArray`, optional
         Specification object from which to infer type and bit-specifiers. Cannot be
         used together with the other bit-specifier arguments or `force_complex`.
-        .. versionadded:: 0.6
+
+            .. versionadded:: 0.6
 
     Returns
     -------
