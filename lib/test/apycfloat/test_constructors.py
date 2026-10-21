@@ -2,7 +2,7 @@ import numbers
 
 import pytest
 
-from apytypes import APyCFixed, APyCFloat, APyFixed
+from apytypes import APyCFixed, APyCFloat, APyFixed, APyFloat
 
 
 def test_constructor_raises():
@@ -123,6 +123,13 @@ def test_from_float():
     for t in types:
         a = APyCFloat.from_float(t(125), exp_bits=11, man_bits=52)
         assert a.is_identical(APyCFloat.from_complex(125, exp_bits=11, man_bits=52))
+
+
+def test_from_number_with_spec():
+    spec = APyFloat.from_float(0.0, exp_bits=5, man_bits=3, bias=12)
+    assert APyCFloat.from_number(1.25, spec=spec).is_identical(
+        APyCFloat.from_number(1.25, exp_bits=5, man_bits=3, bias=12)
+    )
 
 
 def test_isinstance():

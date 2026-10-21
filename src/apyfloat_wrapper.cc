@@ -64,13 +64,28 @@ void bind_float(nb::module_& m)
          */
         .def(
             "__init__",
-            &APyFloat::create_in_place,
+            [](APyFloat* self,
+               int sign,
+               exp_t exp,
+               man_t man,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                APyFloat::create_in_place(
+                    self, sign, exp, man, *exp_bits, *man_bits, bias
+                );
+            },
             nb::arg("sign"),
             nb::arg("exp"),
             nb::arg("man"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFloat` object.
 
@@ -89,6 +104,11 @@ void bind_float(nb::module_& m)
                 Number of mantissa bits.
             bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -185,11 +205,21 @@ void bind_float(nb::module_& m)
          */
         .def_static(
             "from_float",
-            &APyFloat::from_number,
+            [](const nb::object& value,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyFloat::from_number(value, *exp_bits, *man_bits, bias);
+            },
             nb::arg("value"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFloat` object from an :class:`int`, :class:`float`,
             :class:`APyFixed`, or :class:`APyFloat`.
@@ -210,6 +240,11 @@ void bind_float(nb::module_& m)
                 Number of mantissa bits.
             bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -231,23 +266,48 @@ void bind_float(nb::module_& m)
         )
         .def_static(
             "from_number",
-            &APyFloat::from_number,
+            [](const nb::object& value,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyFloat::from_number(value, *exp_bits, *man_bits, bias);
+            },
             nb::arg("value"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Alias for :func:`~apytypes.APyFloat.from_float`.
+
+            `spec` accepts any real or complex floating-point scalar or array and copies
+            its format fields.
+
+            .. versionadded:: 0.6
             )pbdoc"
         )
         .def("__float__", &APyFloat::operator double)
         .def_static(
             "from_bits",
-            &APyFloat::from_bits,
+            [](nb::int_ bits,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyFloat::from_bits(bits, *exp_bits, *man_bits, bias);
+            },
             nb::arg("bits"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFloat` object from a bit-representation.
 
@@ -261,6 +321,11 @@ void bind_float(nb::module_& m)
                 Number of mantissa bits.
             bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -392,11 +457,21 @@ void bind_float(nb::module_& m)
         .def("_repr_latex_", &APyFloat::latex)
         .def(
             "cast",
-            &APyFloat::cast,
+            [](const APyFloat& self,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               std::optional<QuantizationMode> quantization,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                return self.cast(exp_bits, man_bits, bias, quantization);
+            },
             nb::arg("exp_bits") = nb::none(),
             nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
             nb::arg("quantization") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Change format of the floating-point number.
 
@@ -414,6 +489,11 @@ void bind_float(nb::module_& m)
             quantization : :class:`QuantizationMode`, optional.
                 Quantization mode to use in this cast. If None, use the global
                 quantization mode.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------

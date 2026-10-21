@@ -3,7 +3,7 @@ from math import pow
 
 import pytest
 
-from apytypes import APyFixed, APyFloat
+from apytypes import APyCFixed, APyFixed, APyFloat
 
 
 def test_construction_raises():
@@ -93,6 +93,28 @@ def test_floating_point_construction():
     assert APyFixed.from_float(0.25, 1, 1).to_bits() == 1  #  0.25
     assert APyFixed.from_float(-0.25, 1, 1).to_bits() == 3  # -0.25
     assert APyFixed.from_float(-0.24, 1, 1).to_bits() == 0  #  0.00
+
+
+def test_construction_from_spec():
+    spec = APyCFixed((0, 0), int_bits=3, frac_bits=4)
+    assert APyFixed.from_float(1.125, spec=spec).is_identical(
+        APyFixed.from_float(1.125, int_bits=3, frac_bits=4)
+    )
+
+
+def test_from_number_with_spec():
+    spec = APyCFixed((0, 0), int_bits=3, frac_bits=4)
+    assert APyFixed.from_number(1.125, spec=spec).is_identical(
+        APyFixed.from_number(1.125, int_bits=3, frac_bits=4)
+    )
+
+
+def test_fixed_spec_errors():
+    spec = APyFixed(0, int_bits=3, frac_bits=4)
+    with pytest.raises(ValueError, match="cannot be combined"):
+        APyFixed.from_number(1.0, int_bits=3, spec=spec)
+    with pytest.raises(TypeError, match="must be a fixed-point scalar or array"):
+        APyFixed.from_number(1.0, spec=object())
 
 
 def test_string_construction():

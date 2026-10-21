@@ -332,7 +332,19 @@ class APyCFixed:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
-    ) -> None: ...
+        *,
+        spec: object | None = None,
+    ) -> None:
+        """
+        Construct an :class:`APyCFixed` from a bit pattern.
+
+        `spec` may be any real or complex fixed-point scalar or array. Only its
+        bit-specifiers are used, and it cannot be combined with explicit
+        bit-specifiers.
+
+        .. versionadded:: 0.6
+        """
+
     @overload
     def __init__(
         self,
@@ -340,7 +352,19 @@ class APyCFixed:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
-    ) -> None: ...
+        *,
+        spec: object | None = None,
+    ) -> None:
+        """
+        Construct an :class:`APyCFixed` from real and imaginary bit patterns.
+
+        `spec` may be any real or complex fixed-point scalar or array. Only its
+        bit-specifiers are used, and it cannot be combined with explicit
+        bit-specifiers.
+
+        .. versionadded:: 0.6
+        """
+
     def copy(self) -> APyCFixed:
         """
         Create a copy of the object.
@@ -621,6 +645,8 @@ class APyCFixed:
         quantization: QuantizationMode | None = None,
         overflow: OverflowMode | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixed:
         """
         Change format of the complex-valued fixed-point number.
@@ -645,6 +671,12 @@ class APyCFixed:
             Overflowing mode to use in this cast.
         bits : :class:`int`, optional
             Total number of bits in the result.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the result format. Real and complex types are
+            both accepted; only bit-specifiers are used. Cannot be combined with
+            explicit bit-specifiers.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -696,6 +728,8 @@ class APyCFixed:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixed:
         """
         Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
@@ -719,6 +753,11 @@ class APyCFixed:
             Number of fractional bits in the created fixed-point object
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point object
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -743,8 +782,17 @@ class APyCFixed:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixed:
-        """Alias for :func:`~apytypes.APyCFixed.from_complex`."""
+        """
+        Alias for :func:`~apytypes.APyCFixed.from_complex`.
+
+        `spec` accepts a real or complex fixed-point scalar or array and copies
+        only its bit-specifiers.
+
+        .. versionadded:: 0.6
+        """
 
     @staticmethod
     def from_number(
@@ -752,8 +800,17 @@ class APyCFixed:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixed:
-        """Alias for :func:`~apytypes.APyCFixed.from_complex`."""
+        """
+        Alias for :func:`~apytypes.APyCFixed.from_complex`.
+
+        `spec` accepts a real or complex fixed-point scalar or array and copies
+        only its bit-specifiers.
+
+        .. versionadded:: 0.6
+        """
 
 class APyCFixedArray:
     """
@@ -771,7 +828,19 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
-    ) -> None: ...
+        *,
+        spec: object | None = None,
+    ) -> None:
+        """
+        Construct an :class:`APyCFixedArray` from bit patterns.
+
+        `spec` may be any real or complex fixed-point scalar or array. Only its
+        bit-specifiers are used, and it cannot be combined with explicit
+        bit-specifiers.
+
+        .. versionadded:: 0.6
+        """
+
     def copy(self) -> APyCFixedArray:
         """
         Create a copy of the object.
@@ -1302,6 +1371,8 @@ class APyCFixedArray:
         quantization: QuantizationMode | None = None,
         overflow: OverflowMode | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Change format of the fixed-point array.
@@ -1324,6 +1395,12 @@ class APyCFixedArray:
             Overflowing mode to use in this cast.
         bits : :class:`int`, optional
             Total number of bits in the result.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the result format. Real and complex types are
+            both accepted; only bit-specifiers are used. Cannot be combined with
+            explicit bit-specifiers.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -1694,6 +1771,8 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Create an :class:`APyCFixedArray` from iterable sequence of numbers.
@@ -1715,6 +1794,11 @@ class APyCFixedArray:
             Number of fractional bits in the created fixed-point tensor.
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -1749,6 +1833,8 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Create an :class:`APyCFixedArray` from iterable sequence of numbers.
@@ -1767,6 +1853,11 @@ class APyCFixedArray:
             Number of fractional bits in the created fixed-point tensor.
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -1779,6 +1870,8 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Create an :class:`APyCFixedArray` object from an ndarray.
@@ -1801,6 +1894,11 @@ class APyCFixedArray:
             Number of fractional bits in the created fixed-point tensor.
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -1832,6 +1930,8 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Create an :class:`APyCFixedArray` object from a sequence of bit patterns.
@@ -1846,6 +1946,11 @@ class APyCFixedArray:
             Number of fractional bits in the created fixed-point tensor.
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -1858,6 +1963,8 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Initialize an array with zeros.
@@ -1872,6 +1979,11 @@ class APyCFixedArray:
             Number of fractional bits.
         bits : :class:`int`, optional
             Total number of bits.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the array format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -1885,6 +1997,8 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Initialize an array with ones.
@@ -1899,6 +2013,11 @@ class APyCFixedArray:
             Number of fractional bits.
         bits : :class:`int`, optional
             Total number of bits.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the array format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -1913,6 +2032,8 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Initialize an array with ones on the diagonal.
@@ -1929,6 +2050,11 @@ class APyCFixedArray:
             Number of fractional bits.
         bits : :class:`int`, optional
             Total number of bits.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the array format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -1942,6 +2068,8 @@ class APyCFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFixedArray:
         """
         Initialize an identity matrix with ones on the diagonal.
@@ -1956,6 +2084,11 @@ class APyCFixedArray:
             Number of fractional bits.
         bits : :class:`int`, optional
             Total number of bits.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the array format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -2078,19 +2211,33 @@ class APyCFloat:
         sign: bool | int,
         exp: int,
         man: int,
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
-    ) -> None: ...
+        *,
+        spec: object | None = None,
+    ) -> None:
+        """
+        Construct an :class:`APyCFloat` from explicit sign, exponent, and mantissa
+        fields.
+
+        `spec` may be any real or complex floating-point scalar or array. Only its
+        format fields are used.
+
+        .. versionadded:: 0.6
+        """
+
     @overload
     def __init__(
         self,
         sign: tuple[bool | int, bool | int],
         exp: tuple[int, int],
         man: tuple[int, int],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> None:
         """
         Create an :class:`APyCFloat` object and initialize both real and imaginary
@@ -2105,12 +2252,17 @@ class APyCFloat:
         man : :class:`tuple` of :class:`int`
             Mantissa of the real/imaginary parts as stored, i.e., without a hidden
             one.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits.
         bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            Exponent bias.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -2252,7 +2404,12 @@ class APyCFloat:
 
     @staticmethod
     def from_complex(
-        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+        value: object,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloat:
         """
         Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
@@ -2271,6 +2428,11 @@ class APyCFloat:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -2293,20 +2455,49 @@ class APyCFloat:
 
     @staticmethod
     def from_float(
-        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+        value: object,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloat:
-        """Alias for :func:`~apytypes.APyCFloat.from_complex`."""
+        """
+        Alias for :func:`~apytypes.APyCFloat.from_complex`.
+
+        `spec` accepts any real or complex floating-point scalar or array and copies
+        its format fields.
+
+        .. versionadded:: 0.6
+        """
 
     @staticmethod
     def from_number(
-        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+        value: object,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloat:
-        """Alias for :func:`~apytypes.APyCFloat.from_complex`."""
+        """
+        Alias for :func:`~apytypes.APyCFloat.from_complex`.
+
+        `spec` accepts any real or complex floating-point scalar or array and copies
+        its format fields.
+
+        .. versionadded:: 0.6
+        """
 
     def __complex__(self) -> complex: ...
     @staticmethod
     def from_bits(
-        bits: tuple, exp_bits: int, man_bits: int, bias: int | None = None
+        bits: tuple,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloat:
         """
         Create an :class:`APyCFloat` object from a bit-representation.
@@ -2323,6 +2514,11 @@ class APyCFloat:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -2383,6 +2579,8 @@ class APyCFloat:
         man_bits: int | None = None,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloat:
         """
         Change format of the complex-valued floating-point number.
@@ -2401,6 +2599,11 @@ class APyCFloat:
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -2575,10 +2778,37 @@ class APyCFloatArray:
         sign_seq: Iterable[Any],
         exp_seq: Iterable[Any],
         man_seq: Iterable[Any],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
-    ) -> None: ...
+        *,
+        spec: object | None = None,
+    ) -> None:
+        """
+        Construct an :class:`APyCFloatArray` from sign, exponent, and mantissa
+        sequences.
+
+        Parameters
+        ----------
+        sign_seq : iterable
+            Sign fields for the real and imaginary parts.
+        exp_seq : iterable
+            Exponent fields for the real and imaginary parts.
+        man_seq : iterable
+            Mantissa fields for the real and imaginary parts.
+        exp_bits : :class:`int`, optional
+            Number of exponent bits.
+        man_bits : :class:`int`, optional
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. Defaults to the IEEE-like bias for `exp_bits`.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
+        """
+
     def copy(self) -> APyCFloatArray:
         """Create a copy of the object."""
 
@@ -2853,9 +3083,11 @@ class APyCFloatArray:
     @staticmethod
     def from_complex(
         complex_sequence: Iterable[Any],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Create an :class:`APyCFloatArray` from iterable sequence of numbers.
@@ -2867,12 +3099,17 @@ class APyCFloatArray:
         complex_sequence : :class:`~collections.abc.Iterable` of numbers.
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits in the created floating-point tensor.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
             Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -2930,9 +3167,11 @@ class APyCFloatArray:
     @staticmethod
     def from_float(
         complex_sequence: Iterable[Any],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Create an :class:`APyCFloatArray` from iterable sequence of numbers.
@@ -2945,12 +3184,17 @@ class APyCFloatArray:
         complex_sequence : :class:`~collections.abc.Iterable` of numbers.
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits in the created floating-point tensor.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
             Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -2960,9 +3204,11 @@ class APyCFloatArray:
     @staticmethod
     def from_array(
         ndarray: Annotated[NDArray, dict(order="C")],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Create an :class:`APyCFloatArray` from an ndarray.
@@ -2972,12 +3218,17 @@ class APyCFloatArray:
         ndarray : ndarray
             Values to initialize from. The tensor shape will be taken from the
             ndarray shape.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits in the created floating-point tensor.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
             Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -3010,7 +3261,12 @@ class APyCFloatArray:
 
     @staticmethod
     def from_bits(
-        bits: Iterable[Any], exp_bits: int, man_bits: int, bias: int | None = None
+        bits: Iterable[Any],
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Create an :class:`APyCFloatArray` object from bit-representations.
@@ -3019,12 +3275,17 @@ class APyCFloatArray:
         ----------
         bits : :class:`int`
             The bit-representations.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits in the created floating-point tensor.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -3278,9 +3539,11 @@ class APyCFloatArray:
     @staticmethod
     def zeros(
         shape: int | tuple[int, ...],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Initialize an array with zeros.
@@ -3289,12 +3552,17 @@ class APyCFloatArray:
         ----------
         shape : :class:`tuple`
             Shape of the array.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -3305,9 +3573,11 @@ class APyCFloatArray:
     @staticmethod
     def ones(
         shape: int | tuple[int, ...],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Initialize an array with ones.
@@ -3316,12 +3586,17 @@ class APyCFloatArray:
         ----------
         shape : :class:`tuple`
             Shape of the array.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -3332,10 +3607,12 @@ class APyCFloatArray:
     @staticmethod
     def eye(
         n: int,
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         m: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Initialize an array with ones on the diagonal.
@@ -3344,14 +3621,19 @@ class APyCFloatArray:
         ----------
         n : :class:`int`
             Number of rows (and columns) in the n x n output.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits.
         m : :class:`int`, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -3361,7 +3643,12 @@ class APyCFloatArray:
 
     @staticmethod
     def identity(
-        n: int, exp_bits: int, man_bits: int, bias: int | None = None
+        n: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Initialize an identity matrix with ones on the diagonal.
@@ -3370,12 +3657,17 @@ class APyCFloatArray:
         ----------
         n : :class:`int`
             Number of rows (and columns) in the n x n output.
-        exp_bits : :class:`int`
+        exp_bits : :class:`int`, optional
             Number of exponent bits.
-        man_bits : :class:`int`
+        man_bits : :class:`int`, optional
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -3485,6 +3777,8 @@ class APyCFloatArray:
         man_bits: int | None = None,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyCFloatArray:
         """
         Change format of the floating-point array.
@@ -3503,6 +3797,11 @@ class APyCFloatArray:
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -4074,7 +4373,19 @@ class APyFixed:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
-    ) -> None: ...
+        *,
+        spec: object | None = None,
+    ) -> None:
+        """
+        Construct an :class:`APyFixed` from a bit pattern.
+
+        `spec` may be any real or complex fixed-point scalar or array. Only its
+        bit-specifiers are used, and it cannot be combined with explicit
+        bit-specifiers.
+
+        .. versionadded:: 0.6
+        """
+
     def copy(self) -> APyFixed:
         """
         Create a copy of the object.
@@ -4364,6 +4675,8 @@ class APyFixed:
         quantization: QuantizationMode | None = None,
         overflow: OverflowMode | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixed:
         """
         Change format of the fixed-point number.
@@ -4386,6 +4699,12 @@ class APyFixed:
             Overflowing mode to use in this cast.
         bits : :class:`int`, optional
             Total number of bits in the result.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the result format. Real and complex types are
+            both accepted; only bit-specifiers are used. Cannot be combined with
+            explicit bit-specifiers.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -4502,6 +4821,8 @@ class APyFixed:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixed:
         """
         Create an :class:`APyFixed` object from an :class:`int`, :class:`float`,
@@ -4525,6 +4846,11 @@ class APyFixed:
             Number of fractional bits in the created fixed-point object
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point object
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -4550,8 +4876,17 @@ class APyFixed:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixed:
-        """Alias for :func:`~apytypes.APyFixed.from_float`."""
+        """
+        Alias for :func:`~apytypes.APyFixed.from_float`.
+
+        `spec` accepts a real or complex fixed-point scalar or array and copies
+        only its bit-specifiers.
+
+        .. versionadded:: 0.6
+        """
 
     @staticmethod
     def from_str(
@@ -4560,6 +4895,8 @@ class APyFixed:
         frac_bits: int | None = None,
         base: int = 10,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixed:
         """
         Create an :class:`APyFixed` object from :class:`str`.
@@ -4579,6 +4916,11 @@ class APyFixed:
             Numeric base used in `string_value`
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point object
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -4610,7 +4952,19 @@ class APyFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
-    ) -> None: ...
+        *,
+        spec: object | None = None,
+    ) -> None:
+        """
+        Construct an :class:`APyFixedArray` from bit patterns.
+
+        `spec` may be any real or complex fixed-point scalar or array. Only its
+        bit-specifiers are used, and it cannot be combined with explicit
+        bit-specifiers.
+
+        .. versionadded:: 0.6
+        """
+
     def copy(self) -> APyFixedArray:
         """
         Create a copy of the object.
@@ -5190,6 +5544,8 @@ class APyFixedArray:
         quantization: QuantizationMode | None = None,
         overflow: OverflowMode | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixedArray:
         """
         Change format of the fixed-point array.
@@ -5212,6 +5568,12 @@ class APyFixedArray:
             Overflowing mode to use in this cast.
         bits : :class:`int`, optional
             Total number of bits in the result.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the result format. Real and complex types are
+            both accepted; only bit-specifiers are used. Cannot be combined with
+            explicit bit-specifiers.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -5695,6 +6057,8 @@ class APyFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixedArray:
         """
         Create an :class:`APyFixedArray` from iterable sequence of numbers.
@@ -5716,6 +6080,11 @@ class APyFixedArray:
             Number of fractional bits in the created fixed-point tensor.
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -5753,6 +6122,8 @@ class APyFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixedArray:
         """
         Create an :class:`APyFixedArray` object from an ndarray.
@@ -5774,6 +6145,11 @@ class APyFixedArray:
             Number of fractional bits in the created fixed-point tensor.
         bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the output format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -5808,6 +6184,8 @@ class APyFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixedArray:
         """
         Initialize an array with zeros.
@@ -5822,6 +6200,11 @@ class APyFixedArray:
             Number of fractional bits.
         bits : :class:`int`, optional
             Total number of bits.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the array format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -5835,6 +6218,8 @@ class APyFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixedArray:
         """
         Initialize an array with ones.
@@ -5849,6 +6234,11 @@ class APyFixedArray:
             Number of fractional bits.
         bits : :class:`int`, optional
             Total number of bits.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the array format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -5863,6 +6253,8 @@ class APyFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixedArray:
         """
         Initialize an array with ones on the diagonal.
@@ -5879,6 +6271,11 @@ class APyFixedArray:
             Number of fractional bits.
         bits : :class:`int`, optional
             Total number of bits.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the array format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -5892,6 +6289,8 @@ class APyFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFixedArray:
         """
         Initialize an identity matrix with ones on the diagonal.
@@ -5906,6 +6305,11 @@ class APyFixedArray:
             Number of fractional bits.
         bits : :class:`int`, optional
             Total number of bits.
+        spec : fixed-point scalar or array, optional
+            Use its bit-specifiers as the array format. Real and complex types are
+            both accepted; only bit-specifiers are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -6037,9 +6441,11 @@ class APyFloat:
         sign: int,
         exp: int,
         man: int,
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> None:
         """
         Create an :class:`APyFloat` object.
@@ -6059,6 +6465,11 @@ class APyFloat:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -6167,7 +6578,12 @@ class APyFloat:
     def __rtruediv__(self, arg: float, /) -> APyFloat: ...
     @staticmethod
     def from_float(
-        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+        value: object,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloat:
         """
         Create an :class:`APyFloat` object from an :class:`int`, :class:`float`,
@@ -6189,6 +6605,11 @@ class APyFloat:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -6210,14 +6631,31 @@ class APyFloat:
 
     @staticmethod
     def from_number(
-        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+        value: object,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloat:
-        """Alias for :func:`~apytypes.APyFloat.from_float`."""
+        """
+        Alias for :func:`~apytypes.APyFloat.from_float`.
+
+        `spec` accepts any real or complex floating-point scalar or array and copies
+        its format fields.
+
+        .. versionadded:: 0.6
+        """
 
     def __float__(self) -> float: ...
     @staticmethod
     def from_bits(
-        bits: int, exp_bits: int, man_bits: int, bias: int | None = None
+        bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloat:
         """
         Create an :class:`APyFloat` object from a bit-representation.
@@ -6232,6 +6670,11 @@ class APyFloat:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -6368,6 +6811,8 @@ class APyFloat:
         man_bits: int | None = None,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloat:
         """
         Change format of the floating-point number.
@@ -6386,6 +6831,11 @@ class APyFloat:
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -6854,9 +7304,11 @@ class APyFloatArray:
         signs: Iterable[Any],
         exps: Iterable[Any],
         mans: Iterable[Any],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> None:
         """
         Create an :class:`APyFloatArray` object.
@@ -6876,6 +7328,11 @@ class APyFloatArray:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -7254,9 +7711,11 @@ class APyFloatArray:
     @staticmethod
     def from_float(
         number_sequence: Iterable[Any],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloatArray:
         """
         Create an :class:`APyFloatArray` from iterable sequence of numbers.
@@ -7272,6 +7731,11 @@ class APyFloatArray:
             Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
             Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -7329,9 +7793,11 @@ class APyFloatArray:
     @staticmethod
     def from_array(
         ndarray: Annotated[NDArray, dict(order="C")],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloatArray:
         """
         Create an :class:`APyFloatArray` from an ndarray.
@@ -7347,6 +7813,11 @@ class APyFloatArray:
             Number of mantissa bits in the created floating-point tensor.
         bias : :class:`int`, optional
             Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -7392,7 +7863,12 @@ class APyFloatArray:
 
     @staticmethod
     def from_bits(
-        bits: Iterable, exp_bits: int, man_bits: int, bias: int | None = None
+        bits: Iterable,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloatArray:
         """
         Create an :class:`APyFloatArray` object from bit-representations.
@@ -7407,6 +7883,11 @@ class APyFloatArray:
             Number of mantissa bits in the created floating-point tensor
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Examples
         --------
@@ -7440,9 +7921,11 @@ class APyFloatArray:
     @staticmethod
     def zeros(
         shape: int | tuple[int, ...],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloatArray:
         """
         Initialize an array with zeros.
@@ -7457,6 +7940,11 @@ class APyFloatArray:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -7467,9 +7955,11 @@ class APyFloatArray:
     @staticmethod
     def ones(
         shape: int | tuple[int, ...],
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloatArray:
         """
         Initialize an array with ones.
@@ -7484,6 +7974,11 @@ class APyFloatArray:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -7494,10 +7989,12 @@ class APyFloatArray:
     @staticmethod
     def eye(
         n: int,
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         m: int | None = None,
         bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloatArray:
         """
         Initialize an array with ones on the diagonal.
@@ -7514,6 +8011,11 @@ class APyFloatArray:
             Number of columns. Default is None, which results in an n x n output.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -7523,7 +8025,12 @@ class APyFloatArray:
 
     @staticmethod
     def identity(
-        n: int, exp_bits: int, man_bits: int, bias: int | None = None
+        n: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloatArray:
         """
         Initialize an identity matrix with ones on the diagonal.
@@ -7538,6 +8045,11 @@ class APyFloatArray:
             Number of mantissa bits.
         bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
@@ -8203,6 +8715,8 @@ class APyFloatArray:
         man_bits: int | None = None,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
+        *,
+        spec: object | None = None,
     ) -> APyFloatArray:
         """
         Change format of the floating-point array.
@@ -8221,6 +8735,11 @@ class APyFloatArray:
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
+        spec : floating-point scalar or array, optional
+            Use its exponent, mantissa, and bias fields. Real and complex types are
+            both accepted; only format fields are used.
+
+            .. versionadded:: 0.6
 
         Returns
         -------
