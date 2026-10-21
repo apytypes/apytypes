@@ -1,0 +1,214 @@
+:orphan:
+
+.. _examples:
+
+========
+Examples
+========
+
+These are examples of how APyTypes can be used.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="APyTypes provide a class for configurable floating-point numbers: APyFloat.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_apyfloat_thumb.png
+    :alt:
+
+  :doc:`/examples/apyfloat`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">APyFloat</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="APyTypes provide a class for configurable floating-point numbers: APyFixed.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_apyfixed_thumb.png
+    :alt:
+
+  :doc:`/examples/apyfixed`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">APyFixed</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="It is possible to easily go between NumPy and APyTypes and therefore also use plotting tools like Matplotlib in an integrated manner.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_numpy_integration_thumb.png
+    :alt:
+
+  :doc:`/examples/numpy_integration`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">NumPy integration</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example compares an approximate floating-point multiplication to the mathematically correct result. The approximation is based on Mitchell&#x27;s logarithm approximation and the reference is the unquantized result.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_approximate_multiplication_thumb.png
+    :alt:
+
+  :doc:`/examples/approximate_multiplication`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Approximate floating-point multiplication</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This illustrates the effect of solving an ODE with forward Euler using different floating-point formats and different quantization schemes.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_ode_solver_thumb.png
+    :alt:
+
+  :doc:`/examples/ode_solver`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Floating-point ODE solver</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This illustrates the effect of performing a vector rotation using different number of fractional bits and different quantization schemes.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_vectorrotation_thumb.png
+    :alt:
+
+  :doc:`/examples/vectorrotation`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Fixed-point vector rotation</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example a lookup table for floating-point reciprocals is designed, assuming that each bit is implemented using an N-input LUT, suitable for FPGA, and single-precision floating-point representation.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_reciprocal_lookup_thumb.png
+    :alt:
+
+  :doc:`/examples/reciprocal_lookup`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Reciprocal lookup table</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Reference models and code for verification can be written swiftly using APyTypes, and incorporated using cocotb. Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to even.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_test_fp8_mul_thumb.png
+    :alt:
+
+  :doc:`/examples/test_fp8_mul`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">cocotb integration</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to invert a matrix using the LDLT decomposition. It illustrates that an algorithm written for NumPy can be directly applied to APyTypes objects, which is useful for determining the required word length, testing, and verification of hardware implementations.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_ldlt_matrix_inversion_thumb.png
+    :alt:
+
+  :doc:`/examples/ldlt_matrix_inversion`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">LDLT matrix inversion</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/apyfloat
+   /examples/apyfixed
+   /examples/numpy_integration
+   /examples/approximate_multiplication
+   /examples/ode_solver
+   /examples/vectorrotation
+   /examples/reciprocal_lookup
+   /examples/test_fp8_mul
+   /examples/ldlt_matrix_inversion
+
+
+.. only:: html
+
+  .. container:: sphx-glr-footer sphx-glr-footer-gallery
+
+    .. container:: sphx-glr-download sphx-glr-download-python
+
+      :download:`Download all examples in Python source code: examples_python.zip </examples/examples_python.zip>`
+
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+      :download:`Download all examples in Jupyter notebooks: examples_jupyter.zip </examples/examples_jupyter.zip>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
