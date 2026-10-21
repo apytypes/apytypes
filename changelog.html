@@ -330,6 +330,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p>Extract bits for <code class="docutils literal notranslate"><span class="pre">APyFixed</span></code> and <code class="docutils literal notranslate"><span class="pre">APyFloat</span></code> using “HDL-style”, inclusive,
 MSB-first indexing.</p></li>
 <li><p>SIMD for single-limb fixed-point complex array multiplication and division.</p></li>
+<li><p>Many creation functions have a <code class="docutils literal notranslate"><span class="pre">spec</span></code> argument where one can provide an <code class="docutils literal notranslate"><span class="pre">APy*</span></code>
+object that the new object will inherit all properties (number of bits etc) from.</p></li>
 </ul>
 </section>
 <section id="fixed">
