@@ -4,6 +4,65 @@
 #include <nanobind/nanobind.h>
 
 #include <functional>
+#include <optional>
+
+inline void apply_fixed_spec(
+    const nb::object& spec,
+    std::optional<int>& int_bits,
+    std::optional<int>& frac_bits,
+    std::optional<int>& bits
+)
+{
+    if (spec.is_none()) {
+        return;
+    }
+    if (int_bits || frac_bits || bits) {
+        throw nb::value_error(
+            "`spec` cannot be combined with fixed-point bit-specifiers"
+        );
+    }
+    if (!nb::hasattr(spec, "bits") || !nb::hasattr(spec, "int_bits")) {
+        throw nb::type_error("`spec` must be a fixed-point scalar or array");
+    }
+    bits = nb::cast<int>(spec.attr("bits"));
+    int_bits = nb::cast<int>(spec.attr("int_bits"));
+}
+
+template <typename Bias>
+inline void apply_float_spec(
+    const nb::object& spec,
+    std::optional<int>& exp_bits,
+    std::optional<int>& man_bits,
+    std::optional<Bias>& bias
+)
+{
+    if (spec.is_none()) {
+        return;
+    }
+    if (exp_bits || man_bits || bias) {
+        throw nb::value_error(
+            "`spec` cannot be combined with floating-point bit-specifiers"
+        );
+    }
+    if (!nb::hasattr(spec, "exp_bits") || !nb::hasattr(spec, "man_bits")
+        || !nb::hasattr(spec, "bias")) {
+        throw nb::type_error("`spec` must be a floating-point scalar or array");
+    }
+    exp_bits = nb::cast<int>(spec.attr("exp_bits"));
+    man_bits = nb::cast<int>(spec.attr("man_bits"));
+    bias = nb::cast<Bias>(spec.attr("bias"));
+}
+
+inline void require_float_bit_spec(
+    const std::optional<int>& exp_bits, const std::optional<int>& man_bits
+)
+{
+    if (!exp_bits || !man_bits) {
+        throw nb::value_error(
+            "Floating-point format requires `exp_bits` and `man_bits`"
+        );
+    }
+}
 
 //! Mark Python-exposed parameter which does *not* support implicit conversion on call.
 //! An optional name parameter can be passed to overwrite the implicit parameter name.

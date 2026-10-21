@@ -10,6 +10,7 @@
 
 namespace nb = nanobind;
 
+#include <new>
 #include <type_traits>
 
 /*
@@ -62,27 +63,59 @@ void bind_cfixed(nb::module_& m)
          * Constructor: construct from a Python arbitrary long integer object
          */
         .def(
-            nb::init<
-                nb::int_,
-                std::optional<int>,
-                std::optional<int>,
-                std::optional<int>>(),
+            "__init__",
+            [](APyCFixed* self,
+               const nb::int_& bit_pattern,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                new (self) APyCFixed(bit_pattern, int_bits, frac_bits, bits);
+            },
             nb::arg("bit_pattern"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
-            nb::arg("bits") = nb::none()
+            nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
+            R"pbdoc(
+            Construct an :class:`APyCFixed` from a bit pattern.
+
+            `spec` may be any real or complex fixed-point scalar or array. Only its
+            bit-specifiers are used, and it cannot be combined with explicit
+            bit-specifiers.
+
+            .. versionadded:: 0.6
+            )pbdoc"
         )
 
         .def(
-            nb::init<
-                nb::typed<nb::tuple, nb::int_, nb::int_>,
-                std::optional<int>,
-                std::optional<int>,
-                std::optional<int>>(),
+            "__init__",
+            [](APyCFixed* self,
+               const nb::typed<nb::tuple, nb::int_, nb::int_>& bit_pattern,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                new (self) APyCFixed(bit_pattern, int_bits, frac_bits, bits);
+            },
             nb::arg("bit_pattern"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
-            nb::arg("bits") = nb::none()
+            nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
+            R"pbdoc(
+            Construct an :class:`APyCFixed` from real and imaginary bit patterns.
+
+            `spec` may be any real or complex fixed-point scalar or array. Only its
+            bit-specifiers are used, and it cannot be combined with explicit
+            bit-specifiers.
+
+            .. versionadded:: 0.6
+            )pbdoc"
         )
 
         /*
@@ -425,12 +458,23 @@ void bind_cfixed(nb::module_& m)
             )pbdoc")
         .def(
             "cast",
-            &APyCFixed::cast,
+            [](const APyCFixed& self,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<QuantizationMode> quantization,
+               std::optional<OverflowMode> overflow,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return self.cast(int_bits, frac_bits, quantization, overflow, bits);
+            },
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("quantization") = nb::none(),
             nb::arg("overflow") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Change format of the complex-valued fixed-point number.
 
@@ -454,6 +498,12 @@ void bind_cfixed(nb::module_& m)
                 Overflowing mode to use in this cast.
             bits : :class:`int`, optional
                 Total number of bits in the result.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the result format. Real and complex types are
+                both accepted; only bit-specifiers are used. Cannot be combined with
+                explicit bit-specifiers.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -516,11 +566,20 @@ void bind_cfixed(nb::module_& m)
          */
         .def_static(
             "from_complex",
-            &APyCFixed::from_number,
+            [](const nb::object& value,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixed::from_number(value, int_bits, frac_bits, bits);
+            },
             nb::arg("value"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
             :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
@@ -543,6 +602,11 @@ void bind_cfixed(nb::module_& m)
                 Number of fractional bits in the created fixed-point object
             bits : :class:`int`, optional
                 Total number of bits in the created fixed-point object
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the output format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -563,24 +627,52 @@ void bind_cfixed(nb::module_& m)
         )
         .def_static(
             "from_float",
-            &APyCFixed::from_number,
+            [](const nb::object& value,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixed::from_number(value, int_bits, frac_bits, bits);
+            },
             nb::arg("value"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Alias for :func:`~apytypes.APyCFixed.from_complex`.
+
+            `spec` accepts a real or complex fixed-point scalar or array and copies
+            only its bit-specifiers.
+
+            .. versionadded:: 0.6
             )pbdoc"
         )
         .def_static(
             "from_number",
-            &APyCFixed::from_number,
+            [](const nb::object& value,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixed::from_number(value, int_bits, frac_bits, bits);
+            },
             nb::arg("value"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Alias for :func:`~apytypes.APyCFixed.from_complex`.
+
+            `spec` accepts a real or complex fixed-point scalar or array and copies
+            only its bit-specifiers.
+
+            .. versionadded:: 0.6
             )pbdoc"
         );
 }
