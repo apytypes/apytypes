@@ -8,12 +8,16 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    types: [ opened, synchronize, reopened, closed ]
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   docs:
+    # Closed PRs are handled by the docs-preview-cleanup job instead
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -72,6 +76,43 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html
           keep_files: true
+      - name: Generate preview deploy token
+        id: preview-app-token
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ secrets.PREVIEW_APP_ID }}
+          private-key: ${{ secrets.PREVIEW_APP_PRIVATE_KEY }}
+          owner: apytypes
+          repositories: apytypes-preview
+      - name: Check out preview site branch
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: apytypes/apytypes-preview
+          ref: gh-pages
+          token: ${{ steps.preview-app-token.outputs.token }}
+          path: apytypes-preview
+      - name: Disable Jekyll for preview assets
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          touch apytypes-preview/.nojekyll
+          git -C apytypes-preview config user.name "github-actions[bot]"
+          git -C apytypes-preview config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C apytypes-preview add .nojekyll
+          if ! git -C apytypes-preview diff --cached --quiet; then
+            git -C apytypes-preview commit -m "Disable Jekyll for documentation previews"
+            git -C apytypes-preview push origin gh-pages
+          fi
+      - name: Deploy PR preview
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9  # v1.8.1
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          source-dir: docs/_build/html
+          # Preview is deployed to a separate repo so it stays off the apytypes.org custom domain
+          deploy-repository: apytypes/apytypes-preview
+          token: ${{ steps.preview-app-token.outputs.token }}
+          pages-base-url: apytypes.github.io/apytypes-preview
       # Checkout previous version so that doc-files can be written
       - name: Restore APY_INLINE
         run: |
@@ -226,3 +267,27 @@ jobs:
           auto-push: true
       - name: Copy previous file to cache
         run: mkdir -p cache && cp benchmark/output_cfloat_array.json cache/
+
+  docs-preview-cleanup:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Generate preview deploy token
+        id: preview-app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ secrets.PREVIEW_APP_ID }}
+          private-key: ${{ secrets.PREVIEW_APP_PRIVATE_KEY }}
+          owner: apytypes
+          repositories: apytypes-preview
+      - name: Remove PR preview
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9  # v1.8.1
+        with:
+          source-dir: docs/_build/html
+          # Preview is deployed to a separate repo so it stays off the apytypes.org custom domain
+          deploy-repository: apytypes/apytypes-preview
+          token: ${{ steps.preview-app-token.outputs.token }}
+          pages-base-url: apytypes.github.io/apytypes-preview
