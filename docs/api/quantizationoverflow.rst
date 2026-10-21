@@ -111,6 +111,18 @@ the bias will converge towards zero the more bits are quantized away (except for
    .. image:: ../_static/JAM_UNBIASED.png
       :alt: Illustration of unbiased jamming/von Neumann rounding
 
+   .. autoattribute:: STOCH_WEIGHTED
+
+      Stochastic rounding with weighted probability of rounding up or down.
+      The exact value will be returned if possible.
+      See :ref:`stochastic-rounding` for details.
+
+   .. autoattribute:: STOCH_EQUAL
+
+      Stochastic rounding with equal probability of rounding up or down.
+      The exact value will be returned if possible.
+      See :ref:`stochastic-rounding` for details.
+
    Aliases
    -------
 
@@ -153,6 +165,48 @@ the bias will converge towards zero the more bits are quantized away (except for
    .. autoattribute:: TIES_ZERO
 
       Round to nearest, ties toward zero. Alias for :attr:`RND_ZERO`.
+
+   .. _stochastic-rounding:
+
+   Stochastic rounding
+   ~~~~~~~~~~~~~~~~~~~
+
+   In stochastic rounding, a value between two adjacent
+   representable numbers is rounded up or down according to
+
+   .. math::
+
+      \operatorname{round}(x) =
+      \begin{cases}
+         \lceil x \rceil, & \text{with probability } q(x),\\
+         \lfloor x \rfloor, & \text{with probability } 1 - q(x).
+      \end{cases}
+
+   Here, :math:`\lceil x \rceil` is the smallest representable number greater than
+   :math:`x`, and :math:`\lfloor x \rfloor` is the greatest representable number
+   smaller than :math:`x`. With :attr:`QuantizationMode.STOCH_EQUAL`, the two
+   outcomes have equal probability:
+
+   .. math::
+
+      q(x) = 1 - q(x) = 0.5.
+
+   With :attr:`QuantizationMode.STOCH_WEIGHTED`, the probability is weighted by the
+   relative distance to the two representable numbers:
+
+   .. math::
+
+      q(x) =
+      \frac{x - \lfloor x \rfloor}
+         {\lceil x \rceil - \lfloor x \rfloor}.
+
+   The seed used in stochastic rounding can be set with
+   :func:`apytypes.set_fixed_quantization_seed` or
+   :func:`apytypes.set_float_quantization_seed`, for reproducibility.
+   The seed is otherwise initialized randomly.
+   APyTypes currently uses the Mersenne Twister generator ``std::mt19937_64``
+   from the C++ standard library.
+
 
    Utility functions
    -----------------
