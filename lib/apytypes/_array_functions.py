@@ -828,7 +828,8 @@ def zeros(
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
     spec : :class:`APyScalar` or :class:`APyArray`, optional
-        Specification object from which to infer array type and bit-specifiers.
+        Specification object from which to infer array type and bit-specifiers. Cannot
+        be used together with the other bit-specifier arguments or `force_complex`.
         .. versionadded:: 0.6
 
     Returns
@@ -1003,6 +1004,10 @@ def ones(
     force_complex : :class:`bool`, optional
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
+    spec : :class:`APyScalar` or :class:`APyArray`, optional
+        Specification object from which to infer array type and bit-specifiers. Cannot
+        be used together with the other bit-specifier arguments or `force_complex`.
+        .. versionadded:: 0.6
 
     Returns
     -------
@@ -1190,7 +1195,8 @@ def eye(
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
     spec : :class:`APyScalar` or :class:`APyArray`, optional
-        Specification object from which to infer array type and bit-specifiers.
+        Specification object from which to infer array type and bit-specifiers. Cannot
+        be used together with the other bit-specifier arguments or `force_complex`.
         .. versionadded:: 0.6
 
     Returns
@@ -1359,7 +1365,8 @@ def identity(
         Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
     spec : :class:`APyScalar` or :class:`APyArray`, optional
-        Specification object from which to infer array type and bit-specifiers.
+        Specification object from which to infer array type and bit-specifiers. Cannot
+        be used together with the other bit-specifier arguments or `force_complex`.
         .. versionadded:: 0.6
 
     Returns
@@ -1543,7 +1550,9 @@ def full(
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     spec : :class:`APyScalar` or :class:`APyArray`, optional
-        Specification object from which to infer array type and bit-specifiers.
+        Specification object from which to infer array type and bit-specifiers. Cannot
+        be used together with the other bit-specifier arguments, and `fill_value`
+        cannot be an APyTypes scalar when `spec` is given.
         .. versionadded:: 0.6
 
     Returns

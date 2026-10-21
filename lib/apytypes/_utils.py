@@ -14,7 +14,52 @@ from apytypes._apytypes import (
     APyFloat,
     APyFloatArray,
 )
-from apytypes._array_functions import _determine_array_type
+from apytypes._array_functions import (
+    _determine_array_type,
+    _specifiers_from_spec,
+    _validate_spec,
+)
+from apytypes.typing import APyArray, APyScalar
+
+
+@overload
+def fx(
+    value: int | float,
+    *,
+    spec: APyFixed | APyFixedArray,
+) -> APyFixed: ...
+
+
+@overload
+def fx(
+    value: int | float,
+    *,
+    spec: APyCFixed | APyCFixedArray,
+) -> APyCFixed: ...
+
+
+@overload
+def fx(
+    value: complex,
+    *,
+    spec: APyFixed | APyCFixed | APyFixedArray | APyCFixedArray,
+) -> APyCFixed: ...
+
+
+@overload
+def fx(
+    value: Iterable[Any],
+    *,
+    spec: APyFixed | APyFixedArray,
+) -> APyFixedArray: ...
+
+
+@overload
+def fx(
+    value: Iterable[Any],
+    *,
+    spec: APyCFixed | APyCFixedArray,
+) -> APyCFixedArray: ...
 
 
 @overload
@@ -79,6 +124,7 @@ def fx(
     bits: int | None = None,
     *,
     force_complex: bool = False,
+    spec: APyFixed | APyCFixed | APyFixedArray | APyCFixedArray | None = None,
 ) -> APyFixed | APyCFixed | APyFixedArray | APyCFixedArray:
     """
     Create a fixed-point scalar or array.
@@ -110,6 +156,10 @@ def fx(
     force_complex : :class:`bool`, default: :code:`False`
         If :code:`True`, force the return value to be :class:`APyCFixed` or
         :class:`APyCFixedArray`, even if *value* is real.
+    spec : :class:`APyFixed`, :class:`APyCFixed`, :class:`APyFixedArray`, or :class:`APyCFixedArray`, optional
+        Specification object from which to infer bit-specifiers and complex-valuedness.
+        Cannot be used together with `int_bits`, `frac_bits`, `bits`, or `force_complex`.
+        .. versionadded:: 0.6
 
     Returns
     -------
@@ -117,6 +167,10 @@ def fx(
     :class:`APyCFixedArray`
 
     """
+    _validate_spec(spec, int_bits, frac_bits, bits, force_complex or None)
+    if spec is not None:
+        int_bits, frac_bits, bits, _, _, _, force_complex = _specifiers_from_spec(spec)
+
     if isinstance(value, Iterable):
         if force_complex:
             return APyCFixedArray.from_complex(value, int_bits, frac_bits, bits)
@@ -133,6 +187,46 @@ def fx(
                 return APyCFixed.from_complex(value, int_bits, frac_bits, bits)
             else:
                 return APyFixed.from_float(value, int_bits, frac_bits, bits)
+
+
+@overload
+def fp(
+    value: int | float,
+    *,
+    spec: APyFloat | APyFloatArray,
+) -> APyFloat: ...
+
+
+@overload
+def fp(
+    value: int | float,
+    *,
+    spec: APyCFloat | APyCFloatArray,
+) -> APyCFloat: ...
+
+
+@overload
+def fp(
+    value: complex,
+    *,
+    spec: APyFloat | APyCFloat | APyFloatArray | APyCFloatArray,
+) -> APyCFloat: ...
+
+
+@overload
+def fp(
+    value: Iterable[Any],
+    *,
+    spec: APyFloat | APyFloatArray,
+) -> APyFloatArray: ...
+
+
+@overload
+def fp(
+    value: Iterable[Any],
+    *,
+    spec: APyCFloat | APyCFloatArray,
+) -> APyCFloatArray: ...
 
 
 @overload
@@ -192,11 +286,12 @@ def fp(
 
 def fp(
     value: int | float | complex | Iterable[Any],
-    exp_bits: int,
-    man_bits: int,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
     bias: int | None = None,
     *,
     force_complex: bool = False,
+    spec: APyFloat | APyCFloat | APyFloatArray | APyCFloatArray | None = None,
 ) -> APyFloat | APyCFloat | APyFloatArray | APyCFloatArray:
     """
     Create a floating-point scalar or array.
@@ -219,15 +314,19 @@ def fp(
     ----------
     value : :class:`int`, :class:`float`, list of int or float, ndarray
         Floating-point/integer/complex value(s) to initialize from.
-    exp_bits : :class:`int`
-        Number of exponent bits.
-    man_bits : :class:`int`
-        Number of mantissa bits.
+    exp_bits : :class:`int`, optional
+        Number of exponent bits. Required unless `spec` is given.
+    man_bits : :class:`int`, optional
+        Number of mantissa bits. Required unless `spec` is given.
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     force_complex : :class:`bool`, default: :code:`False`
         If :code:`True`, force the return value to be :class:`APyCFloat` or
         :class:`APyCFloatArray`, even if *value* is real.
+    spec : :class:`APyFloat`, :class:`APyCFloat`, :class:`APyFloatArray`, or :class:`APyCFloatArray`, optional
+        Specification object from which to infer bit-specifiers and complex-valuedness.
+        Cannot be used together with `exp_bits`, `man_bits`, `bias`, or `force_complex`.
+        .. versionadded:: 0.6
 
     Returns
     -------
@@ -235,6 +334,10 @@ def fp(
     :class:`APyCFloatArray`
 
     """
+    _validate_spec(spec, exp_bits, man_bits, bias, force_complex or None)
+    if spec is not None:
+        _, _, _, exp_bits, man_bits, bias, force_complex = _specifiers_from_spec(spec)
+
     if isinstance(value, Iterable):
         if force_complex:
             return APyCFloatArray.from_complex(value, exp_bits, man_bits, bias)
@@ -362,6 +465,70 @@ def fn(
     pargs, conv = _process_args(args)
     fval = fn(*pargs)
     return conv(fval)
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    spec: APyFixed | APyFixedArray,
+) -> APyFixed: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    spec: APyCFixed | APyCFixedArray,
+) -> APyCFixed: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    spec: APyFixed | APyFixedArray,
+) -> APyFixedArray: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    spec: APyCFixed | APyCFixedArray,
+) -> APyCFixedArray: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    spec: APyFloat | APyFloatArray,
+) -> APyFloat: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: int,
+    *,
+    spec: APyCFloat | APyCFloatArray,
+) -> APyCFloat: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    spec: APyFloat | APyFloatArray,
+) -> APyFloatArray: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: Iterable[Any],
+    *,
+    spec: APyCFloat | APyCFloatArray,
+) -> APyCFloatArray: ...
 
 
 @overload
@@ -542,6 +709,7 @@ def from_bits(
     man_bits: int | None = None,
     bias: int | None = None,
     force_complex: bool = False,
+    spec: APyScalar | APyArray | None = None,
 ) -> (
     APyFloat
     | APyCFloat
@@ -576,11 +744,22 @@ def from_bits(
         Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
     force_complex : :class:`bool`, optional
         Returns a complex-valued type.
+    spec : :class:`APyScalar` or :class:`APyArray`, optional
+        Specification object from which to infer type and bit-specifiers. Cannot be
+        used together with the other bit-specifier arguments or `force_complex`.
+        .. versionadded:: 0.6
 
     Returns
     -------
     result : :class:`APyFixed`, :class:`APyFloat`, :class:`APyFixedArray`, :class:`APyFloatArray`, :class:`APyCFixed`, :class:`APyCFloat`, :class:`APyCFixedArray` or :class:`APyCFloatArray`
     """
+    _validate_spec(
+        spec, int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex or None
+    )
+    if spec is not None:
+        int_bits, frac_bits, bits, exp_bits, man_bits, bias, force_complex = (
+            _specifiers_from_spec(spec)
+        )
     apy_type = _determine_array_type(
         int_bits, frac_bits, bits, exp_bits, man_bits, bias
     )
