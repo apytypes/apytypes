@@ -40,7 +40,7 @@ def ldl_decomposition(
         D = apy.zeros(n, spec=A)
     else:
         # Use numpy arrays only for storage/results
-        L = np.zeros((n, n), dtype=float)
+        L = np.identity(n, dtype=float)
         D = np.zeros(n, dtype=float)
 
     for j in range(n):
