@@ -10,6 +10,8 @@
 #include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
 
+#include <new>
+
 namespace nb = nanobind;
 
 #include <type_traits>
@@ -178,15 +180,32 @@ void bind_cfixed_array(nb::module_& m)
          * Constructor: construct from a Python sequence of integers
          */
         .def(
-            nb::init<
-                const nb::typed<nb::iterable, nb::any>&,
-                std::optional<int>,
-                std::optional<int>,
-                std::optional<int>>(),
+            "__init__",
+            [](APyCFixedArray* self,
+               const nb::typed<nb::iterable, nb::any>& bit_pattern_sequence,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                new (self)
+                    APyCFixedArray(bit_pattern_sequence, int_bits, frac_bits, bits);
+            },
             nb::arg("bit_pattern_sequence"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
-            nb::arg("bits") = nb::none()
+            nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
+            R"pbdoc(
+            Construct an :class:`APyCFixedArray` from bit patterns.
+
+            `spec` may be any real or complex fixed-point scalar or array. Only its
+            bit-specifiers are used, and it cannot be combined with explicit
+            bit-specifiers.
+
+            .. versionadded:: 0.6
+            )pbdoc"
         )
 
         /*
@@ -683,12 +702,23 @@ void bind_cfixed_array(nb::module_& m)
 
         .def(
             "cast",
-            &APyCFixedArray::cast,
+            [](const APyCFixedArray& self,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<QuantizationMode> quantization,
+               std::optional<OverflowMode> overflow,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return self.cast(int_bits, frac_bits, quantization, overflow, bits);
+            },
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("quantization") = nb::none(),
             nb::arg("overflow") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Change format of the fixed-point array.
 
@@ -710,6 +740,12 @@ void bind_cfixed_array(nb::module_& m)
                 Overflowing mode to use in this cast.
             bits : :class:`int`, optional
                 Total number of bits in the result.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the result format. Real and complex types are
+                both accepted; only bit-specifiers are used. Cannot be combined with
+                explicit bit-specifiers.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -1134,11 +1170,22 @@ void bind_cfixed_array(nb::module_& m)
          */
         .def_static(
             "from_complex",
-            &APyCFixedArray::from_numbers,
+            [](const nb::typed<nb::iterable, nb::any>& complex_sequence,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixedArray::from_numbers(
+                    complex_sequence, int_bits, frac_bits, bits
+                );
+            },
             nb::arg("complex_sequence"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFixedArray` from iterable sequence of numbers.
 
@@ -1159,6 +1206,11 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits in the created fixed-point tensor.
             bits : :class:`int`, optional
                 Total number of bits in the created fixed-point tensor.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the output format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -1192,11 +1244,22 @@ void bind_cfixed_array(nb::module_& m)
 
         .def_static(
             "from_float",
-            &APyCFixedArray::from_numbers,
+            [](const nb::typed<nb::iterable, nb::any>& number_seq,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixedArray::from_numbers(
+                    number_seq, int_bits, frac_bits, bits
+                );
+            },
             nb::arg("number_seq"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFixedArray` from iterable sequence of numbers.
 
@@ -1214,6 +1277,11 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits in the created fixed-point tensor.
             bits : :class:`int`, optional
                 Total number of bits in the created fixed-point tensor.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the output format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -1223,11 +1291,20 @@ void bind_cfixed_array(nb::module_& m)
 
         .def_static(
             "from_array",
-            &APyCFixedArray::from_array,
+            [](const nb::ndarray<nb::c_contig>& ndarray,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixedArray::from_array(ndarray, int_bits, frac_bits, bits);
+            },
             nb::arg("ndarray"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFixedArray` object from an ndarray.
 
@@ -1249,6 +1326,11 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits in the created fixed-point tensor.
             bits : :class:`int`, optional
                 Total number of bits in the created fixed-point tensor.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the output format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -1274,11 +1356,22 @@ void bind_cfixed_array(nb::module_& m)
         )
         .def_static(
             "from_bits",
-            &APyCFixedArray::from_bits,
+            [](const nb::typed<nb::iterable, nb::any>& bit_pattern_sequence,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixedArray::from_bits(
+                    bit_pattern_sequence, int_bits, frac_bits, bits
+                );
+            },
             nb::arg("bit_pattern_sequence"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFixedArray` object from a sequence of bit patterns.
 
@@ -1292,6 +1385,11 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits in the created fixed-point tensor.
             bits : :class:`int`, optional
                 Total number of bits in the created fixed-point tensor.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the output format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -1300,11 +1398,20 @@ void bind_cfixed_array(nb::module_& m)
         )
         .def_static(
             "zeros",
-            &APyCFixedArray::zeros,
+            [](const PyShapeParam_t& shape,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixedArray::zeros(shape, int_bits, frac_bits, bits);
+            },
             nb::arg("shape"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Initialize an array with zeros.
 
@@ -1318,6 +1425,11 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits.
             bits : :class:`int`, optional
                 Total number of bits.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the array format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -1327,11 +1439,20 @@ void bind_cfixed_array(nb::module_& m)
         )
         .def_static(
             "ones",
-            &APyCFixedArray::ones,
+            [](const PyShapeParam_t& shape,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixedArray::ones(shape, int_bits, frac_bits, bits);
+            },
             nb::arg("shape"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Initialize an array with ones.
 
@@ -1345,6 +1466,11 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits.
             bits : :class:`int`, optional
                 Total number of bits.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the array format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -1354,12 +1480,22 @@ void bind_cfixed_array(nb::module_& m)
         )
         .def_static(
             "eye",
-            &APyCFixedArray::eye,
+            [](const nb::int_& n,
+               std::optional<nb::int_> m,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixedArray::eye(n, m, int_bits, frac_bits, bits);
+            },
             nb::arg("n"),
             nb::arg("m") = nb::none(),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Initialize an array with ones on the diagonal.
 
@@ -1375,6 +1511,11 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits.
             bits : :class:`int`, optional
                 Total number of bits.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the array format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -1384,11 +1525,20 @@ void bind_cfixed_array(nb::module_& m)
         )
         .def_static(
             "identity",
-            &APyCFixedArray::identity,
+            [](const nb::int_& n,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits,
+               const nb::object& spec) {
+                apply_fixed_spec(spec, int_bits, frac_bits, bits);
+                return APyCFixedArray::identity(n, int_bits, frac_bits, bits);
+            },
             nb::arg("n"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Initialize an identity matrix with ones on the diagonal.
 
@@ -1402,6 +1552,11 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits.
             bits : :class:`int`, optional
                 Total number of bits.
+            spec : fixed-point scalar or array, optional
+                Use its bit-specifiers as the array format. Real and complex types are
+                both accepted; only bit-specifiers are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------

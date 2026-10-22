@@ -8,6 +8,8 @@
 #include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
 
+#include <new>
+
 namespace nb = nanobind;
 
 /*
@@ -115,19 +117,53 @@ void bind_cfloat_array(nb::module_& m)
          * Base constructor
          */
         .def(
-            nb::init<
-                const nb::typed<nb::iterable, nb::any>&,
-                const nb::typed<nb::iterable, nb::any>&,
-                const nb::typed<nb::iterable, nb::any>&,
-                int,
-                int,
-                std::optional<exp_t>>(),
+            "__init__",
+            [](APyCFloatArray* self,
+               const nb::typed<nb::iterable, nb::any>& signs,
+               const nb::typed<nb::iterable, nb::any>& exps,
+               const nb::typed<nb::iterable, nb::any>& mans,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                new (self)
+                    APyCFloatArray(signs, exps, mans, *exp_bits, *man_bits, bias);
+            },
             nb::arg("sign_seq"),
             nb::arg("exp_seq"),
             nb::arg("man_seq"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
-            nb::arg("bias") = nb::none()
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
+            nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
+            R"pbdoc(
+            Construct an :class:`APyCFloatArray` from sign, exponent, and mantissa
+            sequences.
+
+            Parameters
+            ----------
+            sign_seq : iterable
+                Sign fields for the real and imaginary parts.
+            exp_seq : iterable
+                Exponent fields for the real and imaginary parts.
+            man_seq : iterable
+                Mantissa fields for the real and imaginary parts.
+            exp_bits : :class:`int`, optional
+                Number of exponent bits.
+            man_bits : :class:`int`, optional
+                Number of mantissa bits.
+            bias : :class:`int`, optional
+                Exponent bias. Defaults to the IEEE-like bias for `exp_bits`.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
+
+            )pbdoc"
         )
 
         /*
@@ -356,11 +392,23 @@ void bind_cfloat_array(nb::module_& m)
          */
         .def_static(
             "from_complex",
-            &APyCFloatArray::from_numbers,
+            [](const nb::typed<nb::iterable, nb::any>& complex_sequence,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyCFloatArray::from_numbers(
+                    complex_sequence, *exp_bits, *man_bits, bias
+                );
+            },
             nb::arg("complex_sequence"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFloatArray` from iterable sequence of numbers.
 
@@ -371,12 +419,17 @@ void bind_cfloat_array(nb::module_& m)
             complex_sequence : :class:`~collections.abc.Iterable` of numbers.
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
-            exp_bits : :class:`int`
+            exp_bits : :class:`int`, optional
                 Number of exponent bits in the created floating-point tensor.
-            man_bits : :class:`int`
+            man_bits : :class:`int`, optional
                 Number of mantissa bits in the created floating-point tensor.
             bias : :class:`int`, optional
                 Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -435,11 +488,23 @@ void bind_cfloat_array(nb::module_& m)
 
         .def_static(
             "from_float",
-            &APyCFloatArray::from_numbers,
+            [](const nb::typed<nb::iterable, nb::any>& complex_sequence,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyCFloatArray::from_numbers(
+                    complex_sequence, *exp_bits, *man_bits, bias
+                );
+            },
             nb::arg("complex_sequence"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFloatArray` from iterable sequence of numbers.
 
@@ -451,12 +516,17 @@ void bind_cfloat_array(nb::module_& m)
             complex_sequence : :class:`~collections.abc.Iterable` of numbers.
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
-            exp_bits : :class:`int`
+            exp_bits : :class:`int`, optional
                 Number of exponent bits in the created floating-point tensor.
-            man_bits : :class:`int`
+            man_bits : :class:`int`, optional
                 Number of mantissa bits in the created floating-point tensor.
             bias : :class:`int`, optional
                 Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -465,11 +535,21 @@ void bind_cfloat_array(nb::module_& m)
         )
         .def_static(
             "from_array",
-            &APyCFloatArray::from_array,
+            [](const nb::ndarray<nb::c_contig>& ndarray,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyCFloatArray::from_array(ndarray, *exp_bits, *man_bits, bias);
+            },
             nb::arg("ndarray"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFloatArray` from an ndarray.
 
@@ -478,12 +558,17 @@ void bind_cfloat_array(nb::module_& m)
             ndarray : ndarray
                 Values to initialize from. The tensor shape will be taken from the
                 ndarray shape.
-            exp_bits : :class:`int`
+            exp_bits : :class:`int`, optional
                 Number of exponent bits in the created floating-point tensor.
-            man_bits : :class:`int`
+            man_bits : :class:`int`, optional
                 Number of mantissa bits in the created floating-point tensor.
             bias : :class:`int`, optional
                 Bias in the created floating-point tensor. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -515,11 +600,21 @@ void bind_cfloat_array(nb::module_& m)
         )
         .def_static(
             "from_bits",
-            &APyCFloatArray::from_bits,
+            [](const nb::typed<nb::iterable, nb::any>& bits,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyCFloatArray::from_bits(bits, *exp_bits, *man_bits, bias);
+            },
             nb::arg("bits"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFloatArray` object from bit-representations.
 
@@ -527,12 +622,17 @@ void bind_cfloat_array(nb::module_& m)
             ----------
             bits : :class:`int`
                 The bit-representations.
-            exp_bits : :class:`int`
+            exp_bits : :class:`int`, optional
                 Number of exponent bits in the created floating-point tensor.
-            man_bits : :class:`int`
+            man_bits : :class:`int`, optional
                 Number of mantissa bits in the created floating-point tensor.
             bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Examples
             --------
@@ -818,11 +918,21 @@ void bind_cfloat_array(nb::module_& m)
 
         .def_static(
             "zeros",
-            &APyCFloatArray::zeros,
+            [](const PyShapeParam_t& shape,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyCFloatArray::zeros(shape, *exp_bits, *man_bits, bias);
+            },
             nb::arg("shape"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = std::nullopt,
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Initialize an array with zeros.
 
@@ -830,12 +940,17 @@ void bind_cfloat_array(nb::module_& m)
             ----------
             shape : :class:`tuple`
                 Shape of the array.
-            exp_bits : :class:`int`
+            exp_bits : :class:`int`, optional
                 Number of exponent bits.
-            man_bits : :class:`int`
+            man_bits : :class:`int`, optional
                 Number of mantissa bits.
             bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -845,11 +960,21 @@ void bind_cfloat_array(nb::module_& m)
         )
         .def_static(
             "ones",
-            &APyCFloatArray::ones,
+            [](const PyShapeParam_t& shape,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyCFloatArray::ones(shape, *exp_bits, *man_bits, bias);
+            },
             nb::arg("shape"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = std::nullopt,
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Initialize an array with ones.
 
@@ -857,12 +982,17 @@ void bind_cfloat_array(nb::module_& m)
             ----------
             shape : :class:`tuple`
                 Shape of the array.
-            exp_bits : :class:`int`
+            exp_bits : :class:`int`, optional
                 Number of exponent bits.
-            man_bits : :class:`int`
+            man_bits : :class:`int`, optional
                 Number of mantissa bits.
             bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -872,12 +1002,23 @@ void bind_cfloat_array(nb::module_& m)
         )
         .def_static(
             "eye",
-            &APyCFloatArray::eye,
+            [](const nb::int_& n,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<nb::int_> m,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyCFloatArray::eye(n, *exp_bits, *man_bits, m, bias);
+            },
             nb::arg("n"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("m") = nb::none(),
             nb::arg("bias") = std::nullopt,
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Initialize an array with ones on the diagonal.
 
@@ -885,14 +1026,19 @@ void bind_cfloat_array(nb::module_& m)
             ----------
             n : :class:`int`
                 Number of rows (and columns) in the n x n output.
-            exp_bits : :class:`int`
+            exp_bits : :class:`int`, optional
                 Number of exponent bits.
-            man_bits : :class:`int`
+            man_bits : :class:`int`, optional
                 Number of mantissa bits.
             m : :class:`int`, optional
                 Number of columns. Default is None, which results in an n x n output.
             bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -902,11 +1048,21 @@ void bind_cfloat_array(nb::module_& m)
         )
         .def_static(
             "identity",
-            &APyCFloatArray::identity,
+            [](const nb::int_& n,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                require_float_bit_spec(exp_bits, man_bits);
+                return APyCFloatArray::identity(n, *exp_bits, *man_bits, bias);
+            },
             nb::arg("n"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = std::nullopt,
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Initialize an identity matrix with ones on the diagonal.
 
@@ -914,12 +1070,17 @@ void bind_cfloat_array(nb::module_& m)
             ----------
             n : :class:`int`
                 Number of rows (and columns) in the n x n output.
-            exp_bits : :class:`int`
+            exp_bits : :class:`int`, optional
                 Number of exponent bits.
-            man_bits : :class:`int`
+            man_bits : :class:`int`, optional
                 Number of mantissa bits.
             bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**(exp_bits - 1) - 1``.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
@@ -1097,11 +1258,21 @@ void bind_cfloat_array(nb::module_& m)
 
         .def(
             "cast",
-            &APyCFloatArray::cast,
+            [](const APyCFloatArray& self,
+               std::optional<int> exp_bits,
+               std::optional<int> man_bits,
+               std::optional<exp_t> bias,
+               std::optional<QuantizationMode> quantization,
+               const nb::object& spec) {
+                apply_float_spec(spec, exp_bits, man_bits, bias);
+                return self.cast(exp_bits, man_bits, bias, quantization);
+            },
             nb::arg("exp_bits") = nb::none(),
             nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
             nb::arg("quantization") = nb::none(),
+            nb::kw_only(),
+            nb::arg("spec") = nb::none(),
             R"pbdoc(
             Change format of the floating-point array.
 
@@ -1119,6 +1290,11 @@ void bind_cfloat_array(nb::module_& m)
             quantization : :class:`QuantizationMode`, optional.
                 Quantization mode to use in this cast. If None, use the global
                 quantization mode.
+            spec : floating-point scalar or array, optional
+                Use its exponent, mantissa, and bias fields. Real and complex types are
+                both accepted; only format fields are used.
+
+                .. versionadded:: 0.6
 
             Returns
             -------
