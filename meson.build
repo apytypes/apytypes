@@ -148,6 +148,8 @@ py3.extension_module(
         'src/apycfloatarray_wrapper.cc',
         'src/apyfixed.cc',
         'src/apyfixed_wrapper.cc',
+        'src/apyufixed.cc',
+        'src/apyufixed_wrapper.cc',
         'src/apyfixedarray.cc',
         'src/apyfixedarray_iterator.cc',
         'src/apyfixedarray_wrapper.cc',

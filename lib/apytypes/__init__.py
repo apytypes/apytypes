@@ -15,6 +15,7 @@ from apytypes._apytypes import (
     APyFloatAccumulatorContext,
     APyFloatArray,
     APyFloatQuantizationContext,
+    APyUFixed,
     ConvolutionMode,
     OverflowMode,
     QuantizationMode,
@@ -73,6 +74,7 @@ __all__ = [
     "APyFloatAccumulatorContext",
     "APyFloatArray",
     "APyFloatQuantizationContext",
+    "APyUFixed",
     "ConvolutionMode",
     "OverflowMode",
     "QuantizationMode",
@@ -346,6 +348,14 @@ table shows word lengths of elementary arithmetic operations.
      - :code:`a.frac_bits`
 """
 
+APyUFixed.__doc__ = r"""
+Class for configurable scalar unsigned fixed-point formats.
+
+:class:`APyUFixed` is an arbitrary precision unsigned fixed-point scalar type. Its
+``bits``, ``int_bits``, and ``frac_bits`` properties describe the unsigned bit pattern;
+arithmetic between unsigned scalars infers result formats without overflow.
+"""
+
 APyCFixed.__doc__ = r"""
 Class for configurable complex-valued scalar fixed-point formats.
 
@@ -427,4 +437,5 @@ Class for configurable complex-valued array floating-point formats.
 numbers.Complex.register(APyCFixed)
 numbers.Complex.register(APyCFloat)
 numbers.Real.register(APyFixed)
+numbers.Real.register(APyUFixed)
 numbers.Real.register(APyFloat)

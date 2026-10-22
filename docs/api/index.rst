@@ -11,6 +11,7 @@
    apycfloatarray
    apyfixed
    apyfixedarray
+   apyufixed
    apyfloat
    apyfloatarray
    arrayfunctions
