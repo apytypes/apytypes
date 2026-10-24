@@ -278,6 +278,27 @@ def test_long_add(apyfloat: type[APyCFloat]):
     res = x + y
     assert res.is_identical(apyfloat(sign=0, exp=1, man=0, exp_bits=11, man_bits=61))
 
+    # Addition carry with the largest supported mantissa width
+    x = apyfloat(sign=0, exp=15, man=1 << 60, exp_bits=5, man_bits=61)
+    res = x + x
+    assert res.is_identical(
+        apyfloat(sign=0, exp=16, man=1 << 60, exp_bits=5, man_bits=61)
+    )
+
+    # Subtraction with a one-bit residual, which normalizes into a subnormal
+    x = apyfloat(sign=0, exp=16, man=0, exp_bits=5, man_bits=61)
+    y = apyfloat(sign=0, exp=15, man=(1 << 61) - 1, exp_bits=5, man_bits=61)
+    res = x - y
+    assert res.is_identical(
+        apyfloat(sign=0, exp=0, man=1 << 14, exp_bits=5, man_bits=61)
+    )
+
+    # A normal and subnormal with the same stored mantissa are not equal
+    x = apyfloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=61)
+    y = apyfloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=61)
+    res = x - y
+    assert res.is_identical(apyfloat(sign=0, exp=1, man=0, exp_bits=5, man_bits=61))
+
     # Mixed formats. 1.75 + (-5) = -3.25
     x = apyfloat(sign=0, exp=7, man=6, exp_bits=4, man_bits=3)
     y = apyfloat(sign=1, exp=1025, man=0x4000000000000 << 8, exp_bits=11, man_bits=60)
