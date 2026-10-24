@@ -20,7 +20,9 @@
 #include <algorithm>
 #include <cassert>     // assert
 #include <functional>  // std::invoke, std::cref, std::ref
+#include <limits>      // std::numeric_limits
 #include <optional>    // std::optional
+#include <stdexcept>   // std::overflow_error
 #include <string_view> // std::string_view
 
 /*!
@@ -148,18 +150,24 @@ normalize(
 
     man_t new_man = src.man;
     std::int64_t tmp_exp = true_exp(src, bias);
-    const auto mask = (1ULL << man_bits);
-    while (!(new_man & mask)) {
-        new_man <<= 1;
-        tmp_exp--;
+    const std::size_t man_width = bit_width(new_man);
+    std::size_t man_shift = 0;
+    if (man_width <= man_bits) {
+        man_shift = std::size_t(man_bits) + 1 - man_width;
+        new_man <<= man_shift;
+        tmp_exp -= std::int64_t(man_shift);
     }
 
     // Possibly use more exponent bits
     int new_exp_bits = exp_bits;
     exp_t extended_bias = bias;
     auto new_exp = tmp_exp + extended_bias;
-    while (new_exp <= 0) {
-        new_exp_bits++;
+    if (new_exp <= 0) {
+        const std::uint64_t required_bias = std::uint64_t(bias) + man_shift;
+        if (required_bias > std::numeric_limits<exp_t>::max()) {
+            throw std::overflow_error("normalize(): exponent bias overflow");
+        }
+        new_exp_bits = std::max(int(exp_bits) + 1, int(bit_width(required_bias)) + 1);
         extended_bias = exp_t((1ULL << (new_exp_bits - 1)) - 1);
         new_exp = tmp_exp + extended_bias;
     }
