@@ -1862,19 +1862,21 @@ template <
     return;
 }
 
-//! Divide two APyFixed and convert to APyFloat
 [[maybe_unused]]
-static APY_INLINE void _division_core(
+static APY_INLINE void _division_core_stoch_weighted(
     APyFloatData& z,
-    const APyFixed& apy_mx,
-    const APyFixed& apy_my,
-    std::int64_t& new_exp,
+    const man_t mx,
+    const std::uint8_t x_man_bits,
+    const man_t my,
+    const std::uint8_t y_man_bits,
+    std::int64_t new_exp,
     const exp_t& RES_MAX_EXP,
     const bool& sign,
-    const APyFloatSpec& z_spec,
-    const QuantizationMode& qntz
+    const APyFloatSpec& z_spec
 )
 {
+    const APyFixed apy_mx(2 + 64 + x_man_bits, 2, { UINT64_TO_LIMB(mx) });
+    const APyFixed apy_my(2 + 64 + y_man_bits, 2, { UINT64_TO_LIMB(my) });
     APyFixed apy_man_res = apy_mx / apy_my;
 
     // The result from the division will be in (1/2, 2) so normalization may be
@@ -1886,13 +1888,8 @@ static APY_INLINE void _division_core(
 
     // Check limits
     if (new_exp >= RES_MAX_EXP) {
-        if (do_infinity(qntz, sign)) {
-            z = { sign, RES_MAX_EXP, 0 }; // Inf
-            return;
-        } else {
-            z = { sign, RES_MAX_EXP - 1, (1ULL << z_spec.man_bits) - 1 };
-            return;
-        }
+        z = { sign, RES_MAX_EXP, 0 }; // Inf
+        return;
     }
 
     // Handle subnormal case
@@ -1902,7 +1899,9 @@ static APY_INLINE void _division_core(
     }
 
     // Quantize mantissa. This will never create carry.
-    quantize_apymantissa(apy_man_res, sign, z_spec.man_bits, qntz);
+    quantize_apymantissa(
+        apy_man_res, sign, z_spec.man_bits, QuantizationMode::STOCH_WEIGHTED
+    );
 
     // Remove leading one
     if (apy_man_res.positive_greater_than_equal_pow2(0)) {
@@ -1916,7 +1915,92 @@ static APY_INLINE void _division_core(
     }
 
     z = { sign, exp_t(new_exp), limb_vector_to_uint64(apy_man_res.read_data(), 0) };
-    return;
+}
+
+//! Divide two normalized floating-point significands and convert to APyFloat
+[[maybe_unused]] static APY_INLINE void _division_core(
+    APyFloatData& z,
+    const man_t mx,
+    const std::uint8_t x_man_bits,
+    const man_t my,
+    const std::uint8_t y_man_bits,
+    std::int64_t new_exp,
+    const exp_t& RES_MAX_EXP,
+    const bool& sign,
+    const APyFloatSpec& z_spec,
+    const QuantizationMode& qntz
+)
+{
+    if (qntz == QuantizationMode::STOCH_WEIGHTED) {
+        _division_core_stoch_weighted(
+            z, mx, x_man_bits, my, y_man_bits, new_exp, RES_MAX_EXP, sign, z_spec
+        );
+        return;
+    }
+
+    // Normalize both significands to the same hidden-bit position.
+    const man_t normalized_mx = mx << (_MAN_LIMIT_BITS - x_man_bits);
+    const man_t normalized_my = my << (_MAN_LIMIT_BITS - y_man_bits);
+
+    // Normalize the quotient to [1, 2), adjusting its exponent if it is below one.
+    man_t remainder;
+    if (normalized_mx < normalized_my) {
+        remainder = (normalized_mx << 1) - normalized_my;
+        new_exp--;
+    } else {
+        remainder = normalized_mx - normalized_my;
+    }
+
+    // Emit the stored fraction and guard bit; the remaining remainder becomes sticky.
+    man_t new_man = man_t(1) << (z_spec.man_bits + 2);
+    for (unsigned bit = unsigned(z_spec.man_bits) + 1; bit > 0; --bit) {
+        remainder <<= 1;
+        if (remainder >= normalized_my) {
+            remainder -= normalized_my;
+            new_man |= man_t(1) << bit;
+        }
+    }
+    if (remainder != 0) {
+        new_man |= 1;
+    }
+
+    // Check overflow before scaling a subnormal result.
+    if (new_exp >= RES_MAX_EXP) {
+        if (do_infinity(qntz, sign)) {
+            z = { sign, RES_MAX_EXP, 0 };
+            return;
+        } else {
+            z = { sign, RES_MAX_EXP - 1, (1ULL << z_spec.man_bits) - 1 };
+            return;
+        }
+    }
+
+    const auto shift_right_sticky = [](man_t value, std::uint64_t shift) -> man_t {
+        if (shift == 0) {
+            return value;
+        }
+        if (shift >= _MAN_T_SIZE_BITS) {
+            return man_t(value != 0);
+        }
+
+        const unsigned shift_bits = static_cast<unsigned>(shift);
+        const bool sticky = (value << (_MAN_T_SIZE_BITS - shift_bits)) != 0;
+        return (value >> shift_bits) | man_t(sticky);
+    };
+
+    if (new_exp <= 0) {
+        new_man = shift_right_sticky(new_man, std::uint64_t(1 - new_exp));
+        new_exp = 0;
+    }
+
+    // The hidden bit is implicit for normal results; the two low bits are guard/sticky.
+    const man_t hidden_bit = man_t(1) << (z_spec.man_bits + 2);
+    new_man &= hidden_bit - 1;
+    exp_t result_exp = exp_t(new_exp);
+    const man_t result_msb = man_t(1) << z_spec.man_bits;
+    const auto qntz_func = get_qntz_func(qntz);
+    qntz_func(new_man, result_exp, RES_MAX_EXP, 2, sign, result_msb, 1);
+    z = { sign, result_exp, new_man };
 }
 
 [[maybe_unused]]
@@ -1972,9 +2056,18 @@ static APY_INLINE void _floating_point_quotient_inner(
 
     const man_t mx = true_man(nx_data, { nx_exp_bits, x_spec.man_bits, nx_bias });
     const man_t my = true_man(ny_data, { ny_exp_bits, y_spec.man_bits, ny_bias });
-    const APyFixed apy_mx(2 + 64 + x_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
-    const APyFixed apy_my(2 + 64 + y_spec.man_bits, 2, { UINT64_TO_LIMB(my) });
-    _division_core(z, apy_mx, apy_my, new_exp, RES_MAX_EXP, sign, z_spec, qntz);
+    _division_core(
+        z,
+        mx,
+        x_spec.man_bits,
+        my,
+        y_spec.man_bits,
+        new_exp,
+        RES_MAX_EXP,
+        sign,
+        z_spec,
+        qntz
+    );
 }
 
 //! Perform division between a scalar numerator and array denominator.
@@ -1992,7 +2085,8 @@ static APY_INLINE void _floating_point_quotient_inner_scalar_array(
     const APyFloatSpec& z_spec,
     const QuantizationMode& qntz,
     const std::int64_t& new_exp_const,
-    const APyFixed& apy_mx
+    const man_t mx,
+    const std::uint8_t x_man_bits
 )
 {
     const bool sign = x.sign ^ y.sign;
@@ -2021,9 +2115,9 @@ static APY_INLINE void _floating_point_quotient_inner_scalar_array(
     std::int64_t new_exp = new_exp_const - std::int64_t(ny_data.exp) + ny_bias;
 
     const man_t my = true_man(ny_data, { ny_exp_bits, y_spec.man_bits, ny_bias });
-    const APyFixed apy_my(2 + 64 + y_spec.man_bits, 2, { UINT64_TO_LIMB(my) });
-
-    _division_core(z, apy_mx, apy_my, new_exp, RES_MAX_EXP, sign, z_spec, qntz);
+    _division_core(
+        z, mx, x_man_bits, my, y_spec.man_bits, new_exp, RES_MAX_EXP, sign, z_spec, qntz
+    );
 }
 
 //! Perform division between an array numerator and a scalar denominator.
@@ -2041,7 +2135,8 @@ static APY_INLINE void _floating_point_quotient_inner_array_scalar(
     const APyFloatSpec& z_spec,
     const QuantizationMode& qntz,
     const std::int64_t& new_exp_const,
-    const APyFixed& apy_my
+    const man_t my,
+    const std::uint8_t y_man_bits
 )
 {
     const bool sign = x.sign ^ y.sign;
@@ -2070,9 +2165,9 @@ static APY_INLINE void _floating_point_quotient_inner_array_scalar(
     std::int64_t new_exp = new_exp_const + std::int64_t(nx_data.exp) - nx_bias;
 
     const man_t mx = true_man(nx_data, { nx_exp_bits, x_spec.man_bits, nx_bias });
-    const APyFixed apy_mx(2 + 64 + x_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
-
-    _division_core(z, apy_mx, apy_my, new_exp, RES_MAX_EXP, sign, z_spec, qntz);
+    _division_core(
+        z, mx, x_spec.man_bits, my, y_man_bits, new_exp, RES_MAX_EXP, sign, z_spec, qntz
+    );
 }
 
 //! Iterator-based floating-point quotients
@@ -2153,7 +2248,6 @@ static APY_INLINE void floating_point_quotients(
         const std::int64_t new_exp_const
             = std::int64_t(nx_data.exp) - std::int64_t(nx_bias) + z_spec.bias;
         const man_t mx = true_man(nx_data, { nx_exp_bits, x_spec.man_bits, nx_bias });
-        const APyFixed apy_mx(2 + 64 + x_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
 
         for (std::size_t i = 0; i < n_elements; i++) {
             const APyFloatData& y = src2[SRC2_INC * i];
@@ -2169,7 +2263,8 @@ static APY_INLINE void floating_point_quotients(
                 z_spec,
                 qntz,
                 new_exp_const,
-                apy_mx
+                mx,
+                x_spec.man_bits
             );
         }
     } else if constexpr (SRC2_INC == 0) {
@@ -2230,7 +2325,6 @@ static APY_INLINE void floating_point_quotients(
         const std::int64_t new_exp_const
             = std::int64_t(ny_bias) - std::int64_t(ny_data.exp) + z_spec.bias;
         const man_t my = true_man(ny_data, { ny_exp_bits, y_spec.man_bits, ny_bias });
-        const APyFixed apy_my(2 + 64 + y_spec.man_bits, 2, { UINT64_TO_LIMB(my) });
 
         for (std::size_t i = 0; i < n_elements; i++) {
             const APyFloatData& x = src1[SRC1_INC * i];
@@ -2246,7 +2340,8 @@ static APY_INLINE void floating_point_quotients(
                 z_spec,
                 qntz,
                 new_exp_const,
-                apy_my
+                my,
+                y_spec.man_bits
             );
         }
     } else {
