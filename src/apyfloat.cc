@@ -992,9 +992,12 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     APyFixed apy_res = apy_mx.ipow(abs_n);
 
     // Normalize mantissa
-    while (apy_res.positive_greater_than_equal_pow2(1)) {
-        apy_res >>= 1;
-        new_exp++;
+    if (apy_res.positive_greater_than_equal_pow2(1)) {
+        const std::int64_t shift = static_cast<std::int64_t>(apy_res.bits())
+            - static_cast<std::int64_t>(apy_res.leading_zeros()) - apy_res.frac_bits()
+            - 1;
+        apy_res >>= static_cast<int>(shift);
+        new_exp += shift;
     }
 
     // Handle subnormal case
@@ -1331,25 +1334,9 @@ APyFloat APyFloat::normalized() const
         return *this;
     }
 
-    man_t new_man = man;
-    std::int64_t tmp_exp = true_exp();
-
-    while (!(new_man & leading_one())) {
-        new_man <<= 1;
-        tmp_exp--;
-    }
-
-    // Possibly use more exponent bits
-    int new_exp_bits = exp_bits;
-    exp_t extended_bias = bias;
-    auto new_exp = tmp_exp + extended_bias;
-    while (new_exp <= 0) {
-        new_exp_bits++;
-        extended_bias = APyFloat::ieee_bias(new_exp_bits);
-        new_exp = tmp_exp + extended_bias;
-    }
-
-    return APyFloat(sign, new_exp, new_man, new_exp_bits, man_bits, extended_bias);
+    const auto [normalized_data, normalized_exp_bits, normalized_bias]
+        = normalize(get_data(), spec());
+    return APyFloat(normalized_data, normalized_exp_bits, man_bits, normalized_bias);
 }
 
 /*

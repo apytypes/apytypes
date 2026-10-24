@@ -626,6 +626,15 @@ def test_mul_mixed_bias_overflow(apyfloat: type[APyCFloat]):
     )
 
 
+@pytest.mark.float_mul
+def test_mul_subnormal_bias_overflow():
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=2, man_bits=61, bias=(1 << 32) - 1)
+    y = APyFloat(sign=0, exp=1, man=0, exp_bits=2, man_bits=1, bias=0)
+
+    with pytest.raises(OverflowError, match=r"normalize\(\): exponent bias overflow"):
+        x * y
+
+
 @pytest.mark.float_add
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 def test_add_mixed_bias_underflow(apyfloat: type[APyCFloat]):
