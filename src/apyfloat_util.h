@@ -1768,12 +1768,27 @@ template <
 #if (COMPILER_LIMB_SIZE == 64)
     std::tie(man[1], man[0]) = long_unsigned_mult(mx, my);
 #elif (COMPILER_LIMB_SIZE == 32)
+#if defined(__SIZEOF_INT128__)
+    const unsigned __int128 product
+        = static_cast<unsigned __int128>(mx) * static_cast<unsigned __int128>(my);
+    for (std::size_t i = 0; i < MAN_LIMBS; i++) {
+        man[i] = apy_limb_t(product >> (i * COMPILER_LIMB_SIZE));
+    }
+#elif defined(_MSC_VER) && defined(_M_X64)
+    std::uint64_t high;
+    const std::uint64_t low = _umul128(mx, my, &high);
+    man[0] = apy_limb_t(low);
+    man[1] = apy_limb_t(low >> COMPILER_LIMB_SIZE);
+    man[2] = apy_limb_t(high);
+    man[3] = apy_limb_t(high >> COMPILER_LIMB_SIZE);
+#else
     const APyFixed apy_mx(2 + src1_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
     const APyFixed apy_my(2 + src2_spec.man_bits, 2, { UINT64_TO_LIMB(my) });
     const APyFixed apy_res = (apy_mx * apy_my);
     std::copy_n(
         std::begin(apy_res.read_data()), apy_res.read_data().size(), std::begin(man)
     );
+#endif
 #else
     static_assert(false, "COMPILER_LIMB_SIZE must be 32 or 64");
 #endif
@@ -1795,17 +1810,18 @@ template <
 
     // Quantize the mantissa
     auto&& qntz_fl = translate_quantization_mode(qntz, res_sign);
+    auto res_bits = 3 + dst_spec.man_bits;
     quantize(
         std::begin(man),
         std::end(man),
         man_spec.bits,
         man_spec.int_bits,
-        3 + dst_spec.man_bits,
+        res_bits,
         3,
         qntz_fl,
         rnd64_fp
     );
-    man_spec.bits = 3 + dst_spec.man_bits;
+    man_spec.bits = res_bits;
     man_spec.int_bits = 3;
 
     // Carry from quantization
