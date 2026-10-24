@@ -538,31 +538,61 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
     }
 
     // Scratch data:
-    // * op1_abs:       src1_limbs
-    // * op2_abs:       src2_limbs
+    // * op1_abs:       2 * src1_limbs
+    // * op2_abs:       2 * src2_limbs
     // * prod_imm:      2 + 2 * src1_limbs + 2 * src2_limbs
     std::size_t src1_limbs = _itemsize / 2;
     std::size_t src2_limbs = rhs._itemsize / 2;
-    std::size_t scratch_size = 2 + 3 * src1_limbs + 3 * src2_limbs;
+    std::size_t scratch_size = 2 + 4 * src1_limbs + 4 * src2_limbs;
     ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto op1_abs_begin = std::begin(scratch);
-    auto op2_abs_begin = op1_abs_begin + src1_limbs;
-    auto prod_imm_begin = op2_abs_begin + src2_limbs;
+    auto op2_abs_begin = op1_abs_begin + 2 * src1_limbs;
+    auto prod_imm_begin = op2_abs_begin + 2 * src2_limbs;
+    auto a_abs = op1_abs_begin;
+    auto b_abs = a_abs + src1_limbs;
+    auto c_abs = op2_abs_begin;
+    auto d_abs = c_abs + src2_limbs;
+    auto prod_imm_0 = prod_imm_begin;
+    auto prod_imm_1 = prod_imm_0 + src1_limbs + src2_limbs + 1;
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        complex_fixed_point_product(
-            std::begin(_data) + i * _itemsize,               // src1
-            std::begin(rhs._data) + i * rhs._itemsize,       // src2
-            std::begin(result._data) + i * result._itemsize, // dst
-            src1_limbs,                                      // src1_limbs
-            src2_limbs,                                      // src2_limbs
-            result._itemsize / 2,                            // dst_limbs
-            op1_abs_begin,                                   // op1_abs
-            op2_abs_begin,                                   // op2_abs
-            prod_imm_begin                                   // prod_imm
-        );
+    auto src1_it = std::begin(_data);
+    auto src2_it = std::begin(rhs._data);
+    auto dst = std::begin(result._data);
+    if (src1_limbs >= src2_limbs) {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            complex_fixed_point_product<true>(
+                src1_it + i * _itemsize,
+                src2_it + i * rhs._itemsize,
+                dst + i * result._itemsize,
+                src1_limbs,
+                src2_limbs,
+                result._itemsize / 2,
+                a_abs,
+                b_abs,
+                c_abs,
+                d_abs,
+                prod_imm_0,
+                prod_imm_1
+            );
+        }
+    } else {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            complex_fixed_point_product<false>(
+                src1_it + i * _itemsize,
+                src2_it + i * rhs._itemsize,
+                dst + i * result._itemsize,
+                src1_limbs,
+                src2_limbs,
+                result._itemsize / 2,
+                a_abs,
+                b_abs,
+                c_abs,
+                d_abs,
+                prod_imm_0,
+                prod_imm_1
+            );
+        }
     }
-
     return result;
 }
 
@@ -638,18 +668,34 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixedArray& rhs) const
     auto op2_abs_begin = op1_abs_begin + src1_limbs;
     auto prod_imm_begin = op2_abs_begin + src2_limbs;
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        complex_real_fixed_point_product(
-            std::begin(_data) + i * _itemsize,               // src1
-            std::begin(rhs._data) + i * rhs._itemsize,       // src2
-            std::begin(result._data) + i * result._itemsize, // dst
-            src1_limbs,                                      // src1_limbs
-            src2_limbs,                                      // src2_limbs
-            result._itemsize / 2,                            // dst_limbs
-            op1_abs_begin,                                   // op1_abs
-            op2_abs_begin,                                   // op2_abs
-            prod_imm_begin                                   // prod_imm
-        );
+    if (src1_limbs >= src2_limbs) {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            complex_real_fixed_point_product<true>(
+                std::begin(_data) + i * _itemsize,               // src1
+                std::begin(rhs._data) + i * rhs._itemsize,       // src2
+                std::begin(result._data) + i * result._itemsize, // dst
+                src1_limbs,                                      // src1_limbs
+                src2_limbs,                                      // src2_limbs
+                result._itemsize / 2,                            // dst_limbs
+                op1_abs_begin,                                   // op1_abs
+                op2_abs_begin,                                   // op2_abs
+                prod_imm_begin                                   // prod_imm
+            );
+        }
+    } else {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            complex_real_fixed_point_product<false>(
+                std::begin(_data) + i * _itemsize,               // src1
+                std::begin(rhs._data) + i * rhs._itemsize,       // src2
+                std::begin(result._data) + i * result._itemsize, // dst
+                src1_limbs,                                      // src1_limbs
+                src2_limbs,                                      // src2_limbs
+                result._itemsize / 2,                            // dst_limbs
+                op1_abs_begin,                                   // op1_abs
+                op2_abs_begin,                                   // op2_abs
+                prod_imm_begin                                   // prod_imm
+            );
+        }
     }
 
     return result;
@@ -709,27 +755,48 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
     }
 
     // Scratch data:
-    // * op1_abs:       _itemsize / 2
-    // * op2_abs:       rhs._data.size() / 2
+    // * op1_abs:       _itemsize
+    // * op2_abs:       rhs._data.size()
     // * prod_imm:      2 + _itemsize + rhs._data.size()
-    std::size_t scratch_size = 2 + (3 * _itemsize + 3 * rhs._data.size()) / 2;
+    std::size_t scratch_size = 2 + 2 * _itemsize + 2 * rhs._data.size();
     ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto op1_abs_begin = std::begin(scratch);
-    auto op2_abs_begin = op1_abs_begin + _itemsize / 2;
-    auto prod_imm_begin = op2_abs_begin + rhs._data.size() / 2;
+    auto op2_abs_begin = op1_abs_begin + _itemsize;
+    auto prod_imm_begin = op2_abs_begin + rhs._data.size();
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        complex_fixed_point_product(
-            std::begin(_data) + i * _itemsize,               // src1
-            std::begin(rhs._data),                           // src2
-            std::begin(result._data) + i * result._itemsize, // dst
-            _itemsize / 2,                                   // src1_limbs
-            rhs._data.size() / 2,                            // src2_limbs
-            result._itemsize / 2,                            // dst_limbs
-            op1_abs_begin,                                   // op1_abs
-            op2_abs_begin,                                   // op2_abs
-            prod_imm_begin                                   // prod_imm
-        );
+    const std::size_t src1_limbs = _itemsize / 2;
+    const std::size_t src2_limbs = rhs._data.size() / 2;
+    auto a_abs = op1_abs_begin;
+    auto b_abs = a_abs + src1_limbs;
+    auto c_abs = op2_abs_begin;
+    auto d_abs = c_abs + src2_limbs;
+    auto prod_imm_0 = prod_imm_begin;
+    auto prod_imm_1 = prod_imm_0 + src1_limbs + src2_limbs + 1;
+    auto multiply = [&](auto src1_ge_src2) {
+        auto src1_it = std::begin(_data);
+        auto src2_it = std::begin(rhs._data);
+        auto dst = std::begin(result._data);
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            complex_fixed_point_product<decltype(src1_ge_src2)::value>(
+                src1_it + i * _itemsize,
+                src2_it,
+                dst + i * result._itemsize,
+                src1_limbs,
+                src2_limbs,
+                result._itemsize / 2,
+                a_abs,
+                b_abs,
+                c_abs,
+                d_abs,
+                prod_imm_0,
+                prod_imm_1
+            );
+        }
+    };
+    if (src1_limbs >= src2_limbs) {
+        multiply(std::true_type {});
+    } else {
+        multiply(std::false_type {});
     }
 
     return result;
@@ -804,18 +871,34 @@ APyCFixedArray APyCFixedArray::operator*(const APyFixed& rhs) const
     auto op2_abs_begin = op1_abs_begin + src1_limbs;
     auto prod_imm_begin = op2_abs_begin + src2_limbs;
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        complex_real_fixed_point_product(
-            std::begin(_data) + i * _itemsize,               // src1
-            std::begin(rhs._data),                           // src2
-            std::begin(result._data) + i * result._itemsize, // dst
-            src1_limbs,                                      // src1_limbs
-            src2_limbs,                                      // src2_limbs
-            result._itemsize / 2,                            // dst_limbs
-            op1_abs_begin,                                   // op1_abs
-            op2_abs_begin,                                   // op2_abs
-            prod_imm_begin                                   // prod_imm
-        );
+    if (src1_limbs >= src2_limbs) {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            complex_real_fixed_point_product<true>(
+                std::begin(_data) + i * _itemsize,               // src1
+                std::begin(rhs._data),                           // src2
+                std::begin(result._data) + i * result._itemsize, // dst
+                src1_limbs,                                      // src1_limbs
+                src2_limbs,                                      // src2_limbs
+                result._itemsize / 2,                            // dst_limbs
+                op1_abs_begin,                                   // op1_abs
+                op2_abs_begin,                                   // op2_abs
+                prod_imm_begin                                   // prod_imm
+            );
+        }
+    } else {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            complex_real_fixed_point_product<false>(
+                std::begin(_data) + i * _itemsize,               // src1
+                std::begin(rhs._data),                           // src2
+                std::begin(result._data) + i * result._itemsize, // dst
+                src1_limbs,                                      // src1_limbs
+                src2_limbs,                                      // src2_limbs
+                result._itemsize / 2,                            // dst_limbs
+                op1_abs_begin,                                   // op1_abs
+                op2_abs_begin,                                   // op2_abs
+                prod_imm_begin                                   // prod_imm
+            );
+        }
     }
 
     return result;
@@ -1445,32 +1528,41 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     auto den_imm = num_imm + div_limbs;
     auto qte_imm = den_imm + 2 * src2_limbs;
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        bool den_zero = limb_vector_is_zero(
-            std::begin(rhs._data) + (i + 0) * rhs._itemsize,
-            std::begin(rhs._data) + (i + 1) * rhs._itemsize
-        );
-        if (den_zero) {
-            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
-            throw nb::python_error();
-        }
+    auto divide = [&](auto order) {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            bool den_zero = limb_vector_is_zero(
+                std::begin(rhs._data) + (i + 0) * rhs._itemsize,
+                std::begin(rhs._data) + (i + 1) * rhs._itemsize
+            );
+            if (den_zero) {
+                PyErr_SetString(
+                    PyExc_ZeroDivisionError, "fixed-point division by zero"
+                );
+                throw nb::python_error();
+            }
 
-        complex_fixed_point_division(
-            std::begin(_data) + i * _itemsize,               // src1
-            std::begin(rhs._data) + i * rhs._itemsize,       // src2
-            std::begin(result._data) + i * result._itemsize, // dst
-            src1_limbs,                                      // src1_limbs
-            src2_limbs,                                      // src2_limbs
-            dst_limbs,                                       // dst_limbs
-            rhs.bits(),                                      // src2_bits
-            div_limbs,                                       // div_limbs
-            op1_abs,                                         // op1_abs
-            op2_abs,                                         // op2_abs
-            prod_imm,                                        // prod_imm
-            den_imm,                                         // den_imm
-            num_imm,                                         // num_imm
-            qte_imm                                          // qte_imm
-        );
+            complex_fixed_point_division<decltype(order)::value>(
+                std::begin(_data) + i * _itemsize,               // src1
+                std::begin(rhs._data) + i * rhs._itemsize,       // src2
+                std::begin(result._data) + i * result._itemsize, // dst
+                src1_limbs,                                      // src1_limbs
+                src2_limbs,                                      // src2_limbs
+                dst_limbs,                                       // dst_limbs
+                rhs.bits(),                                      // src2_bits
+                div_limbs,                                       // div_limbs
+                op1_abs,                                         // op1_abs
+                op2_abs,                                         // op2_abs
+                prod_imm,                                        // prod_imm
+                den_imm,                                         // den_imm
+                num_imm,                                         // num_imm
+                qte_imm                                          // qte_imm
+            );
+        }
+    };
+    if (src1_limbs >= src2_limbs) {
+        divide(std::true_type {});
+    } else {
+        divide(std::false_type {});
     }
 
     return result;
@@ -1676,23 +1768,30 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
     auto den_imm = num_imm + div_limbs;
     auto qte_imm = den_imm + 2 * src2_limbs;
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        complex_fixed_point_division(
-            std::begin(_data) + i * _itemsize,               // src1
-            std::begin(rhs._data),                           // src2
-            std::begin(result._data) + i * result._itemsize, // dst
-            src1_limbs,                                      // src1_limbs
-            src2_limbs,                                      // src2_limbs
-            dst_limbs,                                       // dst_limbs
-            rhs.bits(),                                      // src2_bits
-            div_limbs,                                       // div_limbs
-            op1_abs,                                         // op1_abs
-            op2_abs,                                         // op2_abs
-            prod_imm,                                        // prod_imm
-            den_imm,                                         // den_imm
-            num_imm,                                         // num_imm
-            qte_imm                                          // qte_imm
-        );
+    auto divide = [&](auto order) {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            complex_fixed_point_division<decltype(order)::value>(
+                std::begin(_data) + i * _itemsize,               // src1
+                std::begin(rhs._data),                           // src2
+                std::begin(result._data) + i * result._itemsize, // dst
+                src1_limbs,                                      // src1_limbs
+                src2_limbs,                                      // src2_limbs
+                dst_limbs,                                       // dst_limbs
+                rhs.bits(),                                      // src2_bits
+                div_limbs,                                       // div_limbs
+                op1_abs,                                         // op1_abs
+                op2_abs,                                         // op2_abs
+                prod_imm,                                        // prod_imm
+                den_imm,                                         // den_imm
+                num_imm,                                         // num_imm
+                qte_imm                                          // qte_imm
+            );
+        }
+    };
+    if (src1_limbs >= src2_limbs) {
+        divide(std::true_type {});
+    } else {
+        divide(std::false_type {});
     }
 
     return result;
@@ -1948,32 +2047,41 @@ APyCFixedArray APyCFixedArray::rdiv_real(const APyFixed& lhs) const
     std::vector<apy_limb_t> lhs_complex(2 * src1_limbs, apy_limb_t(0));
     std::copy_n(std::begin(lhs._data), src1_limbs, std::begin(lhs_complex));
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        bool den_zero = limb_vector_is_zero(
-            std::begin(_data) + (i + 0) * _itemsize,
-            std::begin(_data) + (i + 1) * _itemsize
-        );
-        if (den_zero) {
-            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
-            throw nb::python_error();
-        }
+    auto divide = [&](auto order) {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            bool den_zero = limb_vector_is_zero(
+                std::begin(_data) + (i + 0) * _itemsize,
+                std::begin(_data) + (i + 1) * _itemsize
+            );
+            if (den_zero) {
+                PyErr_SetString(
+                    PyExc_ZeroDivisionError, "fixed-point division by zero"
+                );
+                throw nb::python_error();
+            }
 
-        complex_fixed_point_division(
-            std::begin(lhs_complex),                         // src1
-            std::begin(_data) + i * _itemsize,               // src2
-            std::begin(result._data) + i * result._itemsize, // dst
-            src1_limbs,                                      // src1_limbs
-            src2_limbs,                                      // src2_limbs
-            dst_limbs,                                       // dst_limbs
-            bits(),                                          // src2_bits
-            div_limbs,                                       // div_limbs
-            op1_abs,                                         // op1_abs
-            op2_abs,                                         // op2_abs
-            prod_imm,                                        // prod_imm
-            den_imm,                                         // den_imm
-            num_imm,                                         // num_imm
-            qte_imm                                          // qte_imm
-        );
+            complex_fixed_point_division<decltype(order)::value>(
+                std::begin(lhs_complex),                         // src1
+                std::begin(_data) + i * _itemsize,               // src2
+                std::begin(result._data) + i * result._itemsize, // dst
+                src1_limbs,                                      // src1_limbs
+                src2_limbs,                                      // src2_limbs
+                dst_limbs,                                       // dst_limbs
+                bits(),                                          // src2_bits
+                div_limbs,                                       // div_limbs
+                op1_abs,                                         // op1_abs
+                op2_abs,                                         // op2_abs
+                prod_imm,                                        // prod_imm
+                den_imm,                                         // den_imm
+                num_imm,                                         // num_imm
+                qte_imm                                          // qte_imm
+            );
+        }
+    };
+    if (src1_limbs >= src2_limbs) {
+        divide(std::true_type {});
+    } else {
+        divide(std::false_type {});
     }
 
     return result;
@@ -2198,32 +2306,41 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     auto den_imm = num_imm + div_limbs;
     auto qte_imm = den_imm + 2 * src2_limbs;
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        bool den_zero = limb_vector_is_zero(
-            std::begin(_data) + (i + 0) * _itemsize,
-            std::begin(_data) + (i + 1) * _itemsize
-        );
-        if (den_zero) {
-            PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
-            throw nb::python_error();
-        }
+    auto divide = [&](auto order) {
+        for (std::size_t i = 0; i < result._nitems; i++) {
+            bool den_zero = limb_vector_is_zero(
+                std::begin(_data) + (i + 0) * _itemsize,
+                std::begin(_data) + (i + 1) * _itemsize
+            );
+            if (den_zero) {
+                PyErr_SetString(
+                    PyExc_ZeroDivisionError, "fixed-point division by zero"
+                );
+                throw nb::python_error();
+            }
 
-        complex_fixed_point_division(
-            std::begin(lhs._data),                           // src1
-            std::begin(_data) + i * _itemsize,               // src2
-            std::begin(result._data) + i * result._itemsize, // dst
-            src1_limbs,                                      // src1_limbs
-            src2_limbs,                                      // src2_limbs
-            dst_limbs,                                       // dst_limbs
-            bits(),                                          // src2_bits
-            div_limbs,                                       // div_limbs
-            op1_abs,                                         // op1_abs
-            op2_abs,                                         // op2_abs
-            prod_imm,                                        // prod_imm
-            den_imm,                                         // den_imm
-            num_imm,                                         // num_imm
-            qte_imm                                          // qte_imm
-        );
+            complex_fixed_point_division<decltype(order)::value>(
+                std::begin(lhs._data),                           // src1
+                std::begin(_data) + i * _itemsize,               // src2
+                std::begin(result._data) + i * result._itemsize, // dst
+                src1_limbs,                                      // src1_limbs
+                src2_limbs,                                      // src2_limbs
+                dst_limbs,                                       // dst_limbs
+                bits(),                                          // src2_bits
+                div_limbs,                                       // div_limbs
+                op1_abs,                                         // op1_abs
+                op2_abs,                                         // op2_abs
+                prod_imm,                                        // prod_imm
+                den_imm,                                         // den_imm
+                num_imm,                                         // num_imm
+                qte_imm                                          // qte_imm
+            );
+        }
+    };
+    if (src1_limbs >= src2_limbs) {
+        divide(std::true_type {});
+    } else {
+        divide(std::false_type {});
     }
 
     return result;
@@ -2687,14 +2804,27 @@ APyCFixedArray::prod(const std::optional<PyShapeParam_t>& py_axis) const
         int bits = int_bits + frac_bits;
         std::size_t res_itemsize = 2 * bits_to_limbs(bits);
 
-        // Multiplicative fold function
-        std::size_t scratch_size = 2 + (3 * res_itemsize + 3 * _itemsize) / 2;
+        const std::size_t src_limbs = _itemsize / 2;
+        const std::size_t acc_limbs = res_itemsize / 2;
+        APyCFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
+
+        if (src_limbs == 1 && acc_limbs == 1) {
+            auto fold = fold_complex_multiply_one_limb<vector_type>();
+            return array_fold(axes, fold, init_one, bits, int_bits);
+        }
+
+        std::size_t scratch_size = 2 + 2 * res_itemsize + 2 * _itemsize;
         ScratchVector<apy_limb_t, 64> scratch(scratch_size);
-        auto fold = fold_complex_multiply<vector_type>(
-            _itemsize / 2, res_itemsize / 2, scratch
+        auto a_abs = std::begin(scratch);
+        auto b_abs = a_abs + acc_limbs;
+        auto c_abs = b_abs + acc_limbs;
+        auto d_abs = c_abs + src_limbs;
+        auto prod_imm_0 = d_abs + src_limbs;
+        auto prod_imm_1 = prod_imm_0 + acc_limbs + src_limbs + 1;
+        auto fold = fold_complex_multiply_multi_limb<vector_type>(
+            src_limbs, acc_limbs, a_abs, b_abs, c_abs, d_abs, prod_imm_0, prod_imm_1
         );
 
-        APyCFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
         return array_fold(axes, fold, init_one, bits, int_bits);
     }
 }
@@ -2722,21 +2852,50 @@ APyCFixedArray APyCFixedArray::cumprod(std::optional<nb::int_> py_axis) const
     int bits = int_bits + frac_bits;
     std::size_t res_itemsize = 2 * bits_to_limbs(bits);
 
-    // Multiplicative fold function
-    std::size_t scratch_size = 2 + (3 * res_itemsize + 3 * _itemsize) / 2;
-    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
-    auto fold
-        = fold_complex_multiply<vector_type>(_itemsize / 2, res_itemsize / 2, scratch);
+    const std::size_t src_limbs = _itemsize / 2;
+    const std::size_t acc_limbs = res_itemsize / 2;
+    const int frac_bit_shift = _bits - _int_bits;
+
+    APyCFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
+
+    if (src_limbs == 1 && acc_limbs == 1) {
+        auto post_proc_one_limb = [&](auto dst_it, std::size_t n) {
+            int shift_amnt = frac_bit_shift < 0 ? -frac_bit_shift * n
+                                                : frac_bit_shift * (n_elems - 1 - n);
+            if (unsigned(shift_amnt) >= APY_LIMB_SIZE_BITS) {
+                dst_it[0] = 0;
+                dst_it[1] = 0;
+            } else {
+                dst_it[0] <<= shift_amnt;
+                dst_it[1] <<= shift_amnt;
+            }
+        };
+        auto fold = fold_complex_multiply_one_limb<vector_type>();
+        return array_fold_cumulative(
+            axis, fold, post_proc_one_limb, init_one, bits, int_bits
+        );
+    }
 
     auto post_proc = [&](auto dst_it, std::size_t n) {
         std::size_t res_limbs = res_itemsize / 2;
-        int frac_bits = _bits - _int_bits;
-        int shift_amnt = frac_bits < 0 ? -frac_bits * n : frac_bits * (n_elems - 1 - n);
+        int shift_amnt = frac_bit_shift < 0 ? -frac_bit_shift * n
+                                            : frac_bit_shift * (n_elems - 1 - n);
         limb_vector_lsl(dst_it, dst_it + res_limbs, shift_amnt);
         limb_vector_lsl(dst_it + res_limbs, dst_it + 2 * res_limbs, shift_amnt);
     };
 
-    APyCFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
+    std::size_t scratch_size = 2 + 2 * res_itemsize + 2 * _itemsize;
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
+    auto a_abs = std::begin(scratch);
+    auto b_abs = a_abs + acc_limbs;
+    auto c_abs = b_abs + acc_limbs;
+    auto d_abs = c_abs + src_limbs;
+    auto prod_imm_0 = d_abs + src_limbs;
+    auto prod_imm_1 = prod_imm_0 + acc_limbs + src_limbs + 1;
+    auto fold = fold_complex_multiply_multi_limb<vector_type>(
+        src_limbs, acc_limbs, a_abs, b_abs, c_abs, d_abs, prod_imm_0, prod_imm_1
+    );
+
     return array_fold_cumulative(axis, fold, post_proc, init_one, bits, int_bits);
 }
 
@@ -3429,47 +3588,9 @@ APyCFixedArray::rmatmul(const APyFixedArray& lhs) const
                 thread_pool.detach_loop(0, res_cols, matmul_task);
                 thread_pool.wait();
             } else {
-                for (std::size_t i = 0; i < res_cols; i++) {
-                    matmul_task(i);
+                for (std::size_t x = 0; x < res_cols; x++) {
+                    matmul_task(x);
                 }
-            }
-
-            return RESULT_TYPE(std::in_place_type<APyCFixedArray>, std::move(res));
-        }
-    } else if (lhs.ndim() == 1 && ndim() == 2) {
-        if (lhs._shape[0] == _shape[0]) {
-            const std::size_t N = lhs._shape[0];
-            const std::size_t res_cols = _shape[1];
-            std::size_t pad_bits = N ? bit_width(N - 1) : 0;
-            std::size_t res_bits = bits() + lhs.bits() + pad_bits;
-            std::size_t res_int_bits = int_bits() + lhs.int_bits() + pad_bits;
-            auto mode = get_accumulator_mode_fixed();
-            if (mode.has_value()) {
-                res_bits = mode->bits;
-                res_int_bits = mode->int_bits;
-            }
-
-            APyCFixedArray res({ res_cols }, res_bits, res_int_bits);
-            ComplexRealFixedPointInnerProduct inner_product(
-                spec(), lhs.spec(), res.spec(), mode
-            );
-            std::vector<apy_limb_t> current_col(2 * bits_to_limbs(_bits) * _shape[0]);
-
-            for (std::size_t x = 0; x < res_cols; x++) {
-                VECTORIZE_LOOP
-                for (std::size_t row = 0; row < _shape[0]; row++) {
-                    std::copy_n(
-                        _data.begin() + (x + row * res_cols) * _itemsize,
-                        _itemsize,
-                        std::begin(current_col) + row * _itemsize
-                    );
-                }
-                inner_product(
-                    std::begin(current_col),
-                    lhs._data.begin(),
-                    res._data.begin() + x * res._itemsize,
-                    N
-                );
             }
 
             return RESULT_TYPE(std::in_place_type<APyCFixedArray>, std::move(res));
@@ -3569,33 +3690,55 @@ APyCFixedArray APyCFixedArray::outer_product(const APyCFixedArray& rhs) const
     // General case: always works but is the slowest
     //
     // Scratch data:
-    // * op1_abs:       _itemsize / 2
-    // * op2_abs:       rhs._itemsize / 2
+    // * op1_abs:       _itemsize
+    // * op2_abs:       rhs._itemsize
     // * prod_imm:      2 + _itemsize + rhs._itemsize
-    std::size_t scratch_size = 2 + (3 * _itemsize + 3 * rhs._itemsize) / 2;
+    std::size_t scratch_size = 2 + 2 * _itemsize + 2 * rhs._itemsize;
     ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto op1_abs_begin = std::begin(scratch);
-    auto op2_abs_begin = op1_abs_begin + _itemsize / 2;
-    auto prod_imm_begin = op2_abs_begin + rhs._itemsize / 2;
+    auto op2_abs_begin = op1_abs_begin + _itemsize;
+    auto prod_imm_begin = op2_abs_begin + rhs._itemsize;
     auto size = res._itemsize * rhs._shape[0];
-    for (std::size_t y = 0; y < _shape[0]; y++) {
-        const apy_limb_t* a = _data.data() + _itemsize * y;
-        const auto dst_tmp = y * size + res._data.data();
-        for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-            const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
-            auto* dst = dst_tmp + res._itemsize * x;
-            complex_fixed_point_product(
-                a,                 // src1
-                b,                 // src2
-                dst,               // dst
-                _itemsize / 2,     // src1_limbs
-                rhs._itemsize / 2, // src2_limbs
-                res._itemsize / 2, // dst_limbs
-                op1_abs_begin,     // op1_abs
-                op2_abs_begin,     // op2_abs
-                prod_imm_begin     // prod_imm
-            );
+    const std::size_t src1_limbs = _itemsize / 2;
+    const std::size_t src2_limbs = rhs._itemsize / 2;
+    auto a_abs = op1_abs_begin;
+    auto b_abs = a_abs + src1_limbs;
+    auto c_abs = op2_abs_begin;
+    auto d_abs = c_abs + src2_limbs;
+    auto prod_imm_0 = prod_imm_begin;
+    auto prod_imm_1 = prod_imm_0 + src1_limbs + src2_limbs + 1;
+    auto multiply = [&](auto src1_ge_src2) {
+        for (std::size_t y = 0; y < _shape[0]; y++) {
+            const apy_limb_t* src1_it = _data.data() + _itemsize * y;
+            const auto dst_row = y * size + res._data.data();
+            const apy_limb_t* src2_it = rhs._data.data();
+            auto* dst = dst_row;
+            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                complex_fixed_point_product<decltype(src1_ge_src2)::value>(
+                    src1_it,
+                    src2_it,
+                    dst,
+                    src1_limbs,
+                    src2_limbs,
+                    res._itemsize / 2,
+                    a_abs,
+                    b_abs,
+                    c_abs,
+                    d_abs,
+                    prod_imm_0,
+                    prod_imm_1
+                );
+                if (x + 1 < rhs._shape[0]) {
+                    src2_it += rhs._itemsize;
+                    dst += res._itemsize;
+                }
+            }
         }
+    };
+    if (src1_limbs >= src2_limbs) {
+        multiply(std::true_type {});
+    } else {
+        multiply(std::false_type {});
     }
 
     return res;

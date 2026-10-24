@@ -1572,23 +1572,45 @@ APyFixedArray APyFixedArray::outer_product(const APyFixedArray& rhs) const
     ScratchVector<apy_limb_t, 8> op2_abs(rhs._itemsize);
     ScratchVector<apy_limb_t, 16> prod_abs(_itemsize + rhs._itemsize);
     const auto size = rhs._shape[0] * res._itemsize;
-    for (std::size_t y = 0; y < _shape[0]; y++) {
-        const apy_limb_t* a = _data.data() + _itemsize * y;
-        const auto dst_tmp = y * size + res._data.data();
-        for (std::size_t x = 0; x < rhs._shape[0]; x++) {
-            const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
-            auto* dst = dst_tmp + res._itemsize * x;
-            fixed_point_product(
-                a,                   // src1
-                b,                   // src2
-                dst,                 // dst
-                _itemsize,           // src1_limbs
-                rhs._itemsize,       // src2_limbs
-                res._itemsize,       // dst_limbs
-                std::begin(op1_abs), // op1_abs
-                std::begin(op2_abs), // op2_abs
-                std::begin(prod_abs) // prod_abs
-            );
+    if (_itemsize >= rhs._itemsize) {
+        for (std::size_t y = 0; y < _shape[0]; y++) {
+            const apy_limb_t* a = _data.data() + _itemsize * y;
+            const auto dst_tmp = y * size + res._data.data();
+            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
+                auto* dst = dst_tmp + res._itemsize * x;
+                fixed_point_product<true>(
+                    a,                   // src1
+                    b,                   // src2
+                    dst,                 // dst
+                    _itemsize,           // src1_limbs
+                    rhs._itemsize,       // src2_limbs
+                    res._itemsize,       // dst_limbs
+                    std::begin(op1_abs), // op1_abs
+                    std::begin(op2_abs), // op2_abs
+                    std::begin(prod_abs) // prod_abs
+                );
+            }
+        }
+    } else {
+        for (std::size_t y = 0; y < _shape[0]; y++) {
+            const apy_limb_t* a = _data.data() + _itemsize * y;
+            const auto dst_tmp = y * size + res._data.data();
+            for (std::size_t x = 0; x < rhs._shape[0]; x++) {
+                const apy_limb_t* b = rhs._data.data() + rhs._itemsize * x;
+                auto* dst = dst_tmp + res._itemsize * x;
+                fixed_point_product<false>(
+                    a,                   // src1
+                    b,                   // src2
+                    dst,                 // dst
+                    _itemsize,           // src1_limbs
+                    rhs._itemsize,       // src2_limbs
+                    res._itemsize,       // dst_limbs
+                    std::begin(op1_abs), // op1_abs
+                    std::begin(op2_abs), // op2_abs
+                    std::begin(prod_abs) // prod_abs
+                );
+            }
         }
     }
 
