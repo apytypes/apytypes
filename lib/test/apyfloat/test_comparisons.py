@@ -27,10 +27,13 @@ def test_comparisons_with_floats():
     assert not a < 0
     assert not a <= 0
     assert a != 0
+    assert not a.is_identical(0.5)
 
     a = APyFloat.from_float(0.0, 3, 3)
     assert a == 0
     assert a == 0.0
+    assert not a.is_identical(0)
+    assert not a.is_identical(0.0)
 
 
 @pytest.mark.float_comp
@@ -68,6 +71,9 @@ def test_comparisons_with_apyfixed():
     )
     assert not (
         APyFloat.from_float(float("nan"), 4, 3) < APyFixed.from_float(1000, 16, 16)
+    )
+    assert not (  # noqa: SIM201
+        APyFloat.from_float(float("inf"), 4, 3) == APyFixed.from_float(1000, 16, 16)
     )
 
     assert APyFloat.from_float(float("-inf"), 4, 3) < APyFixed.from_float(1000, 16, 16)

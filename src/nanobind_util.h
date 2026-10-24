@@ -6,7 +6,7 @@
 #include <functional>
 #include <optional>
 
-inline void apply_fixed_spec(
+APY_INLINE void apply_fixed_spec(
     const nb::object& spec,
     std::optional<int>& int_bits,
     std::optional<int>& frac_bits,
@@ -29,7 +29,7 @@ inline void apply_fixed_spec(
 }
 
 template <typename Bias>
-inline void apply_float_spec(
+APY_INLINE void apply_float_spec(
     const nb::object& spec,
     std::optional<int>& exp_bits,
     std::optional<int>& man_bits,
@@ -53,7 +53,7 @@ inline void apply_float_spec(
     bias = nb::cast<Bias>(spec.attr("bias"));
 }
 
-inline void require_float_bit_spec(
+APY_INLINE void require_float_bit_spec(
     const std::optional<int>& exp_bits, const std::optional<int>& man_bits
 )
 {

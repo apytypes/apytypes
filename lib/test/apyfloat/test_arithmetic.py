@@ -75,6 +75,20 @@ def test_add_representable(
 
 
 @pytest.mark.float_add
+@pytest.mark.parametrize(
+    "rhs",
+    [
+        pytest.param(APyFloat.from_float(2.5, exp_bits=5, man_bits=5), id="apyfloat"),
+        pytest.param(2.5, id="python-float"),
+    ],
+)
+def test_add_inplace(rhs: APyFloat | float):
+    lhs = APyFloat.from_float(1.25, exp_bits=5, man_bits=5)
+    lhs += rhs
+    assert float(lhs) == 3.75
+
+
+@pytest.mark.float_add
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 def test_add_overflow(apyfloat: type[APyCFloat]):
     """Test that an addition can overflow."""
@@ -668,7 +682,8 @@ def test_add_mixed_bias_underflow(apyfloat: type[APyCFloat]):
 @pytest.mark.parametrize("man_bits", [10, 60])
 @pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
 @pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
-@pytest.mark.parametrize("sign", [1, -1])
+@pytest.mark.parametrize("sign_x", [1, -1])
+@pytest.mark.parametrize("sign_y", [1, -1])
 def test_mul_special_cases(
     apyfloat: type[APyCFloat],
     py_type: type[complex],
@@ -676,15 +691,19 @@ def test_mul_special_cases(
     man_bits: int,
     x: float,
     y: float,
-    sign: int,
+    sign_x: int,
+    sign_y: int,
 ):
     """
-    Test the special cases for addition. String assertions make sure that 'nan' == 'nan'
+    Test the special cases for multiplication. String assertions make sure that
+    'nan' == 'nan'
     holds true, which is not the case for floating-points in general.
     """
-    a = apyfloat.from_float(x, exp_bits=exp_bits, man_bits=man_bits)
-    b = apyfloat.from_float(sign * y, exp_bits=exp_bits, man_bits=man_bits)
-    assert str(py_type(a * b)) == str(py_type(x) * py_type(sign * y))
+    signed_x = sign_x * x
+    signed_y = sign_y * y
+    a = apyfloat.from_float(signed_x, exp_bits=exp_bits, man_bits=man_bits)
+    b = apyfloat.from_float(signed_y, exp_bits=exp_bits, man_bits=man_bits)
+    assert str(py_type(a * b)) == str(py_type(signed_x) * py_type(signed_y))
 
 
 @pytest.mark.float_mul
@@ -863,10 +882,17 @@ def test_div_underflow(apyfloat: type[APyCFloat]):
 
 @pytest.mark.float_div
 @pytest.mark.parametrize(("apyfloat", "py_type"), [(APyFloat, float)])
-@pytest.mark.parametrize("x", [0, 1, float("inf"), float("nan")])
-@pytest.mark.parametrize("y", [0, 1, float("inf"), float("nan")])
+@pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
+@pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
+@pytest.mark.parametrize("sign_x", [1, -1])
+@pytest.mark.parametrize("sign_y", [1, -1])
 def test_div_special_cases(
-    apyfloat: type[APyCFloat], py_type: type[complex], x: int, y: int
+    apyfloat: type[APyCFloat],
+    py_type: type[complex],
+    x: float,
+    y: float,
+    sign_x: int,
+    sign_y: int,
 ):
     """
     Test the special cases for division.
@@ -874,18 +900,22 @@ def test_div_special_cases(
     Complex-valued floating-point numbers need special treatment and are tested in:
     'lib/apycfloat/test_arithmetic.py'
     """
-    num = apyfloat.from_float(x, exp_bits=4, man_bits=4)
-    den = apyfloat.from_float(y, exp_bits=4, man_bits=4)
+    signed_x = sign_x * x
+    signed_y = sign_y * y
+    num = apyfloat.from_float(signed_x, exp_bits=4, man_bits=4)
+    den = apyfloat.from_float(signed_y, exp_bits=4, man_bits=4)
     s = str(num / den)
     try:
-        assert s == str(apyfloat.from_float(py_type(x) / py_type(y), 4, 4))
+        assert s == str(
+            apyfloat.from_float(py_type(signed_x) / py_type(signed_y), 4, 4)
+        )
     except ZeroDivisionError:
-        if x == 1 or x == float("inf"):
-            ref = "inf"
-            assert s == ref
-        else:
+        if signed_x == 0 or math.isnan(signed_x):
             ref = "nan"
-            assert s == ref
+        else:
+            result_sign = math.copysign(1.0, signed_x) * math.copysign(1.0, signed_y)
+            ref = str(math.copysign(float("inf"), result_sign))
+        assert s == ref
 
 
 @pytest.mark.float_div
