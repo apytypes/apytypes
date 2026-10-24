@@ -1766,28 +1766,7 @@ template <
     std::array<apy_limb_t, MAN_LIMBS> man {};
 
 #if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
-    /*
-     * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
-     * (ICC).
-     */
-    __uint128_t product = __uint128_t(mx) * __uint128_t(my);
-    man[0] = std::uint64_t(product);
-    man[1] = std::uint64_t(product >> COMPILER_LIMB_SIZE);
-#elif defined(_MSC_VER)
-    man[0] = _umul128(mx, my, &man[1]);
-#else
-    // No 128-bit multiplication intrinsic found. We could implement this function,
-    // but fail for now so we can clearly see which systems are missing out on these
-    // intrinsics.
-    static_assert(
-        false,
-        "_floating_point_mul_general(): No intrinsic available on your compiler. "
-        "Please open an issue at https://github.com/apytypes/apytypes/issues with "
-        "information about the compiler and platform and we will be happy to add "
-        "support for it."
-    );
-#endif
+    std::tie(man[1], man[0]) = long_unsigned_mult(mx, my);
 #elif (COMPILER_LIMB_SIZE == 32)
     const APyFixed apy_mx(2 + src1_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
     const APyFixed apy_my(2 + src2_spec.man_bits, 2, { UINT64_TO_LIMB(my) });
