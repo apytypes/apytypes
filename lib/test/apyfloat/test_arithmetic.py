@@ -185,6 +185,21 @@ def test_sub_mixed_bias(apyfloat: type[APyCFloat]):
     )
 
 
+@pytest.mark.float_sub
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("reverse_operands", [False, True])
+def test_sub_mixed_bias_subnormal_residual(
+    apyfloat: type[APyCFloat], reverse_operands: bool
+):
+    lhs = apyfloat(0, 0, 1 << 58, 5, 61, bias=14)
+    rhs = apyfloat(0, 0, (1 << 60) - 2, 5, 61, bias=16)
+    if reverse_operands:
+        lhs, rhs = rhs, lhs
+
+    expected = apyfloat(reverse_operands, 0, 1, 5, 61, bias=15)
+    assert (lhs - rhs).is_identical(expected)
+
+
 @pytest.mark.float_add
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 def test_add_mixed_bias_overflow(apyfloat: type[APyCFloat]):
@@ -278,6 +293,27 @@ def test_long_add(apyfloat: type[APyCFloat]):
     res = x + y
     assert res.is_identical(apyfloat(sign=0, exp=1, man=0, exp_bits=11, man_bits=61))
 
+    # Addition carry with the largest supported mantissa width
+    x = apyfloat(sign=0, exp=15, man=1 << 60, exp_bits=5, man_bits=61)
+    res = x + x
+    assert res.is_identical(
+        apyfloat(sign=0, exp=16, man=1 << 60, exp_bits=5, man_bits=61)
+    )
+
+    # Subtraction with a one-bit residual, which normalizes into a subnormal
+    x = apyfloat(sign=0, exp=16, man=0, exp_bits=5, man_bits=61)
+    y = apyfloat(sign=0, exp=15, man=(1 << 61) - 1, exp_bits=5, man_bits=61)
+    res = x - y
+    assert res.is_identical(
+        apyfloat(sign=0, exp=0, man=1 << 14, exp_bits=5, man_bits=61)
+    )
+
+    # A normal and subnormal with the same stored mantissa are not equal
+    x = apyfloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=61)
+    y = apyfloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=61)
+    res = x - y
+    assert res.is_identical(apyfloat(sign=0, exp=1, man=0, exp_bits=5, man_bits=61))
+
     # Mixed formats. 1.75 + (-5) = -3.25
     x = apyfloat(sign=0, exp=7, man=6, exp_bits=4, man_bits=3)
     y = apyfloat(sign=1, exp=1025, man=0x4000000000000 << 8, exp_bits=11, man_bits=60)
@@ -327,6 +363,113 @@ def test_long_add(apyfloat: type[APyCFloat]):
     y = apyfloat(1, 1046, 1232143, 11, 60)
     res = x + y
     assert res.is_identical(apyfloat(0, 0, 0, 11, 60))
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_add_61_bit_hidden_carry(apyfloat: type[APyCFloat]):
+    one = apyfloat(sign=0, exp=15, man=0, exp_bits=5, man_bits=61)
+    two = apyfloat(sign=0, exp=16, man=0, exp_bits=5, man_bits=61)
+
+    assert (one + one).is_identical(two)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_add_general_bias_overflow(apyfloat: type[APyCFloat]):
+    value = apyfloat(0, 30, 0, 5, 61, bias=0)
+    zero = apyfloat(0, 0, 0, 5, 61, bias=30)
+    infinity = apyfloat(0, 31, 0, 5, 61, bias=15)
+
+    assert (value + zero).is_identical(infinity)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_add_general_aligned_cancellation(apyfloat: type[APyCFloat]):
+    lhs = apyfloat(0, 0, 1 << 59, 5, 61, bias=14)
+    rhs = apyfloat(1, 0, 1 << 60, 5, 61, bias=15)
+    zero = apyfloat(0, 0, 0, 5, 61, bias=14)
+
+    assert (lhs + rhs).is_identical(zero)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_add_general_zero_exponent_scaling(apyfloat: type[APyCFloat]):
+    value = apyfloat(0, 1, 0, 5, 61, bias=16)
+    zero = apyfloat(0, 0, 0, 5, 61, bias=14)
+    expected = apyfloat(0, 0, 1 << 60, 5, 61, bias=15)
+
+    assert (value + zero).is_identical(expected)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_add_general_subnormal_shift_boundary(apyfloat: type[APyCFloat]):
+    lhs = apyfloat(0, 1, 1, 5, 61)
+    rhs = apyfloat(1, 1, 0, 5, 61)
+    expected = apyfloat(0, 0, 1, 5, 61)
+
+    assert (lhs + rhs).is_identical(expected)
+
+
+@pytest.mark.float_add
+@pytest.mark.float_sub
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("operation", ["add", "sub"])
+@pytest.mark.parametrize("exp_gap", [63, 64, 65])
+def test_add_subtract_sticky_alignment_boundaries(
+    apyfloat: type[APyCFloat], operation: str, exp_gap: int
+):
+    lhs = apyfloat(0, 100, 0, exp_bits=8, man_bits=61)
+    rhs = apyfloat(0, 100 - exp_gap, 0, exp_bits=8, man_bits=61)
+
+    result = lhs + rhs if operation == "add" else lhs - rhs
+    assert result.is_identical(lhs)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("reverse_operands", [False, True])
+@pytest.mark.parametrize(
+    (
+        "lhs_bias",
+        "lhs_man_bits",
+        "lhs_man",
+        "rhs_bias",
+        "rhs_man_bits",
+        "rhs_sign",
+        "rhs_man",
+        "expected_man",
+    ),
+    [
+        (14, 61, 1 << 58, 16, 61, 0, 1 << 60, 1 << 60),
+        (14, 61, 1 << 58, 16, 61, 1, 1 << 60, 0),
+        (14, 61, 1 << 58, 16, 61, 1, (1 << 60) - 2, 1),
+        (14, 60, 1 << 57, 16, 61, 0, 1 << 60, 1 << 60),
+        (14, 60, 1 << 57, 16, 61, 1, (1 << 60) - 2, 1),
+    ],
+)
+def test_add_subnormals_with_different_bias(
+    apyfloat: type[APyCFloat],
+    reverse_operands: bool,
+    lhs_bias: int,
+    lhs_man_bits: int,
+    lhs_man: int,
+    rhs_bias: int,
+    rhs_man_bits: int,
+    rhs_sign: int,
+    rhs_man: int,
+    expected_man: int,
+):
+    lhs = apyfloat(0, 0, lhs_man, 5, lhs_man_bits, bias=lhs_bias)
+    rhs = apyfloat(rhs_sign, 0, rhs_man, 5, rhs_man_bits, bias=rhs_bias)
+    if reverse_operands:
+        lhs, rhs = rhs, lhs
+
+    expected = apyfloat(0, 0, expected_man, 5, 61, bias=15)
+    assert (lhs + rhs).is_identical(expected)
 
 
 # Subtraction

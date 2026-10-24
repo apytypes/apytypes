@@ -720,31 +720,8 @@ template <typename QNTZ_FUNC_SIGNATURE>
 )
 {
     // Adjust the exponent and mantissa if converting from a subnormal
-    man_t new_man;
-    std::int64_t new_exp;
-    if (src.exp == 0) {
-        if (src.man == 0) {
-            return { src.sign, 0, 0 };
-        }
-        const exp_t subn_adjustment = count_trailing_bits(src.man);
-        const std::int64_t left_shift_amount = src_man_bits - subn_adjustment;
-        if (1 < left_shift_amount) {
-            // The result remains subnormal
-            new_man = src.man << 1;
-            new_exp = 0;
-        } else {
-            // The result becomes normal
-            new_man = src.man << left_shift_amount;
-            new_man &= (1ULL << src_man_bits) - 1;
-            new_exp = std::int64_t(1) - left_shift_amount;
-        }
-    } else {
-        new_man = src.man;
-        new_exp = std::int64_t(src.exp);
-    }
-
-    new_man <<= dst_man_bits - src_man_bits;
-    return { src.sign, exp_t(new_exp), new_man };
+    const std::uint8_t man_bits_delta = dst_man_bits - src_man_bits;
+    return { src.sign, src.exp, src.man << man_bits_delta };
 }
 
 //! Cast a floating-point number when it is known that no quantization happens
@@ -1452,6 +1429,78 @@ template <
     return;
 }
 
+[[maybe_unused]] static APY_INLINE void _floating_point_add_general_weighted(
+    APyFloatData& z,
+    const man_t mx,
+    const man_t my,
+    const bool same_sign,
+    const bool x_sign,
+    const APyFloatSpec& dst_spec,
+    const exp_t RES_MAX_EXP,
+    const std::int64_t exp_delta,
+    std::int64_t new_exp
+)
+{
+    // Weighted rounding depends on the discarded tail's magnitude, so retain it in
+    // APyFixed.
+    const std::int64_t x_exp_delta = std::min<std::int64_t>(exp_delta, 0);
+    const std::int64_t y_exp_delta = std::max<std::int64_t>(exp_delta, 0);
+    const APyFixed apy_mx(
+        2 + dst_spec.man_bits, 2 + x_exp_delta, { UINT64_TO_LIMB(mx) }
+    );
+    const APyFixed apy_my(
+        2 + dst_spec.man_bits, 2 - y_exp_delta, { UINT64_TO_LIMB(my) }
+    );
+
+    // Perform addition/subtraction
+    auto apy_res = same_sign ? apy_mx + apy_my : apy_mx - apy_my;
+
+    if (apy_res.positive_greater_than_equal_pow2(1)) {
+        new_exp++;
+        apy_res >>= 1;
+    } else {
+        // Check for cancellation by counting the number of left shifts needed
+        // to make fx>=1.0
+        const unsigned leading_zeros = leading_zeros_apyfixed(apy_res);
+        if (leading_zeros) {
+            if (new_exp > leading_zeros) {
+                new_exp -= leading_zeros;
+                apy_res <<= leading_zeros;
+            } else {
+                // The result will be a subnormal
+                // -1 is for compensating that 1.xx is not desired here
+                apy_res <<= int(new_exp - 1);
+                new_exp = 0;
+            }
+        }
+    }
+
+    // Quantize mantissa
+    quantize_apymantissa(
+        apy_res, x_sign, dst_spec.man_bits, QuantizationMode::STOCH_WEIGHTED
+    );
+
+    // Carry from quantization. In practice, the exponent will never be
+    // incremented twice
+    if (apy_res.positive_greater_than_equal_pow2(1)) {
+        new_exp++;
+        apy_res >>= 1;
+    }
+
+    // Check for overflow
+    if (new_exp >= RES_MAX_EXP) {
+        z = { x_sign, RES_MAX_EXP, 0 };
+        return;
+    }
+
+    // Remove leading one
+    if (apy_res.positive_greater_than_equal_pow2(0)) {
+        apy_res = apy_res - FX_ONE;
+    }
+
+    z = { x_sign, exp_t(new_exp), apy_res.get_lsbs() };
+}
+
 //! Floating-point addition of `src1` and `src2` for when`_floating_point_add_same_wl`
 //! or `_floating_point_sum_diff_wl` can't be used. Works in all cases, but is the
 //! slowest.
@@ -1523,78 +1572,123 @@ template <
 
     const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
     const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
-    const std::uint64_t exp_delta = x_true_exp - y_true_exp;
+    const std::int64_t exp_delta = x_true_exp - y_true_exp;
 
-    if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
+    const man_t mx = true_man(x_wide, dst_spec);
+    const man_t my = true_man(y_wide, dst_spec);
+
+    if (!same_sign && !floating_point_less_than_abs(x, x_spec, y, y_spec)
+        && !floating_point_less_than_abs(y, y_spec, x, x_spec)) {
         man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
         z = { qntz == QuantizationMode::TRN, 0, res_man };
         return;
     }
 
-    exp_t new_exp = x_true_exp + dst_spec.bias;
+    std::int64_t new_exp = std::max(x_true_exp, y_true_exp) + dst_spec.bias;
     if (new_exp > RES_MAX_EXP) {
-        const exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
+        const exp_t exp = new_exp < 0 ? 0 : RES_MAX_EXP;
         const man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
         z = { x_sign, exp, res_man };
         return;
     }
 
-    man_t mx = true_man(x_wide, dst_spec);
-    man_t my = true_man(y_wide, dst_spec);
+    if (qntz == QuantizationMode::STOCH_WEIGHTED) {
+        _floating_point_add_general_weighted(
+            z, mx, my, same_sign, x_sign, dst_spec, RES_MAX_EXP, exp_delta, new_exp
+        );
+        return;
+    }
 
-    const APyFixed apy_mx(2 + dst_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
-    const APyFixed apy_my(2 + dst_spec.man_bits, 2 - exp_delta, { UINT64_TO_LIMB(my) });
+    // The single-word path handles all remaining rounding modes.
+    // Keep two rounding bits in the word; jam discarded tail bits into bit 0.
 
-    // Perform addition/subtraction
-    auto apy_res = same_sign ? apy_mx + apy_my : apy_mx - apy_my;
+    // Preserve whether any nonzero bits were shifted out.
+    const auto shift_right_sticky = [](man_t value, std::uint64_t shift) -> man_t {
+        if (shift == 0) {
+            return value;
+        }
+        if (shift >= _MAN_T_SIZE_BITS) {
+            return man_t(value != 0);
+        }
 
-    if (apy_res.positive_greater_than_equal_pow2(1)) {
-        new_exp++;
-        apy_res >>= 1;
+        const unsigned shift_bits = static_cast<unsigned>(shift);
+        const bool sticky = (value << (_MAN_T_SIZE_BITS - shift_bits)) != 0;
+        return (value >> shift_bits) | man_t(sticky);
+    };
+
+    // Bit 1 is the guard bit and bit 0 is available for the sticky bit.
+    const man_t mx_extended = mx << 2;
+    const man_t my_extended = my << 2;
+    const man_t mx_aligned = exp_delta < 0
+        ? shift_right_sticky(mx_extended, static_cast<std::uint64_t>(-exp_delta))
+        : mx_extended;
+    const man_t my_aligned = exp_delta > 0
+        ? shift_right_sticky(my_extended, static_cast<std::uint64_t>(exp_delta))
+        : my_extended;
+
+    // Perform addition or subtraction of aligned mantissas based on the sign of the
+    // operands.
+    man_t new_man;
+    bool carry_out = false;
+    if (same_sign) {
+        new_man = mx_aligned + my_aligned;
+        carry_out = new_man < mx_aligned;
     } else {
-        // Check for cancellation by counting the number of left shifts needed
-        // to make fx>=1.0
-        const unsigned leading_zeros = leading_zeros_apyfixed(apy_res);
-        if (leading_zeros) {
-            if (new_exp > leading_zeros) {
-                new_exp -= leading_zeros;
-                apy_res <<= leading_zeros;
-            } else {
-                // The result will be a subnormal
-                // -1 is for compensating that 1.xx is not desired here
-                apy_res <<= int(new_exp - 1);
-                new_exp = 0;
-            }
-        }
+        new_man = mx_aligned - my_aligned;
     }
 
-    // Quantize mantissa
-    quantize_apymantissa(apy_res, x_sign, dst_spec.man_bits, qntz);
+    if (new_man == 0 && !carry_out) {
+        const man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
+        const bool res_sign = qntz == QuantizationMode::TRN;
+        z = { res_sign, 0, res_man };
+        return;
+    }
 
-    // Carry from quantization. In practice, the exponent will never be
-    // incremented twice
-    if (apy_res.positive_greater_than_equal_pow2(1)) {
+    // Keep the implicit leading bit separate from the stored mantissa bits.
+    const man_t hidden_bit = man_t(1) << (dst_spec.man_bits + 2);
+    const man_t result_msb = man_t(1) << dst_spec.man_bits;
+    bool carry = carry_out;
+    if (!carry && static_cast<std::size_t>(dst_spec.man_bits) + 3 < _MAN_T_SIZE_BITS) {
+        carry = (new_man & (man_t(1) << (dst_spec.man_bits + 3))) != 0;
+    }
+
+    if (carry) {
+        // The widest format can carry beyond bit 63; restore that bit after shifting.
+        new_man = shift_right_sticky(new_man, 1);
+        if (carry_out) {
+            new_man |= man_t(1) << (_MAN_T_SIZE_BITS - 1);
+        }
         new_exp++;
-        apy_res >>= 1;
     }
 
-    // Check for overflow
-    if (new_exp >= RES_MAX_EXP) {
-        if (do_infinity(qntz, x_sign)) {
-            z = { x_sign, RES_MAX_EXP, 0 };
-            return;
+    // Normalize cancellation results, or scale them to exponent-zero subnormal units.
+    if (new_exp <= 0) {
+        new_man = shift_right_sticky(new_man, static_cast<std::uint64_t>(1 - new_exp));
+        new_exp = 0;
+    } else if (new_man < hidden_bit) {
+        const std::size_t normalization_shift
+            = dst_spec.man_bits + 3 - bit_width(new_man);
+        if (new_exp > static_cast<std::int64_t>(normalization_shift)) {
+            new_man <<= static_cast<unsigned>(normalization_shift);
+            new_exp -= static_cast<exp_t>(normalization_shift);
         } else {
-            z = { x_sign, RES_MAX_EXP - 1, (1ULL << dst_spec.man_bits) - 1 };
-            return;
+            // Subnormals use an exponent one below the minimum normal exponent.
+            const std::int64_t subnormal_shift = static_cast<std::int64_t>(new_exp) - 1;
+            if (subnormal_shift > 0) {
+                new_man <<= static_cast<unsigned>(subnormal_shift);
+            } else if (subnormal_shift < 0) {
+                new_man = shift_right_sticky(new_man, -subnormal_shift);
+            }
+            new_exp = 0;
         }
     }
 
-    // Remove leading one
-    if (apy_res.positive_greater_than_equal_pow2(0)) {
-        apy_res = apy_res - FX_ONE;
-    }
-
-    z = { x_sign, exp_t(new_exp), apy_res.get_lsbs() };
+    // Remove the implicit bit before rounding the stored mantissa.
+    new_man &= hidden_bit - 1;
+    exp_t result_exp = exp_t(new_exp);
+    auto qntz_func = get_qntz_func(qntz);
+    qntz_func(new_man, result_exp, RES_MAX_EXP, 2, x_sign, result_msb, 1);
+    z = { x_sign, result_exp, new_man };
     return;
 }
 
