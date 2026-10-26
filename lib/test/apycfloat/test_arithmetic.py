@@ -18,7 +18,7 @@ def is_identical_or_nan(x: APyCFloat, y: APyCFloat):
     y: :class:`APyCFloat`
         The second apytypes complex floating-point value.
     """
-    if x.real.is_nan or x.imag.is_nan or y.imag.is_nan or x.imag.is_nan:
+    if x.real.is_nan or x.imag.is_nan or y.real.is_nan or y.imag.is_nan:
         if x.real.is_nan != y.real.is_nan or x.imag.is_nan != y.imag.is_nan:
             return False
         else:
@@ -64,6 +64,12 @@ def complex_division_double_precision(z: complex, w: complex) -> complex:
     return complex(e, f)
 
 
+def complex_multiplication_double_precision(z: complex, w: complex) -> complex:
+    """Perform complex multiplication using its component-wise formula."""
+    a, b, c, d = z.real, z.imag, w.real, w.imag
+    return complex(a * c - b * d, a * d + b * c)
+
+
 @pytest.mark.float_div
 @pytest.mark.parametrize(
     ("num_val", "den_val"),
@@ -91,16 +97,20 @@ def test_div_recover_infs_and_nans(num_val: complex, den_val: complex):
         )
 
 
+@pytest.mark.float_div
 @pytest.mark.parametrize(
-    "num_real", [0.0, 1.0, -2.0, float("inf"), float("-inf"), float("nan")]
+    "num_real", [0.0, -0.0, 1.0, -2.0, float("inf"), float("-inf"), float("nan")]
 )
 @pytest.mark.parametrize(
-    "num_imag", [0.0, 1.0, -2.0, float("inf"), float("-inf"), float("nan")]
+    "num_imag", [0.0, -0.0, 1.0, -2.0, float("inf"), float("-inf"), float("nan")]
 )
 @pytest.mark.parametrize("den_real", [0.0, -0.0])
-def test_div_with_zero(num_real: float, num_imag: float, den_real: float):
-    num = APyCFloat.from_complex(num_real + 1j * num_imag, exp_bits=11, man_bits=52)
-    den = APyCFloat.from_complex(den_real, exp_bits=11, man_bits=52)
+@pytest.mark.parametrize("den_imag", [0.0, -0.0])
+def test_div_with_zero(
+    num_real: float, num_imag: float, den_real: float, den_imag: float
+):
+    num = APyCFloat.from_complex(complex(num_real, num_imag), exp_bits=11, man_bits=52)
+    den = APyCFloat.from_complex(complex(den_real, den_imag), exp_bits=11, man_bits=52)
     res = num / den
 
     if num.real.is_zero or num.real.is_nan:
@@ -114,6 +124,52 @@ def test_div_with_zero(num_real: float, num_imag: float, den_real: float):
     else:
         assert res.imag.is_inf
         assert res.imag.sign == (num.imag.sign ^ den.real.sign)
+
+
+@pytest.mark.float_mul
+@pytest.mark.parametrize(
+    ("lhs_val", "rhs_val"),
+    list(
+        product(
+            [
+                complex(re, im)
+                for re, im in product(
+                    [0.0, -0.0, 1.0, -1.0, float("inf"), float("-inf"), float("nan")],
+                    repeat=2,
+                )
+            ],
+            repeat=2,
+        )
+    ),
+)
+def test_mul_recover_infs_and_nans(lhs_val: complex, rhs_val: complex):
+    lhs = APyCFloat.from_complex(lhs_val, exp_bits=11, man_bits=52)
+    rhs = APyCFloat.from_complex(rhs_val, exp_bits=11, man_bits=52)
+    expected = complex_multiplication_double_precision(lhs_val, rhs_val)
+    assert is_identical_or_nan(
+        lhs * rhs, APyCFloat.from_complex(expected, exp_bits=11, man_bits=52)
+    )
+
+
+@pytest.mark.float_mul
+def test_mul_subnormal_inputs_and_results():
+    tiny = APyCFloat(sign=(0, 0), exp=(0, 0), man=(2, 1), exp_bits=5, man_bits=4)
+    one_plus_i = APyCFloat(
+        sign=(0, 0), exp=(15, 15), man=(0, 0), exp_bits=5, man_bits=4
+    )
+
+    assert tiny.real.is_subnormal
+    assert tiny.imag.is_subnormal
+
+    result = tiny * one_plus_i
+    expected = APyCFloat(sign=(0, 0), exp=(0, 0), man=(1, 3), exp_bits=5, man_bits=4)
+    assert result.is_identical(expected)
+    assert result.real.is_subnormal
+    assert result.imag.is_subnormal
+
+    underflow = tiny * tiny
+    assert underflow.real.is_zero
+    assert underflow.imag.is_zero
 
 
 @pytest.mark.float_div
@@ -151,6 +207,35 @@ def test_subnormal_quant_div(apyfloat: type[APyCFloat]):
     assert res.is_identical(
         apyfloat(sign=(0, 1), exp=(1, 0), man=(0, 0), exp_bits=11, man_bits=52)
     )
+
+
+@pytest.mark.float_div
+def test_div_subnormal_inputs_and_results():
+    tiny = APyCFloat(sign=(0, 0), exp=(0, 0), man=(2, 1), exp_bits=5, man_bits=4)
+    half_plus_half_i = APyCFloat(
+        sign=(0, 0), exp=(14, 14), man=(0, 0), exp_bits=5, man_bits=4
+    )
+
+    assert tiny.real.is_subnormal
+    assert tiny.imag.is_subnormal
+
+    result = tiny / half_plus_half_i
+    expected = APyCFloat(sign=(0, 1), exp=(0, 0), man=(3, 1), exp_bits=5, man_bits=4)
+    assert result.is_identical(expected)
+    assert result.real.is_subnormal
+    assert result.imag.is_subnormal
+
+    subnormal_denominator = APyCFloat(
+        sign=(0, 0), exp=(0, 0), man=(1, 0), exp_bits=5, man_bits=4
+    )
+    assert subnormal_denominator.real.is_subnormal
+    normalized = tiny / subnormal_denominator
+    expected_normal = APyCFloat(
+        sign=(0, 0), exp=(16, 15), man=(0, 0), exp_bits=5, man_bits=4
+    )
+    assert normalized.is_identical(expected_normal)
+    assert normalized.real.is_normal
+    assert normalized.imag.is_normal
 
 
 @pytest.mark.float_div

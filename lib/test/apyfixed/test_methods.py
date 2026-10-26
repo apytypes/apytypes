@@ -206,6 +206,11 @@ def test_to_float():
     assert float(fxp_float_min - 2 ** (1023 - 53) - 1) == float("-inf")
 
 
+def test_to_float_direct_edges():
+    assert float(APyFixed(1, bits=64, int_bits=-959)) == 1.1125369292536007e-308
+    assert float(APyFixed((1 << 54) - 1, bits=55, int_bits=55)) == float(1 << 54)
+
+
 def test_from_float():
     ##
     # Positive subnormals
