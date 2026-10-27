@@ -126,6 +126,72 @@ def test_add_subnormals(apyfloat: type[APyCFloat]):
 
 @pytest.mark.float_add
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("man_bits", [17, 61])
+@pytest.mark.parametrize(
+    ("lhs_bias", "rhs_bias", "result_bias"), [(14, 15, 14), (10, 15, 12)]
+)
+def test_add_general_aligned_cancellation_both_subnormal(
+    apyfloat: type[APyFloat | APyCFloat],
+    man_bits: int,
+    lhs_bias: int,
+    rhs_bias: int,
+    result_bias: int,
+):
+    bias_delta = rhs_bias - lhs_bias
+    lhs = apyfloat(0, 0, 1 << (man_bits - 1 - bias_delta), 5, man_bits, bias=lhs_bias)
+    rhs = apyfloat(1, 0, 1 << (man_bits - 1), 5, man_bits, bias=rhs_bias)
+    zero = apyfloat(0, 0, 0, 5, man_bits, bias=result_bias)
+
+    assert (lhs + rhs).is_identical(zero)
+    assert (rhs + lhs).is_identical(zero)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("man_bits", [17, 61])
+@pytest.mark.parametrize(
+    ("lhs_bias", "rhs_bias", "result_bias"), [(14, 15, 14), (10, 15, 12)]
+)
+def test_add_general_aligned_cancellation_one_subnormal(
+    apyfloat: type[APyFloat | APyCFloat],
+    man_bits: int,
+    lhs_bias: int,
+    rhs_bias: int,
+    result_bias: int,
+):
+    bias_delta = rhs_bias - lhs_bias
+    lhs = apyfloat(0, 0, 1 << (man_bits - bias_delta), 5, man_bits, bias=lhs_bias)
+    rhs = apyfloat(1, 1, 0, 5, man_bits, bias=rhs_bias)
+    zero = apyfloat(0, 0, 0, 5, man_bits, bias=result_bias)
+
+    assert (lhs + rhs).is_identical(zero)
+    assert (rhs + lhs).is_identical(zero)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("man_bits", [17, 61])
+@pytest.mark.parametrize(
+    ("lhs_bias", "rhs_bias", "result_bias"), [(14, 15, 14), (10, 15, 12)]
+)
+def test_add_general_aligned_cancellation_both_normal(
+    apyfloat: type[APyFloat | APyCFloat],
+    man_bits: int,
+    lhs_bias: int,
+    rhs_bias: int,
+    result_bias: int,
+):
+    bias_delta = rhs_bias - lhs_bias
+    lhs = apyfloat(0, 1, 1 << (man_bits - 1), 5, man_bits, bias=lhs_bias)
+    rhs = apyfloat(1, 1 + bias_delta, 1 << (man_bits - 1), 5, man_bits, bias=rhs_bias)
+    zero = apyfloat(0, 0, 0, 5, man_bits, bias=result_bias)
+
+    assert (lhs + rhs).is_identical(zero)
+    assert (rhs + lhs).is_identical(zero)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 @pytest.mark.parametrize("exp", [0, 3, 14, 17])
 @pytest.mark.parametrize("man", [0, 14, 123])
 def test_add_zero(apyfloat: type[APyCFloat], exp: int, man: int):
