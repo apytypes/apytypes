@@ -1182,9 +1182,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
     auto [src1_pure_exp, src1_bw] = pure_exp(src1, src1_spec);
     auto [src2_pure_exp, src2_bw] = pure_exp(src2, src2_spec);
     if (src1_pure_exp == src2_pure_exp) {
-        std::uint64_t n1_man = src1.man << (_MAN_T_SIZE_BITS - src1_bw);
-        std::uint64_t n2_man = src2.man << (_MAN_T_SIZE_BITS - src2_bw);
-        return n1_man < n2_man;
+        man_t src1_man = true_man(src1, src1_spec) << (_MAN_T_SIZE_BITS - src1_bw);
+        man_t src2_man = true_man(src2, src2_spec) << (_MAN_T_SIZE_BITS - src2_bw);
+        return src1_man < src2_man;
     } else {
         return src1_pure_exp < src2_pure_exp;
     }
@@ -1381,6 +1381,13 @@ template <
         return;
     }
 
+    // Check cancellation. Since we know |x|>= |y|, entering here means same magnitude
+    if (!same_sign && !floating_point_less_than_abs(y, y_spec, x, x_spec)) {
+        const man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
+        z = { qntz == QuantizationMode::TRN, 0, res_man };
+        return;
+    }
+
     APyFloatData x_wide = x_spec == dst_spec ? x
                                              : floating_point_cast_no_quant_no_max_exp(
                                                    x, x_spec.man_bits, dst_spec.man_bits
@@ -1426,14 +1433,7 @@ template <
     } else if (new_man & RES_LO) {
         new_man <<= 1;
     } else {
-        if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
-            man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
-            bool res_sign = qntz == QuantizationMode::TRN;
-            z = { res_sign, 0, res_man };
-            return;
-        }
-
-        // Cancellation or addition with subnormals. Mantissa should be shifted
+        // Mantissa should be shifted
         // until 1.xx is obtained or new_exp equals 0.
         const unsigned man_leading_zeros = leading_zeros(new_man);
         const unsigned shift = man_leading_zeros - NORMALIZATION_CONST;
@@ -1512,6 +1512,12 @@ template <
         return;
     }
 
+    if (!same_sign && !floating_point_less_than_abs(y, y_spec, x, x_spec)) {
+        const man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
+        z = { qntz == QuantizationMode::TRN, 0, res_man };
+        return;
+    }
+
     APyFloatData x_wide = x_spec == dst_spec ? x
                                              : floating_point_cast_no_quant_no_max_exp(
                                                    x, x_spec.man_bits, dst_spec.man_bits
@@ -1524,12 +1530,6 @@ template <
     const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
     const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
     const std::uint64_t exp_delta = x_true_exp - y_true_exp;
-
-    if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
-        man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
-        z = { qntz == QuantizationMode::TRN, 0, res_man };
-        return;
-    }
 
     exp_t new_exp = x_true_exp + dst_spec.bias;
     if (new_exp > RES_MAX_EXP) {
