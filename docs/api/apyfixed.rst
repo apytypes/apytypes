@@ -41,6 +41,10 @@
 
    .. automethod:: copy
 
+   .. automethod:: next_up
+
+   .. automethod:: next_down
+
    Properties
    ----------
 

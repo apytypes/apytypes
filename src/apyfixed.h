@@ -262,9 +262,11 @@ public:
     apy_limb_t increment_lsb() noexcept;
 
     //! Get the next representable fixed-point number in the same format.
+    //! The word length is unchanged. Saturates at the maximum instead of wrapping.
     APyFixed next_up() const;
 
     //! Get the previous representable fixed-point number in the same format.
+    //! The word length is unchanged. Saturates at the minimum instead of wrapping.
     APyFixed next_down() const;
 
     //! Convert the underlying bit pattern to a Python long integer
