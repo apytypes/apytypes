@@ -85,6 +85,10 @@
 
    .. automethod:: min
 
+   .. automethod:: next_up
+
+   .. automethod:: next_down
+
    .. automethod:: outer
 
    Broadcasting

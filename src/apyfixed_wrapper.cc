@@ -556,8 +556,38 @@ void bind_fixed(nb::module_& m)
          * Dunder methods
          */
         .def("__abs__", &APyFixed::abs)
-        .def("next_up", &APyFixed::next_up)
-        .def("next_down", &APyFixed::next_down)
+        .def(
+            "next_up",
+            &APyFixed::next_up,
+            R"pbdoc(
+            Return the next representable fixed-point number in the same format.
+
+            The word length is not increased. At the maximum representable value,
+            the result is unchanged: the operation saturates instead of wrapping.
+
+            .. versionadded:: 0.6
+
+            Returns
+            -------
+            :class:`APyFixed`
+            )pbdoc"
+        )
+        .def(
+            "next_down",
+            &APyFixed::next_down,
+            R"pbdoc(
+            Return the previous representable fixed-point number in the same format.
+
+            The word length is not increased. At the minimum representable value,
+            the result is unchanged: the operation saturates instead of wrapping.
+
+            .. versionadded:: 0.6
+
+            Returns
+            -------
+            :class:`APyFixed`
+            )pbdoc"
+        )
         .def("__float__", &APyFixed::operator double)
         .def("__repr__", &APyFixed::repr)
         .def("__str__", &APyFixed::to_string, nb::arg("base") = 10)
