@@ -50,7 +50,7 @@ docs = [
 test = ["numpy>=2", "pytest>=8.2"]
 test_hdl = ["numpy>=2", "pytest>=8.2", "cocotb>=2", "vunit-hdl", "packaging"]
 dev = ["nanobind>=3"]
-benchmark = ["numpy>=2", "pytest>=8.2", "pytest-benchmark"]
+benchmark = ["numpy>=2", "pytest>=8.2,<9.2", "pytest-benchmark"]
 comparison = [
     "fpbinary",
     "fixedpoint",
