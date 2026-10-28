@@ -2863,7 +2863,6 @@ def nextafter(
 ) -> APyFloatArray | APyFixedArray:
     """
     Return the next representable value of `x1` in the direction of `x2`, element-wise.
-    `x1` and `x2` do not need to be of the same type.
     If `x1.shape` != `x2.shape`, they must be broadcastable to a common shape
     (which becomes the shape of the output).
 
@@ -2884,11 +2883,6 @@ def nextafter(
     if not isinstance(x1, APyFloatArray | APyFixedArray):
         raise TypeError(f"nextafter: x1 must be a real APyArray, got {type(x1)}")
 
-    try:
-        nextafter_impl = x1._nextafter
-    except AttributeError:
-        raise TypeError(f"Type {type(x1)} has no attribute `_nextafter`")
-
     if type(x2) is not type(x1):
         if isinstance(x2, int | float | APyFixed | APyFloat):
             if isinstance(x1, APyFixedArray):
@@ -2905,7 +2899,7 @@ def nextafter(
                 f"`int`, `float`, `APyFixed`, `APyFloat`, got {type(x2)}"
             )
 
-    return nextafter_impl(x1, x2)
+    return x1._nextafter(x1, x2)
 
 
 # =============================================================================
