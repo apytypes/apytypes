@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   documentation for exact expressions.
 - Bug in floating-point cast for values between the largest subnormal and
   the smallest normal value of the destination format.
+- Bugs in edge cases for floating-point additions, e.g., mixed-bias denormalized
+  numbers and exponent overflows.
 
 ### Changed
 
