@@ -126,6 +126,21 @@ def test_add_subnormals(apyfloat: type[APyCFloat]):
 
 @pytest.mark.float_add
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("man_bits", [5, 61])
+def test_add_subnormal_widening_same_bias(
+    apyfloat: type[APyFloat | APyCFloat], man_bits: int
+):
+    lhs = apyfloat(0, 0, 1, exp_bits=5, man_bits=3)
+    rhs = apyfloat(0, 0, 0, exp_bits=5, man_bits=man_bits)
+    expected = apyfloat(0, 0, 1 << (man_bits - 3), exp_bits=5, man_bits=man_bits)
+
+    assert (lhs + rhs).is_identical(expected)
+    assert (rhs + lhs).is_identical(expected)
+    assert lhs == expected
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 @pytest.mark.parametrize("man_bits", [17, 61])
 @pytest.mark.parametrize(
     ("lhs_bias", "rhs_bias", "result_bias"), [(14, 15, 14), (10, 15, 12)]

@@ -711,40 +711,15 @@ template <typename QNTZ_FUNC_SIGNATURE>
     return { src.sign, exp_t(new_exp), new_man };
 }
 
-//! Cast a floating-point number when it is known that no quantization happens and that
-//! the exponent is not max. In addition, src_spec.bias = dst_spec.bias.
-[[maybe_unused]] static APY_INLINE APyFloatData floating_point_cast_no_quant_no_max_exp(
+//! Widen a floating-point mantissa without changing the sign or exponent.
+//! Assumes equal biases, a non-max exponent, and dst_man_bits >= src_man_bits.
+[[maybe_unused]] static APY_INLINE APyFloatData widening_man(
     const APyFloatData& src,
     const std::uint8_t src_man_bits,
     const std::uint8_t dst_man_bits
 )
 {
-    // Adjust the exponent and mantissa if converting from a subnormal
-    man_t new_man;
-    std::int64_t new_exp;
-    if (src.exp == 0) {
-        if (src.man == 0) {
-            return { src.sign, 0, 0 };
-        }
-        const exp_t subn_adjustment = count_trailing_bits(src.man);
-        const std::int64_t left_shift_amount = src_man_bits - subn_adjustment;
-        if (1 < left_shift_amount) {
-            // The result remains subnormal
-            new_man = src.man << 1;
-            new_exp = 0;
-        } else {
-            // The result becomes normal
-            new_man = src.man << left_shift_amount;
-            new_man &= (1ULL << src_man_bits) - 1;
-            new_exp = std::int64_t(1) - left_shift_amount;
-        }
-    } else {
-        new_man = src.man;
-        new_exp = std::int64_t(src.exp);
-    }
-
-    new_man <<= dst_man_bits - src_man_bits;
-    return { src.sign, exp_t(new_exp), new_man };
+    return { src.sign, src.exp, src.man << (dst_man_bits - src_man_bits) };
 }
 
 //! Cast a floating-point number when it is known that no quantization happens
@@ -1388,14 +1363,10 @@ template <
         return;
     }
 
-    APyFloatData x_wide = x_spec == dst_spec ? x
-                                             : floating_point_cast_no_quant_no_max_exp(
-                                                   x, x_spec.man_bits, dst_spec.man_bits
-                                               );
-    APyFloatData y_wide = y_spec == dst_spec ? y
-                                             : floating_point_cast_no_quant_no_max_exp(
-                                                   y, y_spec.man_bits, dst_spec.man_bits
-                                               );
+    APyFloatData x_wide
+        = x_spec == dst_spec ? x : widening_man(x, x_spec.man_bits, dst_spec.man_bits);
+    APyFloatData y_wide
+        = y_spec == dst_spec ? y : widening_man(y, y_spec.man_bits, dst_spec.man_bits);
 
     // Tentative exponent
     exp_t x_true_exp = true_exp(x_wide, x_spec.bias);
@@ -1518,14 +1489,10 @@ template <
         return;
     }
 
-    APyFloatData x_wide = x_spec == dst_spec ? x
-                                             : floating_point_cast_no_quant_no_max_exp(
-                                                   x, x_spec.man_bits, dst_spec.man_bits
-                                               );
-    APyFloatData y_wide = y_spec == dst_spec ? y
-                                             : floating_point_cast_no_quant_no_max_exp(
-                                                   y, y_spec.man_bits, dst_spec.man_bits
-                                               );
+    APyFloatData x_wide
+        = x_spec == dst_spec ? x : widening_man(x, x_spec.man_bits, dst_spec.man_bits);
+    APyFloatData y_wide
+        = y_spec == dst_spec ? y : widening_man(y, y_spec.man_bits, dst_spec.man_bits);
 
     const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
     const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
