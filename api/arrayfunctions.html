@@ -1746,6 +1746,35 @@ respectively, is:</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="apytypes.nextafter">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">nextafter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.nextafter" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">nextafter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span></dt>
+<dd><p>Return the next representable value of <cite>x1</cite> in the direction of <cite>x2</cite>, element-wise.
+If <cite>x1.shape</cite> != <cite>x2.shape</cite>, they must be broadcastable to a common shape
+(which becomes the shape of the output).</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.6.</span></p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>x1</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Values to get the next representable value of.</p>
+</dd>
+<dt><strong>x2</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>, <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>, or <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a></span></dt><dd><p>Direction in which to get the next representable value.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">APyArray</span></code></dt><dd><p>Same type as <cite>x1</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -1843,6 +1872,7 @@ respectively, is:</p>
 <li><a class="reference internal" href="#apytypes.import_csv"><code class="docutils literal notranslate"><span class="pre">import_csv()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.outer"><code class="docutils literal notranslate"><span class="pre">outer()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.shape"><code class="docutils literal notranslate"><span class="pre">shape()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.nextafter"><code class="docutils literal notranslate"><span class="pre">nextafter()</span></code></a></li>
 </ul>
 </li>
 </ul>

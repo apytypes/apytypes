@@ -411,6 +411,12 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code>(self[, axis])</p></td>
 <td><p>Return the sum of the elements along specified axis/axes treating NaN as 0.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.next_down" title="apytypes.APyFixedArray.next_down"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_down</span></code></a>(self)</p></td>
+<td><p>Return the previous representable value of each element in the same format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.next_up" title="apytypes.APyFixedArray.next_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_up</span></code></a>(self)</p></td>
+<td><p>Return the next representable value of each element in the same format.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.ones" title="apytypes.APyFixedArray.ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ones</span></code></a></p></td>
 <td><p></p></td>
 </tr>
@@ -1454,6 +1460,42 @@ the array.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.next_up">
+<span class="sig-name descname"><span class="pre">next_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.next_up" title="Link to this definition">¶</a></dt>
+<dd><p>Return the next representable value of each element in the same format.</p>
+<p>The word length is not increased. Elements at the maximum representable
+value remain unchanged: the operation saturates instead of wrapping.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.6.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.next_down">
+<span class="sig-name descname"><span class="pre">next_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.next_down" title="Link to this definition">¶</a></dt>
+<dd><p>Return the previous representable value of each element in the same format.</p>
+<p>The word length is not increased. Elements at the minimum representable
+value remain unchanged: the operation saturates instead of wrapping.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.6.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.outer">
 <span class="sig-name descname"><span class="pre">outer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.outer" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the outer product between <cite>self</cite> and <cite>rhs</cite>.</p>
@@ -1814,6 +1856,8 @@ the array.</p>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.cumprod"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.cumprod()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.max"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.max()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.min"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.min()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.next_up"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.next_up()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.next_down"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.next_down()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.outer"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.outer()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.broadcast_to"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.broadcast_to()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.bits</span></code></a></li>
