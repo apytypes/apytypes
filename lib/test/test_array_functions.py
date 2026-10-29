@@ -563,13 +563,31 @@ def test_nextafter_float_array_elementwise():
     assert y[2].is_identical(x2[2])
 
 
+@pytest.mark.parametrize("array_type", [APyFloatArray, APyFixedArray])
+@pytest.mark.parametrize(
+    ("start_format", "direction_format"),
+    [((5, 2), (6, 10)), ((6, 10), (5, 2))],
+)
+def test_nextafter_equal_values_different_formats(
+    array_type, start_format, direction_format
+):
+    x1 = array_type.from_float([1.0, 1.25, 0.75], *start_format)
+    x2 = array_type.from_float([1.0, 1.25, 0.75], *direction_format)
+
+    assert nextafter(x1, x2).is_identical(x1)
+
+
 @pytest.mark.parametrize("start_sign", [0, 1])
 @pytest.mark.parametrize("direction_sign", [0, 1])
-def test_nextafter_float_array_signed_zero(start_sign, direction_sign):
+@pytest.mark.parametrize("scalar_direction", [False, True])
+def test_nextafter_float_array_signed_zero(
+    start_sign, direction_sign, scalar_direction
+):
     x1 = APyFloatArray([start_sign], [0], [0], exp_bits=5, man_bits=10)
     x2 = APyFloatArray([direction_sign], [0], [0], exp_bits=5, man_bits=10)
+    direction = x2[0].cast(exp_bits=6, man_bits=11, bias=17) if scalar_direction else x2
 
-    assert nextafter(x1, x2).is_identical(x2)
+    assert nextafter(x1, direction).is_identical(x2)
 
 
 def test_nextafter_float_array_broadcasting():
@@ -630,36 +648,54 @@ def test_nextafter_complex_fixed_array_raises():
 def test_nextafter_complex_direction_raises(array_type, direction):
     x1 = array_type.from_float([1.0], 5, 10)
 
-    with pytest.raises(
-        TypeError, match="nextafter: x2 must be an array of the same type as x1"
-    ):
+    with pytest.raises(TypeError, match="nextafter: x2 must be"):
         _ = nextafter(x1, direction)
 
 
-@pytest.mark.parametrize("array_type", [APyFloatArray, APyFixedArray])
 @pytest.mark.parametrize(
-    "direction",
-    [
-        2,
-        2.0,
-        APyFloat.from_float(2.0, exp_bits=5, man_bits=10),
-        APyFixed.from_float(2.0, int_bits=6, frac_bits=4),
-    ],
+    ("array_type", "scalar_type"),
+    [(APyFloatArray, APyFloat), (APyFixedArray, APyFixed)],
 )
-def test_nextafter_real_direction(array_type, direction):
+@pytest.mark.parametrize("value", [2.0, 1.0625, 0.9375, 1.0])
+def test_nextafter_real_direction(array_type, scalar_type, value):
+    x1 = array_type.from_float([1.0, 1.25, 0.75], 5, 2)
+    direction = scalar_type.from_float(value, 6, 10)
+
+    result = nextafter(x1, direction)
+
+    assert result.shape == x1.shape
+    for start, actual in zip(x1, result):
+        if start < direction:
+            assert actual.is_identical(start.next_up())
+        elif direction < start:
+            assert actual.is_identical(start.next_down())
+        else:
+            assert actual.is_identical(start)
+
+
+@pytest.mark.parametrize("array_type", [APyFloatArray, APyFixedArray])
+@pytest.mark.parametrize("direction", [2, 2.0])
+def test_nextafter_python_direction_raises(array_type, direction):
     x1 = array_type.from_float([1.0], 5, 10)
 
-    assert nextafter(x1, direction).is_identical(x1.next_up())
+    with pytest.raises(TypeError, match="nextafter: x2 must be"):
+        _ = nextafter(x1, direction)
 
 
-def test_nextafter_type_raises():
-    fp = APyFloatArray.from_float([1.0], exp_bits=5, man_bits=10)
-    fx = APyFixedArray.from_float([1.0], int_bits=5, frac_bits=5)
+@pytest.mark.parametrize(
+    ("array_type", "direction"),
+    [
+        (APyFloatArray, APyFixed.from_float(2.0, int_bits=6, frac_bits=4)),
+        (APyFixedArray, APyFloat.from_float(2.0, exp_bits=5, man_bits=10)),
+        (APyFloatArray, APyFixedArray.from_float([2.0], int_bits=6, frac_bits=4)),
+        (APyFixedArray, APyFloatArray.from_float([2.0], exp_bits=5, man_bits=10)),
+    ],
+)
+def test_nextafter_type_raises(array_type, direction):
+    x1 = array_type.from_float([1.0], 5, 10)
 
-    with pytest.raises(
-        TypeError, match="nextafter: x2 must be an array of the same type as x1"
-    ):
-        _ = nextafter(fp, fx)
+    with pytest.raises(TypeError, match="nextafter: x2 must be"):
+        _ = nextafter(x1, direction)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
