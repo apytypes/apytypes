@@ -2848,18 +2848,14 @@ def outer(a: APyArray, b: APyArray) -> APyArray:
 
 
 @overload
-def nextafter(
-    x1: APyFloatArray, x2: APyFloatArray | APyFloat | float | int
-) -> APyFloatArray: ...
+def nextafter(x1: APyFloatArray, x2: APyFloatArray | APyFloat) -> APyFloatArray: ...
 @overload
-def nextafter(
-    x1: APyFixedArray, x2: APyFixedArray | APyFixed | float | int
-) -> APyFixedArray: ...
+def nextafter(x1: APyFixedArray, x2: APyFixedArray | APyFixed) -> APyFixedArray: ...
 
 
 def nextafter(
     x1: APyFloatArray | APyFixedArray,
-    x2: APyFloatArray | APyFixedArray | APyFloat | APyFixed | float | int,
+    x2: APyFloatArray | APyFixedArray | APyFloat | APyFixed,
 ) -> APyFloatArray | APyFixedArray:
     """
     Return the next representable value of `x1` in the direction of `x2`, element-wise.
@@ -2872,7 +2868,7 @@ def nextafter(
     ----------
     x1 : :class:`APyFloatArray` or :class:`APyFixedArray`
         Values to get the next representable value of.
-    x2 : :class:`APyFloatArray`, :class:`APyFixedArray`, :class:`APyFixed`, :class:`APyFloat`, :class:`int`, or :class:`float`
+    x2 : :class:`APyFloatArray`, :class:`APyFixedArray`, :class:`APyFixed`, or :class:`APyFloat`
         Direction in which to get the next representable value.
 
     Returns
@@ -2883,21 +2879,20 @@ def nextafter(
     if not isinstance(x1, APyFloatArray | APyFixedArray):
         raise TypeError(f"nextafter: x1 must be a real APyArray, got {type(x1)}")
 
-    if type(x2) is not type(x1):
-        if isinstance(x2, int | float | APyFixed | APyFloat):
-            if isinstance(x1, APyFixedArray):
-                x2 = type(x1).from_float(
-                    [x2], int_bits=x1.int_bits, frac_bits=x1.frac_bits
-                )
-            else:
-                x2 = type(x1).from_float(
-                    [x2], exp_bits=x1.exp_bits, man_bits=x1.man_bits, bias=x1.bias
-                )
-        else:
+    if isinstance(x1, APyFixedArray):
+        if not isinstance(x2, APyFixedArray | APyFixed):
             raise TypeError(
-                "nextafter: x2 must be an array of the same type as x1, or one of "
-                f"`int`, `float`, `APyFixed`, `APyFloat`, got {type(x2)}"
+                "nextafter: x2 must be APyFixedArray or APyFixed when x1 is "
+                f"APyFixedArray, got {type(x2)}"
             )
+    elif not isinstance(x2, APyFloatArray | APyFloat):
+        raise TypeError(
+            "nextafter: x2 must be APyFloatArray or APyFloat when x1 is "
+            f"APyFloatArray, got {type(x2)}"
+        )
+
+    if isinstance(x2, APyFixed | APyFloat):
+        x2 = type(x1).from_float([x2], spec=x2)
 
     return x1._nextafter(x1, x2)
 

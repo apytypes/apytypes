@@ -1287,8 +1287,10 @@ private:
             return x1.next_up();
         } else if (x2 < x1) {
             return x1.next_down();
+        } else if constexpr (std::is_same_v<REAL_SCALAR_TYPE, APyFloat>) {
+            return x2.cast(x1.get_exp_bits(), x1.get_man_bits(), x1.get_bias());
         } else {
-            return x2;
+            return x1;
         }
     }
 
