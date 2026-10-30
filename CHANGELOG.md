@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the smallest normal value of the destination format.
 - Floating-point addition with mixed formats.
 - Floating-point addition when subnormals are rounded to normals for large mantissas.
+- Overflow handling for floating-point addition with Jamming.
 
 ### Changed
 

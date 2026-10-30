@@ -42,6 +42,18 @@ def test_add_zero_jam(man_bits: int, zero_man_bits: int, zero_bias: int):
 
 
 @pytest.mark.float_add
+@pytest.mark.parametrize("man_bits", [2, 61])
+def test_add_mixed_bias_overflow_jam(man_bits: int):
+    lhs = APyFloat(0, 21, 0, 5, man_bits, bias=5)
+    rhs = APyFloat(0, 0, 1, 5, man_bits, bias=27)
+    infinity = APyFloat(0, 31, 0, 5, man_bits, bias=16)
+    with APyFloatQuantizationContext(QuantizationMode.JAM):
+        res = lhs + rhs
+        print(res)
+        assert res.is_identical(infinity)
+
+
+@pytest.mark.float_add
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 @pytest.mark.parametrize("man_bits", [17, 61])
 @pytest.mark.parametrize(
@@ -76,14 +88,15 @@ def test_add_negative_tentative_exponent(quantization: QuantizationMode, sign: i
     for apyfloat in (APyFloat, APyCFloat):
         for man_bits in (17, 61):
             rhs = apyfloat(0, 0, 0, 5, man_bits, bias=14)
-            expected = apyfloat(sign, 0, 0, 5, man_bits, bias=16)
-            if apyfloat is APyCFloat and quantization == QuantizationMode.JAM:
-                expected = apyfloat((sign, 0), (0, 0), (0, 1), 5, man_bits, bias=16)
+            lsb = 1 if quantization == QuantizationMode.JAM else 0
+            expected = apyfloat(sign, 0, lsb, 5, man_bits, bias=16)
+            if apyfloat is APyCFloat:
+                expected = apyfloat((sign, 0), (0, 0), (lsb, lsb), 5, man_bits, bias=16)
 
             with APyFloatQuantizationContext(quantization):
                 for mantissa in (2, 3, 4, 6):
                     lhs = apyfloat(sign, 0, mantissa, 5, man_bits, bias=18)
-
+                    print(lhs + rhs)
                     assert (lhs + rhs).is_identical(expected)
                     assert (rhs + lhs).is_identical(expected)
 
