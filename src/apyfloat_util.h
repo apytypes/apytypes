@@ -1369,10 +1369,10 @@ template <
         = y_spec == dst_spec ? y : widening_man(y, y_spec.man_bits, dst_spec.man_bits);
 
     // Tentative exponent
-    exp_t x_true_exp = true_exp(x_wide, x_spec.bias);
-    exp_t new_exp = x_true_exp + dst_spec.bias;
-    if (new_exp > RES_MAX_EXP) {
-        exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
+    const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
+    std::int64_t new_exp = x_true_exp + dst_spec.bias;
+    if (new_exp < 0 || new_exp > RES_MAX_EXP) {
+        exp_t exp = new_exp < 0 ? 0 : RES_MAX_EXP;
         man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
         z = { x_sign, exp, res_man };
         return;
@@ -1385,8 +1385,12 @@ template <
 
     // Align mantissa based on difference in exponent
     man_t my_aligned;
-    const unsigned exp_delta = x_true_exp - true_exp(y_wide, y_spec);
-    if (exp_delta <= 3) {
+    const std::int64_t exp_delta = x_true_exp - true_exp(y_wide, y_spec);
+    if (exp_delta < 0) {
+        // A subnormal y can have a higher exponent despite |y| <= |x|.
+        // Alignment gives my_aligned <= mx < CARRY_RES_LO.
+        my_aligned = my == 0 ? 0 : my << -exp_delta;
+    } else if (exp_delta <= 3) {
         my_aligned = my >> exp_delta;
     } else if (exp_delta >= _MAN_T_SIZE_BITS) {
         my_aligned = (my != 0);
@@ -1418,8 +1422,9 @@ template <
     }
     new_man &= MAN_MASK;
 
-    qntz_func(new_man, new_exp, RES_MAX_EXP, 4, x_sign, FINAL_RES_LO, 7);
-    z = { x_sign, new_exp, new_man };
+    exp_t res_exp = exp_t(new_exp);
+    qntz_func(new_man, res_exp, RES_MAX_EXP, 4, x_sign, FINAL_RES_LO, 7);
+    z = { x_sign, res_exp, new_man };
     return;
 }
 
@@ -1496,11 +1501,11 @@ template <
 
     const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
     const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
-    const std::uint64_t exp_delta = x_true_exp - y_true_exp;
+    const std::int64_t exp_delta = is_zero(y) ? 0 : x_true_exp - y_true_exp;
 
-    exp_t new_exp = x_true_exp + dst_spec.bias;
-    if (new_exp > RES_MAX_EXP) {
-        const exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
+    std::int64_t new_exp = x_true_exp + dst_spec.bias;
+    if (new_exp < 0 || new_exp > RES_MAX_EXP) {
+        const exp_t exp = new_exp < 0 ? 0 : RES_MAX_EXP;
         const man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
         z = { x_sign, exp, res_man };
         return;
