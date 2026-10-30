@@ -711,40 +711,15 @@ template <typename QNTZ_FUNC_SIGNATURE>
     return { src.sign, exp_t(new_exp), new_man };
 }
 
-//! Cast a floating-point number when it is known that no quantization happens and that
-//! the exponent is not max. In addition, src_spec.bias = dst_spec.bias.
-[[maybe_unused]] static APY_INLINE APyFloatData floating_point_cast_no_quant_no_max_exp(
+//! Widen a floating-point mantissa without changing the sign or exponent.
+//! Assumes equal biases, a non-max exponent, and dst_man_bits >= src_man_bits.
+[[maybe_unused]] static APY_INLINE APyFloatData widening_man(
     const APyFloatData& src,
     const std::uint8_t src_man_bits,
     const std::uint8_t dst_man_bits
 )
 {
-    // Adjust the exponent and mantissa if converting from a subnormal
-    man_t new_man;
-    std::int64_t new_exp;
-    if (src.exp == 0) {
-        if (src.man == 0) {
-            return { src.sign, 0, 0 };
-        }
-        const exp_t subn_adjustment = count_trailing_bits(src.man);
-        const std::int64_t left_shift_amount = src_man_bits - subn_adjustment;
-        if (1 < left_shift_amount) {
-            // The result remains subnormal
-            new_man = src.man << 1;
-            new_exp = 0;
-        } else {
-            // The result becomes normal
-            new_man = src.man << left_shift_amount;
-            new_man &= (1ULL << src_man_bits) - 1;
-            new_exp = std::int64_t(1) - left_shift_amount;
-        }
-    } else {
-        new_man = src.man;
-        new_exp = std::int64_t(src.exp);
-    }
-
-    new_man <<= dst_man_bits - src_man_bits;
-    return { src.sign, exp_t(new_exp), new_man };
+    return { src.sign, src.exp, src.man << (dst_man_bits - src_man_bits) };
 }
 
 //! Cast a floating-point number when it is known that no quantization happens
@@ -1182,9 +1157,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
     auto [src1_pure_exp, src1_bw] = pure_exp(src1, src1_spec);
     auto [src2_pure_exp, src2_bw] = pure_exp(src2, src2_spec);
     if (src1_pure_exp == src2_pure_exp) {
-        std::uint64_t n1_man = src1.man << (_MAN_T_SIZE_BITS - src1_bw);
-        std::uint64_t n2_man = src2.man << (_MAN_T_SIZE_BITS - src2_bw);
-        return n1_man < n2_man;
+        man_t src1_man = true_man(src1, src1_spec) << (_MAN_T_SIZE_BITS - src1_bw);
+        man_t src2_man = true_man(src2, src2_spec) << (_MAN_T_SIZE_BITS - src2_bw);
+        return src1_man < src2_man;
     } else {
         return src1_pure_exp < src2_pure_exp;
     }
@@ -1374,29 +1349,34 @@ template <
             return;
         }
     } else if (is_zero(x)) {
-        // If `x` is zero, than so is `y`
+        // If `x` is zero, then so is `y`
         bool res_sign = same_sign ? x_sign : qntz == QuantizationMode::TRN;
         man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
         z = { res_sign, 0, res_man };
         return;
     }
 
-    APyFloatData x_wide = x_spec == dst_spec ? x
-                                             : floating_point_cast_no_quant_no_max_exp(
-                                                   x, x_spec.man_bits, dst_spec.man_bits
-                                               );
-    APyFloatData y_wide = y_spec == dst_spec ? y
-                                             : floating_point_cast_no_quant_no_max_exp(
-                                                   y, y_spec.man_bits, dst_spec.man_bits
-                                               );
+    // Check cancellation. Since we know |x|>= |y|, entering here means same magnitude
+    if (!same_sign && !floating_point_less_than_abs(y, y_spec, x, x_spec)) {
+        const man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
+        z = { qntz == QuantizationMode::TRN, 0, res_man };
+        return;
+    }
+
+    APyFloatData x_wide
+        = x_spec == dst_spec ? x : widening_man(x, x_spec.man_bits, dst_spec.man_bits);
+    APyFloatData y_wide
+        = y_spec == dst_spec ? y : widening_man(y, y_spec.man_bits, dst_spec.man_bits);
 
     // Tentative exponent
-    exp_t x_true_exp = true_exp(x_wide, x_spec.bias);
-    exp_t new_exp = x_true_exp + dst_spec.bias;
-    if (new_exp > RES_MAX_EXP) {
-        exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
-        man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
-        z = { x_sign, exp, res_man };
+    const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
+    std::int64_t new_exp = x_true_exp + dst_spec.bias;
+    if (new_exp < 0) {
+        man_t res_man = (qntz == QuantizationMode::JAM) ? 1 : 0;
+        z = { x_sign, 0, res_man };
+        return;
+    } else if (new_exp > RES_MAX_EXP) {
+        z = { x_sign, RES_MAX_EXP, 0 };
         return;
     }
 
@@ -1407,8 +1387,12 @@ template <
 
     // Align mantissa based on difference in exponent
     man_t my_aligned;
-    const unsigned exp_delta = x_true_exp - true_exp(y_wide, y_spec);
-    if (exp_delta <= 3) {
+    const std::int64_t exp_delta = x_true_exp - true_exp(y_wide, y_spec);
+    if (exp_delta < 0) {
+        // A subnormal y can have a higher exponent despite |y| <= |x|.
+        // Alignment gives my_aligned <= mx < CARRY_RES_LO.
+        my_aligned = my == 0 ? 0 : my << -exp_delta;
+    } else if (exp_delta <= 3) {
         my_aligned = my >> exp_delta;
     } else if (exp_delta >= _MAN_T_SIZE_BITS) {
         my_aligned = (my != 0);
@@ -1423,17 +1407,10 @@ template <
     // Check for carry and cancellation
     if (new_man & CARRY_RES_LO) {
         new_exp++;
-    } else if (new_man & RES_LO) {
+    } else if (new_exp != 0 && (new_man & RES_LO)) {
         new_man <<= 1;
     } else {
-        if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
-            man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
-            bool res_sign = qntz == QuantizationMode::TRN;
-            z = { res_sign, 0, res_man };
-            return;
-        }
-
-        // Cancellation or addition with subnormals. Mantissa should be shifted
+        // Mantissa should be shifted
         // until 1.xx is obtained or new_exp equals 0.
         const unsigned man_leading_zeros = leading_zeros(new_man);
         const unsigned shift = man_leading_zeros - NORMALIZATION_CONST;
@@ -1447,8 +1424,9 @@ template <
     }
     new_man &= MAN_MASK;
 
-    qntz_func(new_man, new_exp, RES_MAX_EXP, 4, x_sign, FINAL_RES_LO, 7);
-    z = { x_sign, new_exp, new_man };
+    exp_t res_exp = exp_t(new_exp);
+    qntz_func(new_man, res_exp, RES_MAX_EXP, 4, x_sign, FINAL_RES_LO, 7);
+    z = { x_sign, res_exp, new_man };
     return;
 }
 
@@ -1512,30 +1490,28 @@ template <
         return;
     }
 
-    APyFloatData x_wide = x_spec == dst_spec ? x
-                                             : floating_point_cast_no_quant_no_max_exp(
-                                                   x, x_spec.man_bits, dst_spec.man_bits
-                                               );
-    APyFloatData y_wide = y_spec == dst_spec ? y
-                                             : floating_point_cast_no_quant_no_max_exp(
-                                                   y, y_spec.man_bits, dst_spec.man_bits
-                                               );
-
-    const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
-    const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
-    const std::uint64_t exp_delta = x_true_exp - y_true_exp;
-
-    if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
-        man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
+    if (!same_sign && !floating_point_less_than_abs(y, y_spec, x, x_spec)) {
+        const man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
         z = { qntz == QuantizationMode::TRN, 0, res_man };
         return;
     }
 
-    exp_t new_exp = x_true_exp + dst_spec.bias;
-    if (new_exp > RES_MAX_EXP) {
-        const exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
-        const man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
-        z = { x_sign, exp, res_man };
+    APyFloatData x_wide
+        = x_spec == dst_spec ? x : widening_man(x, x_spec.man_bits, dst_spec.man_bits);
+    APyFloatData y_wide
+        = y_spec == dst_spec ? y : widening_man(y, y_spec.man_bits, dst_spec.man_bits);
+
+    const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
+    const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
+    const std::int64_t exp_delta = is_zero(y) ? 0 : x_true_exp - y_true_exp;
+
+    std::int64_t new_exp = x_true_exp + dst_spec.bias;
+    if (new_exp < 0) {
+        man_t res_man = (qntz == QuantizationMode::JAM) ? 1 : 0;
+        z = { x_sign, 0, res_man };
+        return;
+    } else if (new_exp > RES_MAX_EXP) {
+        z = { x_sign, RES_MAX_EXP, 0 };
         return;
     }
 
@@ -1550,6 +1526,8 @@ template <
 
     if (apy_res.positive_greater_than_equal_pow2(1)) {
         new_exp++;
+        apy_res >>= 1;
+    } else if (new_exp == 0) {
         apy_res >>= 1;
     } else {
         // Check for cancellation by counting the number of left shifts needed
@@ -1591,6 +1569,12 @@ template <
 
     // Remove leading one
     if (apy_res.positive_greater_than_equal_pow2(0)) {
+        // Check if subnormal is promoted to normal
+        if (new_exp == 0) {
+            new_exp = 1;
+            // apy_res is not shifted since the exponent have the same scale:
+            // normal: 1-b, subnormal: 1-b.
+        }
         apy_res = apy_res - FX_ONE;
     }
 

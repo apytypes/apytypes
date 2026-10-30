@@ -37,8 +37,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `APyFixedArray.to_bits` for 64-bit NumPy arrays on 32-bit systems.
 - `prod` and `cumprod` are using fewer bits for fixed-point arrays, see the
   documentation for exact expressions.
-- Bug in floating-point cast for values between the largest subnormal and
+- Floating-point cast for values between the largest subnormal and
   the smallest normal value of the destination format.
+- Floating-point addition with mixed formats.
+- Floating-point addition when subnormals are rounded to normals for large mantissas.
+- Overflow handling for floating-point addition with Jamming.
 
 ### Changed
 

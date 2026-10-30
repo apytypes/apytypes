@@ -26,6 +26,82 @@ def test_issue_245(apyfloat: type[APyCFloat]):
 
 
 @pytest.mark.float_add
+@pytest.mark.parametrize(
+    ("man_bits", "zero_man_bits"), [(17, 17), (17, 9), (61, 61), (61, 17)]
+)
+@pytest.mark.parametrize("zero_bias", [15, 17])
+def test_add_zero_jam(man_bits: int, zero_man_bits: int, zero_bias: int):
+    one = APyFloat(0, 15, 0, 5, man_bits)
+    zero = APyFloat(0, 0, 0, 5, zero_man_bits, bias=zero_bias)
+    result_bias = (15 + zero_bias) // 2
+    expected = APyFloat(0, result_bias, 1, 5, man_bits, bias=result_bias)
+
+    with APyFloatQuantizationContext(QuantizationMode.JAM):
+        assert (one + zero).is_identical(expected)
+        assert (zero + one).is_identical(expected)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("man_bits", [2, 61])
+def test_add_mixed_bias_overflow_jam(man_bits: int):
+    lhs = APyFloat(0, 21, 0, 5, man_bits, bias=5)
+    rhs = APyFloat(0, 0, 1, 5, man_bits, bias=27)
+    infinity = APyFloat(0, 31, 0, 5, man_bits, bias=16)
+    with APyFloatQuantizationContext(QuantizationMode.JAM):
+        res = lhs + rhs
+        print(res)
+        assert res.is_identical(infinity)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("man_bits", [17, 61])
+@pytest.mark.parametrize(
+    "quantization", [QuantizationMode.TIES_EVEN, QuantizationMode.TO_POS]
+)
+def test_add_subnormal_rounding_to_normal(
+    apyfloat: type[APyCFloat], man_bits: int, quantization: QuantizationMode
+):
+    value = apyfloat(0, 1, (1 << man_bits) - 1, 5, man_bits, bias=16)
+    zero = apyfloat(0, 0, 0, 5, man_bits, bias=14)
+    expected = apyfloat(0, 1, 0, 5, man_bits, bias=15)
+
+    with APyFloatQuantizationContext(quantization):
+        assert (value + zero).is_identical(expected)
+        assert (zero + value).is_identical(expected)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize(
+    "quantization",
+    [
+        QuantizationMode.JAM,
+        QuantizationMode.JAM_UNBIASED,
+        QuantizationMode.RND_CONV,
+        QuantizationMode.TRN,
+        QuantizationMode.TRN_INF,
+        QuantizationMode.TRN_AWAY,
+    ],
+)
+@pytest.mark.parametrize("sign", [0, 1])
+def test_add_negative_tentative_exponent(quantization: QuantizationMode, sign: int):
+    for apyfloat in (APyFloat, APyCFloat):
+        for man_bits in (17, 61):
+            rhs = apyfloat(0, 0, 0, 5, man_bits, bias=14)
+            lsb = 1 if quantization == QuantizationMode.JAM else 0
+            expected = apyfloat(sign, 0, lsb, 5, man_bits, bias=16)
+            if apyfloat is APyCFloat:
+                expected = apyfloat((sign, 0), (0, 0), (lsb, lsb), 5, man_bits, bias=16)
+
+            with APyFloatQuantizationContext(quantization):
+                for mantissa in (2, 3, 4, 6):
+                    lhs = apyfloat(sign, 0, mantissa, 5, man_bits, bias=18)
+                    print(lhs + rhs)
+                    assert (lhs + rhs).is_identical(expected)
+                    assert (rhs + lhs).is_identical(expected)
+
+
+@pytest.mark.float_add
 @pytest.mark.float_sub
 @pytest.mark.parametrize("man", [10, 60])
 def test_add_sub_zero_sign(man: int):
