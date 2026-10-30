@@ -42,6 +42,24 @@ def test_add_zero_jam(man_bits: int, zero_man_bits: int, zero_bias: int):
 
 
 @pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("man_bits", [17, 61])
+@pytest.mark.parametrize(
+    "quantization", [QuantizationMode.TIES_EVEN, QuantizationMode.TO_POS]
+)
+def test_add_subnormal_rounding_to_normal(
+    apyfloat: type[APyCFloat], man_bits: int, quantization: QuantizationMode
+):
+    value = apyfloat(0, 1, (1 << man_bits) - 1, 5, man_bits, bias=16)
+    zero = apyfloat(0, 0, 0, 5, man_bits, bias=14)
+    expected = apyfloat(0, 1, 0, 5, man_bits, bias=15)
+
+    with APyFloatQuantizationContext(quantization):
+        assert (value + zero).is_identical(expected)
+        assert (zero + value).is_identical(expected)
+
+
+@pytest.mark.float_add
 @pytest.mark.parametrize(
     "quantization",
     [

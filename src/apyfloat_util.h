@@ -1349,7 +1349,7 @@ template <
             return;
         }
     } else if (is_zero(x)) {
-        // If `x` is zero, than so is `y`
+        // If `x` is zero, then so is `y`
         bool res_sign = same_sign ? x_sign : qntz == QuantizationMode::TRN;
         man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
         z = { res_sign, 0, res_man };
@@ -1405,7 +1405,7 @@ template <
     // Check for carry and cancellation
     if (new_man & CARRY_RES_LO) {
         new_exp++;
-    } else if (new_man & RES_LO) {
+    } else if (new_exp != 0 && (new_man & RES_LO)) {
         new_man <<= 1;
     } else {
         // Mantissa should be shifted
@@ -1523,6 +1523,8 @@ template <
     if (apy_res.positive_greater_than_equal_pow2(1)) {
         new_exp++;
         apy_res >>= 1;
+    } else if (new_exp == 0) {
+        apy_res >>= 1;
     } else {
         // Check for cancellation by counting the number of left shifts needed
         // to make fx>=1.0
@@ -1563,6 +1565,12 @@ template <
 
     // Remove leading one
     if (apy_res.positive_greater_than_equal_pow2(0)) {
+        // Check if subnormal is promoted to normal
+        if (new_exp == 0) {
+            new_exp = 1;
+            // apy_res is not shifted since the exponent have the same scale:
+            // normal: 1-b, subnormal: 1-b.
+        }
         apy_res = apy_res - FX_ONE;
     }
 
