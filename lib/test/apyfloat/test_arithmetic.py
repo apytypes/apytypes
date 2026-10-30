@@ -136,7 +136,75 @@ def test_add_subnormal_widening_same_bias(
 
     assert (lhs + rhs).is_identical(expected)
     assert (rhs + lhs).is_identical(expected)
-    assert lhs == expected
+
+
+@pytest.mark.float_add
+def test_add_negative_exponent_delta_short():
+    for apyfloat in (APyFloat, APyCFloat):
+        lhs = apyfloat(0, 2, 0, 5, 17, bias=16)
+        rhs = apyfloat(0, 0, 1, 5, 17, bias=14)
+        expected = apyfloat(0, 1, 2, 5, 17, bias=15)
+
+        assert (lhs + rhs).is_identical(expected)
+        assert (rhs + lhs).is_identical(expected)
+
+
+@pytest.mark.float_sub
+def test_sub_negative_exponent_delta_short():
+    for apyfloat in (APyFloat, APyCFloat):
+        lhs = apyfloat(0, 2, 0, 5, 17, bias=16)
+        rhs = apyfloat(0, 0, 1, 5, 17, bias=14)
+        expected = apyfloat(0, 0, (1 << 17) - 2, 5, 17, bias=15)
+
+        assert (lhs - rhs).is_identical(expected)
+        assert (rhs - lhs).is_identical(apyfloat(1, 0, (1 << 17) - 2, 5, 17, bias=15))
+
+
+@pytest.mark.float_add
+def test_add_negative_exponent_delta_general():
+    for apyfloat in (APyFloat, APyCFloat):
+        lhs = apyfloat(0, 2, 0, 5, 61, bias=16)
+        rhs = apyfloat(0, 0, 1, 5, 61, bias=14)
+        expected = apyfloat(0, 1, 2, 5, 61, bias=15)
+
+        assert (lhs + rhs).is_identical(expected)
+        assert (rhs + lhs).is_identical(expected)
+
+
+@pytest.mark.float_sub
+def test_sub_negative_exponent_delta_general():
+    for apyfloat in (APyFloat, APyCFloat):
+        lhs = apyfloat(0, 2, 0, 5, 61, bias=16)
+        rhs = apyfloat(0, 0, 1, 5, 61, bias=14)
+        expected = apyfloat(0, 0, (1 << 61) - 2, 5, 61, bias=15)
+        reverse = apyfloat(1, 0, (1 << 61) - 2, 5, 61, bias=15)
+
+        assert (lhs - rhs).is_identical(expected)
+        assert (rhs - lhs).is_identical(reverse)
+
+
+@pytest.mark.float_add
+def test_add_larger_negative_exponent_delta():
+    for apyfloat in (APyFloat, APyCFloat):
+        for man_bits in (17, 61):
+            lhs = apyfloat(0, 3, 0, 5, man_bits, bias=16)
+            rhs = apyfloat(0, 0, 1, 5, man_bits, bias=12)
+            expected = apyfloat(0, 1, 4, 5, man_bits, bias=14)
+
+            assert (lhs + rhs).is_identical(expected)
+            assert (rhs + lhs).is_identical(expected)
+
+
+@pytest.mark.float_add
+def test_add_nonpositive_tentative_exponent_carry():
+    for apyfloat in (APyFloat, APyCFloat):
+        for man_bits in (17, 61):
+            lhs = apyfloat(0, 1, 1 << (man_bits - 1), 5, man_bits, bias=18)
+            rhs = apyfloat(0, 0, 3 << (man_bits - 3), 5, man_bits, bias=16)
+            expected = apyfloat(0, 1, 1 << (man_bits - 1), 5, man_bits, bias=17)
+
+            assert (lhs + rhs).is_identical(expected)
+            assert (rhs + lhs).is_identical(expected)
 
 
 @pytest.mark.float_add
