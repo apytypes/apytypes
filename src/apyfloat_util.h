@@ -1371,10 +1371,12 @@ template <
     // Tentative exponent
     const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
     std::int64_t new_exp = x_true_exp + dst_spec.bias;
-    if (new_exp < 0 || new_exp > RES_MAX_EXP) {
-        exp_t exp = new_exp < 0 ? 0 : RES_MAX_EXP;
-        man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
-        z = { x_sign, exp, res_man };
+    if (new_exp < 0) {
+        man_t res_man = (qntz == QuantizationMode::JAM) ? 1 : 0;
+        z = { x_sign, 0, res_man };
+        return;
+    } else if (new_exp > RES_MAX_EXP) {
+        z = { x_sign, RES_MAX_EXP, 0 };
         return;
     }
 
@@ -1504,10 +1506,12 @@ template <
     const std::int64_t exp_delta = is_zero(y) ? 0 : x_true_exp - y_true_exp;
 
     std::int64_t new_exp = x_true_exp + dst_spec.bias;
-    if (new_exp < 0 || new_exp > RES_MAX_EXP) {
-        const exp_t exp = new_exp < 0 ? 0 : RES_MAX_EXP;
-        const man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
-        z = { x_sign, exp, res_man };
+    if (new_exp < 0) {
+        man_t res_man = (qntz == QuantizationMode::JAM) ? 1 : 0;
+        z = { x_sign, 0, res_man };
+        return;
+    } else if (new_exp > RES_MAX_EXP) {
+        z = { x_sign, RES_MAX_EXP, 0 };
         return;
     }
 
