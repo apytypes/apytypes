@@ -105,7 +105,7 @@ jobs:
             git -C apytypes-preview push origin gh-pages
           fi
       - name: Deploy PR preview
-        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9  # v1.8.1
+        uses: rossjrw/pr-preview-action@873417d2df72380da1f3978378fb58560bcde976  # v1.8.2
         if: ${{ github.event_name == 'pull_request' }}
         with:
           source-dir: docs/_build/html
@@ -284,7 +284,7 @@ jobs:
           owner: apytypes
           repositories: apytypes-preview
       - name: Remove PR preview
-        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9  # v1.8.1
+        uses: rossjrw/pr-preview-action@873417d2df72380da1f3978378fb58560bcde976  # v1.8.2
         with:
           source-dir: docs/_build/html
           # Preview is deployed to a separate repo so it stays off the apytypes.org custom domain
