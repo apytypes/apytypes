@@ -279,6 +279,30 @@ def test_from_bits():
         APyFloatArray.from_bits([60, 61, 80, 82], exp_bits=5, man_bits=2)
     )
 
+    assert from_bits(13, exp_bits=5, man_bits=3, force_complex=True).is_identical(
+        APyCFloat.from_bits((13, 0), exp_bits=5, man_bits=3)
+    )
+    assert from_bits(
+        13, exp_bits=5, man_bits=3, bias=6, force_complex=True
+    ).is_identical(APyCFloat.from_bits((13, 0), exp_bits=5, man_bits=3, bias=6))
+
+    for bit_patterns in ((13,), (13, 42)):
+        assert from_bits(
+            bit_patterns, exp_bits=5, man_bits=3, bias=6, force_complex=True
+        ).is_identical(APyCFloat.from_bits(bit_patterns, 5, 3, 6))
+
+    for bit_patterns, message in (
+        ((), "tuple initializer with zero elements"),
+        ((1.5,), "tuple initializer with non-integer element"),
+        ((1, 2.5), "tuple initializer with non-integer element"),
+        ((1, 2, 3), "tuple initializer with more than two elements"),
+    ):
+        with pytest.raises(ValueError, match=message) as expected:
+            APyCFloat.from_bits(bit_patterns, 5, 3)
+        with pytest.raises(ValueError, match=message) as actual:
+            from_bits(bit_patterns, exp_bits=5, man_bits=3, force_complex=True)
+        assert str(actual.value) == str(expected.value)
+
     assert from_bits([1, 2], int_bits=10, frac_bits=0, force_complex=True).is_identical(
         APyCFixedArray.from_bits([1, 2], int_bits=10, frac_bits=0)
     )
@@ -295,8 +319,8 @@ def test_from_bits_spec():
     cfixed_array_spec = APyCFixedArray.from_complex([0], int_bits=5, frac_bits=2)
     float_spec = APyFloat.from_float(0, exp_bits=5, man_bits=3)
     float_array_spec = APyFloatArray.from_float([0], exp_bits=5, man_bits=3)
-    cfloat_spec = APyCFloat.from_complex(0, exp_bits=5, man_bits=3)
-    cfloat_array_spec = APyCFloatArray.from_complex([0], exp_bits=5, man_bits=3)
+    cfloat_spec = APyCFloat.from_complex(0, exp_bits=5, man_bits=3, bias=6)
+    cfloat_array_spec = APyCFloatArray.from_complex([0], exp_bits=5, man_bits=3, bias=6)
 
     for spec in (fixed_spec, fixed_array_spec):
         assert from_bits(13, spec=spec).is_identical(
@@ -323,11 +347,14 @@ def test_from_bits_spec():
         )
 
     for spec in (cfloat_spec, cfloat_array_spec):
-        # Scalar case is omitted: from_bits() can't produce a scalar APyCFloat from a
-        # plain int, since APyCFloat.from_bits() requires a (real_bits, imag_bits)
-        # tuple. This is a pre-existing bug unrelated to `spec`.
+        assert from_bits(13, spec=spec).is_identical(
+            APyCFloat.from_bits((13, 0), exp_bits=5, man_bits=3, bias=6)
+        )
+        assert from_bits((13, 42), spec=spec).is_identical(
+            APyCFloat.from_bits((13, 42), exp_bits=5, man_bits=3, bias=6)
+        )
         assert from_bits([60, 61], spec=spec).is_identical(
-            APyCFloatArray.from_bits([60, 61], exp_bits=5, man_bits=3)
+            APyCFloatArray.from_bits([60, 61], exp_bits=5, man_bits=3, bias=6)
         )
 
     with pytest.raises(ValueError, match="spec cannot be used with other specifiers"):

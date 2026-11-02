@@ -519,6 +519,14 @@ def from_bits(
 
 @overload
 def from_bits(
+    bit_patterns: tuple[Any, ...],
+    *,
+    spec: APyCFloat | APyCFloatArray,
+) -> APyCFloat: ...
+
+
+@overload
+def from_bits(
     bit_patterns: Iterable[Any],
     *,
     spec: APyFloat | APyFloatArray,
@@ -661,6 +669,34 @@ def from_bits(
 
 @overload
 def from_bits(
+    bit_patterns: tuple[Any, ...],
+    *,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: Literal[True],
+) -> APyCFloat: ...
+
+
+@overload
+def from_bits(
+    bit_patterns: tuple[Any, ...],
+    *,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    force_complex: bool,
+) -> APyFloatArray | APyCFloat: ...
+
+
+@overload
+def from_bits(
     bit_patterns: Iterable[Any],
     *,
     int_bits: None = None,
@@ -784,10 +820,15 @@ def from_bits(
         actual_type = None
         if force_complex:
             actual_type = (
-                APyCFloatArray if isinstance(bit_patterns, Iterable) else APyCFloat
+                APyCFloat
+                if isinstance(bit_patterns, tuple)
+                or not isinstance(bit_patterns, Iterable)
+                else APyCFloatArray
             )
         else:
             actual_type = (
                 APyFloatArray if isinstance(bit_patterns, Iterable) else APyFloat
             )
+        if actual_type is APyCFloat and not isinstance(bit_patterns, tuple):
+            bit_patterns = (bit_patterns,)
         return actual_type.from_bits(bit_patterns, exp_bits, man_bits, bias)
