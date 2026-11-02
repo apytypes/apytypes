@@ -42,6 +42,34 @@ def test_add_zero_jam(man_bits: int, zero_man_bits: int, zero_bias: int):
 
 
 @pytest.mark.float_add
+@pytest.mark.float_sub
+@pytest.mark.parametrize("man_bits", [17, 61])
+@pytest.mark.parametrize(
+    ("quantization", "expected_sign", "expected_mantissa"),
+    [
+        (QuantizationMode.JAM, 0, 1),
+        (QuantizationMode.TIES_EVEN, 0, 0),
+        (QuantizationMode.TO_NEG, 1, 0),
+    ],
+)
+def test_add_sub_mixed_bias_cancellation(
+    man_bits: int,
+    quantization: QuantizationMode,
+    expected_sign: int,
+    expected_mantissa: int,
+):
+    lhs = APyFloat(0, 15, 0, 5, man_bits, bias=15)
+    rhs = APyFloat(1, 17, 0, 5, man_bits, bias=17)
+    expected = APyFloat(expected_sign, 0, expected_mantissa, 5, man_bits, bias=16)
+
+    with APyFloatQuantizationContext(quantization):
+        assert (lhs + rhs).is_identical(expected)
+        assert (rhs + lhs).is_identical(expected)
+        assert (lhs - (-rhs)).is_identical(expected)
+        assert (rhs - (-lhs)).is_identical(expected)
+
+
+@pytest.mark.float_add
 @pytest.mark.parametrize("man_bits", [2, 61])
 def test_add_mixed_bias_overflow_jam(man_bits: int):
     lhs = APyFloat(0, 21, 0, 5, man_bits, bias=5)
