@@ -187,7 +187,7 @@ Comparison matrix
 .. [#mpmathfootnote] ``mpmath`` can use ``gmpy`` as a backend to do faster arithmetic, but uses Python integers by default.
 
 
-Performance Comparison
+Performance comparison
 ----------------------
 
 This benchmark compares relevant fixed-point libraries from the list above.
@@ -199,7 +199,7 @@ It is updated every documentation build and may vary over time as the code is fu
 .. image:: _static/comparison_relative.png
     :alt: Benchmark relative to APyTypes for different fixed-point libraries.
 
-Feature Comparison
+Feature comparison
 ------------------
 
 .. image:: _static/comparison_matrix.png
