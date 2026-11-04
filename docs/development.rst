@@ -102,3 +102,18 @@ You can then see example usage of the script by running
     python run_berkeley_cases.py -h
 
 These are intended to more long running tests. If any bugs or deviations are found, dedicated tests should be added to the regular test suite.
+
+Build the documentation
+-----------------------
+
+First, Doxygen must be installed separately.
+
+Then, install the documentation dependencies and build the HTML documentation
+from the repository root:
+
+.. code-block:: bash
+
+    python -m pip install .[docs]
+    make -C docs html
+
+Open ``docs/_build/html/index.html`` in a browser to view the result.
