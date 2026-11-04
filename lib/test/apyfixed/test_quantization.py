@@ -495,12 +495,17 @@ def test_jam_unbiased(fixed_type: type[APyCFixed], im: complex):
 
 def test_stochastic_equal():
     #
-    # The probability of rounding `N` independent trials of
-    # `QuantizationMode.STOCH_EQUAL` up, follows a R.V. X, s.t.: X ~ Bin(N, 0.5).
-    # Set `p` and `N` such that Pr(X > pN) is escencially non-existent.
+    # Assume a number `y` is stochastically rounded to an integer `N` times. The number
+    # of times `y` is rounded up follows an R.V. X ~ Bin(N, p), where p = 0.5.
+    # Select a tolerance `t` such that
+    #
+    # * Pr(X > (p + t)*N) is essentially zero
+    # * Pr(X < (p - t)*N) is essentially zero
+    #
+    # Each tail has probability ~2.161e-41 for N = 50000, t = 0.03.
     #
     N = 50000
-    rel_tol = 0.030  # 3.0% tolerance ==> Pr(X > pN) == 2.161e-41
+    t = 0.030  # 3.0% tolerance ==> Pr(X > pN) == 2.161e-41
     frac_bits = 3
     mode = QuantizationMode.STOCH_EQUAL
     for i in range(2**frac_bits):
@@ -508,12 +513,12 @@ def test_stochastic_equal():
         for _ in range(N):
             fx = APyFixed(i, int_bits=20, frac_bits=frac_bits).cast(20, 0, mode)
             histogram[fx.to_bits()] += 1
-        assert histogram[0] <= N * (0.5 + rel_tol)
-        assert histogram[0] >= N * (0.5 - rel_tol)
-        assert histogram[1] <= N * (0.5 + rel_tol)
-        assert histogram[1] >= N * (0.5 - rel_tol)
+        assert histogram[0] <= N * (0.5 + t)
+        assert histogram[0] >= N * (0.5 - t)
+        assert histogram[1] <= N * (0.5 + t)
+        assert histogram[1] >= N * (0.5 - t)
 
-    # Stochastically "not" quantizing
+    # Stochastically "not" quantizing, i.e., nothing happens if nothing gets quantized.
     for frac_bits in range(10, 15):
         for _ in range(100):
             fx = APyFixed.from_float(5.0, int_bits=10, frac_bits=10)
@@ -522,35 +527,40 @@ def test_stochastic_equal():
             assert fx_cast.is_identical(fx_cast_ref)
 
 
-def test_stochastic_weighted():
+@pytest.mark.parametrize("frac_bits", [4, 5, 64, 128])
+def test_stochastic_weighted(frac_bits: int):
     #
-    # The probability of rounding `N` independent trials of
-    # `QuantizationMode.STOCH_WEIGHTED` up, follows a R.V. X, s.t.: X ~ Bin(N, k), where
-    # `k` = (x - floor(x))/(ceil(x) - floor(x)).
-    # Set `p` and `N` such that Pr(X >= pN) is escencially non-existent.
+    # Assume a number `y` is stochastically rounded to an integer `N` times. The number
+    # of times `y` is rounded up follows an R.V. X ~ Bin(N, p), where p = y - floor(y).
+    # Select a tolerance `t` such that
+    #
+    # * Pr(X > (p + t)*N) is essentially zero
+    # * Pr(X < (p - t)*N) is essentially zero
+    #
+    # The worst case happens when `p = 0.5`, where each tail has probability ~2.161e-41
+    # for N = 50000, t = 0.03.
     #
     N = 50000
-    rel_tol = 0.030  # 3.0% tolerance ==> Pr(X > pN) == 2.161e-41
-    frac_bits = 3
+    t = 0.030  # 3.0% tolerance
+    int_bits = 5
     mode = QuantizationMode.STOCH_WEIGHTED
-    for i in range(2**frac_bits):
-        k: float = i / 2**frac_bits
+    for i in range(2**4):
+        p: float = i / 2**4
         histogram: dict[int, int] = {0: 0, 1: 0}
         for _ in range(N):
-            fx = APyFixed(i, int_bits=20, frac_bits=frac_bits).cast(20, 0, mode)
+            fx = APyFixed.from_float(i / 2**4, int_bits, frac_bits).cast(2, 0, mode)
             histogram[fx.to_bits()] += 1
-        assert histogram[0] <= N * ((1 - k) + rel_tol)
-        assert histogram[0] >= N * ((1 - k) - rel_tol)
-        assert histogram[1] <= N * (k + rel_tol)
-        assert histogram[1] >= N * (k - rel_tol)
+        assert histogram[0] <= N * ((1 - p) + t)
+        assert histogram[0] >= N * ((1 - p) - t)
+        assert histogram[1] <= N * (p + t)
+        assert histogram[1] >= N * (p - t)
 
-    # Stochastically "not" quantizing
-    for frac_bits in range(10, 15):
-        for _ in range(100):
-            fx = APyFixed.from_float(5.0, int_bits=10, frac_bits=10)
-            fx_cast = fx.cast(int_bits=15, frac_bits=frac_bits, quantization=mode)
-            fx_cast_ref = APyFixed.from_float(5.0, int_bits=15, frac_bits=frac_bits)
-            assert fx_cast.is_identical(fx_cast_ref)
+    # Stochastically "not" quantizing, i.e., nothing happens if nothing gets quantized.
+    for _ in range(100):
+        fx = APyFixed.from_float(5.0, int_bits=10, frac_bits=10)
+        fx_cast = fx.cast(int_bits=15, frac_bits=frac_bits, quantization=mode)
+        fx_cast_ref = APyFixed.from_float(5.0, int_bits=15, frac_bits=frac_bits)
+        assert fx_cast.is_identical(fx_cast_ref)
 
 
 @pytest.mark.parametrize(
