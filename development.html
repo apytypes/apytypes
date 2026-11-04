@@ -389,6 +389,17 @@ python<span class="w"> </span>run_berkeley_cases.py<span class="w"> </span>-h
 </div>
 <p>These are intended to more long running tests. If any bugs or deviations are found, dedicated tests should be added to the regular test suite.</p>
 </section>
+<section id="build-the-documentation">
+<h2>Build the documentation<a class="headerlink" href="#build-the-documentation" title="Link to this heading">¶</a></h2>
+<p>First, Doxygen must be installed separately.</p>
+<p>Then, install the documentation dependencies and build the HTML documentation
+from the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>docs<span class="o">]</span>
+make<span class="w"> </span>-C<span class="w"> </span>docs<span class="w"> </span>html
+</pre></div>
+</div>
+<p>Open <code class="docutils literal notranslate"><span class="pre">docs/_build/html/index.html</span></code> in a browser to view the result.</p>
+</section>
 </section>
 
         </article>
@@ -462,6 +473,7 @@ python<span class="w"> </span>run_berkeley_cases.py<span class="w"> </span>-h
 <li><a class="reference internal" href="#run-test-suite">Run test suite</a></li>
 <li><a class="reference internal" href="#update-stub-files">Update stub files</a></li>
 <li><a class="reference internal" href="#run-floating-point-tests-vs-berkeley-testfloat">Run floating-point tests vs Berkeley TestFloat</a></li>
+<li><a class="reference internal" href="#build-the-documentation">Build the documentation</a></li>
 </ul>
 </li>
 </ul>
