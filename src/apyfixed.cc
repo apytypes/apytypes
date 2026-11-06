@@ -193,17 +193,31 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     ScratchVector<apy_limb_t, 16> scratch(scratch_size);
 
     // Perform the product
-    fixed_point_product(
-        std::begin(_data),                                    // src1
-        std::begin(rhs._data),                                // src2
-        std::begin(result._data),                             // dst
-        vector_size(),                                        // src1_limbs
-        rhs.vector_size(),                                    // src2_limbs
-        bits_to_limbs(res_bits),                              // dst_limbs
-        std::begin(scratch),                                  // op1_abs
-        std::begin(scratch) + _data.size(),                   // op2_abs
-        std::begin(scratch) + _data.size() + rhs._data.size() // prod_abs
-    );
+    if (vector_size() >= rhs.vector_size()) {
+        fixed_point_product<true>(
+            std::begin(_data),                                    // src1
+            std::begin(rhs._data),                                // src2
+            std::begin(result._data),                             // dst
+            vector_size(),                                        // src1_limbs
+            rhs.vector_size(),                                    // src2_limbs
+            bits_to_limbs(res_bits),                              // dst_limbs
+            std::begin(scratch),                                  // op1_abs
+            std::begin(scratch) + _data.size(),                   // op2_abs
+            std::begin(scratch) + _data.size() + rhs._data.size() // prod_abs
+        );
+    } else {
+        fixed_point_product<false>(
+            std::begin(_data),                                    // src1
+            std::begin(rhs._data),                                // src2
+            std::begin(result._data),                             // dst
+            vector_size(),                                        // src1_limbs
+            rhs.vector_size(),                                    // src2_limbs
+            bits_to_limbs(res_bits),                              // dst_limbs
+            std::begin(scratch),                                  // op1_abs
+            std::begin(scratch) + _data.size(),                   // op2_abs
+            std::begin(scratch) + _data.size() + rhs._data.size() // prod_abs
+        );
+    }
 
     return result;
 }
