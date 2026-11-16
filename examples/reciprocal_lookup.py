@@ -26,7 +26,7 @@ for i in range(2**6):
 
     meanreciprocal = (1 / start + 1 / stop) / 2
     float_table.append(meanreciprocal)
-    table[i] = apy.fx(meanreciprocal, 1, WL)
+    table[i] = meanreciprocal
 
 # %%
 # Print the resulting table
