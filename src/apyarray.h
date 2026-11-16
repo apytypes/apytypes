@@ -16,6 +16,7 @@
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>     // nanobind::ndarray
+#include <nanobind/stl/complex.h> // std::complex (with nanobind support)
 #include <nanobind/stl/string.h>  // std::string (with nanobind support)
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 #include <nanobind/stl/vector.h>  // std::vector (with nanobind support)
@@ -23,6 +24,7 @@ namespace nb = nanobind;
 
 #include <algorithm>   // std::min_element
 #include <cassert>     // assert
+#include <complex>     // std::complex
 #include <cstddef>     // std::size_t
 #include <functional>  // std::function, std::bind
 #include <iterator>    // std::begin
@@ -776,10 +778,20 @@ public:
         throw nb::value_error(err_msg.c_str());
     }
 
+    using set_item_value_t = std::conditional_t<
+        std::is_same_v<scalar_variant_t<ARRAY_TYPE>, APyCFixed>
+            || std::is_same_v<scalar_variant_t<ARRAY_TYPE>, APyCFloat>,
+        std::variant<
+            ARRAY_TYPE,
+            scalar_variant_t<ARRAY_TYPE>,
+            nb::int_,
+            nb::float_,
+            std::complex<double>>,
+        std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>, nb::int_, nb::float_>>;
+
     //! Set items in `*this` indexed by a boolean ndarray.
     void set_item_ndarray(
-        const nb::ndarray<bool, nb::c_contig>& key,
-        const std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>& val
+        const nb::ndarray<bool, nb::c_contig>& key, const set_item_value_t& val
     )
     {
         if (key.ndim() == 0) {
@@ -824,11 +836,47 @@ public:
     }
 
     //! Python exported `__setitem__` method for APyArrays
-    void set_item(
-        const PyArrayKey_t& key,
-        const std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>& val
-    )
+    void set_item(const PyArrayKey_t& key, const set_item_value_t& val)
     {
+        using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
+        constexpr bool is_complex = std::is_same_v<SCALAR_TYPE, APyCFixed>
+            || std::is_same_v<SCALAR_TYPE, APyCFloat>;
+        bool is_number = std::holds_alternative<nb::int_>(val)
+            || std::holds_alternative<nb::float_>(val);
+        if constexpr (is_complex) {
+            is_number = is_number || std::holds_alternative<std::complex<double>>(val);
+        }
+        if (is_number) {
+            nb::object number;
+            if (std::holds_alternative<nb::int_>(val)) {
+                number = std::get<nb::int_>(val);
+            } else if (std::holds_alternative<nb::float_>(val)) {
+                number = std::get<nb::float_>(val);
+            } else if constexpr (is_complex) {
+                number = nb::cast(std::get<std::complex<double>>(val));
+            }
+            SCALAR_TYPE spec = static_cast<const ARRAY_TYPE*>(this)->create_scalar();
+            SCALAR_TYPE scalar = [&]() {
+                if constexpr (
+                    std::is_same_v<SCALAR_TYPE, APyFixed>
+                    || std::is_same_v<SCALAR_TYPE, APyCFixed>
+                ) {
+                    return SCALAR_TYPE::from_number(
+                        number, spec.int_bits(), spec.frac_bits()
+                    );
+                } else {
+                    return SCALAR_TYPE::from_number(
+                        number,
+                        spec.get_exp_bits(),
+                        spec.get_man_bits(),
+                        spec.get_bias()
+                    );
+                }
+            }();
+            set_item(key, scalar);
+            return;
+        }
+
         if (std::holds_alternative<nb::ndarray<bool, nb::c_contig>>(key)) {
             auto&& bool_key = std::get<nb::ndarray<bool, nb::c_contig>>(key);
             set_item_ndarray(bool_key, val);
@@ -850,8 +898,8 @@ public:
         // Resolve the tuple of ellipsis objects and flatten to `std::vector` key
         auto&& cpp_key = resolve_python_tuple_slice(python_tuple_key, "__setitem__");
 
-        if (std::holds_alternative<scalar_variant_t<ARRAY_TYPE>>(val)) {
-            set_item_from_scalar(cpp_key, std::get<scalar_variant_t<ARRAY_TYPE>>(val));
+        if (std::holds_alternative<SCALAR_TYPE>(val)) {
+            set_item_from_scalar(cpp_key, std::get<SCALAR_TYPE>(val));
         } else { /* (std::holds_alternative<ARRAY_TYPE>(val)) */
             set_item_from_array(cpp_key, std::get<ARRAY_TYPE>(val));
         }

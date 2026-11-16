@@ -16,6 +16,88 @@ from apytypes import (
 
 
 @pytest.mark.parametrize(
+    ("array_type", "scalar_type", "format_args"),
+    [
+        (APyFixedArray, APyFixed, {"int_bits": 4, "frac_bits": 2}),
+        (APyFixedArray, APyFixed, {"int_bits": 80, "frac_bits": 7}),
+        (APyCFixedArray, APyCFixed, {"int_bits": 4, "frac_bits": 2}),
+        (APyCFixedArray, APyCFixed, {"int_bits": 80, "frac_bits": 7}),
+        (APyFloatArray, APyFloat, {"exp_bits": 8, "man_bits": 10, "bias": 91}),
+        (APyCFloatArray, APyCFloat, {"exp_bits": 8, "man_bits": 10, "bias": 91}),
+    ],
+)
+@pytest.mark.parametrize("value", [0, -3, (1 << 70) + 3, 1.3125, -0.0])
+@pytest.mark.parametrize("index_kind", ["element", "row", "slice", "ellipsis", "mask"])
+def test_set_item_python_number(
+    array_type, scalar_type, format_args, value, index_kind
+):
+    check_set_item_python_number(
+        array_type, scalar_type, format_args, value, index_kind
+    )
+
+
+def check_set_item_python_number(
+    array_type, scalar_type, format_args, value, index_kind
+):
+    array = array_type.from_float([[1, 2, 3], [4, 5, 6]], **format_args)
+    expected = array.copy()
+    scalar = scalar_type.from_float(value, spec=array)
+
+    if index_kind == "element":
+        key = (1, 2)
+    elif index_kind == "row":
+        key = 0
+    elif index_kind == "slice":
+        key = (slice(None), slice(None, None, 2))
+    elif index_kind == "ellipsis":
+        key = Ellipsis
+    else:
+        np = pytest.importorskip("numpy")
+        key = np.array([[True, False, True], [False, True, False]])
+
+    array[key] = value
+    expected[key] = scalar
+    assert array.is_identical(expected)
+
+
+@pytest.mark.parametrize(
+    ("array_type", "scalar_type", "format_args"),
+    [
+        (APyCFixedArray, APyCFixed, {"int_bits": 4, "frac_bits": 2}),
+        (APyCFixedArray, APyCFixed, {"int_bits": 180, "frac_bits": 7}),
+        (APyCFloatArray, APyCFloat, {"exp_bits": 8, "man_bits": 10, "bias": 91}),
+    ],
+)
+@pytest.mark.parametrize(
+    "value", [1.3125 - 2.625j, -11.75 + 9.125j, complex(-0.0, -0.0)]
+)
+@pytest.mark.parametrize("index_kind", ["element", "row", "slice", "ellipsis", "mask"])
+def test_set_item_python_complex(
+    array_type, scalar_type, format_args, value, index_kind
+):
+    check_set_item_python_number(
+        array_type, scalar_type, format_args, value, index_kind
+    )
+
+
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
+@pytest.mark.parametrize("value", [[1, 2], "1"])
+def test_set_item_rejects_python_non_real(array_type, value):
+    array = array_type.from_float([0], 10, 10)
+    with pytest.raises(TypeError):
+        array[0] = value
+
+
+@pytest.mark.parametrize("array_type", [APyFixedArray, APyFloatArray])
+def test_set_item_real_array_rejects_python_complex(array_type):
+    array = array_type.from_float([0], 10, 10)
+    with pytest.raises(TypeError):
+        array[0] = 1 + 2j
+
+
+@pytest.mark.parametrize(
     ("APyArray", "APyScalar"),
     [
         (APyFixedArray, APyFixed),

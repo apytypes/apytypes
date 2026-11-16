@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   object that the new object will inherit all properties (number of bits etc) from.
 - `next_up` and `next_down` for real fixed-point scalars and real arrays.
 - Utility function `nextafter` for real arrays.
+- Direct assignment of Python numeric types to APyTypes arrays.
 
 ### Fixed
 
