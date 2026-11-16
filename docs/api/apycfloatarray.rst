@@ -8,6 +8,8 @@
 
    .. automethod:: __init__
 
+   See :ref:`array-assignment` for assigning Python numbers to array elements.
+
    Conversion to other types
    -------------------------
 
