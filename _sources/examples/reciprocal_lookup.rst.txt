@@ -49,7 +49,7 @@ single-precision floating-point representation.
 
         meanreciprocal = (1 / start + 1 / stop) / 2
         float_table.append(meanreciprocal)
-        table[i] = apy.fx(meanreciprocal, 1, WL)
+        table[i] = meanreciprocal
 
 
 
@@ -247,7 +247,7 @@ Plot resulting errors
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.292 seconds)
+   **Total running time of the script:** (0 minutes 0.151 seconds)
 
 
 .. _sphx_glr_download_examples_reciprocal_lookup.py:

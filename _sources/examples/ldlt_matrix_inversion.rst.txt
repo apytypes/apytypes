@@ -27,7 +27,7 @@ which is useful for determining the required word length, testing, and verificat
 
 First, we define the LDLT decomposition and matrix inversion functions using NumPy arrays.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-128
+.. GENERATED FROM PYTHON SOURCE LINES 11-127
 
 .. code-block:: Python
 
@@ -105,15 +105,14 @@ First, we define the LDLT decomposition and matrix inversion functions using Num
             Ainv = np.zeros((n, n), dtype=float)
 
         for col in range(n):
-            # e_col
-            e = np.zeros(n, dtype=float)
-            e[col] = 1.0
-
             # Solve L z = e (forward substitution)
             if isinstance(A, apy.APyFloatArray):
+                e = apy.zeros(n, spec=A)
                 z = apy.zeros(n, spec=A)
             else:
+                e = np.zeros(n, dtype=float)
                 z = np.zeros(n, dtype=float)
+            e[col] = 1.0
             for i in range(n):
                 s = apy.fp(0.0, spec=A) if isinstance(A, apy.APyFloatArray) else 0.0
                 for k in range(i):
@@ -155,13 +154,13 @@ First, we define the LDLT decomposition and matrix inversion functions using Num
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 129-132
+.. GENERATED FROM PYTHON SOURCE LINES 128-131
 
 Define a symmetric positive definite matrix and compute its inverse using NumPy for reference.
 
 Ideally one should run over a range of matrices, but for demonstration purposes we will use a single matrix here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-139
+.. GENERATED FROM PYTHON SOURCE LINES 131-138
 
 .. code-block:: Python
 
@@ -179,11 +178,11 @@ Ideally one should run over a range of matrices, but for demonstration purposes 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 140-141
+.. GENERATED FROM PYTHON SOURCE LINES 139-140
 
 Now we will test the LDLT inversion using APyTypes with various configurations of exponent bits, mantissa bits, and bias offsets.
 
-.. GENERATED FROM PYTHON SOURCE LINES 141-164
+.. GENERATED FROM PYTHON SOURCE LINES 140-163
 
 .. code-block:: Python
 
@@ -219,17 +218,17 @@ Now we will test the LDLT inversion using APyTypes with various configurations o
  .. code-block:: none
 
     Starting APyTypes LDLT inverse tests...
-    /home/runner/work/apytypes/apytypes/examples/ldlt_matrix_inversion.py:159: RuntimeWarning: invalid value encountered in subtract
+    /home/runner/work/apytypes/apytypes/examples/ldlt_matrix_inversion.py:158: RuntimeWarning: invalid value encountered in subtract
       error_apytypes[i, j, k] = np.linalg.norm(apy_ldlt.to_numpy() - reference)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-166
+.. GENERATED FROM PYTHON SOURCE LINES 164-165
 
 Plot the errors for different configurations of exponent bits, mantissa bits, and bias offsets
 
-.. GENERATED FROM PYTHON SOURCE LINES 166-191
+.. GENERATED FROM PYTHON SOURCE LINES 165-190
 
 .. code-block:: Python
 
@@ -282,7 +281,7 @@ Plot the errors for different configurations of exponent bits, mantissa bits, an
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.221 seconds)
+   **Total running time of the script:** (0 minutes 0.109 seconds)
 
 
 .. _sphx_glr_download_examples_ldlt_matrix_inversion.py:
