@@ -82,15 +82,14 @@ def inverse_from_ldl(
         Ainv = np.zeros((n, n), dtype=float)
 
     for col in range(n):
-        # e_col
-        e = np.zeros(n, dtype=float)
-        e[col] = 1.0
-
         # Solve L z = e (forward substitution)
         if isinstance(A, apy.APyFloatArray):
+            e = apy.zeros(n, spec=A)
             z = apy.zeros(n, spec=A)
         else:
+            e = np.zeros(n, dtype=float)
             z = np.zeros(n, dtype=float)
+        e[col] = 1.0
         for i in range(n):
             s = apy.fp(0.0, spec=A) if isinstance(A, apy.APyFloatArray) else 0.0
             for k in range(i):
