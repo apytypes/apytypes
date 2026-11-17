@@ -14,6 +14,7 @@ void bind_common(nb::module_& m);
 void bind_context_manager(nb::module_& m);
 void bind_fixed(nb::module_& m);
 void bind_fixed_array(nb::module_& m);
+void bind_ufixed(nb::module_& m);
 void bind_float(nb::module_& m);
 void bind_float_array(nb::module_& m);
 void bind_quantization_context(nb::module_& m);
@@ -26,6 +27,7 @@ NB_MODULE(_apytypes, m)
     bind_cfloat(m);
     bind_cfloat_array(m);
     bind_fixed(m);
+    bind_ufixed(m);
     bind_fixed_array(m);
     bind_float(m);
     bind_float_array(m);
