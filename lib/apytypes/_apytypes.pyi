@@ -4838,6 +4838,20 @@ class APyFixed:
         :class:`APyFixed`
         """
 
+    def __int__(self) -> int:
+        """
+        Convert to a Python integer, truncating toward zero.
+
+        .. versionadded:: 0.6
+        """
+
+    def __trunc__(self) -> int:
+        """
+        Convert to a Python integer, truncating toward zero.
+
+        .. versionadded:: 0.6
+        """
+
     def __float__(self) -> float: ...
     def __repr__(self) -> str: ...
     def __str__(self, base: int = 10) -> str: ...

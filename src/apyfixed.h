@@ -348,6 +348,7 @@ public:
 public:
     //! Convert number to double.
     double to_double() const;
+    nb::int_ to_integer() const;
     std::string to_string(int base = 10) const;
     std::string to_string_hex() const;
     std::string to_string_oct() const;
