@@ -1,4 +1,5 @@
 import fractions
+import math
 
 import pytest
 
@@ -164,6 +165,29 @@ def test_bit_specifier_getters(APyFix):
     assert APyFix(0, bits=12345, int_bits=12).bits == 12345
     assert APyFix(0, bits=12345, int_bits=12).int_bits == 12
     assert APyFix(0, bits=12345, int_bits=12).frac_bits == 12345 - 12
+
+
+@pytest.mark.parametrize("conversion", [int, math.trunc])
+@pytest.mark.parametrize(
+    ("bit_pattern", "bits", "int_bits", "expected"),
+    [
+        (0, 8, 4, 0),
+        (27, 8, 4, 1),
+        (-27, 8, 4, -1),
+        (-16, 8, 4, -1),
+        (-1, 8, 4, 0),
+        (-128, 8, 0, 0),
+        (-128, 8, -20, 0),
+        (27, 8, 12, 432),
+        (-27, 8, 12, -432),
+        ((1 << 180) + (5 << 40) + 7, 200, 160, (1 << 140) + 5),
+        (-((1 << 180) + (5 << 40) + 7), 200, 160, -((1 << 140) + 5)),
+    ],
+)
+def test_to_int(bit_pattern, bits, int_bits, expected, conversion):
+    result = conversion(APyFixed(bit_pattern, bits=bits, int_bits=int_bits))
+    assert type(result) is int
+    assert result == expected
 
 
 def test_to_float():

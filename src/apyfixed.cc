@@ -842,6 +842,27 @@ double APyFixed::to_double() const
     return converter(std::begin(_data), std::end(_data));
 }
 
+nb::int_ APyFixed::to_integer() const
+{
+    if (int_bits() <= 0) {
+        return nb::int_(0);
+    }
+    APyFixed integer(int_bits(), int_bits());
+    fixed_point_cast(
+        std::begin(_data),
+        std::end(_data),
+        std::begin(integer._data),
+        std::end(integer._data),
+        _bits,
+        _int_bits,
+        int_bits(),
+        int_bits(),
+        QuantizationMode::TRN_ZERO,
+        OverflowMode::WRAP
+    );
+    return python_limb_vec_to_long(integer._data.begin(), integer._data.end(), true);
+}
+
 nb::int_ APyFixed::to_bits() const
 {
     return python_limb_vec_to_long(

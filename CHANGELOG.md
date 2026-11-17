@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `next_up` and `next_down` for real fixed-point scalars and real arrays.
 - Utility function `nextafter` for real arrays.
 - Direct assignment of Python numeric types to APyTypes arrays.
+- `__int__` and `__trunc__` for `APyFixed`.
 
 ### Fixed
 

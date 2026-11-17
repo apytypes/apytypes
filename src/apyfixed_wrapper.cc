@@ -588,6 +588,24 @@ void bind_fixed(nb::module_& m)
             :class:`APyFixed`
             )pbdoc"
         )
+        .def(
+            "__int__",
+            &APyFixed::to_integer,
+            R"pbdoc(
+            Convert to a Python integer, truncating toward zero.
+
+            .. versionadded:: 0.6
+            )pbdoc"
+        )
+        .def(
+            "__trunc__",
+            &APyFixed::to_integer,
+            R"pbdoc(
+            Convert to a Python integer, truncating toward zero.
+
+            .. versionadded:: 0.6
+            )pbdoc"
+        )
         .def("__float__", &APyFixed::operator double)
         .def("__repr__", &APyFixed::repr)
         .def("__str__", &APyFixed::to_string, nb::arg("base") = 10)
