@@ -778,6 +778,33 @@ APyFixed APyFloat::to_fixed() const
     return res;
 }
 
+nb::int_ APyFloat::to_integer() const
+{
+    if (is_nan()) {
+        throw nb::value_error("cannot convert float NaN to integer");
+    }
+    if (is_inf()) {
+        PyErr_SetString(
+            PyExc_OverflowError, "cannot convert float infinity to integer"
+        );
+        throw nb::python_error();
+    }
+    // is_zero covers the case when the bias is zero
+    if (true_exp() < 0 || is_zero()) {
+        return nb::int_(0);
+    }
+
+    const std::int64_t shift = true_exp() - man_bits;
+    const nb::int_ significand(true_man());
+    const nb::int_ shift_amount(shift < 0 ? -shift : shift);
+    nb::object result
+        = shift < 0 ? significand >> shift_amount : significand << shift_amount;
+    if (sign) {
+        result = -result;
+    }
+    return nb::cast<nb::int_>(result);
+}
+
 std::tuple<APyFloatSpec::Tuple, APyFloatData::Tuple> APyFloat::python_pickle() const
 {
     return std::make_tuple(spec().to_tuple(), get_data().to_tuple());
