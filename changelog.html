@@ -341,8 +341,9 @@ object that the new object will inherit all properties (number of bits etc) from
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Nearest-even rounding across a full fixed-point limb now preserves the sign
-for scalar and array casts and for floating-point bit export (#1043).</p></li>
+<li><p>Bug where fixed-point rounding can cause overflow if the number of bits
+are exactly a multiple of the limb size. In turn, an overflow bug in
+<code class="docutils literal notranslate"><span class="pre">from_float</span></code> for binary64 floating-point is fixed (#1043).</p></li>
 <li><p>Proper nesting using multiple levels of APyTypes contexts.</p></li>
 <li><p>Utility functions <code class="docutils literal notranslate"><span class="pre">fp</span></code> and <code class="docutils literal notranslate"><span class="pre">fx</span></code> automatically detect complex-valued arrays.</p></li>
 <li><p>Correct output bias for logical operations on <code class="docutils literal notranslate"><span class="pre">APyFloat</span></code>.</p></li>
