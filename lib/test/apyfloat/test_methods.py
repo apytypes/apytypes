@@ -1,9 +1,45 @@
+import math
 import numbers
 from itertools import permutations as perm
 
 import pytest
 
 from apytypes import APyCFloat, APyFixed, APyFloat
+
+
+@pytest.mark.parametrize("conversion", [int, math.trunc])
+@pytest.mark.parametrize(
+    ("sign", "exp", "man", "exp_bits", "man_bits", "bias", "expected"),
+    [
+        (0, 0, 0, 5, 3, 15, 0),
+        (1, 0, 0, 5, 3, 15, 0),
+        (0, 0, 7, 5, 3, 15, 0),
+        (0, 0, 7, 5, 3, 0, 1),
+        (1, 0, 7, 5, 3, 0, -1),
+        (0, 14, 7, 5, 3, 15, 0),
+        (1, 15, 7, 5, 3, 15, -1),
+        (0, 15, 0, 5, 3, 15, 1),
+        (0, 16, 5, 5, 3, 15, 3),
+        (1, 16, 5, 5, 3, 15, -3),
+        (0, 2000, 1, 12, 3, 1, 9 << 1996),
+        (1, 2000, 1, 12, 3, 1, -(9 << 1996)),
+        (0, 15, (1 << 60) - 1, 5, 60, 15, 1),
+    ],
+)
+def test_to_int(sign, exp, man, exp_bits, man_bits, bias, expected, conversion):
+    value = APyFloat(sign, exp, man, exp_bits, man_bits, bias)
+    result = conversion(value)
+    assert type(result) is int
+    assert result == expected
+
+
+@pytest.mark.parametrize("conversion", [int, math.trunc])
+@pytest.mark.parametrize("sign", [0, 1])
+def test_to_int_special_values(conversion, sign):
+    with pytest.raises(OverflowError, match="cannot convert float infinity to integer"):
+        conversion(APyFloat(sign, 31, 0, 5, 3))
+    with pytest.raises(ValueError, match="cannot convert float NaN to integer"):
+        conversion(APyFloat(sign, 31, 1, 5, 3))
 
 
 def real_is_nan(fp: APyFloat | APyCFloat) -> bool:

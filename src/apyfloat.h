@@ -169,6 +169,7 @@ public:
     );
     //! Cast to `double`
     double to_double() const;
+    nb::int_ to_integer() const;
     //! Cast to `double`
     operator double() const;
 

@@ -290,6 +290,24 @@ void bind_float(nb::module_& m)
             .. versionadded:: 0.6
             )pbdoc"
         )
+        .def(
+            "__int__",
+            &APyFloat::to_integer,
+            R"pbdoc(
+            Convert to a Python integer, truncating toward zero.
+
+            .. versionadded:: 0.6
+            )pbdoc"
+        )
+        .def(
+            "__trunc__",
+            &APyFloat::to_integer,
+            R"pbdoc(
+            Convert to a Python integer, truncating toward zero.
+
+            .. versionadded:: 0.6
+            )pbdoc"
+        )
         .def("__float__", &APyFloat::operator double)
         .def_static(
             "from_bits",

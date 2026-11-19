@@ -6717,6 +6717,20 @@ class APyFloat:
         .. versionadded:: 0.6
         """
 
+    def __int__(self) -> int:
+        """
+        Convert to a Python integer, truncating toward zero.
+
+        .. versionadded:: 0.6
+        """
+
+    def __trunc__(self) -> int:
+        """
+        Convert to a Python integer, truncating toward zero.
+
+        .. versionadded:: 0.6
+        """
+
     def __float__(self) -> float: ...
     @staticmethod
     def from_bits(
