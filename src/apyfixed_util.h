@@ -654,9 +654,9 @@ static APY_INLINE void _overflow_twos_complement(
 )
 {
     (void)int_bits;
-    (void)it_begin;
+    (void)it_end;
     if (bits % APY_LIMB_SIZE_BITS) {
-        RANDOM_ACCESS_ITERATOR ms_limb_it = std::prev(it_end);
+        RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
         unsigned shift_amount = APY_LIMB_SIZE_BITS - (bits % APY_LIMB_SIZE_BITS);
         *ms_limb_it = apy_limb_signed_t(*ms_limb_it << shift_amount) >> shift_amount;
     }
@@ -749,12 +749,22 @@ static void overflow(
  * *    Fixed-point iterator based casting with quantization and overflowing        * *
  * ********************************************************************************** */
 
+//! Temporary word length preserving the source before and after rescaling, so that
+//! overflow handling sees the full quantized value, including its sign.
+static APY_INLINE int
+fixed_point_cast_bits(int src_bits, int src_int_bits, int dst_bits, int dst_int_bits)
+{
+    return std::max({ src_bits, dst_bits, src_int_bits + (dst_bits - dst_int_bits) });
+}
+
 /*!
  * General casting method for fixed-point numbers. General casting can perform both
  * quantization and overflowing. The size of the output region
  * (`std::distance(dst_begin, dst_end)`) must be greater than or equal to the size of
- * the input region (`std::distance(src_begin, src_end)`), even when the output
- * bit-specifiers are smaller then the input bit-specifiers (hence the name unsafe).
+ * the input region (`std::distance(src_begin, src_end)`) and must hold the rescaled
+ * source without overflow. `fixed_point_cast_bits()` gives a sufficient word length,
+ * even when the output bit-specifiers are smaller than the input bit-specifiers
+ * (hence the name unsafe).
  */
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
 static APY_INLINE void fixed_point_cast_unsafe(
@@ -820,10 +830,16 @@ static APY_INLINE void fixed_point_cast(
         );
     };
 
-    if (std::distance(src_begin, src_end) <= std::distance(dst_begin, dst_end)) {
+    const auto tmp_limbs = std::max(
+        std::distance(src_begin, src_end),
+        std::ptrdiff_t(bits_to_limbs(
+            fixed_point_cast_bits(src_bits, src_int_bits, dst_bits, dst_int_bits)
+        ))
+    );
+    if (tmp_limbs <= std::distance(dst_begin, dst_end)) {
         FX_CAST_UNSAFE(src_begin, src_end, dst_begin, dst_end);
     } else {
-        ScratchVector<apy_limb_t, 8> res(std::distance(src_begin, src_end));
+        ScratchVector<apy_limb_t, 8> res(tmp_limbs);
         FX_CAST_UNSAFE(src_begin, src_end, std::begin(res), std::end(res));
         std::copy_n(std::begin(res), bits_to_limbs(dst_bits), dst_begin);
     }

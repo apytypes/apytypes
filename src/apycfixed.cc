@@ -1154,7 +1154,9 @@ APyCFixed APyCFixed::cast(
     const auto overflow_mode = overflow.value_or(cast_option.overflow);
 
     // Result that temporarily can hold all the necessary bits
-    APyCFixed result(std::max(new_bits, _bits), new_int_bits);
+    APyCFixed result(
+        fixed_point_cast_bits(_bits, _int_bits, new_bits, new_int_bits), new_int_bits
+    );
 
     // Real part
     fixed_point_cast_unsafe(

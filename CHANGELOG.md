@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Wrapped fixed-point casts from multi-limb sources now store the correct signed value.
+- Fixed-point saturation when a cast adds fractional bits and rescaling exceeds the
+  source storage width.
 - Bug where fixed-point rounding can cause overflow if the number of bits
   are exactly a multiple of the limb size. In turn, an overflow bug in
   `from_float` for binary64 floating-point is fixed (#1043).
