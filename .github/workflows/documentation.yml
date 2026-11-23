@@ -79,7 +79,7 @@ jobs:
       - name: Generate preview deploy token
         id: preview-app-token
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc  # v3.4.0
         with:
           client-id: ${{ secrets.PREVIEW_APP_ID }}
           private-key: ${{ secrets.PREVIEW_APP_PRIVATE_KEY }}
@@ -105,7 +105,7 @@ jobs:
             git -C apytypes-preview push origin gh-pages
           fi
       - name: Deploy PR preview
-        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9  # v1.8.1
+        uses: rossjrw/pr-preview-action@873417d2df72380da1f3978378fb58560bcde976  # v1.8.2
         if: ${{ github.event_name == 'pull_request' }}
         with:
           source-dir: docs/_build/html
@@ -277,14 +277,14 @@ jobs:
           persist-credentials: false
       - name: Generate preview deploy token
         id: preview-app-token
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc  # v3.4.0
         with:
           app-id: ${{ secrets.PREVIEW_APP_ID }}
           private-key: ${{ secrets.PREVIEW_APP_PRIVATE_KEY }}
           owner: apytypes
           repositories: apytypes-preview
       - name: Remove PR preview
-        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9  # v1.8.1
+        uses: rossjrw/pr-preview-action@873417d2df72380da1f3978378fb58560bcde976  # v1.8.2
         with:
           source-dir: docs/_build/html
           # Preview is deployed to a separate repo so it stays off the apytypes.org custom domain
