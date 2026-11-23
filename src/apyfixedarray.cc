@@ -2168,7 +2168,9 @@ APyFixedArray APyFixedArray::cast(
 
     // The new result array (`bit_specifier_sanitize()` called in constructor)
     std::size_t result_limbs = bits_to_limbs(new_bits);
-    std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
+    std::size_t pad_limbs
+        = bits_to_limbs(fixed_point_cast_bits(_bits, _int_bits, new_bits, new_int_bits))
+        - result_limbs;
     APyFixedArray::vector_type result_data(
         checked_size_mul(_nitems, result_limbs) + pad_limbs
     );
