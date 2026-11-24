@@ -341,6 +341,9 @@ object that the new object will inherit all properties (number of bits etc) from
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
+<li><p>Wrapped fixed-point casts from multi-limb sources now store the correct signed value.</p></li>
+<li><p>Fixed-point saturation when a cast adds fractional bits and rescaling exceeds the
+source storage width.</p></li>
 <li><p>Bug where fixed-point rounding can cause overflow if the number of bits
 are exactly a multiple of the limb size. In turn, an overflow bug in
 <code class="docutils literal notranslate"><span class="pre">from_float</span></code> for binary64 floating-point is fixed (#1043).</p></li>
